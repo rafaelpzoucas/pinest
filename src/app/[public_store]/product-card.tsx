@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/format-number'
 import { cn } from '@/lib/utils'
 import { cva, type VariantProps } from 'class-variance-authority'
 import Image, { StaticImageData } from 'next/image'
@@ -41,24 +42,7 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
         <Image src={data.thumb_url} fill alt="" className="object-cover" />
       </Card>
 
-      <div className="flex flex-col space-y-2">
-        <h3
-          className={cn(
-            'line-clamp-2',
-            variant === 'bag_items' && 'line-clamp-1',
-          )}
-        >
-          {data.title}
-        </h3>
-        <p
-          className={cn(
-            'text-xs text-muted-foreground line-clamp-2',
-            variant === 'bag_items' && 'hidden',
-          )}
-        >
-          {data.description}
-        </p>
-
+      <div className="flex flex-col gap-3">
         <div className="leading-4">
           <p
             className={cn(
@@ -67,10 +51,7 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
                 'font-light text-xs text-muted-foreground line-through',
             )}
           >
-            {Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            }).format(data.price)}
+            {formatCurrency(data.price)}
           </p>
           <p
             className={cn(
@@ -78,12 +59,18 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
               isPromotional && 'block',
             )}
           >
-            {Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            }).format(data.promotional_price)}
+            {formatCurrency(data.promotional_price)}
           </p>
         </div>
+
+        <p
+          className={cn(
+            'line-clamp-2 text-muted-foreground text-sm',
+            variant === 'bag_items' && 'line-clamp-1',
+          )}
+        >
+          {data.title}
+        </p>
       </div>
     </div>
   )

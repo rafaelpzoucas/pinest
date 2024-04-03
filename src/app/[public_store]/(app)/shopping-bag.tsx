@@ -1,19 +1,11 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
 import { ShoppingBag as Bag } from 'lucide-react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import burgerImg from '../../../../public/teste/burger.jpg'
-import { ProductCard, ProductDataType } from './home/product-card'
+import { ProductDataType } from './home/product-card'
 
 const bagItems: ProductDataType[] = [
   {
@@ -61,32 +53,13 @@ export function ShoppingBagIsland() {
   }
 
   return (
-    <Drawer>
-      <DrawerTrigger asChild>
-        <Card className="flex flex-row items-center gap-3 p-3 w-full text-sm">
-          <Bag className="w-5 h-5" />
-          <strong>Ver sacola ({1})</strong>
+    <Link href="/loja-teste/cart">
+      <Card className="flex flex-row items-center gap-3 p-3 w-full text-sm bg-primary text-primary-foreground">
+        <Bag className="w-5 h-5" />
+        <strong>Ver sacola ({1})</strong>
 
-          <strong className="ml-auto">R$ 60,00</strong>
-        </Card>
-      </DrawerTrigger>
-      <DrawerContent className="outline-none">
-        <DrawerHeader>
-          <DrawerTitle>Minha sacola</DrawerTitle>
-        </DrawerHeader>
-        <main className="flex flex-col gap-5 p-4">
-          {bagItems.map((product) => (
-            <ProductCard
-              key={product.title}
-              variant={'bag_items'}
-              data={product}
-            />
-          ))}
-        </main>
-        <DrawerFooter>
-          <Button>Finalizar compra</Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        <strong className="ml-auto">R$ 60,00</strong>
+      </Card>
+    </Link>
   )
 }

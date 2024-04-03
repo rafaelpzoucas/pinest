@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/carousel'
 import { ProductCard, ProductDataType } from './product-card'
 
-import burgerImg from '../../../../../public/teste/burger.jpg'
+import burgerImg from '../../../public/teste/burger.jpg'
 
 const topSellers: ProductDataType[] = [
   {
@@ -47,7 +47,11 @@ export function TopSellers() {
     <section className="space-y-4 p-4">
       <h1 className="text-lg font-bold uppercase">Mais vendidos</h1>
 
-      <Carousel>
+      <Carousel
+        opts={{
+          dragFree: true,
+        }}
+      >
         <CarouselContent>
           {topSellers.map((product) => (
             <CarouselItem className="flex-[0_0_40%]" key={product.title}>

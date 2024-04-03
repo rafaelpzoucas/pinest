@@ -1,9 +1,9 @@
 import { ProductCard } from './product-card'
 
 import Link from 'next/link'
-import burgerImg from '../../../../../public/teste/burger.jpg'
-import drinkImg from '../../../../../public/teste/coca.webp'
-import dessertImg from '../../../../../public/teste/doce.jpg'
+import burgerImg from '../../../public/teste/burger.jpg'
+import drinkImg from '../../../public/teste/coca.webp'
+import dessertImg from '../../../public/teste/doce.jpg'
 
 export function ProductsList() {
   const categories = [

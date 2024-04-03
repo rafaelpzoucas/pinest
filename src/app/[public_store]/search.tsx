@@ -37,7 +37,7 @@ export function Search() {
             </AccordionTrigger>
           </div>
 
-          <AccordionContent className="flex flex-row flex-wrap gap-2 mt-4">
+          <AccordionContent className="flex flex-row flex-wrap gap-2 mt-4 pb-0">
             {categories.map((category) => (
               <a href={category.link} key={category.link}>
                 <Badge>{category.name}</Badge>

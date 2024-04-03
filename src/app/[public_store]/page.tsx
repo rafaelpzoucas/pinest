@@ -1,35 +1,58 @@
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import loginImage from '../../../public/undraw_breakfast_psiw.svg'
-import Link from 'next/link'
+'use client'
 
-export default function PublicStorePage({
-  params,
-}: {
-  params: { public_store: string }
-}) {
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Menu, ScrollText } from 'lucide-react'
+import { HeaderDeliveryInfo } from './header-delivery-info'
+import { ProductsList } from './products-list'
+import { Promotions } from './promotions'
+import { Search } from './search'
+import { TopSellers } from './top-sellers'
+
+export default function HomePage() {
   return (
-    <main className="flex flex-col items-center gap-12 p-4 py-8">
-      <header className="w-full">
-        <h1 className="text-2xl font-bold">Olá, visitante</h1>
-        <p className="text-muted-foreground">Para começar, faça o seu login</p>
+    <main>
+      <header className="relative p-4 py-6 bg-secondary">
+        <div className="flex flex-col gap-4">
+          <Avatar className="w-20 h-20">
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+
+          <div>
+            <strong className="line-clamp-1 max-w-[235px]">
+              Cantinho do Hot Dog
+            </strong>
+
+            <div className="flex flex-row gap-2 text-xs text-muted-foreground mt-1">
+              <strong className="text-emerald-600 uppercase whitespace-nowrap">
+                Aberto agora
+              </strong>
+              <span>&bull;</span>
+              <span className="whitespace-nowrap">Fecha em 20min</span>
+            </div>
+          </div>
+        </div>
+
+        <HeaderDeliveryInfo />
+
+        <div className="absolute top-4 right-4 flex flex-row gap-3">
+          <Button variant={'ghost'} size={'icon'}>
+            <ScrollText />
+          </Button>
+          <Button variant={'ghost'} size={'icon'}>
+            <Menu />
+          </Button>
+        </div>
       </header>
 
-      <Image src={loginImage} width={350} height={350} alt="" />
+      <Search />
 
-      <div className="flex flex-col gap-2 w-full">
-        <Button variant={'outline'} className="w-full">
-          Continuar com o Google
-        </Button>
-        <Button variant={'outline'} className="w-full">
-          Continuar com o Apple ID
-        </Button>
-        <Link replace={false} href={`${params.public_store}/home`}>
-          <Button variant={'outline'} className="w-full">
-            Continuar sem login
-          </Button>
-        </Link>
-      </div>
+      <Promotions />
+
+      <TopSellers />
+
+      <ProductsList />
     </main>
   )
 }
