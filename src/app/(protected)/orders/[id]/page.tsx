@@ -6,11 +6,11 @@ import Link from 'next/link'
 import { OrderDataType } from '../orders'
 import { Header } from './header'
 
-export default function OrderPage({ order }: { order: OrderDataType }) {
+export default function OrderPage() {
   return (
     <main>
       <div>
-        <Header order={order} />
+        {/* <Header order={order} /> */}
 
         <div className="flex flex-col gap-6 p-4">
           <Card className="flex flex-col gap-2 p-4">
