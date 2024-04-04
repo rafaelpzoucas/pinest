@@ -6,11 +6,7 @@ import Link from 'next/link'
 import { OrderDataType } from '../orders'
 import { Header } from './header'
 
-type OrderCardPropsType = {
-  order: OrderDataType
-}
-
-export default function OrderPage({ order }: OrderCardPropsType) {
+export default function OrderPage({ order }: { order: OrderDataType }) {
   return (
     <main>
       <div>
