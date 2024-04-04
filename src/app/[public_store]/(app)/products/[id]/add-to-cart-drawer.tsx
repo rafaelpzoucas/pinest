@@ -10,7 +10,7 @@ import { Plus } from 'lucide-react'
 import { AmountControl } from '@/components/amount-control'
 import { Input } from '@/components/ui/input'
 import { formatCurrency } from '@/lib/format-number'
-import { ProductCard, ProductDataType } from '../../home/product-card'
+import { ProductCard, ProductDataType } from '@/app/[public_store]/product-card'
 
 type AddToCardDrawerProps = {
   product: ProductDataType
