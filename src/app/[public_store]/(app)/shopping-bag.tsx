@@ -5,7 +5,7 @@ import { ShoppingBag as Bag } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import burgerImg from '../../../../public/teste/burger.jpg'
-import { ProductDataType } from './home/product-card'
+import { ProductDataType } from '../product-card'
 
 const bagItems: ProductDataType[] = [
   {
