@@ -1,7 +1,6 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ArrowLeft, DollarSign, MapPin, ScrollText } from 'lucide-react'
-import { ProductDataType } from '../../home/product-card'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { formatCurrency } from '@/lib/format-number'
@@ -9,6 +8,7 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import burgerImg from '../../../../../../public/teste/burger.jpg'
+import { ProductDataType } from '@/app/[public_store]/product-card'
 
 const bagItems: ProductDataType[] = [
   {
