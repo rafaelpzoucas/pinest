@@ -3,7 +3,6 @@
 import { Card } from '@/components/ui/card'
 import { ShoppingBag as Bag } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import burgerImg from '../../../../public/teste/burger.jpg'
 import { ProductDataType } from '../product-card'
 
@@ -43,15 +42,6 @@ const bagItems: ProductDataType[] = [
 ]
 
 export function ShoppingBagIsland() {
-  const pathname = usePathname()
-
-  const isRootPathname =
-    pathname === '/loja-teste/home' || pathname === '/loja-teste/products'
-
-  if (!isRootPathname) {
-    return null
-  }
-
   return (
     <Link href="/loja-teste/cart">
       <Card className="flex flex-row items-center gap-3 p-3 w-full text-sm bg-primary text-primary-foreground">

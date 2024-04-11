@@ -93,7 +93,7 @@ export function Navigation() {
         !isRootPathname && 'translate-y-16 duration-200',
       )}
     >
-      <Card className="flex flex-row items-center justify-around gap-4 w-fit p-1 px-2 bg-secondary">
+      <Card className="flex flex-row lg:flex-col items-center justify-around gap-4 w-fit p-1 px-2 bg-secondary">
         {links.map((link) => (
           <Link href={link.href} key={link.href} className="relative p-2">
             {link.icon}

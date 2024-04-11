@@ -9,7 +9,7 @@ export default function SignIn({
   params: { public_store: string }
 }) {
   return (
-    <main className="flex flex-col items-center gap-12 p-4 py-8">
+    <main className="flex flex-col items-center gap-12 p-6 py-8">
       <header className="w-full">
         <h1 className="text-2xl font-bold">Olá, visitante</h1>
         <p className="text-muted-foreground">Para começar, faça o seu login</p>
@@ -17,7 +17,10 @@ export default function SignIn({
 
       <Image src={loginImage} width={350} height={350} alt="" />
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-2 w-full max-w-sm">
+        <Button variant={'outline'} className="w-full">
+          Continuar com o Facebook
+        </Button>
         <Button variant={'outline'} className="w-full">
           Continuar com o Google
         </Button>

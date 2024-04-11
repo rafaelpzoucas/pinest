@@ -1,6 +1,4 @@
-import { Island } from '@/components/island'
 import type { Metadata } from 'next'
-import { ShoppingBagIsland } from './shopping-bag'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -12,12 +10,5 @@ export default function StoreLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <div className="pb-16">
-      {children}
-      <Island>
-        <ShoppingBagIsland />
-      </Island>
-    </div>
-  )
+  return <div className="pb-16">{children}</div>
 }

@@ -13,11 +13,12 @@ export default function ProtectedLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="pb-16">
-      {children}
+    <div className="pb-16 md:flex flex-row">
       <Island>
         <Navigation />
       </Island>
+
+      {children}
     </div>
   )
 }

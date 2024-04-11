@@ -91,37 +91,6 @@ export function ProductsList() {
 
   return (
     <section className="flex flex-col gap-8 pt-4 pb-16">
-      {/* <nav className="p-4">
-        <Carousel>
-          <CarouselContent>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Hot dog</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Cachorro quente</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Pasteis</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Batata recheada</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Categoria</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Categoria</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Categoria</Button>
-            </CarouselItem>
-            <CarouselItem className="flex-[0_0_30%]">
-              <Button>Categoria</Button>
-            </CarouselItem>
-          </CarouselContent>
-        </Carousel>
-      </nav> */}
-
       {categories.map((category) => (
         <div
           id={category.title}
