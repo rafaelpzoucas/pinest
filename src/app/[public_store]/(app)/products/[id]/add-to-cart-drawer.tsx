@@ -10,6 +10,7 @@ import { Plus } from 'lucide-react'
 import { ProductCard, ProductDataType } from '@/app/[public_store]/product-card'
 import { AmountControl } from '@/components/amount-control'
 import { Input } from '@/components/ui/input'
+import { formatCurrencyBRL } from '@/lib/utils'
 
 type AddToCardDrawerProps = {
   product: ProductDataType
@@ -38,7 +39,7 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
         <DrawerFooter className="flex flex-row gap-4">
           <AmountControl />
           <Button className="flex flex-row items-center justify-between w-full">
-            Adicionar <span>{formatCurrency(totalPrice)}</span>
+            Adicionar <span>{formatCurrencyBRL(totalPrice)}</span>
           </Button>
         </DrawerFooter>
       </DrawerContent>

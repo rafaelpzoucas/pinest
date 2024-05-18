@@ -1,7 +1,7 @@
 import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
 import burgerImg from '../../../../../public/teste/burger.jpg'
@@ -80,7 +80,7 @@ export default function CartPage() {
           <Card className="p-4 w-full space-y-2">
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
               <p>Produtos ({bagItems.length})</p>
-              <span>{formatCurrency(productsPrice)}</span>
+              <span>{formatCurrencyBRL(productsPrice)}</span>
             </div>
 
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
@@ -96,7 +96,7 @@ export default function CartPage() {
 
             <div className="flex flex-row justify-between text-sm pb-2">
               <p>Total</p>
-              <strong>{formatCurrency(productsPrice - 0)}</strong>
+              <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
             <FinalizePurchaseDrawer />

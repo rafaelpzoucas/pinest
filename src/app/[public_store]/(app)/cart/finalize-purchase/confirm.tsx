@@ -4,7 +4,7 @@ import { ArrowLeft, DollarSign, MapPin, ScrollText } from 'lucide-react'
 
 import { ProductDataType } from '@/app/[public_store]/product-card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import burgerImg from '../../../../../../public/teste/burger.jpg'
@@ -67,7 +67,7 @@ export function Confirm() {
           <Card className="flex flex-col p-4 w-full space-y-2">
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
               <p>Produtos ({bagItems.length})</p>
-              <span>{formatCurrency(100)}</span>
+              <span>{formatCurrencyBRL(100)}</span>
             </div>
 
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
@@ -83,7 +83,7 @@ export function Confirm() {
 
             <div className="flex flex-row justify-between text-sm pb-4">
               <p>Você pagará</p>
-              <strong>{formatCurrency(100 - 0)}</strong>
+              <strong>{formatCurrencyBRL(100 - 0)}</strong>
             </div>
 
             <Button>Confirmar compra</Button>
@@ -103,7 +103,7 @@ export function Confirm() {
 
           <section className="flex flex-col items-center gap-2 text-center border-b py-6">
             <DollarSign />
-            <p>Você pagará {formatCurrency(100)} com Pix</p>
+            <p>Você pagará {formatCurrencyBRL(100)} com Pix</p>
             <span className="text-xs text-muted-foreground">
               Os pagamentos com este meio são aprovados na hora
             </span>

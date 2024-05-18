@@ -13,6 +13,7 @@ import {
 import { ArrowLeft, ShoppingBag } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
+import { formatCurrencyBRL } from '@/lib/utils'
 import burgerImg from '../../../../../../public/teste/burger.jpg'
 import { AddToCardDrawer } from './add-to-cart-drawer'
 
@@ -81,7 +82,7 @@ export default function ProductPage() {
       <section className="space-y-2">
         <h1 className="text-lg capitalize font-bold">{product.title}</h1>
         <strong className="text-primary">
-          {formatCurrency(product.price)}
+          {formatCurrencyBRL(product.price)}
         </strong>
         <p className="text-sm text-muted-foreground">{product.description}</p>
       </section>

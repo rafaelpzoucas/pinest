@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { cva, type VariantProps } from 'class-variance-authority'
 import Image, { StaticImageData } from 'next/image'
 
@@ -50,7 +50,7 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
                 'font-light text-xs text-muted-foreground line-through',
             )}
           >
-            {formatCurrency(data.price)}
+            {formatCurrencyBRL(data.price)}
           </p>
           <p
             className={cn(
@@ -58,7 +58,7 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
               isPromotional && 'block',
             )}
           >
-            {formatCurrency(data.promotional_price)}
+            {formatCurrencyBRL(data.promotional_price)}
           </p>
         </div>
 
