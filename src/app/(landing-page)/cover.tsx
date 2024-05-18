@@ -1,9 +1,6 @@
-import Image from 'next/image'
-
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import hero from '../../public/hero-image.jpg'
 
 export function Cover() {
   return (
@@ -27,7 +24,7 @@ export function Cover() {
         </p>
 
         <Link
-          href="/admin/sign-up"
+          href="/admin/sign-in"
           className={cn(
             buttonVariants({ variant: 'default', size: 'lg' }),
             'mt-10',

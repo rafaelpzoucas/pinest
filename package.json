@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint -- --fix"
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -25,11 +25,13 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@rocketseat/eslint-config": "^2.1.0",
+    "@supabase/ssr": "^0.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.0.0",
     "lucide-react": "^0.316.0",
-    "next": "14.1.0",
+    "next": "^14.2.3",
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",

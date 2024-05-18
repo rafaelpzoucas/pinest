@@ -1,5 +1,4 @@
 import { Card } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/format-number'
 import { cn } from '@/lib/utils'
 import { cva, type VariantProps } from 'class-variance-authority'
 import Image, { StaticImageData } from 'next/image'

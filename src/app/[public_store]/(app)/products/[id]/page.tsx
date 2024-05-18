@@ -13,7 +13,6 @@ import {
 import { ArrowLeft, ShoppingBag } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-import { formatCurrency } from '@/lib/format-number'
 import burgerImg from '../../../../../../public/teste/burger.jpg'
 import { AddToCardDrawer } from './add-to-cart-drawer'
 

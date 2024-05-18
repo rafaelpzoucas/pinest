@@ -1,7 +1,6 @@
 import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/format-number'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'

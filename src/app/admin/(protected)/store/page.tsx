@@ -14,37 +14,37 @@ export default function StorePage() {
   const iconsClassNames = 'w-6 h-6 text-muted-foreground'
   const storeOptions = [
     {
-      link: '/store/account',
+      link: 'store/account',
       name: 'Minha conta',
       icon: <Bolt className={iconsClassNames} />,
     },
     {
-      link: '/store/profile',
+      link: 'store/profile',
       name: 'Perfil',
       icon: <User className={iconsClassNames} />,
     },
     {
-      link: '/store/appearence',
+      link: 'store/appearence',
       name: 'Aparência',
       icon: <Paintbrush className={iconsClassNames} />,
     },
     {
-      link: '/store/hours',
+      link: 'store/hours',
       name: 'Horários',
       icon: <CalendarClock className={iconsClassNames} />,
     },
     {
-      link: '/store/payment-methods',
+      link: 'store/payment-methods',
       name: 'Formas de pagamento',
       icon: <CircleDollarSign className={iconsClassNames} />,
     },
     {
-      link: '/store/catalog',
+      link: 'store/catalog',
       name: 'Catálogo',
       icon: <LayoutList className={iconsClassNames} />,
     },
     {
-      link: '/store/marketing',
+      link: 'store/marketing',
       name: 'Divulgação',
       icon: <Megaphone className={iconsClassNames} />,
     },
