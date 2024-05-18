@@ -1,15 +1,24 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { CheckCircle, MailWarning } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { SignInForm } from './form'
 
-export default function AdminSignIn({
+export default async function AdminSignIn({
   searchParams,
 }: {
   searchParams: { message: string; error: string }
 }) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase.auth.getUser()
+  if (!error || data?.user) {
+    redirect('/admin/dashboard')
+  }
+
   return (
     <main className="flex flex-col items-center justify-center gap-6 p-8 h-screen">
       <h1 className="text-3xl">
