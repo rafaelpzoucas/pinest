@@ -1,14 +1,7 @@
-import { Card } from '@/components/ui/card'
-import { CustomerCard } from '../customer-card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  MoreVertical,
-  Pencil,
-} from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { ArrowLeft, MoreVertical, Pencil } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CustomerPage() {

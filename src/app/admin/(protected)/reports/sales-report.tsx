@@ -1,18 +1,10 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChevronRight, Minus, Plus } from 'lucide-react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Bar, BarChart, ResponsiveContainer } from 'recharts'
-import { useState } from 'react'
+import { Card, CardTitle } from '@/components/ui/card'
+import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
+import { Bar, BarChart, ResponsiveContainer } from 'recharts'
 
 type SalesReportPropsType = {
   data: any[]

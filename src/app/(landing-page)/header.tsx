@@ -1,7 +1,6 @@
 import { Nav } from '@/components/landing-page/nav'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
 import Link from 'next/link'
 
 const navItems = [

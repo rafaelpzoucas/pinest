@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle } from '@/components/ui/card'
-import { Minus, Plus } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -8,8 +5,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Bar, BarChart, ResponsiveContainer } from 'recharts'
-import { useState } from 'react'
 import { SalesReport } from './sales-report'
 
 const data = [
