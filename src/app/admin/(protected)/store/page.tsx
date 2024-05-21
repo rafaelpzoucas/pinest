@@ -1,5 +1,4 @@
 import {
-  Bolt,
   CalendarClock,
   ChevronRight,
   CircleDollarSign,
@@ -11,42 +10,36 @@ import {
 import Link from 'next/link'
 
 export default function StorePage() {
-  const iconsClassNames = 'w-6 h-6 text-muted-foreground'
   const storeOptions = [
-    {
-      link: 'store/account',
-      name: 'Minha conta',
-      icon: <Bolt className={iconsClassNames} />,
-    },
     {
       link: 'store/profile',
       name: 'Perfil',
-      icon: <User className={iconsClassNames} />,
-    },
-    {
-      link: 'store/appearence',
-      name: 'Aparência',
-      icon: <Paintbrush className={iconsClassNames} />,
-    },
-    {
-      link: 'store/hours',
-      name: 'Horários',
-      icon: <CalendarClock className={iconsClassNames} />,
-    },
-    {
-      link: 'store/payment-methods',
-      name: 'Formas de pagamento',
-      icon: <CircleDollarSign className={iconsClassNames} />,
+      icon: User,
     },
     {
       link: 'store/catalog',
       name: 'Catálogo',
-      icon: <LayoutList className={iconsClassNames} />,
+      icon: LayoutList,
+    },
+    {
+      link: 'store/appearence',
+      name: 'Aparência da loja',
+      icon: Paintbrush,
+    },
+    {
+      link: 'store/hours',
+      name: 'Horários',
+      icon: CalendarClock,
+    },
+    {
+      link: 'store/payment-methods',
+      name: 'Formas de pagamento',
+      icon: CircleDollarSign,
     },
     {
       link: 'store/marketing',
       name: 'Divulgação',
-      icon: <Megaphone className={iconsClassNames} />,
+      icon: Megaphone,
     },
   ]
 
@@ -60,7 +53,7 @@ export default function StorePage() {
           key={option.link}
           className="flex flex-row gap-4 items-center p-4"
         >
-          {option.icon}
+          <option.icon className="w-6 h-6 text-muted-foreground" />
           <span>{option.name}</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
         </Link>
