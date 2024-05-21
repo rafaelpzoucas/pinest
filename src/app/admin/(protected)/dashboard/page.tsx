@@ -2,37 +2,47 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChevronRight, MapPin, Phone } from 'lucide-react'
+import Link from 'next/link'
+import { fetchUser } from '../store/(store-options)/profile/actions/read-data'
 import { FirstSteps } from './first-steps'
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const { users } = await fetchUser()
+
+  const store = users && users[0]
+
+  const address = `${store?.user_addresses[0].street}, ${store?.user_addresses[0].number}`
+
   return (
     <main className="space-y-6 p-4">
-      <Card>
-        <CardContent className="flex flex-row gap-4 pt-6">
-          <div className="flex flex-col gap-4">
-            <Avatar className="w-16 h-16">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+      <Link href="store/profile">
+        <Card>
+          <CardContent className="flex flex-row gap-4 pt-6">
+            <div className="flex flex-col gap-4">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
 
-            <div>
-              <strong className="text-lg">Cantinho do Hot Dog</strong>
               <div>
-                <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="w-4 h-4" />
-                  <span>(18) 99999-9999</span>
-                </span>
-                <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="w-4 h-4" />
-                  <span>Rua 15 de Novembro, 123</span>
-                </span>
+                <strong className="text-lg capitalize">{store?.name}</strong>
+                <div>
+                  <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
+                    <Phone className="w-4 h-4" />
+                    <span>{store?.phone}</span>
+                  </span>
+                  <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    <span>{address}</span>
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <ChevronRight className="ml-auto w-4 h-4 text-muted-foreground" />
-        </CardContent>
-      </Card>
+            <ChevronRight className="ml-auto w-4 h-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </Link>
 
       <FirstSteps />
 

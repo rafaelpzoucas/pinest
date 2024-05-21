@@ -1,6 +1,7 @@
 import { Island } from '@/components/island'
 import { Navigation } from '@/components/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { readRows } from '@/services/supabase-service'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
@@ -16,18 +17,31 @@ export default async function ProtectedLayout({
 }>) {
   const supabase = createClient()
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData?.user) {
     redirect('/admin/sign-in')
   }
 
+  const { data, error } = await readRows({
+    route: 'users',
+    filter: {
+      key: 'email',
+      value: userData?.user.email ?? '',
+    },
+  })
+
+  if (!error && data?.length === 0) {
+    return redirect('/admin/onboarding')
+  }
+
   return (
-    <div className="pb-16 md:flex flex-row">
+    <main className="pb-16 md:flex flex-row">
       <Island>
         <Navigation />
       </Island>
 
       {children}
-    </div>
+    </main>
   )
 }
