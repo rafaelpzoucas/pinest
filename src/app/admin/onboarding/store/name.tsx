@@ -47,12 +47,10 @@ export function NameStep() {
     }
 
     const { error } = await createRow({
-      route: 'users',
+      route: 'stores',
       columns: {
-        id: userData.user.id,
-        name: values.name,
-        email: userData.user.email,
-        role: 'admin',
+        user_id: userData.user.id,
+        name: values.name.toLocaleLowerCase(),
       },
     })
 
@@ -62,7 +60,7 @@ export function NameStep() {
       return null
     }
 
-    return router.push('?step=profile&info=phone')
+    return router.push('?step=store&info=role')
   }
 
   return (
@@ -76,12 +74,12 @@ export function NameStep() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome</FormLabel>
+              <FormLabel>Nome da loja</FormLabel>
               <FormControl>
-                <Input placeholder="Digite o seu nome..." {...field} />
+                <Input placeholder="Digite o nome da loja..." {...field} />
               </FormControl>
               <FormDescription>
-                Digite o seu nome, ou do responsável pela loja.
+                É o nome que aparecerá para seus clientes.
               </FormDescription>
               <FormMessage />
             </FormItem>

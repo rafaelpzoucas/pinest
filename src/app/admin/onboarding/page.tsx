@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { ProductsStep } from './products'
 import { SearchZipCode } from './profile/search-zip-code'
 import { ProfileStep } from './profile/steps'
+import { StoreStep } from './store/steps'
 import { WelcomeStep } from './welcome'
 
 export default async function Onboarding({
@@ -23,7 +23,7 @@ export default async function Onboarding({
       {!searchParams?.step && <WelcomeStep />}
       {searchParams?.step === 'profile' && <ProfileStep />}
       {searchParams?.step === 'search-zc' && <SearchZipCode />}
-      {searchParams?.step === 'products' && <ProductsStep />}
+      {searchParams?.step === 'store' && <StoreStep />}
     </main>
   )
 }

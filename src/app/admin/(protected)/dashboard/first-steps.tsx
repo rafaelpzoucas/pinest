@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { readProducts } from '../store/(store-options)/catalog/products/actions'
-import { fetchUser } from '../store/(store-options)/profile/actions/read-data'
 
 type StepsType = {
   name: string
@@ -27,14 +26,13 @@ function calculateCompletionPercentage(steps: StepsType[]) {
 }
 
 export async function FirstSteps() {
-  const { users } = await fetchUser()
   const { data: products } = await readProducts()
 
   const steps: StepsType[] = [
     {
       name: 'Informações básicas da loja',
-      href: 'store/profile',
-      is_checked: (users && users.length > 0) ?? false,
+      href: '/admin/onboarding?step=store&info=name',
+      is_checked: false,
     },
     {
       name: 'Cadastrar produtos',
@@ -62,6 +60,7 @@ export async function FirstSteps() {
           Configure a sua loja para poder começar a vender
         </CardDescription>
         <Progress value={progress} />
+        <span className="text-primary text-xs ml-auto">{progress}%</span>
       </CardHeader>
       <CardContent className="space-y-3">
         {steps.map((step, index) => (

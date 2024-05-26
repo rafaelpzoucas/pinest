@@ -44,7 +44,11 @@ const bagItems: ProductDataType[] = [
   },
 ]
 
-export default function CartPage() {
+export default function CartPage({
+  params,
+}: {
+  params: { public_store: string }
+}) {
   const productsPrice = bagItems.reduce((acc, bagItem) => {
     const priceToAdd =
       bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
@@ -55,9 +59,13 @@ export default function CartPage() {
   return (
     <main className="p-4 pb-40">
       <header className="grid grid-cols-[1fr_5fr_1fr] items-center pb-4">
-        <Link href="/loja-teste/home">
+        <Link
+          href={`/${params.public_store}`}
+          className={buttonVariants({ variant: 'secondary', size: 'icon' })}
+        >
           <ArrowLeft className="w-5 h-5" />
         </Link>
+
         <h1 className="text-xl text-center font-bold">Finalizar compra</h1>
       </header>
 
@@ -67,7 +75,7 @@ export default function CartPage() {
         ))}
 
         <Link
-          href="/loja-teste/home"
+          href={`/${params.public_store}`}
           className={cn(buttonVariants({ variant: 'outline' }))}
         >
           <Plus className="w-4 h-4 mr-2" />

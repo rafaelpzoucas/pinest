@@ -1,12 +1,10 @@
 import { Island } from '@/components/island'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Menu, ScrollText } from 'lucide-react'
+import Image from 'next/image'
 import burgerImg from '../../../public/teste/burger.jpg'
+import vercel from '../../../public/vercel.svg'
 import { ShoppingBagIsland } from './(app)/shopping-bag'
 import { getStores } from './actions'
-import { HeaderDeliveryInfo } from './header-delivery-info'
-import NotFound from './not-found'
+import { Menu } from './menu'
 import { ProductDataType } from './product-card'
 import { ProductsList } from './products-list'
 import { Promotions } from './promotions'
@@ -49,55 +47,38 @@ const bagItems: ProductDataType[] = [
 ]
 
 export default async function HomePage({
-  searchParams,
+  params,
 }: {
-  searchParams: { public_store: string }
+  params: { public_store: string }
 }) {
-  const { stores, error } = await getStores(searchParams.public_store)
+  const { stores, error } = await getStores(params.public_store)
 
   if (error) {
     console.log(error)
   }
 
-  if (stores && stores.length === 0) {
-    return <NotFound />
-  }
+  const store = stores && stores[0]
 
   return (
     <main>
-      <header className="relative p-4 py-6 bg-secondary">
-        <div className="flex flex-col gap-4">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
+      <div className="p-2">
+        <header className="relative p-4 py-4 bg-primary/80 rounded-2xl">
+          <div className="flex flex-row items-center justify-between">
+            <div className="relative w-full h-8 max-w-40">
+              <Image
+                src={vercel}
+                fill
+                alt=""
+                className="object-contain object-left"
+              />
+            </div>
 
-          <div>
-            <strong className="line-clamp-1 max-w-[235px]">
-              Cantinho do Hot Dog
-            </strong>
-
-            <div className="flex flex-row gap-2 text-xs text-muted-foreground mt-1">
-              <strong className="text-emerald-600 uppercase whitespace-nowrap">
-                Aberto agora
-              </strong>
-              <span>&bull;</span>
-              <span className="whitespace-nowrap">Fecha em 20min</span>
+            <div className="flex flex-row gap-2">
+              <Menu />
             </div>
           </div>
-        </div>
-
-        <HeaderDeliveryInfo />
-
-        <div className="absolute top-4 right-4 flex flex-row gap-3">
-          <Button variant={'ghost'} size={'icon'}>
-            <ScrollText className="w-5 h-5" />
-          </Button>
-          <Button variant={'ghost'} size={'icon'}>
-            <Menu className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
+        </header>
+      </div>
 
       <Search />
 

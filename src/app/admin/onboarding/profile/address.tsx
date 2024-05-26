@@ -87,7 +87,7 @@ export function AddressStep() {
     }
 
     const { error } = await createRow({
-      route: 'users_addresses',
+      route: 'user_addresses',
       columns: {
         user_id: userData.user.id,
         zip_code: values.zip_code,
@@ -106,7 +106,7 @@ export function AddressStep() {
       return null
     }
 
-    return router.push('?step=products')
+    return router.push('?step=store')
   }
 
   return (
@@ -139,19 +139,6 @@ export function AddressStep() {
         />
         <FormField
           control={form.control}
-          name="street"
-          render={({ field }) => (
-            <FormItem hidden={!address}>
-              <FormLabel>Rua</FormLabel>
-              <FormControl>
-                <Input readOnly {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
           name="number"
           render={({ field }) => (
             <FormItem hidden={!address}>
@@ -175,6 +162,19 @@ export function AddressStep() {
               <FormLabel>Complemento (opcional)</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o complemento..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="street"
+          render={({ field }) => (
+            <FormItem hidden={!address}>
+              <FormLabel>Rua</FormLabel>
+              <FormControl>
+                <Input readOnly {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

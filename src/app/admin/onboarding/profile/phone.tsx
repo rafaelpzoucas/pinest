@@ -74,16 +74,16 @@ export function PhoneStep() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone da loja</FormLabel>
+              <FormLabel>Telefone</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
-                  placeholder="Digite o telefone da sua loja..."
+                  placeholder="Digite o seu telefone..."
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Dê preferência ao número de WhatsApp da loja.
+                Dê preferência ao número de WhatsApp.
               </FormDescription>
               <FormMessage />
             </FormItem>

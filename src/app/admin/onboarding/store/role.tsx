@@ -18,22 +18,22 @@ import {
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
-import { createRow } from '@/services/supabase-service'
+import { updateRow } from '@/services/supabase-service'
 import { Loader } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 const formSchema = z.object({
-  name: z.string(),
+  role: z.string(),
 })
 
-export function NameStep() {
+export function RoleStep() {
   const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      role: '',
     },
   })
 
@@ -46,14 +46,12 @@ export function NameStep() {
       return router.push('/admin/sign-in')
     }
 
-    const { error } = await createRow({
-      route: 'users',
+    const { error } = await updateRow({
+      route: 'stores',
       columns: {
-        id: userData.user.id,
-        name: values.name,
-        email: userData.user.email,
-        role: 'admin',
+        role: values.role,
       },
+      filter: { key: 'user_id', value: userData.user.id },
     })
 
     if (error) {
@@ -62,26 +60,26 @@ export function NameStep() {
       return null
     }
 
-    return router.push('?step=profile&info=phone')
+    return router.push('/admin/dashboard')
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full space-y-6"
+        className="flex flex-col space-y-8"
       >
         <FormField
           control={form.control}
-          name="name"
+          name="role"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome</FormLabel>
+              <FormLabel>Nicho</FormLabel>
               <FormControl>
-                <Input placeholder="Digite o seu nome..." {...field} />
+                <Input placeholder="Insira o seu nicho..." {...field} />
               </FormControl>
               <FormDescription>
-                Digite o seu nome, ou do responsável pela loja.
+                Qual o tipo de produtos que você vende?
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -91,11 +89,7 @@ export function NameStep() {
         <Button
           type="submit"
           className="ml-auto"
-          disabled={
-            form.formState.isSubmitting ||
-            form.formState.isSubmitted ||
-            !form.formState.isValid
-          }
+          disabled={form.formState.isSubmitting || !form.formState.isValid}
         >
           {form.formState.isSubmitting && (
             <Loader className="w-4 h-4 mr-2 animate-spin" />

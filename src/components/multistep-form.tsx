@@ -21,4 +21,3 @@ const Step = React.forwardRef<
 Step.displayName = 'Step'
 
 export { Step, type StepType }
-
