@@ -1,5 +1,4 @@
 import {
-  CalendarClock,
   ChevronRight,
   CircleDollarSign,
   LayoutList,
@@ -25,11 +24,6 @@ export default function StorePage() {
       link: 'store/appearence',
       name: 'Aparência da loja',
       icon: Paintbrush,
-    },
-    {
-      link: 'store/hours',
-      name: 'Horários',
-      icon: CalendarClock,
     },
     {
       link: 'store/payment-methods',

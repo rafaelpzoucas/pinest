@@ -1,12 +1,12 @@
-'use client'
-
 import { Island } from '@/components/island'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Menu, ScrollText } from 'lucide-react'
 import burgerImg from '../../../public/teste/burger.jpg'
 import { ShoppingBagIsland } from './(app)/shopping-bag'
+import { getStores } from './actions'
 import { HeaderDeliveryInfo } from './header-delivery-info'
+import NotFound from './not-found'
 import { ProductDataType } from './product-card'
 import { ProductsList } from './products-list'
 import { Promotions } from './promotions'
@@ -48,7 +48,21 @@ const bagItems: ProductDataType[] = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { public_store: string }
+}) {
+  const { stores, error } = await getStores(searchParams.public_store)
+
+  if (error) {
+    console.log(error)
+  }
+
+  if (stores && stores.length === 0) {
+    return <NotFound />
+  }
+
   return (
     <main>
       <header className="relative p-4 py-6 bg-secondary">

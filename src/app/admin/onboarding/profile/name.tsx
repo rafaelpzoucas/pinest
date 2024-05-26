@@ -69,7 +69,7 @@ export function NameStep() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full space-y-8"
+        className="flex flex-col w-full space-y-6"
       >
         <FormField
           control={form.control}

@@ -10,30 +10,14 @@ import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { readProducts } from '../store/(store-options)/catalog/products/actions'
+import { fetchUser } from '../store/(store-options)/profile/actions/read-data'
 
 type StepsType = {
   name: string
   href: string
   is_checked: boolean
 }
-
-const steps: StepsType[] = [
-  {
-    name: 'Informações básicas da loja',
-    href: 'store/profile',
-    is_checked: true,
-  },
-  {
-    name: 'Cadastrar produtos',
-    href: 'store/catalog',
-    is_checked: false,
-  },
-  {
-    name: 'Formas de pagamento',
-    href: 'store/payment-methods',
-    is_checked: false,
-  },
-]
 
 function calculateCompletionPercentage(steps: StepsType[]) {
   const totalSteps = steps.length
@@ -42,7 +26,32 @@ function calculateCompletionPercentage(steps: StepsType[]) {
   return percentage
 }
 
-export function FirstSteps() {
+export async function FirstSteps() {
+  const { users } = await fetchUser()
+  const { data: products } = await readProducts()
+
+  const steps: StepsType[] = [
+    {
+      name: 'Informações básicas da loja',
+      href: 'store/profile',
+      is_checked: (users && users.length > 0) ?? false,
+    },
+    {
+      name: 'Cadastrar produtos',
+      href: 'store/catalog',
+      is_checked: (products && products.length > 0) ?? false,
+    },
+    {
+      name: 'Formas de pagamento',
+      href: 'store/payment-methods',
+      is_checked: false,
+    },
+    {
+      name: 'Formas de envio',
+      href: 'store/delivery',
+      is_checked: false,
+    },
+  ]
   const progress = calculateCompletionPercentage(steps)
 
   return (
