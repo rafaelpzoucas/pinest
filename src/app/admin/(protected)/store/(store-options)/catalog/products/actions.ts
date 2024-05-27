@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { newProductFormSchema } from './register/form'
 
+const supabase = createClient()
+
 export type ProductType = {
   id: string
   name: string
@@ -15,7 +17,6 @@ export type ProductType = {
 export async function createProduct(
   values: z.infer<typeof newProductFormSchema>,
 ) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('products')
     .insert([values])
@@ -30,7 +31,6 @@ export async function readProducts(): Promise<{
   data: ProductType[] | null
   error: any | null
 }> {
-  const supabase = createClient()
   const { data, error } = await supabase.from('products').select('*')
 
   return { data, error }
@@ -40,7 +40,6 @@ export async function updateProduct(
   id: string,
   values: z.infer<typeof newProductFormSchema>,
 ) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('products')
     .update(values)
@@ -53,7 +52,6 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string) {
-  const supabase = createClient()
   const { error } = await supabase.from('products').delete().eq('id', id)
 
   revalidatePath('/catalog')
