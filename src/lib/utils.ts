@@ -33,7 +33,6 @@ export function queryParamsLink(params: QueryParamsGeneric) {
   Object.keys(params).forEach((key) => {
     const value = params[key]
     if (value !== null) {
-      // Check for both null and undefined
       queryParams.append(key, String(value))
     }
   })
