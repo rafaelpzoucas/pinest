@@ -32,15 +32,15 @@ type FetchUserReturnType = {
   error: any | null
 }
 
-const supabase = createClient()
-
 export async function getAuthenticatedUser() {
+  const supabase = createClient()
   const { data, error } = await supabase.auth.getUser()
 
   return { data, error }
 }
 
 export async function fetchUser(): Promise<FetchUserReturnType> {
+  const supabase = createClient()
   const { data: userData, error: userError } = await getAuthenticatedUser()
 
   if (userError) {

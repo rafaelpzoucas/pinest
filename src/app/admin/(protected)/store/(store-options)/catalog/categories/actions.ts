@@ -5,8 +5,6 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { newCategoryFormSchema } from './register/form'
 
-const supabase = createClient()
-
 export type CategoryType = {
   id: string
   name: string
@@ -17,6 +15,7 @@ export type CategoryType = {
 export async function createCategory(
   values: z.infer<typeof newCategoryFormSchema>,
 ) {
+  const supabase = createClient()
   const { data, error } = await supabase
     .from('categories')
     .insert([values])
@@ -31,6 +30,7 @@ export async function readCategories(): Promise<{
   data: CategoryType[] | null
   error: any | null
 }> {
+  const supabase = createClient()
   const { data, error } = await supabase.from('categories').select('*')
 
   return { data, error }
@@ -40,6 +40,7 @@ export async function updateCategory(
   id: string,
   values: z.infer<typeof newCategoryFormSchema>,
 ) {
+  const supabase = createClient()
   const { data, error } = await supabase
     .from('categories')
     .update(values)
