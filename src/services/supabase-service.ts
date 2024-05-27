@@ -2,8 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-const supabase = createClient()
-
 type RequestType = {
   route: string
   columns?: any
@@ -16,18 +14,21 @@ type UpdateType = RequestType
 type DeleteType = Omit<RequestType, 'columns'>
 
 export async function getUser() {
+  const supabase = createClient()
   const { data, error } = await supabase.auth.getUser()
 
   return { data, error }
 }
 
 export async function createRow({ route, columns }: CreateType) {
+  const supabase = createClient()
   const { data, error } = await supabase.from(route).insert(columns).select()
 
   return { data, error }
 }
 
 export async function readRows({ route, columns, filter }: ReadType) {
+  const supabase = createClient()
   const { data, error } = await supabase
     .from(route)
     .select(columns)
@@ -37,6 +38,7 @@ export async function readRows({ route, columns, filter }: ReadType) {
 }
 
 export async function updateRow({ route, columns, filter }: UpdateType) {
+  const supabase = createClient()
   const { data, error } = await supabase
     .from(route)
     .update(columns)
@@ -47,6 +49,7 @@ export async function updateRow({ route, columns, filter }: UpdateType) {
 }
 
 export async function deleteRow({ route, filter }: DeleteType) {
+  const supabase = createClient()
   const { error } = await supabase
     .from(route)
     .delete()
