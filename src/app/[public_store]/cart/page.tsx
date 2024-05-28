@@ -2,44 +2,36 @@ import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { ProductType } from '@/models/product'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
-import defaultThumbUrl from '../../../../public/default_thumb_url.png'
 import { CartProduct } from './cart-product'
 import { FinalizePurchaseDrawer } from './finalize-purchase/drawer'
 
-const bagItems = [
+const bagItems: ProductType[] = [
   {
-    thumb_url: defaultThumbUrl,
-    title: 'Hambúrguer Artesanal',
+    thumb_url: null,
+    name: 'Hambúrguer Artesanal',
     description:
       'Delicioso hambúrguer artesanal feito com carne angus, queijo cheddar derretido, alface crocante, tomate fresco e molho especial, tudo servido em um pão brioche levemente tostado.',
     price: 50.0,
     promotional_price: 0,
+    stock: 100,
+    id: 'qwer',
+    category_id: 'asdfasdf',
+    created_at: '2024-05-28 11:00:00',
   },
   {
-    thumb_url: defaultThumbUrl,
-    title: 'Sanduíche de Frango Grelhado',
+    thumb_url: null,
+    name: 'Sanduíche de Frango Grelhado',
     description:
       'Um sanduíche de frango grelhado preparado com peito de frango suculento marinado em temperos especiais, acompanhado de alface, tomate, cebola roxa, maionese de ervas e servido em um pão integral tostado.',
     price: 35.0,
     promotional_price: 30.0,
-  },
-  {
-    thumb_url: defaultThumbUrl,
-    title: 'Salada Caesar com Frango',
-    description:
-      'Uma salada Caesar clássica com frango grelhado, folhas de alface frescas, croutons crocantes, queijo parmesão ralado e molho Caesar caseiro, uma opção leve e deliciosa para uma refeição equilibrada.',
-    price: 70.0,
-    promotional_price: 60.0,
-  },
-  {
-    thumb_url: defaultThumbUrl,
-    title: 'Wrap de Vegetais Grelhados',
-    description:
-      'Um wrap vegetariano recheado com uma mistura de vegetais grelhados, incluindo abobrinha, pimentão, cebola, cogumelos e espinafre fresco, tudo temperado com ervas mediterrâneas e servido com molho de iogurte.',
-    price: 25.0,
-    promotional_price: 20.0,
+    stock: 100,
+    id: 'qwert',
+    category_id: 'asdofasdfi',
+    created_at: '2024-05-28 11:00:00',
   },
 ]
 
@@ -70,7 +62,7 @@ export default function CartPage({
 
       <section className="flex flex-col gap-2">
         {bagItems.map((product) => (
-          <CartProduct product={product} key={product.title} />
+          <CartProduct product={product} key={product.name} />
         ))}
 
         <Link

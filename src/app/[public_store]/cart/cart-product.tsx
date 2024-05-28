@@ -18,24 +18,21 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { ProductType } from '@/models/product'
 import { useState } from 'react'
-import { ProductDataType } from '../product-card'
 
 type CartProductPropsType = {
-  product: ProductDataType
+  product: ProductType
 }
 
 export function CartProduct({ product }: CartProductPropsType) {
   const [isQttOpen, setIsQttOpen] = useState(false)
 
   return (
-    <div
-      key={product.title}
-      className="flex flex-col gap-2 py-2 border-b last:border-0"
-    >
+    <div className="flex flex-col gap-2 py-2 border-b last:border-0">
       <div className="flex flex-row gap-4">
         <p className="line-clamp-2 max-w-56 text-sm text-muted-foreground">
-          {product.title}
+          {product.name}
         </p>
       </div>
 
@@ -77,7 +74,7 @@ export function CartProduct({ product }: CartProductPropsType) {
           <p
             className={cn(
               'font-bold text-primary text-sm',
-              product.promotional_price > 0 &&
+              product.price > 0 &&
                 'font-light text-xs text-muted-foreground line-through',
             )}
           >
@@ -85,17 +82,6 @@ export function CartProduct({ product }: CartProductPropsType) {
               style: 'currency',
               currency: 'BRL',
             }).format(product.price)}
-          </p>
-          <p
-            className={cn(
-              'hidden font-bold text-primary text-sm',
-              product.promotional_price > 0 && 'block',
-            )}
-          >
-            {Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            }).format(product.promotional_price)}
           </p>
         </div>
       </footer>
