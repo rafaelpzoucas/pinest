@@ -1,4 +1,8 @@
+import { Island } from '@/components/island'
 import type { Metadata } from 'next'
+
+import { Search } from './search'
+import { ShoppingBagIsland } from './shopping-bag'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -6,9 +10,31 @@ export const metadata: Metadata = {
 }
 
 export default function StoreLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  return <div className="pb-16">{children}</div>
+  header,
+  promotions,
+  topSellers,
+  productsList,
+}: {
+  header: React.ReactNode
+  promotions: React.ReactNode
+  topSellers: React.ReactNode
+  productsList: React.ReactNode
+}) {
+  return (
+    <main className="pb-20">
+      {header}
+
+      <Search />
+
+      {promotions}
+
+      {topSellers}
+
+      {productsList}
+
+      <Island>
+        <ShoppingBagIsland />
+      </Island>
+    </main>
+  )
 }

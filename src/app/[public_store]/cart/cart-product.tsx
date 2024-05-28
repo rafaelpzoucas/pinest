@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { ProductDataType } from '../../product-card'
+import { ProductDataType } from '../product-card'
 
 type CartProductPropsType = {
   product: ProductDataType

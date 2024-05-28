@@ -10,14 +10,14 @@ export type StoreType = {
 
 export async function getStores(name: string): Promise<{
   stores: StoreType[] | null
-  error: any | null
+  storesError: any | null
 }> {
   const supabase = createClient()
 
-  const { data: stores, error } = await supabase
+  const { data: stores, error: storesError } = await supabase
     .from('stores')
     .select('*')
     .eq('name', name)
 
-  return { stores, error }
+  return { stores, storesError }
 }

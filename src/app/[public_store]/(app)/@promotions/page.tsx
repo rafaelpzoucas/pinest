@@ -5,7 +5,7 @@ import {
   CarouselItem,
 } from '@/components/ui/carousel'
 
-export function Promotions() {
+export default function PromotionsPage() {
   return (
     <section className="space-y-4 p-4">
       <h1 className="text-lg font-bold uppercase">Promoções</h1>

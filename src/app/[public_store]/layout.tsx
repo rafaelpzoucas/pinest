@@ -17,10 +17,10 @@ export default async function PublicStoreLayout({
   const storeSlug = params.public_store.split('-')
   const storeName = storeSlug.join(' ')
 
-  const { stores, error } = await getStores(storeName)
+  const { stores, storesError } = await getStores(storeName)
 
-  if (error) {
-    console.log(error)
+  if (storesError) {
+    console.log(storesError)
   }
 
   if (stores && stores.length === 0) {

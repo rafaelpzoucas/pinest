@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
@@ -7,13 +9,14 @@ import {
 } from '@/components/ui/drawer'
 import { Plus } from 'lucide-react'
 
-import { ProductCard, ProductDataType } from '@/app/[public_store]/product-card'
 import { AmountControl } from '@/components/amount-control'
 import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { ProductType } from '@/models/product'
+import { ProductCard } from '../../(app)/components/product-card'
 
 type AddToCardDrawerProps = {
-  product: ProductDataType
+  product: ProductType
 }
 
 export function AddToCardDrawer({ product }: AddToCardDrawerProps) {

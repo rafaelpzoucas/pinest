@@ -4,6 +4,7 @@ import {
   LayoutList,
   Megaphone,
   Paintbrush,
+  Truck,
   User,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -29,6 +30,11 @@ export default function StorePage() {
       link: 'store/payment-methods',
       name: 'Formas de pagamento',
       icon: CircleDollarSign,
+    },
+    {
+      link: 'store/shipping',
+      name: 'Formas de envio',
+      icon: Truck,
     },
     {
       link: 'store/marketing',

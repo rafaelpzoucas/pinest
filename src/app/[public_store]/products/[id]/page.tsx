@@ -1,5 +1,3 @@
-'use client'
-
 import Image from 'next/image'
 
 import { Island } from '@/components/island'
@@ -10,34 +8,28 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel'
-import { ArrowLeft, ShoppingBag } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ShoppingBag } from 'lucide-react'
 
+import { Header } from '@/components/header'
 import { formatCurrencyBRL } from '@/lib/utils'
-import burgerImg from '../../../../../../public/teste/burger.jpg'
+import { readProductById } from './actions'
 import { AddToCardDrawer } from './add-to-cart-drawer'
 
-const product = {
-  thumb_url: burgerImg,
-  title: 'Hambúrguer Artesanal',
-  description:
-    'Delicioso hambúrguer artesanal feito com carne angus, queijo cheddar derretido, alface crocante, tomate fresco e molho especial, tudo servido em um pão brioche levemente tostado.',
-  price: 50.0,
-  promotional_price: 0,
-}
+export default async function ProductPage({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const { product, error } = await readProductById(params.id)
 
-export default function ProductPage() {
-  const router = useRouter()
+  if (error) {
+    console.log(error)
+  }
 
   return (
     <main className="flex flex-col gap-6 p-4">
       <header className="flex flex-row justify-between">
-        <div onClick={() => router.back()}>
-          <Button variant={'secondary'}>
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            <span>Voltar</span>
-          </Button>
-        </div>
+        <Header />
 
         <Button variant={'secondary'} size={'icon'}>
           <ShoppingBag className="w-4 h-4" />
@@ -80,7 +72,7 @@ export default function ProductPage() {
       </Carousel>
 
       <section className="space-y-2">
-        <h1 className="text-lg capitalize font-bold">{product.title}</h1>
+        <h1 className="text-lg capitalize font-bold">{product.name}</h1>
         <strong className="text-primary">
           {formatCurrencyBRL(product.price)}
         </strong>

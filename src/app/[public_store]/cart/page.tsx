@@ -5,7 +5,7 @@ import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
 import burgerImg from '../../../../../public/teste/burger.jpg'
-import { ProductDataType } from '../../product-card'
+import { ProductDataType } from '../product-card'
 import { CartProduct } from './cart-product'
 import { FinalizePurchaseDrawer } from './finalize-purchase/drawer'
 

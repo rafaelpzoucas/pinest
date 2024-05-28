@@ -1,7 +1,13 @@
+'use client'
+
 import { Card } from '@/components/ui/card'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { ProductType } from '@/models/product'
 import { cva, type VariantProps } from 'class-variance-authority'
-import Image, { StaticImageData } from 'next/image'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 const productCardVariants = cva('text-sm leading-4', {
   variants: {
@@ -16,29 +22,31 @@ const productCardVariants = cva('text-sm leading-4', {
   },
 })
 
-export type ProductDataType = {
-  thumb_url: StaticImageData
-  title: string
-  description: string
-  price: number
-  promotional_price: number
-}
-
 export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
-  data: ProductDataType
+  data: ProductType
 }
 
 export function ProductCard({ data, variant, className }: ProductCardProps) {
-  const isPromotional = data.promotional_price > 0
+  const pathname = usePathname()
+
+  const isPromotional = false
 
   return (
-    <div className={cn(productCardVariants({ variant, className }))}>
+    <Link
+      href={`${pathname}/products/${data.id}`}
+      className={cn(productCardVariants({ variant, className }))}
+    >
       <Card
         className={cn('relative w-full aspect-square overflow-hidden border-0')}
       >
-        <Image src={data.thumb_url} fill alt="" className="object-cover" />
+        <Image
+          src={data.thumb_url ?? defaultThumbUrl}
+          fill
+          alt=""
+          className="object-cover"
+        />
       </Card>
 
       <div className="flex flex-col gap-3">
@@ -52,14 +60,14 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
           >
             {formatCurrencyBRL(data.price)}
           </p>
-          <p
+          {/* <p
             className={cn(
               'hidden font-bold text-primary',
               isPromotional && 'block',
             )}
           >
             {formatCurrencyBRL(data.promotional_price)}
-          </p>
+          </p> */}
         </div>
 
         <p
@@ -68,9 +76,9 @@ export function ProductCard({ data, variant, className }: ProductCardProps) {
             variant === 'bag_items' && 'line-clamp-1',
           )}
         >
-          {data.title}
+          {data.name}
         </p>
       </div>
-    </div>
+    </Link>
   )
 }
