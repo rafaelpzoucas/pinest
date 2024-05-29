@@ -12,6 +12,7 @@ import { ShoppingBag } from 'lucide-react'
 
 import { Header } from '@/components/header'
 import { formatCurrencyBRL } from '@/lib/utils'
+import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 import { readProductById } from './actions'
 import { AddToCardDrawer } from './add-to-cart-drawer'
 
@@ -41,7 +42,7 @@ export default async function ProductPage({
           <CarouselItem className="flex-[0_0_85%]">
             <Card className="relative w-full aspect-square overflow-hidden border-none">
               <Image
-                src={product.thumb_url}
+                src={product.thumb_url ?? defaultThumbUrl}
                 alt=""
                 fill
                 className="object-cover"
@@ -51,7 +52,7 @@ export default async function ProductPage({
           <CarouselItem className="flex-[0_0_85%]">
             <Card className="relative w-full aspect-square overflow-hidden border-none">
               <Image
-                src={product.thumb_url}
+                src={product.thumb_url ?? defaultThumbUrl}
                 alt=""
                 fill
                 className="object-cover"
@@ -61,7 +62,7 @@ export default async function ProductPage({
           <CarouselItem className="flex-[0_0_85%]">
             <Card className="relative w-full aspect-square overflow-hidden border-none">
               <Image
-                src={product.thumb_url}
+                src={product.thumb_url ?? defaultThumbUrl}
                 alt=""
                 fill
                 className="object-cover"

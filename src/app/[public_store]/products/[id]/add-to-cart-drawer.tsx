@@ -7,12 +7,12 @@ import {
   DrawerFooter,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { Plus } from 'lucide-react'
+import { Minus, Plus } from 'lucide-react'
 
-import { AmountControl } from '@/components/amount-control'
 import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { ProductType } from '@/models/product'
+import { useState } from 'react'
 import { ProductCard } from '../../(app)/components/product-card'
 
 type AddToCardDrawerProps = {
@@ -20,7 +20,19 @@ type AddToCardDrawerProps = {
 }
 
 export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
-  const totalPrice = product.price * 1
+  const [amount, setAmount] = useState(1)
+
+  const totalPrice = product.price * amount
+
+  function increase() {
+    setAmount((prev) => prev + 1)
+  }
+
+  function decrease() {
+    if (amount > 1) {
+      setAmount((prev) => prev - 1)
+    }
+  }
 
   return (
     <Drawer>
@@ -40,7 +52,25 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
         </div>
 
         <DrawerFooter className="flex flex-row gap-4">
-          <AmountControl />
+          <div className="flex flex-row items-center gap-3">
+            <Button
+              variant={'secondary'}
+              size={'icon'}
+              onClick={decrease}
+              disabled={amount === 1}
+            >
+              <Minus className="w-4 h-4" />
+            </Button>
+            <input
+              type="text"
+              readOnly
+              className="text-center w-5 bg-transparent"
+              value={amount}
+            />
+            <Button variant={'secondary'} size={'icon'} onClick={increase}>
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
           <Button className="flex flex-row items-center justify-between w-full">
             Adicionar <span>{formatCurrencyBRL(totalPrice)}</span>
           </Button>
