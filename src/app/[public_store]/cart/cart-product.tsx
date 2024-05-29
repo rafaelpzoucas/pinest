@@ -17,12 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import { ProductType } from '@/models/product'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { CartProductType } from '@/models/cart'
 import { useState } from 'react'
+import { updateItemAmount } from './actions'
 
 type CartProductPropsType = {
-  product: ProductType
+  product: CartProductType
 }
 
 export function CartProduct({ product }: CartProductPropsType) {
@@ -38,8 +39,12 @@ export function CartProduct({ product }: CartProductPropsType) {
 
       <footer className="flex flex-row items-center justify-between">
         <Select
-          defaultValue="1"
-          onValueChange={(value) => value === 'more' && setIsQttOpen(true)}
+          defaultValue={product.amount.toString()}
+          onValueChange={(value) =>
+            value === 'more'
+              ? setIsQttOpen(true)
+              : updateItemAmount(product.id, parseInt(value))
+          }
         >
           <SelectTrigger className="w-[100px]">
             <SelectValue />
@@ -74,14 +79,10 @@ export function CartProduct({ product }: CartProductPropsType) {
           <p
             className={cn(
               'font-bold text-primary text-sm',
-              product.price > 0 &&
-                'font-light text-xs text-muted-foreground line-through',
+              product.price > 0 && 'font-light text-xs',
             )}
           >
-            {Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            }).format(product.price)}
+            {formatCurrencyBRL(product.price * product.amount)}
           </p>
         </div>
       </footer>

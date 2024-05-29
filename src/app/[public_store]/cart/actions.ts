@@ -9,10 +9,38 @@ export async function getCart() {
   return JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
 }
 
-export async function addToCart(item: CartProductType) {
+export async function addToCart(newItem: CartProductType) {
   const cookieStore = cookies()
   const cart = JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
-  cart.push(item)
+
+  // Encontre o item no carrinho
+  const existingItemIndex = cart.findIndex(
+    (item: CartProductType) => item.id === newItem.id,
+  )
+
+  if (existingItemIndex !== -1) {
+    cart[existingItemIndex].amount += newItem.amount
+  } else {
+    cart.push(newItem)
+  }
+
+  cookieStore.set('ztore_cart', JSON.stringify(cart), { path: '/' })
+}
+
+export async function updateItemAmount(itemId: string, newAmount: number) {
+  const cookieStore = cookies()
+  const cart = JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
+
+  const existingItemIndex = cart.findIndex(
+    (item: CartProductType) => item.id === itemId,
+  )
+
+  if (existingItemIndex !== -1) {
+    cart[existingItemIndex].amount = newAmount
+  } else {
+    throw new Error('Item not found in cart')
+  }
+
   cookieStore.set('ztore_cart', JSON.stringify(cart), { path: '/' })
 }
 

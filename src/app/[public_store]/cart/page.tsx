@@ -20,7 +20,7 @@ export default async function CartPage({
     const priceToAdd =
       bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
 
-    return acc + priceToAdd
+    return acc + priceToAdd * bagItem.amount
   }, 0)
 
   return (
