@@ -11,9 +11,11 @@ import { Minus, Plus } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { CartProductType } from '@/models/cart'
 import { ProductType } from '@/models/product'
 import { useState } from 'react'
 import { ProductCard } from '../../(app)/components/product-card'
+import { addToCart } from '../../cart/actions'
 
 type AddToCardDrawerProps = {
   product: ProductType
@@ -32,6 +34,16 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
     if (amount > 1) {
       setAmount((prev) => prev - 1)
     }
+  }
+
+  async function handleAddToCart() {
+    const newCartProduct: CartProductType = {
+      ...product,
+      amount,
+      observations: '',
+    }
+    console.log(newCartProduct)
+    await addToCart(newCartProduct)
   }
 
   return (
@@ -71,7 +83,10 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
               <Plus className="w-4 h-4" />
             </Button>
           </div>
-          <Button className="flex flex-row items-center justify-between w-full">
+          <Button
+            className="flex flex-row items-center justify-between w-full"
+            onClick={handleAddToCart}
+          >
             Adicionar <span>{formatCurrencyBRL(totalPrice)}</span>
           </Button>
         </DrawerFooter>

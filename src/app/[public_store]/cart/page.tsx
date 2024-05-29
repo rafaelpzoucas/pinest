@@ -2,44 +2,20 @@ import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { ProductType } from '@/models/product'
+import { CartProductType } from '@/models/cart'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { getCart } from './actions'
 import { CartProduct } from './cart-product'
 import { FinalizePurchaseDrawer } from './finalize-purchase/drawer'
 
-const bagItems: ProductType[] = [
-  {
-    thumb_url: null,
-    name: 'Hambúrguer Artesanal',
-    description:
-      'Delicioso hambúrguer artesanal feito com carne angus, queijo cheddar derretido, alface crocante, tomate fresco e molho especial, tudo servido em um pão brioche levemente tostado.',
-    price: 50.0,
-    promotional_price: 0,
-    stock: 100,
-    id: 'qwer',
-    category_id: 'asdfasdf',
-    created_at: '2024-05-28 11:00:00',
-  },
-  {
-    thumb_url: null,
-    name: 'Sanduíche de Frango Grelhado',
-    description:
-      'Um sanduíche de frango grelhado preparado com peito de frango suculento marinado em temperos especiais, acompanhado de alface, tomate, cebola roxa, maionese de ervas e servido em um pão integral tostado.',
-    price: 35.0,
-    promotional_price: 30.0,
-    stock: 100,
-    id: 'qwert',
-    category_id: 'asdofasdfi',
-    created_at: '2024-05-28 11:00:00',
-  },
-]
-
-export default function CartPage({
+export default async function CartPage({
   params,
 }: {
   params: { public_store: string }
 }) {
+  const bagItems: CartProductType[] = await getCart()
+
   const productsPrice = bagItems.reduce((acc, bagItem) => {
     const priceToAdd =
       bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
@@ -61,9 +37,11 @@ export default function CartPage({
       </header>
 
       <section className="flex flex-col gap-2">
-        {bagItems.map((product) => (
-          <CartProduct product={product} key={product.name} />
-        ))}
+        {bagItems &&
+          bagItems.length > 0 &&
+          bagItems.map((product) => (
+            <CartProduct product={product} key={product.name} />
+          ))}
 
         <Link
           href={`/${params.public_store}`}

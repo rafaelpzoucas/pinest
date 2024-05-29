@@ -13,6 +13,7 @@ import { ShoppingBag } from 'lucide-react'
 import { Header } from '@/components/header'
 import { formatCurrencyBRL } from '@/lib/utils'
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
+
 import { readProductById } from './actions'
 import { AddToCardDrawer } from './add-to-cart-drawer'
 
