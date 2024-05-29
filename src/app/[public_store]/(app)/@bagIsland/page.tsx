@@ -19,6 +19,10 @@ export default async function ShoppingBag({
     return acc + priceToAdd
   }, 0)
 
+  if (products && products.length === 0) {
+    return null
+  }
+
   return (
     <Link href={`${params.public_store}/cart`}>
       <Card className="flex flex-row items-center gap-3 p-3 w-full text-sm bg-primary text-primary-foreground">

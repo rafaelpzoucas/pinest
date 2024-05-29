@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerFooter,
   DrawerTrigger,
@@ -13,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductType } from '@/models/product'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ProductCard } from '../../(app)/components/product-card'
 import { addToCart } from '../../cart/actions'
@@ -22,6 +24,8 @@ type AddToCardDrawerProps = {
 }
 
 export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
+  const router = useRouter()
+
   const [amount, setAmount] = useState(1)
 
   const totalPrice = product.price * amount
@@ -42,8 +46,8 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
       amount,
       observations: '',
     }
-    console.log(newCartProduct)
     await addToCart(newCartProduct)
+    router.back()
   }
 
   return (
@@ -83,12 +87,14 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
               <Plus className="w-4 h-4" />
             </Button>
           </div>
-          <Button
-            className="flex flex-row items-center justify-between w-full"
-            onClick={handleAddToCart}
-          >
-            Adicionar <span>{formatCurrencyBRL(totalPrice)}</span>
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              className="flex flex-row items-center justify-between w-full"
+              onClick={handleAddToCart}
+            >
+              Adicionar <span>{formatCurrencyBRL(totalPrice)}</span>
+            </Button>
+          </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
