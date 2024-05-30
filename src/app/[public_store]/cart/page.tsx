@@ -1,6 +1,7 @@
 import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ArrowLeft, Plus } from 'lucide-react'
@@ -14,6 +15,10 @@ export default async function CartPage({
 }: {
   params: { public_store: string }
 }) {
+  const supabase = createClient()
+
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
   const bagItems: CartProductType[] = await getCart()
 
   const productsPrice = bagItems.reduce((acc, bagItem) => {
@@ -76,7 +81,16 @@ export default async function CartPage({
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            <FinalizePurchaseDrawer />
+            {!userData.user ? (
+              <Link
+                href={`/${params.public_store}/sign-in`}
+                className={cn(buttonVariants(), 'w-full')}
+              >
+                Finalizar compra
+              </Link>
+            ) : (
+              <FinalizePurchaseDrawer />
+            )}
           </Card>
         </div>
       </Island>

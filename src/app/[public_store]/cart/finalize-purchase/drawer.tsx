@@ -1,7 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { AddressForm } from './address-form'
@@ -17,8 +18,11 @@ export function FinalizePurchaseDrawer() {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Link href={currentStep ? '#' : '?step=pickup'} className="flex w-full">
-          <Button className="w-full">Continuar a compra</Button>
+        <Link
+          href={currentStep ? '#' : '?step=pickup'}
+          className={cn(buttonVariants(), 'flex w-full')}
+        >
+          Finalizar a compra
         </Link>
       </DrawerTrigger>
       <DrawerContent>
