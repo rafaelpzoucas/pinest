@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
 import { Island } from '@/components/island'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
   Carousel,
@@ -11,17 +11,21 @@ import {
 import { ShoppingBag } from 'lucide-react'
 
 import { Header } from '@/components/header'
-import { formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
+import { CartProductType } from '@/models/cart'
+import Link from 'next/link'
+import { getCart } from '../../cart/actions'
 import { readProductById } from './actions'
 import { AddToCardDrawer } from './add-to-cart-drawer'
 
 export default async function ProductPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: string; public_store: string }
 }) {
+  const products: CartProductType[] = await getCart()
   const { product, error } = await readProductById(params.id)
 
   if (error) {
@@ -33,9 +37,17 @@ export default async function ProductPage({
       <header className="flex flex-row justify-between">
         <Header />
 
-        <Button variant={'secondary'} size={'icon'}>
+        <Link
+          href={`/${params.public_store}/cart`}
+          className={cn(buttonVariants({ variant: 'secondary' }), 'px-3')}
+        >
+          {products.length > 0 && (
+            <span className="text-xs text-muted-foreground mr-2">
+              {products.length}
+            </span>
+          )}
           <ShoppingBag className="w-4 h-4" />
-        </Button>
+        </Link>
       </header>
 
       <Carousel>
@@ -84,7 +96,10 @@ export default async function ProductPage({
       <footer>
         <Island>
           <div className="flex w-full p-2">
-            <AddToCardDrawer product={product} />
+            <AddToCardDrawer
+              publicStore={params.public_store}
+              product={product}
+            />
           </div>
         </Island>
       </footer>

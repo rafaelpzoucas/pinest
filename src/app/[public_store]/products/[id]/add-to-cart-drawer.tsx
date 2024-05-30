@@ -24,10 +24,7 @@ type AddToCardDrawerProps = {
   publicStore: string
 }
 
-export function AddToCardDrawer({
-  product,
-  publicStore,
-}: AddToCardDrawerProps) {
+export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
   const router = useRouter()
 
   const [amount, setAmount] = useState(1)
@@ -65,11 +62,7 @@ export function AddToCardDrawer({
       <DrawerContent>
         <div className="flex flex-col gap-6 px-4 pt-5">
           <section className="flex flex-row gap-2 items-center justify-between">
-            <ProductCard
-              variant={'bag_items'}
-              data={product}
-              publicStore={publicStore}
-            />
+            <ProductCard variant={'bag_items'} data={product} />
           </section>
 
           <Input placeholder="Escreva suas observações..." />

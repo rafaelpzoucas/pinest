@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -29,6 +30,7 @@ type CartProductPropsType = {
 
 export function CartProduct({ product }: CartProductPropsType) {
   const [isQttOpen, setIsQttOpen] = useState(false)
+  const [amount, setAmount] = useState('')
 
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0">
@@ -63,7 +65,9 @@ export function CartProduct({ product }: CartProductPropsType) {
               <SelectItem value="4">4 un.</SelectItem>
               <SelectItem value="5">5 un.</SelectItem>
               <SelectItem value="6">6 un.</SelectItem>
-              <SelectItem value="more">Mais de 6 un.</SelectItem>
+              <SelectItem value="more">
+                {product.amount > 6 ? product.amount + ' un.' : 'Mais de 6 un.'}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -72,13 +76,26 @@ export function CartProduct({ product }: CartProductPropsType) {
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Informe uma quantidade</DrawerTitle>
-              <DrawerDescription>100 disponíveis</DrawerDescription>
+              <DrawerDescription>{product.stock} disponíveis</DrawerDescription>
             </DrawerHeader>
             <div className="p-4 space-y-1">
-              <Input type="number" placeholder="Digite a quantidade" />
+              <Input
+                type="number"
+                placeholder="Digite a quantidade"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
             </div>
             <DrawerFooter>
-              <Button>Confirmar</Button>
+              <DrawerClose asChild>
+                <Button
+                  onClick={() =>
+                    updateItemAmount(product.id, parseFloat(amount))
+                  }
+                >
+                  Confirmar
+                </Button>
+              </DrawerClose>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>

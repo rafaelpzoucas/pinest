@@ -1,4 +1,5 @@
 import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { ArrowLeft, Search } from 'lucide-react'
 import Link from 'next/link'
 import { SearchSheet } from '../(app)/@search/search-sheet'
@@ -23,13 +24,20 @@ export default async function SearchPage({
       <header className="flex flex-row p-4 gap-2">
         <Link
           href={`/${params.public_store}`}
-          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+          className={cn(
+            buttonVariants({ variant: 'ghost', size: 'icon' }),
+            'w-full max-w-9',
+          )}
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
 
         <SearchSheet publicStore={params.public_store} />
       </header>
+
+      <p className="text-xs text-muted-foreground px-4">
+        {products && products.length} resultado(s) encontrado(s)
+      </p>
 
       <section className="flex flex-col gap-8 pt-4 pb-16">
         <div className="flex flex-col px-4">

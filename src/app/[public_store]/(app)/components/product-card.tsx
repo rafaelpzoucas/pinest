@@ -25,7 +25,7 @@ export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
   data: ProductType
-  publicStore: string
+  publicStore?: string
 }
 
 export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
