@@ -13,7 +13,7 @@ export default async function ProductsList() {
       {categories && categories.length > 0 ? (
         categories.map((category) => (
           <div
-            id={category.id}
+            id={category.name.toLowerCase()}
             className="flex flex-col px-4"
             key={category.id}
           >
