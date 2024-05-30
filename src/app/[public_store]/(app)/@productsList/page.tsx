@@ -1,7 +1,11 @@
 import { ProductCard } from '../components/product-card'
 import { getProductsByCategory } from './actions'
 
-export default async function ProductsList() {
+export default async function ProductsList({
+  params,
+}: {
+  params: { public_store: string }
+}) {
   const { categories, categoriesError } = await getProductsByCategory()
 
   if (categoriesError) {
@@ -27,6 +31,7 @@ export default async function ProductsList() {
                   key={product.id}
                   variant={'featured'}
                   data={product}
+                  publicStore={params.public_store}
                 />
               ))}
             </div>

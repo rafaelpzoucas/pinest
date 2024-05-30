@@ -21,9 +21,13 @@ import { addToCart } from '../../cart/actions'
 
 type AddToCardDrawerProps = {
   product: ProductType
+  publicStore: string
 }
 
-export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
+export function AddToCardDrawer({
+  product,
+  publicStore,
+}: AddToCardDrawerProps) {
   const router = useRouter()
 
   const [amount, setAmount] = useState(1)
@@ -61,7 +65,11 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
       <DrawerContent>
         <div className="flex flex-col gap-6 px-4 pt-5">
           <section className="flex flex-row gap-2 items-center justify-between">
-            <ProductCard variant={'bag_items'} data={product} />
+            <ProductCard
+              variant={'bag_items'}
+              data={product}
+              publicStore={publicStore}
+            />
           </section>
 
           <Input placeholder="Escreva suas observações..." />

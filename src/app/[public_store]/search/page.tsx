@@ -1,5 +1,5 @@
 import { buttonVariants } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Search } from 'lucide-react'
 import Link from 'next/link'
 import { SearchSheet } from '../(app)/@search/search-sheet'
 import { ProductCard } from '../(app)/components/product-card'
@@ -40,12 +40,17 @@ export default async function SearchPage({
                   key={product.id}
                   variant={'featured'}
                   data={product}
+                  publicStore={params.public_store}
                 />
               ))}
             </div>
           ) : (
-            <div>
-              Não encontramos nenhum resultado para &quot;{searchParams.q}&quot;
+            <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted">
+              <Search className="w-20 h-20" />
+              <p className="text-center text-muted-foreground">
+                Não encontramos nenhum resultado para &quot;{searchParams.q}
+                &quot;
+              </p>
             </div>
           )}
         </div>

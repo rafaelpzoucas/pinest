@@ -18,19 +18,21 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 const formSchema = z.object({
-  search: z.string().min(2).max(50),
+  search: z.string(),
 })
 
 export function SearchSheet({ publicStore }: { publicStore: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const query = searchParams.get('q')
+
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      search: searchParams.get('q') ?? '',
+      search: query ?? '',
     },
   })
 
@@ -43,10 +45,10 @@ export function SearchSheet({ publicStore }: { publicStore: string }) {
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger asChild>
         <div className="flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm">
-          <span>Buscar na loja</span>
+          <span>{query ?? 'Buscar na loja'}</span>
         </div>
       </SheetTrigger>
-      <SheetContent autoFocus side="top" className="h-[100dvh]">
+      <SheetContent autoFocus side="fade" className="h-[100dvh]">
         <SheetHeader className="flex flex-row gap-2 items-center">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">

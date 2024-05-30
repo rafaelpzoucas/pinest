@@ -16,7 +16,7 @@ export default async function ShoppingBag({
     const priceToAdd =
       bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
 
-    return acc + priceToAdd
+    return acc + priceToAdd * bagItem.amount
   }, 0)
 
   if (products && products.length === 0) {

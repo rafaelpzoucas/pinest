@@ -6,7 +6,6 @@ import { ProductType } from '@/models/product'
 import { cva, type VariantProps } from 'class-variance-authority'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 const productCardVariants = cva('text-sm leading-4', {
@@ -26,17 +25,16 @@ export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
   data: ProductType
+  publicStore: string
 }
 
-export function ProductCard({ data, variant, className }: ProductCardProps) {
-  const pathname = usePathname()
-
+export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
   const isPromotional = false
 
   return (
     <Link
-      href={`${pathname}/products/${data.id}`}
-      className={cn(productCardVariants({ variant, className }))}
+      href={`/${publicStore}/products/${data.id}`}
+      className={cn(productCardVariants({ variant }))}
     >
       <Card
         className={cn('relative w-full aspect-square overflow-hidden border-0')}

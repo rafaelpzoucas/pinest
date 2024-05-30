@@ -23,12 +23,9 @@ export default async function Search({
 
   return (
     <SearchIsland>
-      <Accordion type="single" collapsible>
+      <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1" className="border-0">
           <div className="flex flex-row items-center gap-3 w-full">
-            {/* <Link href={`${params.public_store}/search`} className="w-full">
-              
-            </Link> */}
             <SearchSheet publicStore={params.public_store} />
             <AccordionTrigger className="[&>svg]:hidden py-0">
               <span className="flex p-2 bg-primary text-primary-foreground rounded-md">
