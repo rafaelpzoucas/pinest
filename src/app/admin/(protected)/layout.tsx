@@ -1,7 +1,6 @@
 import { Island } from '@/components/island'
 import { Navigation } from '@/components/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { readRows } from '@/services/supabase-service'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
@@ -23,13 +22,14 @@ export default async function ProtectedLayout({
     redirect('/admin/sign-in')
   }
 
-  const { data, error } = await readRows({
-    route: 'users',
-    filter: {
-      key: 'email',
-      value: userData?.user.email ?? '',
-    },
-  })
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userData.user.id)
+
+  if (data && data[0]?.role !== 'admin') {
+    return redirect('/admin/sign-in')
+  }
 
   if (!error && data?.length === 0) {
     return redirect('/admin/onboarding')

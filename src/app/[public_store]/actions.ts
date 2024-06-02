@@ -1,12 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-
-export type StoreType = {
-  id: string
-  name: string
-  role: string
-}
+import { StoreType } from '@/models/store'
 
 export async function getStores(name: string): Promise<{
   stores: StoreType[] | null

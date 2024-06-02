@@ -12,8 +12,8 @@ import Link from 'next/link'
 export default function StorePage() {
   const storeOptions = [
     {
-      link: 'store/profile',
-      name: 'Perfil',
+      link: 'store/account',
+      name: 'Conta',
       icon: User,
     },
     {

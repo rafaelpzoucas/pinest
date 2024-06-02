@@ -4,21 +4,16 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-export function Header() {
+export function Header({ title }: { title?: string }) {
   const router = useRouter()
 
   return (
-    <div>
-      <header className="flex flex-row items-center gap-4">
-        <Button
-          variant={'secondary'}
-          size={'icon'}
-          onClick={() => router.back()}
-        >
-          <ArrowLeft />
-        </Button>
-        {/* <h1 className="text-lg text-center font-bold">Voltar</h1> */}
-      </header>
-    </div>
+    <header className="grid grid-cols-[1fr_5fr_1fr] items-center pb-4">
+      <Button variant={'ghost'} size={'icon'} onClick={() => router.back()}>
+        <ArrowLeft />
+      </Button>
+
+      {title && <h1 className="text-xl text-center font-bold">{title}</h1>}
+    </header>
   )
 }

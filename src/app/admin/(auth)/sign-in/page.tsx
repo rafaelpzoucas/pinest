@@ -14,9 +14,15 @@ export default async function AdminSignIn({
 }) {
   const supabase = createClient()
 
-  const { data, error } = await supabase.auth.getUser()
-  if (!error || data?.user) {
-    redirect('/admin/dashboard')
+  const { data: session, error } = await supabase.auth.getUser()
+
+  if (!error || session?.user) {
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user?.id)
+
+    if (user && user[0]?.role === 'admin') redirect('/admin/dashboard')
   }
 
   return (

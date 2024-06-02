@@ -1,10 +1,11 @@
+import { Header } from '@/components/header'
 import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { getCart } from './actions'
 import { CartProduct } from './cart-product'
@@ -30,30 +31,28 @@ export default async function CartPage({
 
   return (
     <main className="p-4 pb-40">
-      <header className="grid grid-cols-[1fr_5fr_1fr] items-center pb-4">
-        <Link
-          href={`/${params.public_store}`}
-          className={buttonVariants({ variant: 'secondary', size: 'icon' })}
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-
-        <h1 className="text-xl text-center font-bold">Finalizar compra</h1>
-      </header>
+      <Header title="Finalizar compra" />
 
       <section className="flex flex-col gap-2">
-        {bagItems &&
-          bagItems.length > 0 &&
+        {bagItems && bagItems.length > 0 ? (
           bagItems.map((product) => (
             <CartProduct product={product} key={product.name} />
-          ))}
+          ))
+        ) : (
+          <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted py-4">
+            <ShoppingBag className="w-20 h-20" />
+            <p className="text-center text-muted-foreground">
+              Você não possui produtos no carrinho
+            </p>
+          </div>
+        )}
 
         <Link
           href={`/${params.public_store}`}
           className={cn(buttonVariants({ variant: 'outline' }))}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Adicionar mais itens
+          Adicionar itens
         </Link>
       </section>
 
@@ -81,16 +80,17 @@ export default async function CartPage({
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {!userData.user ? (
-              <Link
-                href={`/${params.public_store}/sign-in`}
-                className={cn(buttonVariants(), 'w-full')}
-              >
-                Finalizar compra
-              </Link>
-            ) : (
-              <FinalizePurchaseDrawer />
-            )}
+            {productsPrice > 0 &&
+              (!userData.user ? (
+                <Link
+                  href={`/${params.public_store}/sign-in`}
+                  className={cn(buttonVariants(), 'w-full')}
+                >
+                  Finalizar compra
+                </Link>
+              ) : (
+                <FinalizePurchaseDrawer />
+              ))}
           </Card>
         </div>
       </Island>

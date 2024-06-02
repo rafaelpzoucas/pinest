@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { readUser } from '../store/(store-options)/account/actions'
 import { readProducts } from '../store/(store-options)/catalog/products/actions'
 
 type StepsType = {
@@ -26,13 +27,14 @@ function calculateCompletionPercentage(steps: StepsType[]) {
 }
 
 export async function FirstSteps() {
+  const { data: user } = await readUser()
   const { data: products } = await readProducts()
 
   const steps: StepsType[] = [
     {
       name: 'Informações básicas da loja',
       href: '/admin/onboarding?step=store&info=name',
-      is_checked: false,
+      is_checked: (user && user.length > 0) ?? false,
     },
     {
       name: 'Cadastrar produtos',
