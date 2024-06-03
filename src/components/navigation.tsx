@@ -11,12 +11,7 @@ export function Navigation() {
 
   const iconsClassNames = 'w-5 h-5'
 
-  const isRootPathname =
-    pathname === '/admin/orders' ||
-    pathname === '/admin/store' ||
-    pathname === '/admin/dashboard' ||
-    pathname === '/admin/customers' ||
-    pathname === '/admin/reports'
+  const hide = pathname.includes('/register')
 
   const links = [
     {
@@ -49,8 +44,8 @@ export function Navigation() {
   return (
     <nav
       className={cn(
-        isRootPathname && 'translate-y-0 duration-200',
-        !isRootPathname && 'translate-y-16 duration-200',
+        !hide && 'translate-y-0 duration-200',
+        hide && 'translate-y-16 duration-200',
       )}
     >
       <Card className="flex flex-row lg:flex-col items-center justify-around gap-4 w-fit p-1 px-2 bg-background">

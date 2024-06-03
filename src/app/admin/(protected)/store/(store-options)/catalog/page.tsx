@@ -1,3 +1,4 @@
+import { Header } from '@/components/header'
 import { buttonVariants } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus } from 'lucide-react'
@@ -12,6 +13,8 @@ export default function CatalogPage({
 }) {
   return (
     <Tabs defaultValue={searchParams.tab ?? 'products'}>
+      <Header title="Catálogo" />
+
       <TabsList>
         <TabsTrigger value="products" asChild>
           <Link href="?tab=products">Produtos</Link>

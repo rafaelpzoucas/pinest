@@ -1,15 +1,14 @@
+import { Header } from '@/components/header'
 import { CategoryForm } from './form'
 
-export default function NewProduct({
+export default function NewCategory({
   searchParams,
 }: {
   searchParams: { id: string }
 }) {
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">
-        {searchParams.id ? 'Editar' : 'Nova'} categoria
-      </h1>
+      <Header title={`${searchParams.id ? 'Editar' : 'Nova'} categoria`} />
 
       <CategoryForm />
     </div>

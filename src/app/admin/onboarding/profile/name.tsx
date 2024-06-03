@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { api } from '@/lib/axios'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { createRow } from '@/services/supabase-service'
@@ -60,6 +61,17 @@ export function NameStep() {
       toast(supabaseErrors[error.code] ?? 'Erro desconhecido')
       console.log(error)
       return null
+    }
+
+    const response = await api.post('/create-seller', {
+      userId: userData.user.id,
+      email: userData.user.email,
+    })
+
+    if (response) {
+      console.log('Seller account created successfully')
+    } else {
+      console.error('Error creating seller account')
     }
 
     return router.push('?step=profile&info=phone')

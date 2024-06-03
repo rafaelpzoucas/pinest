@@ -87,7 +87,7 @@ export function AddressStep() {
     }
 
     const { error } = await createRow({
-      route: 'user_addresses',
+      route: 'addresses',
       columns: {
         user_id: userData.user.id,
         zip_code: values.zip_code,
@@ -106,7 +106,7 @@ export function AddressStep() {
       return null
     }
 
-    return router.push('?step=store')
+    return router.push('?step=store&info=name')
   }
 
   return (

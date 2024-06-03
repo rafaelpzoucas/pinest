@@ -26,13 +26,14 @@ export default async function ProtectedLayout({
     .from('users')
     .select('*')
     .eq('id', userData.user.id)
+    .single()
 
-  if (data && data[0]?.role !== 'admin') {
-    return redirect('/admin/sign-in')
+  if (error && error.code === 'PGRST116') {
+    return redirect('/admin/onboarding')
   }
 
-  if (!error && data?.length === 0) {
-    return redirect('/admin/onboarding')
+  if (data && data?.role !== 'admin') {
+    return redirect('/admin/sign-in')
   }
 
   return (

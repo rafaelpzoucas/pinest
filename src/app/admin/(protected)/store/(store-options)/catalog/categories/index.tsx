@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { queryParamsLink } from '@/lib/utils'
-import { MoreVertical } from 'lucide-react'
+import { Boxes, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
 import { readCategories } from './actions'
 
@@ -17,7 +17,17 @@ export async function Categories() {
   const { data: categories, error } = await readCategories()
 
   if (error) {
-    return <div>Não há categorias</div>
+    console.log(error)
+    return <div>Não foi possível buscar suas categorias</div>
+  }
+
+  if (categories && categories.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted mx-auto">
+        <Boxes className="w-20 h-20" />
+        <p className="text-muted-foreground">Não há categorias cadastradas</p>
+      </div>
+    )
   }
 
   return (
