@@ -16,13 +16,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { api } from '@/lib/axios'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { createRow } from '@/services/supabase-service'
 import { Loader } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { createSeller } from './actions'
 
 const formSchema = z.object({
   name: z.string(),
@@ -63,10 +63,7 @@ export function NameStep() {
       return null
     }
 
-    const response = await api.post('/create-seller', {
-      userId: userData.user.id,
-      email: userData.user.email,
-    })
+    const response = await createSeller(userData.user.id, userData.user.email)
 
     if (response) {
       console.log('Seller account created successfully')
