@@ -12,5 +12,5 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  return NextResponse.redirect(`${origin}/${storeName}/cart`)
+  return NextResponse.redirect(`${origin}/${storeName}/checkout?step=pickup`)
 }
