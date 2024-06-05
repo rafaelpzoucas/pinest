@@ -8,10 +8,7 @@ export default async function PickupOptions({
 }: {
   params: { public_store: string }
 }) {
-  const { storeAddress, storeAddressError } = await readStoreAddress(
-    params.public_store,
-  )
-
+  const { storeAddresses, storeAddressError } = await readStoreAddress()
   const { customerAddress, customerAddressError } = await readCustomerAddress()
 
   if (customerAddressError) {
@@ -21,6 +18,8 @@ export default async function PickupOptions({
   if (storeAddressError) {
     console.error(storeAddressError)
   }
+
+  const storeAddress = storeAddresses?.addresses[0]
 
   return (
     <div className="flex flex-col gap-2 w-full">

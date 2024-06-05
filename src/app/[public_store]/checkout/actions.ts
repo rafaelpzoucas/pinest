@@ -40,25 +40,18 @@ export async function readStore(storeName: string) {
   return { store, storeError }
 }
 
-export async function readStoreAddress(storeName: string): Promise<{
-  storeAddress: AddressType | null
+export async function readStoreAddress(): Promise<{
+  storeAddresses: { addresses: AddressType[] } | null
   storeAddressError: any | null
 }> {
   const supabase = createClient()
 
-  const { store, storeError } = await readStore(storeName)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { data: storeAddress, error: storeAddressError } = await supabase
-    .from('addresses')
-    .select('*')
-    .eq('user_id', store?.user_id)
+  const { data: storeAddresses, error: storeAddressError } = await supabase
+    .from('users')
+    .select('addresses (*)')
     .single()
 
-  return { storeAddress, storeAddressError }
+  return { storeAddresses, storeAddressError }
 }
 
 export async function createStripeCheckout(storeName: string) {
