@@ -6,13 +6,12 @@ import Link from 'next/link'
 import { readUser } from '../store/(store-options)/account/actions'
 
 export async function ProfileCard() {
-  const { data, error } = await readUser()
+  const { data: user, error } = await readUser()
 
   if (error) {
     console.log(error)
   }
 
-  const user = data && data[0]
   const store = user?.stores[0]
 
   const address = `${user?.addresses[0].street}, ${user?.addresses[0].number}`
@@ -48,7 +47,7 @@ export async function ProfileCard() {
       </Link>
 
       <Link
-        href={`/${store?.name}`}
+        href={`/${store?.name.replace(' ', '-')}`}
         target="_blank"
         className={buttonVariants()}
       >

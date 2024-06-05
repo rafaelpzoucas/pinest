@@ -1,3 +1,10 @@
+import { Header } from '@/components/header'
+
 export default function MarketingPage() {
-  return <main>Marketing</main>
+  return (
+    <main>
+      <Header title="Envio" />
+      Marketing
+    </main>
+  )
 }

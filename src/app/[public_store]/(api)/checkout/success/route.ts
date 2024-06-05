@@ -53,3 +53,5 @@ export async function GET(request: Request) {
 
   return NextResponse.redirect(`${origin}/${storeName}/purchases`)
 }
+
+// - [ ] Dar baixa no estoque

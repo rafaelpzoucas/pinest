@@ -36,7 +36,7 @@ export async function FirstSteps() {
     {
       name: 'Informações básicas da loja',
       href: '/admin/onboarding?step=store&info=name',
-      is_checked: (user && user.length > 0) ?? false,
+      is_checked: user !== null ?? false,
     },
     {
       name: 'Cadastrar produtos',
@@ -45,7 +45,7 @@ export async function FirstSteps() {
     },
     {
       name: 'Formas de pagamento',
-      href: 'store/payment-methods',
+      href: 'store/billing',
       is_checked:
         (connectedAccount && connectedAccount.data.length > 0) ?? false,
     },

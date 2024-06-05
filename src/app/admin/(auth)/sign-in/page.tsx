@@ -1,11 +1,6 @@
-import { buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
-import { cn } from '@/lib/utils'
-import { CheckCircle, MailWarning } from 'lucide-react'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { SignInForm } from './form'
+import { SignInWithGoogle } from './google'
 
 export default async function AdminSignIn({
   searchParams,
@@ -36,7 +31,9 @@ export default async function AdminSignIn({
         <strong className="text-5xl">ztore</strong>
       </h1>
 
-      {searchParams.message && (
+      <SignInWithGoogle />
+
+      {/* {searchParams.message && (
         <Card className={cn('flex flex-col gap-6 max-w-sm p-4')}>
           <p className="flex flex-row gap-2 text-lg">
             {searchParams.error ? <MailWarning /> : <CheckCircle />}
@@ -55,7 +52,7 @@ export default async function AdminSignIn({
         </Card>
       )}
 
-      {!searchParams.message && <SignInForm />}
+      {!searchParams.message && <SignInForm />} */}
     </main>
   )
 }
