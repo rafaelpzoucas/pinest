@@ -8,7 +8,7 @@ export function Header({ title }: { title?: string }) {
   const router = useRouter()
 
   return (
-    <header className="grid grid-cols-[1fr_5fr_1fr] items-center pb-4">
+    <header className="grid grid-cols-[1fr_5fr_1fr] items-center pb-4 w-full">
       <Button variant={'ghost'} size={'icon'} onClick={() => router.back()}>
         <ArrowLeft />
       </Button>

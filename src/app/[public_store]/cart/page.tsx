@@ -9,7 +9,6 @@ import { Plus, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { getCart } from './actions'
 import { CartProduct } from './cart-product'
-import { FinalizePurchaseDrawer } from './finalize-purchase/drawer'
 
 export default async function CartPage({
   params,
@@ -89,7 +88,12 @@ export default async function CartPage({
                   Finalizar compra
                 </Link>
               ) : (
-                <FinalizePurchaseDrawer />
+                <Link
+                  href={`/${params.public_store}/checkout?step=pickup`}
+                  className={cn(buttonVariants(), 'w-full')}
+                >
+                  Finalizar compra
+                </Link>
               ))}
           </Card>
         </div>

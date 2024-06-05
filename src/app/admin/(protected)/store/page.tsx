@@ -27,7 +27,7 @@ export default function StorePage() {
       icon: Paintbrush,
     },
     {
-      link: 'store/payment-methods',
+      link: 'store/billing',
       name: 'Formas de pagamento',
       icon: CircleDollarSign,
     },

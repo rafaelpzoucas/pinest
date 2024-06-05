@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Card, CardContent } from '@/components/ui/card'
-import { ChevronRight, MapPin, Phone, User } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { ChevronRight, ExternalLink, MapPin, Phone, User } from 'lucide-react'
 import Link from 'next/link'
 import { readUser } from '../store/(store-options)/account/actions'
 
@@ -17,9 +18,9 @@ export async function ProfileCard() {
   const address = `${user?.addresses[0].street}, ${user?.addresses[0].number}`
 
   return (
-    <Link href="store/account">
-      <Card>
-        <CardContent className="flex flex-row gap-4 pt-6">
+    <Card className="flex flex-col gap-6 p-4">
+      <Link href="store/account">
+        <div className="flex flex-row gap-4">
           <div className="flex flex-col gap-4">
             <Avatar className="w-16 h-16">
               <AvatarFallback className="uppercase">
@@ -43,8 +44,17 @@ export async function ProfileCard() {
           </div>
 
           <ChevronRight className="ml-auto w-4 h-4 text-muted-foreground" />
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+      </Link>
+
+      <Link
+        href={`/${store?.name}`}
+        target="_blank"
+        className={buttonVariants()}
+      >
+        Ver minha loja
+        <ExternalLink className="w-4 h-4 ml-2" />
+      </Link>
+    </Card>
   )
 }

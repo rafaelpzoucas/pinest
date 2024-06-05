@@ -39,8 +39,8 @@ export async function createStripeAccountLink() {
   if (user) {
     const accountLink = await stripe.accountLinks.create({
       account: user.stripe_account_id as string,
-      refresh_url: process.env.NEXT_PUBLIC_APP_URL,
-      return_url: process.env.NEXT_PUBLIC_APP_URL,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/billing`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/billing`,
       type: 'account_onboarding',
     })
 
