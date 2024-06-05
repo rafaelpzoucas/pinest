@@ -1,12 +1,43 @@
 import { Header } from '@/components/header'
+import { Card } from '@/components/ui/card'
+import { formatDate } from '@/lib/utils'
+import { Box, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
+import { readPurchases } from './actions'
 
-export default function PurchasesPage() {
+export default async function PurchasesPage() {
+  const { purchases, error } = await readPurchases()
+
   return (
     <div className="p-4 space-y-4">
-      <Header />
-      <h1 className="text-2xl font-bold">Minhas compras</h1>
+      <Header title="Minhas compras" />
 
-      <div>Lista de pedidos</div>
+      <div>
+        {purchases && purchases.length > 0 ? (
+          purchases.map((purchase) => (
+            <Link href={`purchases/${purchase.id}`} key={purchase?.id}>
+              <Card className="relative p-4">
+                <span className="text-sm text-muted-foreground">
+                  {formatDate(purchase?.created_at, 'dd/MM/yyyy')}
+                </span>
+
+                <div>
+                  {purchase.purchase_items.map((item) => (
+                    <div key={item.products.id}>{item.products.name}</div>
+                  ))}
+                </div>
+
+                <ChevronRight className="absolute top-4 right-3 w-4 h-4" />
+              </Card>
+            </Link>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted mx-auto">
+            <Box className="w-20 h-20" />
+            <p className="text-muted-foreground">Não há compras registradas</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

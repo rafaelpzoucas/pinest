@@ -6,18 +6,22 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
-  const requestUrl = new URL(request.url)
-  const storeName = requestUrl.searchParams.get('store-name')
-  const totalAmount = requestUrl.searchParams.get('total-amount')
-  const origin = requestUrl.origin
   const supabase = createClient()
 
   const bagItems: CartProductType[] = await getCart()
 
+  const requestUrl = new URL(request.url)
+  const storeName = requestUrl.searchParams.get('store-name')
+  const totalAmount = requestUrl.searchParams.get('total-amount')
+  const origin = requestUrl.origin
+
+  const { data: session } = await supabase.auth.getUser()
+
   const { data: order, error: orderError } = await supabase
-    .from('orders')
+    .from('purchases')
     .insert([
       {
+        customer_id: session.user?.id,
         status: 'paid',
         total_amount: totalAmount,
       },
@@ -29,19 +33,21 @@ export async function GET(request: Request) {
     console.error(orderError)
   }
 
-  const { error: orderItemsError } = await supabase.from('order_items').insert(
-    bagItems.map((item) => ({
-      order_id: order?.id,
-      product_id: item?.id,
-      quantity: item?.amount,
-    })),
-  )
+  const { error: orderItemsError } = await supabase
+    .from('purchase_items')
+    .insert(
+      bagItems.map((item) => ({
+        order_id: order?.id,
+        product_id: item?.id,
+        quantity: item?.amount,
+      })),
+    )
 
   if (orderItemsError) {
     console.error(orderItemsError)
   }
 
-  cookies().delete('ztore-cart')
+  cookies().delete('ztore_cart')
 
   revalidatePath('/purchases')
 
