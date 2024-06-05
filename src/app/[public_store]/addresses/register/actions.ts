@@ -15,11 +15,13 @@ export async function createCustomerAddress(
     console.error(sessionError)
   }
 
+  console.log(session?.user)
+
   const { error } = await supabase
     .from('addresses')
     .insert([
       {
-        user_id: session.user?.id,
+        user_id: session?.user?.id,
         zip_code: values.zip_code,
         street: values.street,
         number: values.number,
@@ -30,6 +32,10 @@ export async function createCustomerAddress(
       },
     ])
     .select()
+
+  if (error) {
+    console.error(error)
+  }
 
   return { error }
 }

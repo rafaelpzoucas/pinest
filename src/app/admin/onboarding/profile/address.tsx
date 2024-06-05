@@ -80,16 +80,16 @@ export function AddressStep() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const supabase = createClient()
 
-    const { data: userData, error: userError } = await supabase.auth.getUser()
+    const { data: session, error: userError } = await supabase.auth.getUser()
 
-    if (userError || !userData?.user) {
+    if (userError || !session?.user) {
       return router.push('/admin/sign-in')
     }
 
     const { error } = await createRow({
       route: 'addresses',
       columns: {
-        user_id: userData.user.id,
+        user_id: session.user.id,
         zip_code: values.zip_code,
         street: values.street,
         number: values.number,

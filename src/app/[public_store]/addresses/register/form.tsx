@@ -87,7 +87,7 @@ export function AddressForm() {
       return null
     }
 
-    return router.push(`/${storeName}/checkout`)
+    return router.push(`/${storeName}/checkout?step=summary`)
   }
 
   return (
