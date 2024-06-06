@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
   revalidatePath('/purchases')
 
-  return NextResponse.redirect(`${origin}/${storeName}/purchases`)
+  return NextResponse.redirect(`${origin}/${storeName}/purchases?callback=home`)
 }
 
 // - [ ] Dar baixa no estoque

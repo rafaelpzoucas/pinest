@@ -12,7 +12,7 @@ export default async function PurchasesPage() {
     <div className="p-4 space-y-4">
       <Header title="Minhas compras" />
 
-      <div>
+      <div className="flex flex-col gap-2">
         {purchases && purchases.length > 0 ? (
           purchases.map((purchase) => (
             <Link href={`purchases/${purchase.id}`} key={purchase?.id}>
@@ -23,7 +23,9 @@ export default async function PurchasesPage() {
 
                 <div>
                   {purchase.purchase_items.map((item) => (
-                    <div key={item.products.id}>{item.products.name}</div>
+                    <div key={item.products.id}>
+                      x{item.quantity} {item.products.name}
+                    </div>
                   ))}
                 </div>
 
