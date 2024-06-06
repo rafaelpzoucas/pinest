@@ -1,6 +1,7 @@
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
+import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { redirect } from 'next/navigation'
 import { getCart } from '../cart/actions'
@@ -28,27 +29,35 @@ export async function readCustomerAddress() {
   }
 }
 
-export async function readStore(storeName: string) {
+export async function readStore(storeName: string): Promise<{
+  store: StoreType | null
+  storeError: any | null
+}> {
   const supabase = createClient()
 
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('*')
-    .eq('name', storeName)
+    .eq('name', storeName.replaceAll('-', ' '))
     .single()
 
   return { store, storeError }
 }
 
-export async function readStoreAddress(): Promise<{
+export async function readStoreAddress(storeName: string): Promise<{
   storeAddresses: { addresses: AddressType[] } | null
   storeAddressError: any | null
 }> {
   const supabase = createClient()
 
+  const { store, storeError } = await readStore(storeName)
+
+  if (storeError) console.error(storeError)
+
   const { data: storeAddresses, error: storeAddressError } = await supabase
     .from('users')
     .select('addresses (*)')
+    .eq('id', store?.user_id)
     .single()
 
   return { storeAddresses, storeAddressError }

@@ -8,7 +8,9 @@ export default async function PickupOptions({
 }: {
   params: { public_store: string }
 }) {
-  const { storeAddresses, storeAddressError } = await readStoreAddress()
+  const { storeAddresses, storeAddressError } = await readStoreAddress(
+    params.public_store,
+  )
   const { customerAddress, customerAddressError } = await readCustomerAddress()
 
   if (customerAddressError) {

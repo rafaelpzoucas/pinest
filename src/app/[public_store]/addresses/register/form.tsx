@@ -105,12 +105,12 @@ export function AddressForm() {
               <FormControl>
                 <Input
                   type="zip-code"
-                  placeholder="Digite o CEP da sua loja..."
+                  placeholder="Digite o seu CEP..."
                   {...field}
                 />
               </FormControl>
               <FormDescription className="flex">
-                <Link href="?step=search-zc" className={cn('text-primary')}>
+                <Link href="search-zipcode" className={cn('text-primary')}>
                   Não sei o CEP
                 </Link>
               </FormDescription>

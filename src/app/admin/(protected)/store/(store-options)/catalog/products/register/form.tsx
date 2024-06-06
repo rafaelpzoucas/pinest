@@ -209,10 +209,7 @@ export function ProductForm({
           type="submit"
           className="ml-auto"
           disabled={
-            formState.isSubmitting ||
-            formState.isSubmitted ||
-            !formState.isDirty ||
-            !formState.isValid
+            formState.isSubmitting || !formState.isDirty || !formState.isValid
           }
         >
           {formState.isSubmitting && (

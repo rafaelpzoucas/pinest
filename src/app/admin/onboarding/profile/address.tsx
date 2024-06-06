@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { ViacepType } from '@/models/viacep-address'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { createRow } from '@/services/supabase-service'
 import { Loader } from 'lucide-react'
@@ -25,19 +26,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
-
-type ViacepType = {
-  cep: string
-  logradouro: string
-  complemento: string
-  bairro: string
-  localidade: string
-  uf: string
-  ibge: string
-  gia: string
-  ddd: string
-  siafi: string
-}
 
 const formSchema = z.object({
   zip_code: z.string().min(8),
