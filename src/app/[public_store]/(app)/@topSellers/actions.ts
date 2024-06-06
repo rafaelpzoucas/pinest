@@ -8,7 +8,7 @@ export async function getTopSellers() {
   const { data: topSellers, error: topSellersError } = await supabase
     .from('products')
     .select('*')
-    .range(0, 10)
+    .range(0, 9)
 
   return { topSellers, topSellersError }
 }
