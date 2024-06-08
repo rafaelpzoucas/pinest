@@ -53,6 +53,7 @@ export async function createPurchase(
         order_id: order?.id,
         product_id: item?.id,
         quantity: item?.amount,
+        product_price: item?.price,
       })),
     )
 

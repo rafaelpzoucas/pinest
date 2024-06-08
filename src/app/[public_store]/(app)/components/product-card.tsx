@@ -33,7 +33,7 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
 
   return (
     <Link
-      href={`/${publicStore}/products/${data.id}`}
+      href={publicStore ? `/${publicStore}/products/${data.id}` : '#'}
       className={cn(productCardVariants({ variant }))}
     >
       <Card

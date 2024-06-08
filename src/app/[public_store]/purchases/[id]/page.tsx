@@ -61,7 +61,11 @@ export default async function PurchasePage({
 
           <Card className="flex flex-col gap-3 p-4">
             {purchase.purchase_items.map((item) => (
-              <ProductCard key={item.id} data={item.products} />
+              <ProductCard
+                key={item.id}
+                data={{ ...item.products, price: item.product_price }}
+                publicStore={params.public_store}
+              />
             ))}
           </Card>
         </div>

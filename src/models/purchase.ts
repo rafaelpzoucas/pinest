@@ -7,6 +7,7 @@ type PurchaseItemsType = {
   order_id: string
   product_id: string
   quantity: number
+  product_price: number
   products: ProductType
 }
 
