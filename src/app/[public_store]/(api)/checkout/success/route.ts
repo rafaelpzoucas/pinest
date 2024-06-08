@@ -22,8 +22,9 @@ export async function GET(request: Request) {
     .insert([
       {
         customer_id: session.user?.id,
-        status: 'paid',
+        status: 'approved',
         total_amount: totalAmount,
+        updated_at: new Date().toISOString(),
       },
     ])
     .select()
@@ -47,6 +48,42 @@ export async function GET(request: Request) {
     console.error(orderItemsError)
   }
 
+  // Update stock
+  for (const item of bagItems) {
+    const { data: product, error: getProductError } = await supabase
+      .from('products')
+      .select('stock, amount_sold')
+      .eq('id', item.id)
+      .single()
+
+    if (getProductError) {
+      console.error(`Erro ao obter o produto ${item.id}:`, getProductError)
+      return NextResponse.json(
+        { error: 'Error fetching product stock' },
+        { status: 500 },
+      )
+    }
+
+    const newStock = product.stock - item.amount
+    const newSold = product.amount_sold + item.amount
+
+    const { error: updateStockError } = await supabase
+      .from('products')
+      .update({ stock: newStock, amount_sold: newSold })
+      .eq('id', item.id)
+
+    if (updateStockError) {
+      console.error(
+        `Erro ao atualizar o estoque do produto ${item.id}:`,
+        updateStockError,
+      )
+      return NextResponse.json(
+        { error: 'Error updating product stock' },
+        { status: 500 },
+      )
+    }
+  }
+
   cookies().delete('ztore_cart')
 
   revalidatePath('/purchases')
@@ -54,4 +91,4 @@ export async function GET(request: Request) {
   return NextResponse.redirect(`${origin}/${storeName}/purchases?callback=home`)
 }
 
-// - [ ] Dar baixa no estoque
+// - [ ] add address id to purchase

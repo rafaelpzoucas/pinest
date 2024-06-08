@@ -29,7 +29,7 @@ export interface ProductCardProps
 }
 
 export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
-  const isPromotional = false
+  const isPromotional = data.promotional_price
 
   return (
     <Link
@@ -47,7 +47,7 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
         />
       </Card>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
         <div className="leading-4">
           <p
             className={cn(
@@ -58,14 +58,17 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
           >
             {formatCurrencyBRL(data.price)}
           </p>
-          {/* <p
-            className={cn(
-              'hidden font-bold text-primary',
-              isPromotional && 'block',
-            )}
-          >
-            {formatCurrencyBRL(data.promotional_price)}
-          </p> */}
+
+          {data.promotional_price && (
+            <p
+              className={cn(
+                'hidden font-bold text-primary',
+                isPromotional && 'block',
+              )}
+            >
+              {formatCurrencyBRL(data.promotional_price)}
+            </p>
+          )}
         </div>
 
         <p

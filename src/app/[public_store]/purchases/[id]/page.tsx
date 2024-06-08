@@ -1,6 +1,6 @@
 import { Header } from '@/components/header'
 import { Card } from '@/components/ui/card'
-import { formatDate } from '@/lib/utils'
+import { formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { ProductCard } from '../../(app)/components/product-card'
 import { readPurchaseById } from './actions'
 import { Status } from './status'
@@ -14,54 +14,55 @@ export default async function PurchasePage({
 
   if (purchaseError) console.error(purchaseError)
 
+  const address = purchase?.addresses
+
   return (
     <section className="p-4">
       <Header title="Detalhes do pedido" />
 
       {purchase && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 text-sm">
           <Status purchase={purchase} />
 
           <Card className="p-4">
-            <p>
+            <span className="text-muted-foreground">
               {purchase && formatDate(purchase?.created_at, 'dd/MM HH:mm:ss')}
+            </span>
+            <p className="flex flex-row items-center justify-between">
+              <span className="text-muted-foreground">
+                Produtos({purchase.purchase_items.length})
+              </span>
+              <span>{formatCurrencyBRL(purchase.total_amount)}</span>
             </p>
             <p className="flex flex-row items-center justify-between">
-              <span>Produtos(3)</span>
-              <span>R$ 100,00</span>
-            </p>
-            <p className="flex flex-row items-center justify-between">
-              <span>Desconto</span>
+              <span className="text-muted-foreground">Desconto</span>
               <span>R$ 0,00</span>
             </p>
             <p className="flex flex-row items-center justify-between">
-              <span>Frete</span>
+              <span className="text-muted-foreground">Frete</span>
               <span>Grátis</span>
             </p>
             <p className="flex flex-row items-center justify-between">
-              <span>Total</span>
-              <span>R$ 100,00</span>
+              <span className="text-muted-foreground">Total</span>
+              <span>{formatCurrencyBRL(purchase.total_amount)}</span>
             </p>
           </Card>
 
           <Card className="p-4">
-            <p>R$ 100,00</p>
-            <span>PIX</span>
+            <p>
+              {address?.street}, {address?.number}
+              {address?.complement && `, ${address?.complement}`} -{' '}
+              {address?.neighborhood}
+            </p>
+            <span className="text-muted-foreground">
+              {address?.city}/{address?.state}
+            </span>
           </Card>
 
-          <Card className="p-4">
-            <p>Rua Santa Cruz, 801</p>
-            <span>Assis/SP</span>
-          </Card>
-
-          <Card className="p-4">
-            <ul>
-              <li>
-                <div>
-                  <ProductCard data={purchase?.purchase_items[0].products} />
-                </div>
-              </li>
-            </ul>
+          <Card className="flex flex-col gap-3 p-4">
+            {purchase.purchase_items.map((item) => (
+              <ProductCard key={item.id} data={item.products} />
+            ))}
           </Card>
         </div>
       )}

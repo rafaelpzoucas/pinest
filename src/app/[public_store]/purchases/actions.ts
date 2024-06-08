@@ -7,7 +7,10 @@ export async function readPurchases(): Promise<{
 }> {
   const supabase = createClient()
 
-  const { data: purchases, error } = await supabase.from('purchases').select(`
+  const { data: purchases, error } = await supabase
+    .from('purchases')
+    .select(
+      `
     *,
     purchase_items (
       *,
@@ -15,7 +18,9 @@ export async function readPurchases(): Promise<{
         *
       )
     )
-  `)
+  `,
+    )
+    .order('created_at', { ascending: false })
 
   return { purchases, error }
 }

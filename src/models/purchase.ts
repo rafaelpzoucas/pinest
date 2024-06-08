@@ -1,4 +1,5 @@
 import { ProductType } from './product'
+import { AddressType } from './user'
 
 type PurchaseItemsType = {
   id: string
@@ -12,8 +13,10 @@ type PurchaseItemsType = {
 export type PurchaseType = {
   id: string
   created_at: string
+  updated_at: string
   customer_id: string
   status: string
   total_amount: number
   purchase_items: PurchaseItemsType[]
+  addresses: AddressType
 }

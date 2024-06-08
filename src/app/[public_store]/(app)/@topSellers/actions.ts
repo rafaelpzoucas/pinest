@@ -9,6 +9,7 @@ export async function getTopSellers() {
     .from('products')
     .select('*')
     .range(0, 9)
+    .order('amount_sold', { ascending: false })
 
   return { topSellers, topSellersError }
 }

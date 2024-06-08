@@ -8,4 +8,5 @@ export type ProductType = {
   thumb_url: string | null
   created_at: string
   category_id: string
+  amount_sold: number
 }
