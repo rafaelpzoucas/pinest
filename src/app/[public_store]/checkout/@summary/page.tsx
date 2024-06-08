@@ -1,21 +1,30 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { DollarSign, MapPin, ScrollText } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import Link from 'next/link'
+import { ProductCard } from '../../(app)/components/product-card'
 import { getCart } from '../../cart/actions'
-import { createStripeCheckout } from '../actions'
+import { createPurchase, readAddressById } from './actions'
 
-function CheckoutButton({ storeName }: { storeName: string }) {
-  async function handleCreateStripeCheckout() {
+function CheckoutButton({
+  totalAmount,
+  storeName,
+  addressId,
+}: {
+  totalAmount: number
+  storeName: string
+  addressId: string
+}) {
+  async function handleCreatePurchase() {
     'use server'
-    await createStripeCheckout(storeName)
+    await createPurchase(totalAmount, storeName, addressId)
   }
 
   return (
-    <form action={handleCreateStripeCheckout} className="w-full">
+    <form action={handleCreatePurchase} className="w-full">
       <Button type="submit" className="w-full">
         Continuar para o pagamento
       </Button>
@@ -25,10 +34,15 @@ function CheckoutButton({ storeName }: { storeName: string }) {
 
 export default async function Confirm({
   params,
+  searchParams,
 }: {
   params: { public_store: string }
+  searchParams: { address: string }
 }) {
+  const addressId = searchParams.address
+
   const bagItems: CartProductType[] = await getCart()
+  const { address, addressError } = await readAddressById(addressId)
 
   const productsPrice = bagItems.reduce((acc, bagItem) => {
     const priceToAdd =
@@ -38,7 +52,7 @@ export default async function Confirm({
   }, 0)
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <Card className="flex flex-col p-4 w-full space-y-2">
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
           <p>Produtos ({bagItems.length})</p>
@@ -61,14 +75,21 @@ export default async function Confirm({
           <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
         </div>
 
-        <CheckoutButton storeName={params.public_store} />
+        <CheckoutButton
+          storeName={params.public_store}
+          totalAmount={productsPrice}
+          addressId={searchParams.address}
+        />
       </Card>
 
       <section className="flex flex-col items-center gap-2 text-center border-b py-6">
         <MapPin />
-        <p>Rua Santa Cruz, 801</p>
+        <p>
+          {address?.street}, {address?.number}
+        </p>
         <span className="text-xs text-muted-foreground">
-          CEP 19800-320 - Centro - Assis, São Paulo
+          CEP {address?.zip_code} - {address?.neighborhood} - {address?.city}/
+          {address?.state}
         </span>
 
         <Link href="" className={cn(buttonVariants({ variant: 'link' }))}>
@@ -76,7 +97,7 @@ export default async function Confirm({
         </Link>
       </section>
 
-      <section className="flex flex-col items-center gap-2 text-center border-b py-6">
+      {/* <section className="flex flex-col items-center gap-2 text-center border-b py-6">
         <DollarSign />
         <p>Você pagará {formatCurrencyBRL(100)} com Pix</p>
         <span className="text-xs text-muted-foreground">
@@ -98,9 +119,25 @@ export default async function Confirm({
         <Link href="" className={cn(buttonVariants({ variant: 'link' }))}>
           Alterar dados
         </Link>
+      </section> */}
+
+      <section className="flex flex-col items-start gap-2 py-6">
+        {bagItems.map((item) => (
+          <ProductCard
+            key={item.id}
+            data={item}
+            publicStore={params.public_store}
+            variant={'bag_items'}
+            className="w-full"
+          />
+        ))}
       </section>
 
-      <CheckoutButton storeName={params.public_store} />
+      <CheckoutButton
+        storeName={params.public_store}
+        totalAmount={productsPrice}
+        addressId={searchParams.address}
+      />
     </div>
   )
 }

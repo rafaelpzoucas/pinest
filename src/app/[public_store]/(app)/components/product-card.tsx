@@ -37,7 +37,9 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
       className={cn(productCardVariants({ variant }))}
     >
       <Card
-        className={cn('relative w-full aspect-square overflow-hidden border-0')}
+        className={cn(
+          'relative min-w-14 w-full aspect-square overflow-hidden border-0',
+        )}
       >
         <Image
           src={data.thumb_url ?? defaultThumbUrl}

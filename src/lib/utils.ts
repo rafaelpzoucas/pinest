@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+import { AddressType } from '@/models/user'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -38,4 +39,8 @@ export function queryParamsLink(params: QueryParamsGeneric) {
   })
 
   return queryParams.toString()
+}
+
+export function formatAddress(address: AddressType) {
+  return `${address.street}, ${address.number}${address.complement && ', ' + address.complement} - ${address.neighborhood} - ${address.city}/${address.state}`
 }

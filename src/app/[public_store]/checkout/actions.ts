@@ -63,14 +63,11 @@ export async function readStoreAddress(storeName: string): Promise<{
   return { storeAddresses, storeAddressError }
 }
 
-export async function createStripeCheckout(storeName: string) {
+export async function createStripeCheckout(
+  storeName: string,
+  purchaseId: string,
+) {
   const bagItems: CartProductType[] = await getCart()
-  const totalAmount = bagItems.reduce((acc, bagItem) => {
-    const priceToAdd =
-      bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
-
-    return acc + priceToAdd * bagItem.amount
-  }, 0)
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -85,7 +82,7 @@ export async function createStripeCheckout(storeName: string) {
       },
       quantity: item.amount,
     })),
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&total-amount=${totalAmount}`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/cart`,
   })
 
