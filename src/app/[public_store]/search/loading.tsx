@@ -27,7 +27,13 @@ export default async function SearchPageLoading() {
 
       <section className="flex flex-col gap-8 pt-4 pb-16">
         <div className="flex flex-col px-4">
-          <ProductCard />
+          <div className="grid grid-cols-2 gap-4">
+            <ProductCard variant={'featured'} />
+            <ProductCard variant={'featured'} />
+            <ProductCard variant={'featured'} />
+            <ProductCard variant={'featured'} />
+            <ProductCard variant={'featured'} />
+          </div>
         </div>
       </section>
     </div>

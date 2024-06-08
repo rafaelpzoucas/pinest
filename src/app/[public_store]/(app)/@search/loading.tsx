@@ -24,7 +24,11 @@ export default function SearchLoading() {
           </div>
 
           <AccordionContent className="flex flex-row flex-wrap gap-2 mt-4 pb-0">
-            <Skeleton className="w-32 h-6" />
+            <Skeleton className="w-32 h-[1.375rem]" />
+            <Skeleton className="w-32 h-[1.375rem]" />
+            <Skeleton className="w-32 h-[1.375rem]" />
+            <Skeleton className="w-32 h-[1.375rem]" />
+            <Skeleton className="w-32 h-[1.375rem]" />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
