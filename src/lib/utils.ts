@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 import { AddressType } from '@/models/user'
-import { format } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 type QueryParamsGeneric = { [key: string]: string | number | null | undefined }
@@ -20,6 +20,12 @@ export function formatCurrencyBRL(number: number) {
 
 export function formatDate(date: string, dateFormat: string) {
   return format(new Date(date), dateFormat, {
+    locale: ptBR,
+  })
+}
+
+export function formatDistanceToNowDate(date: string) {
+  return formatDistanceToNow(new Date(date), {
     locale: ptBR,
   })
 }

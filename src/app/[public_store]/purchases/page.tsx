@@ -1,9 +1,13 @@
 import { Header } from '@/components/header'
+import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { formatDate } from '@/lib/utils'
+import { cn, formatDate } from '@/lib/utils'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { statuses } from './[id]/statuses'
 import { readPurchases } from './actions'
+
+type StatusKey = keyof typeof statuses
 
 export default async function PurchasesPage() {
   const { purchases, error } = await readPurchases()
@@ -18,7 +22,13 @@ export default async function PurchasesPage() {
         {purchases && purchases.length > 0 ? (
           purchases.map((purchase) => (
             <Link href={`purchases/${purchase.id}`} key={purchase?.id}>
-              <Card className="relative p-4 text-sm">
+              <Card className="relative flex flex-col gap-1 items-start p-4 text-sm">
+                <Badge
+                  className={cn(statuses[purchase.status as StatusKey].color)}
+                >
+                  {statuses[purchase.status as StatusKey].status}
+                </Badge>
+
                 <span className="text-sm text-muted-foreground">
                   {formatDate(purchase?.created_at, 'dd/MM/yyyy')}
                 </span>
