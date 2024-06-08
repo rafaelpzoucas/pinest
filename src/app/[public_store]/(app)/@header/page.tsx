@@ -12,7 +12,8 @@ export default function Header() {
               src={vercel}
               fill
               alt=""
-              className="object-contain object-left"
+              className={'object-contain object-left'}
+              priority
             />
           </div>
 

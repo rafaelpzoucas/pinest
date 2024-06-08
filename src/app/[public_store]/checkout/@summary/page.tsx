@@ -32,7 +32,7 @@ function CheckoutButton({
   )
 }
 
-export default async function Confirm({
+export default async function Summary({
   params,
   searchParams,
 }: {

@@ -1,3 +1,4 @@
+import { Box } from 'lucide-react'
 import { ProductCard } from '../components/product-card'
 import { getProductsByCategory } from './actions'
 
@@ -38,7 +39,12 @@ export default async function ProductsList({
           </div>
         ))
       ) : (
-        <div>nao tem </div>
+        <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted">
+          <Box className="w-20 h-20" />
+          <p className="text-center text-muted-foreground">
+            Não encontramos nenhum produto
+          </p>
+        </div>
       )}
     </section>
   )

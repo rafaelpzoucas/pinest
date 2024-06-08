@@ -16,6 +16,11 @@ export default async function TopSellersPage({
 
   if (topSellersError) {
     console.log(topSellersError)
+    return null
+  }
+
+  if (topSellers?.length === 0) {
+    return null
   }
 
   return (

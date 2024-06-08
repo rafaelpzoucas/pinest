@@ -1,6 +1,7 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ProductType } from '@/models/product'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -24,12 +25,29 @@ const productCardVariants = cva('text-sm leading-4', {
 export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
-  data: ProductType
+  data?: ProductType
   publicStore?: string
 }
 
 export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
-  const isPromotional = data.promotional_price
+  const isPromotional = data?.promotional_price
+
+  if (!data) {
+    return (
+      <div className={cn(productCardVariants({ variant }))}>
+        <Skeleton className="w-full min-w-14 aspect-square rounded-card" />
+
+        <div className="flex flex-col gap-1">
+          <div className="leading-4">
+            <Skeleton className="w-2/3 h-3" />
+          </div>
+
+          <Skeleton className="w-full h-[0.875rem]" />
+          <Skeleton className="w-1/2 h-[0.875rem]" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Link
@@ -46,6 +64,7 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
           fill
           alt=""
           className="object-cover"
+          placeholder="blur"
         />
       </Card>
 
