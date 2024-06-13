@@ -9,6 +9,12 @@ export async function readUser(): Promise<{
 }> {
   const supabase = createClient()
 
+  const { data: session, error: sessionError } = await supabase.auth.getUser()
+
+  if (sessionError) {
+    console.error(sessionError)
+  }
+
   const { data, error } = await supabase
     .from('users')
     .select(
@@ -22,6 +28,7 @@ export async function readUser(): Promise<{
       )
     `,
     )
+    .eq('id', session.user?.id)
     .single()
   return { data, error }
 }
