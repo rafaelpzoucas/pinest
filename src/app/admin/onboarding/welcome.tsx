@@ -8,7 +8,7 @@ export function WelcomeStep() {
     <div className="flex flex-col h-full gap-4">
       <header>
         <h2>
-          Bem vindo à <strong>ztore</strong>,
+          Bem vindo à <strong>Pinest</strong>,
         </h2>
         <h1 className="text-3xl font-bold">
           Vamos te ajudar a criar uma loja virtual incrível.

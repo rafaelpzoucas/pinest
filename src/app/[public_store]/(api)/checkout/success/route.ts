@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     console.error(error)
   }
 
-  cookies().delete('ztore_cart')
+  cookies().delete('pinest_cart')
 
   revalidatePath('/purchases')
 

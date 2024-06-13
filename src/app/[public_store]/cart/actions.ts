@@ -6,12 +6,12 @@ import { cookies } from 'next/headers'
 
 export async function getCart() {
   const cookieStore = cookies()
-  return JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
+  return JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
 }
 
 export async function addToCart(newItem: CartProductType) {
   const cookieStore = cookies()
-  const cart = JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
+  const cart = JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
 
   // Encontre o item no carrinho
   const existingItemIndex = cart.findIndex(
@@ -24,12 +24,12 @@ export async function addToCart(newItem: CartProductType) {
     cart.push(newItem)
   }
 
-  cookieStore.set('ztore_cart', JSON.stringify(cart), { path: '/' })
+  cookieStore.set('pinest_cart', JSON.stringify(cart), { path: '/' })
 }
 
 export async function updateItemAmount(itemId: string, newAmount: number) {
   const cookieStore = cookies()
-  const cart = JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
+  const cart = JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
 
   const existingItemIndex = cart.findIndex(
     (item: CartProductType) => item.id === itemId,
@@ -41,12 +41,12 @@ export async function updateItemAmount(itemId: string, newAmount: number) {
     throw new Error('Item not found in cart')
   }
 
-  cookieStore.set('ztore_cart', JSON.stringify(cart), { path: '/' })
+  cookieStore.set('pinest_cart', JSON.stringify(cart), { path: '/' })
 }
 
 export async function removeFromCart(itemId: string) {
   const cookieStore = cookies()
-  let cart = JSON.parse(cookieStore.get('ztore_cart')?.value || '[]')
+  let cart = JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
   cart = cart.filter((item: CartProductType) => item.id !== itemId)
-  cookieStore.set('ztore_cart', JSON.stringify(cart), { path: '/' })
+  cookieStore.set('pinest_cart', JSON.stringify(cart), { path: '/' })
 }
