@@ -1,8 +1,8 @@
 import { Island } from '@/components/island'
-import { Navigation } from '@/components/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { Navigation } from './navigation'
 
 export const metadata: Metadata = {
   title: 'Pinest | Admin',

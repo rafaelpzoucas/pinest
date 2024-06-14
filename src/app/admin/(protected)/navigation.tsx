@@ -1,10 +1,10 @@
 'use client'
 
+import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { BarChart2, Home, Layers, Store, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Card } from './ui/card'
 
 export function Navigation() {
   const pathname = usePathname()
@@ -20,7 +20,7 @@ export function Navigation() {
       icon: Home,
     },
     {
-      href: '/admin/orders',
+      href: '/admin/purchases',
       name: 'Pedidos',
       icon: Layers,
     },
