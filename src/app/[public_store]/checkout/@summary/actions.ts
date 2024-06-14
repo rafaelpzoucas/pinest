@@ -52,15 +52,20 @@ export async function createPurchase(
     console.error(customerError)
   }
 
-  const { data: insertCustomer, error: insertCustomerError } = await supabase
+  const { error: insertCustomerError } = await supabase
     .from('customers')
     .insert([
       {
         name: session.user?.user_metadata.name,
-        purchases_quantity: '',
+        purchases_quantity: customer && customer?.purchase_quantity + 1,
         user_id: session.user?.id,
       },
     ])
+    .select()
+
+  if (insertCustomerError) {
+    console.error(insertCustomerError)
+  }
 
   const { data: order, error: orderError } = await supabase
     .from('purchases')

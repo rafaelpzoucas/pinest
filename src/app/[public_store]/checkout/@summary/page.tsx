@@ -42,7 +42,7 @@ export default async function Summary({
   const addressId = searchParams.address
 
   const bagItems: CartProductType[] = await getCart()
-  const { address, addressError } = await readAddressById(addressId)
+  const { address } = await readAddressById(addressId)
 
   const productsPrice = bagItems.reduce((acc, bagItem) => {
     const priceToAdd =

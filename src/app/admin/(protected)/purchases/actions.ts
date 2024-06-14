@@ -36,7 +36,8 @@ export async function readPurchases(): Promise<{
     .select(
       `
       *,
-      purchase_items (*)
+      purchase_items (*),
+      customers (*)
     `,
     )
     .eq('store_id', store?.id)
