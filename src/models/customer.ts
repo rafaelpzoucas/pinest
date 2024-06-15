@@ -1,6 +1,6 @@
 export type CustomerType = {
   id: string
   name: string
-  purchase_quantity: string
+  purchases_quantity: number
   created_at: string
 }

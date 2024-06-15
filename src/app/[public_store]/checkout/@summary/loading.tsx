@@ -35,7 +35,7 @@ export default async function SummaryLoading() {
     <div className="flex flex-col w-full">
       <Card className="flex flex-col p-4 w-full space-y-2">
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <p>
+          <p className="flex flex-row items-start">
             Produtos (<Skeleton className="w-4 h-4" />)
           </p>
           <Skeleton className="w-24 h-3" />

@@ -6,6 +6,8 @@ import { PurchaseCard } from './purchase-card'
 export async function Purchases() {
   const { purchases, purchasesError } = await readPurchases()
 
+  if (purchasesError) console.error(purchasesError)
+
   if (purchasesError || (purchases && purchases.length === 0)) {
     return null
   }
