@@ -1,5 +1,10 @@
+import { CustomerType } from './customer'
 import { ProductType } from './product'
-import { AddressType } from './user'
+import { AddressType, UserType } from './user'
+
+interface CustomersType extends CustomerType {
+  users: UserType
+}
 
 type PurchaseItemsType = {
   id: string
@@ -20,4 +25,5 @@ export type PurchaseType = {
   total_amount: number
   purchase_items: PurchaseItemsType[]
   addresses: AddressType
+  customers: CustomersType
 }

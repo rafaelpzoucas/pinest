@@ -37,7 +37,10 @@ export async function readPurchases(): Promise<{
       `
       *,
       purchase_items (*),
-      customers (*)
+      customers (
+        *,
+        users (*)
+      )
     `,
     )
     .eq('store_id', store?.id)

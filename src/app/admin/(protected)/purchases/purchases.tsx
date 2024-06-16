@@ -1,26 +1,40 @@
+'use client'
+
 import { Input } from '@/components/ui/input'
+import { PurchaseType } from '@/models/purchase'
 import { Search } from 'lucide-react'
-import { readPurchases } from './actions'
+import { useState } from 'react'
 import { PurchaseCard } from './purchase-card'
 
-export async function Purchases() {
-  const { purchases, purchasesError } = await readPurchases()
+export function Purchases({ purchases }: { purchases: PurchaseType[] }) {
+  const [search, setSearch] = useState('')
 
-  if (purchasesError) console.error(purchasesError)
+  const normalizeString = (str: string | undefined) => str?.toLowerCase() || ''
 
-  if (purchasesError || (purchases && purchases.length === 0)) {
-    return null
-  }
+  const searchStr = normalizeString(search)
+
+  const filteredPurchases =
+    purchases &&
+    purchases.filter((purchase) => {
+      const { customers } = purchase
+
+      return normalizeString(customers.users.name).includes(searchStr)
+    })
 
   return (
     <section className="flex flex-col gap-2 text-sm">
       <div className="relative">
         <Search className="absolute top-2 left-3 w-5 h-5 text-muted-foreground" />
-        <Input placeholder="Buscar pedido..." className="pl-10" />
+        <Input
+          placeholder="Buscar pedido..."
+          className="pl-10"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       {purchases &&
-        purchases.map((purchase) => (
+        filteredPurchases.map((purchase) => (
           <PurchaseCard key={purchase.id} purchase={purchase} />
         ))}
     </section>

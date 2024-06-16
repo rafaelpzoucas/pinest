@@ -10,6 +10,14 @@ type PurchaseCardPropsType = {
 }
 
 export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
+  const customer = purchase.customers.users
+
+  const customerNames = customer.name.split(' ')
+  const firstName = customerNames[0]
+  const lastName = customerNames[customerNames.length - 1]
+
+  console.log(customer)
+
   return (
     <Link href={`purchases/${purchase.id}`}>
       <Card
@@ -20,7 +28,7 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
         )}
       >
         <header className="flex flex-row">
-          <strong>{purchase.customer_id}</strong>
+          <strong>{`${firstName} ${lastName}`}</strong>
 
           <span
             className={cn(
