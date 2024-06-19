@@ -35,7 +35,7 @@ export default async function TopSellersPage({
         <CarouselContent>
           {topSellers &&
             topSellers.map((product) => (
-              <CarouselItem className="flex-[0_0_40%]" key={product.title}>
+              <CarouselItem className="flex-[0_0_40%]" key={product.id}>
                 <ProductCard
                   variant={'featured'}
                   data={product}
