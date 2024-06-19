@@ -22,12 +22,15 @@ import {
 } from '@/components/ui/alert-dialog'
 
 import { queryParamsLink } from '@/lib/utils'
+import { ProductType } from '@/models/product'
 import { MoreVertical } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { ProductType, deleteProduct } from './actions'
+import { deleteProduct } from './actions'
 
-export function ProductOptions({ product }: { product: ProductType }) {
+type ProductOptions = Omit<ProductType, 'product_images'>
+
+export function ProductOptions({ product }: { product: ProductOptions }) {
   const [isAlertOpen, setIsAlertOpen] = useState(false)
 
   return (
