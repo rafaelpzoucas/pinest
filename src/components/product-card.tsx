@@ -1,5 +1,6 @@
 'use client'
 
+import defaultThumbUrl from '@/../public/default_thumb_url.png'
 import { ProductOptions } from '@/app/admin/(protected)/store/(store-options)/catalog/products/options'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,7 +9,6 @@ import { ProductType } from '@/models/product'
 import { cva, type VariantProps } from 'class-variance-authority'
 import Image from 'next/image'
 import Link from 'next/link'
-import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 const productCardVariants = cva('text-sm leading-4', {
   variants: {
