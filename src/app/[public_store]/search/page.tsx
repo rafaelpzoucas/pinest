@@ -1,9 +1,9 @@
+import { ProductCard } from '@/components/product-card'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Search } from 'lucide-react'
 import Link from 'next/link'
 import { SearchSheet } from '../(app)/@search/search-sheet'
-import { ProductCard } from '../(app)/components/product-card'
 import { getSearchedProducts } from './actions'
 
 export default async function SearchPage({

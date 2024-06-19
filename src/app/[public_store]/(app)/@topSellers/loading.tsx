@@ -1,10 +1,10 @@
+import { ProductCard } from '@/components/product-card'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ProductCard } from '../components/product-card'
 
 export default function StoreLoading() {
   return (

@@ -4,7 +4,7 @@ import {
   CarouselItem,
 } from '@/components/ui/carousel'
 
-import { ProductCard } from '../components/product-card'
+import { ProductCard } from '@/components/product-card'
 import { getTopSellers } from './actions'
 
 export default async function TopSellersPage({

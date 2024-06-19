@@ -1,5 +1,5 @@
+import { ProductCard } from '@/components/product-card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ProductCard } from '../components/product-card'
 
 export default async function ProductsListLoading() {
   return (

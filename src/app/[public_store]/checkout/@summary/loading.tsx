@@ -1,10 +1,10 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
+import { ProductCard } from '@/components/product-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ProductCard } from '../../(app)/components/product-card'
 import { createPurchase } from './actions'
 
 function CheckoutButton({

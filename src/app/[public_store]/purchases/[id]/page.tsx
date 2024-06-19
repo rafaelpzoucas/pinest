@@ -1,7 +1,7 @@
 import { Header } from '@/components/header'
+import { ProductCard } from '@/components/product-card'
 import { Card } from '@/components/ui/card'
 import { formatCurrencyBRL, formatDate } from '@/lib/utils'
-import { ProductCard } from '../../(app)/components/product-card'
 import { readPurchaseById } from './actions'
 import { Status } from './status'
 

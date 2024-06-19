@@ -10,13 +10,13 @@ import {
 } from '@/components/ui/drawer'
 import { Minus, Plus } from 'lucide-react'
 
+import { ProductCard } from '@/components/product-card'
 import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductType } from '@/models/product'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { ProductCard } from '../../(app)/components/product-card'
 import { addToCart } from '../../cart/actions'
 
 type AddToCardDrawerProps = {

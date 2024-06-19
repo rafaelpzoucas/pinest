@@ -1,5 +1,5 @@
+import { ProductCard } from '@/components/product-card'
 import { Box } from 'lucide-react'
-import { ProductCard } from '../components/product-card'
 import { getProductsByCategory } from './actions'
 
 export default async function ProductsList({

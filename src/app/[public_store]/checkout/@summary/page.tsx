@@ -2,10 +2,10 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MapPin } from 'lucide-react'
 
+import { ProductCard } from '@/components/product-card'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import Link from 'next/link'
-import { ProductCard } from '../../(app)/components/product-card'
 import { getCart } from '../../cart/actions'
 import { createPurchase, readAddressById } from './actions'
 

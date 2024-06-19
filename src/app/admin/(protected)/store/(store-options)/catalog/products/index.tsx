@@ -1,4 +1,4 @@
-import { ProductCard } from '@/app/[public_store]/(app)/components/product-card'
+import { ProductCard } from '@/components/product-card'
 import { Box } from 'lucide-react'
 import { readProducts } from './actions'
 

@@ -1,9 +1,9 @@
+import { ProductCard } from '@/components/product-card'
 import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
-import { ProductCard } from '../(app)/components/product-card'
 
 export default async function SearchPageLoading() {
   return (
