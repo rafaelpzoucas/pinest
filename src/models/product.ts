@@ -10,3 +10,10 @@ export type ProductType = {
   category_id: string
   amount_sold: number
 }
+
+export type ProductImageType = {
+  created_at: string
+  id: string
+  image_url: string
+  product_id: string
+}

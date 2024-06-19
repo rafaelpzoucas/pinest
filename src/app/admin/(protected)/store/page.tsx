@@ -2,8 +2,6 @@ import {
   ChevronRight,
   CircleDollarSign,
   LayoutList,
-  Megaphone,
-  Paintbrush,
   Truck,
   User,
 } from 'lucide-react'
@@ -21,11 +19,11 @@ export default function StorePage() {
       name: 'Catálogo',
       icon: LayoutList,
     },
-    {
-      link: 'store/appearence',
-      name: 'Aparência da loja',
-      icon: Paintbrush,
-    },
+    // {
+    //   link: 'store/appearence',
+    //   name: 'Aparência da loja',
+    //   icon: Paintbrush,
+    // },
     {
       link: 'store/billing',
       name: 'Formas de pagamento',
@@ -36,11 +34,11 @@ export default function StorePage() {
       name: 'Formas de envio',
       icon: Truck,
     },
-    {
-      link: 'store/marketing',
-      name: 'Divulgação',
-      icon: Megaphone,
-    },
+    // {
+    //   link: 'store/marketing',
+    //   name: 'Divulgação',
+    //   icon: Megaphone,
+    // },
   ]
 
   return (

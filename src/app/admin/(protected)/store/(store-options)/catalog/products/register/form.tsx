@@ -21,11 +21,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader, Plus } from 'lucide-react'
+import { ProductImageType } from '@/models/product'
+import { Loader, Plus, Trash } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { CategoryType } from '../../categories/actions'
-import { createProduct, updateProduct } from '../actions'
+import { createProduct, deleteProductImage, updateProduct } from './actions'
+import { readProductImages, uploadImages } from './client-actions'
+import { FileType, FileUploader } from './file-uploader'
 
 export const newProductFormSchema = z.object({
   name: z.string(),
@@ -33,6 +38,7 @@ export const newProductFormSchema = z.object({
   price: z.string(),
   stock: z.string(),
   category_id: z.string(),
+  images: z.any(),
 })
 
 export function ProductForm({
@@ -44,12 +50,15 @@ export function ProductForm({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const [files, setFiles] = useState<FileType[]>([])
+  const [productImages, setProductImages] = useState<ProductImageType[]>([])
+
   const pathnameParts = pathname.split('/')
   pathnameParts.pop()
   pathnameParts.pop()
   const redirectTo = pathnameParts.join('/')
 
-  const defaultId = searchParams.get('id')
+  const productId = searchParams.get('id')
 
   const form = useForm<z.infer<typeof newProductFormSchema>>({
     resolver: zodResolver(newProductFormSchema),
@@ -64,9 +73,46 @@ export function ProductForm({
 
   const formState = form.formState
 
+  async function handleReadProductImages() {
+    if (productId) {
+      const { productImages, productImagesError } =
+        await readProductImages(productId)
+
+      if (productImagesError) {
+        console.error(productImagesError)
+      }
+
+      setProductImages(productImages)
+    }
+  }
+
+  async function handleDeleteImage(imageId: string) {
+    const { tableError, storageError } = await deleteProductImage(imageId)
+
+    if (tableError) {
+      console.error(tableError)
+      return null
+    }
+
+    if (storageError) {
+      console.error(storageError)
+      return null
+    }
+
+    handleReadProductImages()
+  }
+
   async function onSubmit(values: z.infer<typeof newProductFormSchema>) {
-    if (defaultId) {
-      const { error } = await updateProduct(defaultId, values)
+    if (files.length > 0 && productId) {
+      const { uploadErrors } = await uploadImages(files, productId)
+
+      if (uploadErrors) {
+        console.error(uploadErrors)
+      }
+    }
+
+    if (productId) {
+      const { error } = await updateProduct(productId, values)
 
       if (error) {
         console.log(error)
@@ -85,6 +131,12 @@ export function ProductForm({
 
     return router.push(`${redirectTo}?tab=products`)
   }
+
+  useEffect(() => {
+    if (productId) {
+      handleReadProductImages()
+    }
+  }, [productId]) //eslint-disable-line
 
   if (categories && categories.length === 0) {
     return (
@@ -112,6 +164,35 @@ export function ProductForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col w-full space-y-6"
       >
+        {productId && <FileUploader files={files} setFiles={setFiles} />}
+
+        <section className="grid grid-cols-4 gap-2">
+          {productImages.length > 0 &&
+            productImages.map((image) => (
+              <div
+                key={image.id}
+                className="relative aspect-square rounded-lg overflow-hidden"
+              >
+                <Image
+                  src={image.image_url}
+                  alt=""
+                  fill
+                  className="object-cover"
+                />
+
+                <Button
+                  type="button"
+                  variant={'outline'}
+                  size="icon"
+                  className="absolute top-1 right-1 w-8 h-8"
+                  onClick={() => handleDeleteImage(image.id)}
+                >
+                  <Trash className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+        </section>
+
         <FormField
           control={form.control}
           name="category_id"
@@ -208,14 +289,12 @@ export function ProductForm({
         <Button
           type="submit"
           className="ml-auto"
-          disabled={
-            formState.isSubmitting || !formState.isDirty || !formState.isValid
-          }
+          disabled={formState.isSubmitting}
         >
           {formState.isSubmitting && (
             <Loader className="w-4 h-4 mr-2 animate-spin" />
           )}
-          {defaultId ? 'Salvar' : 'Criar produto'}
+          {productId ? 'Salvar' : 'Criar produto'}
         </Button>
       </form>
     </Form>

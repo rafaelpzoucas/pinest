@@ -2,8 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import { newProductFormSchema } from './register/form'
 
 export type ProductType = {
   id: string
@@ -12,42 +10,12 @@ export type ProductType = {
   created_at: string
 }
 
-export async function createProduct(
-  values: z.infer<typeof newProductFormSchema>,
-) {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('products')
-    .insert([values])
-    .select()
-
-  revalidatePath('/catalog')
-
-  return { data, error }
-}
-
 export async function readProducts(): Promise<{
   data: ProductType[] | null
   error: any | null
 }> {
   const supabase = createClient()
   const { data, error } = await supabase.from('products').select('*')
-
-  return { data, error }
-}
-
-export async function updateProduct(
-  id: string,
-  values: z.infer<typeof newProductFormSchema>,
-) {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('products')
-    .update(values)
-    .eq('id', id)
-    .select()
-
-  revalidatePath('/catalog')
 
   return { data, error }
 }
