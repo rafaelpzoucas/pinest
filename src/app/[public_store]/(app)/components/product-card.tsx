@@ -1,5 +1,6 @@
 'use client'
 
+import { ProductOptions } from '@/app/admin/(protected)/store/(store-options)/catalog/products/options'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
@@ -15,6 +16,8 @@ const productCardVariants = cva('text-sm leading-4', {
       default: 'grid grid-cols-[1fr_3fr] gap-4 items-start',
       featured: 'flex flex-col gap-2',
       bag_items: 'grid grid-cols-[1fr_5fr] gap-4 items-start',
+      catalog:
+        'relative grid grid-cols-[1fr_5fr] gap-4 items-start border p-3 rounded-lg bg-card',
     },
   },
   defaultVariants: {
@@ -74,7 +77,12 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
         <Image src={thumbURL} fill alt="" className="object-cover" />
       </Card>
 
-      <div className="flex flex-col gap-1">
+      <div
+        className={cn(
+          'flex flex-col gap-1',
+          variant === 'catalog' && 'flex-col-reverse',
+        )}
+      >
         <div className="leading-4">
           <p
             className={cn(
@@ -102,10 +110,13 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
           className={cn(
             'line-clamp-2 text-muted-foreground text-sm',
             variant === 'bag_items' && 'line-clamp-1',
+            variant === 'catalog' && 'line-clamp-2 max-w-[220px]',
           )}
         >
           {data.name}
         </p>
+
+        {variant === 'catalog' && <ProductOptions product={data} />}
       </div>
     </Link>
   )

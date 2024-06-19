@@ -1,7 +1,6 @@
-import { Card } from '@/components/ui/card'
+import { ProductCard } from '@/app/[public_store]/(app)/components/product-card'
 import { Box } from 'lucide-react'
 import { readProducts } from './actions'
-import { ProductOptions } from './options'
 
 export async function Products() {
   const { data: products, error } = await readProducts()
@@ -21,19 +20,15 @@ export async function Products() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {products &&
         products.map((product) => (
-          <Card className="relative p-4" key={product.id}>
-            <strong>{product.name}</strong>
-            {product.description && (
-              <p className="text-sm text-muted-foreground">
-                {product.description}
-              </p>
-            )}
-
-            <ProductOptions product={product} />
-          </Card>
+          <ProductCard
+            key={product.id}
+            data={product}
+            variant={'catalog'}
+            className="w-full"
+          />
         ))}
     </div>
   )

@@ -1,21 +1,23 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { ProductType } from '@/models/product'
 import { revalidatePath } from 'next/cache'
-
-export type ProductType = {
-  id: string
-  name: string
-  description: string
-  created_at: string
-}
 
 export async function readProducts(): Promise<{
   data: ProductType[] | null
   error: any | null
 }> {
   const supabase = createClient()
-  const { data, error } = await supabase.from('products').select('*')
+  const { data, error } = await supabase
+    .from('products')
+    .select(
+      `
+      *,
+      product_images (*)
+    `,
+    )
+    .order('created_at', { ascending: false })
 
   return { data, error }
 }
