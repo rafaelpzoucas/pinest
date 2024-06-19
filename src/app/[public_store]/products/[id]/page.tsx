@@ -26,11 +26,13 @@ export default async function ProductPage({
   params: { id: string; public_store: string }
 }) {
   const products: CartProductType[] = await getCart()
-  const { product, error } = await readProductById(params.id)
+  const { product, productError } = await readProductById(params.id)
 
-  if (error) {
-    console.log(error)
+  if (productError) {
+    console.error(productError)
   }
+
+  const productImages = product.product_images
 
   return (
     <main className="flex flex-col gap-6 p-4">
@@ -50,40 +52,35 @@ export default async function ProductPage({
         </Link>
       </header>
 
-      <Carousel>
-        <CarouselContent>
-          <CarouselItem className="flex-[0_0_85%]">
-            <Card className="relative w-full aspect-square overflow-hidden border-none">
-              <Image
-                src={product.thumb_url ?? defaultThumbUrl}
-                alt=""
-                fill
-                className="object-cover"
-              />
-            </Card>
-          </CarouselItem>
-          <CarouselItem className="flex-[0_0_85%]">
-            <Card className="relative w-full aspect-square overflow-hidden border-none">
-              <Image
-                src={product.thumb_url ?? defaultThumbUrl}
-                alt=""
-                fill
-                className="object-cover"
-              />
-            </Card>
-          </CarouselItem>
-          <CarouselItem className="flex-[0_0_85%]">
-            <Card className="relative w-full aspect-square overflow-hidden border-none">
-              <Image
-                src={product.thumb_url ?? defaultThumbUrl}
-                alt=""
-                fill
-                className="object-cover"
-              />
-            </Card>
-          </CarouselItem>
-        </CarouselContent>
-      </Carousel>
+      {productImages.length < 2 && (
+        <Card className="relative w-full aspect-square overflow-hidden border-none">
+          <Image
+            src={productImages[0].image_url ?? defaultThumbUrl}
+            alt=""
+            fill
+            className="object-cover"
+          />
+        </Card>
+      )}
+
+      {productImages.length > 2 && (
+        <Carousel>
+          <CarouselContent>
+            {productImages.map((image) => (
+              <CarouselItem key={image.id} className="flex-[0_0_85%]">
+                <Card className="relative w-full aspect-square overflow-hidden border-none">
+                  <Image
+                    src={image.image_url}
+                    alt=""
+                    fill
+                    className="object-cover"
+                  />
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      )}
 
       <section className="space-y-2">
         <h1 className="text-lg capitalize font-bold">{product.name}</h1>

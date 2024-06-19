@@ -1,3 +1,10 @@
+export type ProductImageType = {
+  created_at: string
+  id: string
+  image_url: string
+  product_id: string
+}
+
 export type ProductType = {
   id: string
   name: string
@@ -9,11 +16,5 @@ export type ProductType = {
   created_at: string
   category_id: string
   amount_sold: number
-}
-
-export type ProductImageType = {
-  created_at: string
-  id: string
-  image_url: string
-  product_id: string
+  product_images: ProductImageType[]
 }

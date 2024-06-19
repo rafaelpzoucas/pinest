@@ -13,7 +13,8 @@ export async function getProductsByCategory(): Promise<{
   ).select(`
     *,
     products (
-      *
+      *,
+      product_images (*)
     )
   `)
 

@@ -32,6 +32,18 @@ export interface ProductCardProps
 export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
   const isPromotional = data?.promotional_price
 
+  function getImageURL() {
+    if (data && data.product_images && data.product_images.length > 0) {
+      return data.product_images[0].image_url
+    }
+
+    return ''
+  }
+
+  const imageURL = getImageURL()
+
+  const thumbURL = imageURL === '' ? defaultThumbUrl : imageURL
+
   if (!data) {
     return (
       <div className={cn(productCardVariants({ variant }))}>
@@ -59,13 +71,7 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
           'relative min-w-14 w-full aspect-square overflow-hidden border-0',
         )}
       >
-        <Image
-          src={data.thumb_url ?? defaultThumbUrl}
-          fill
-          alt=""
-          className="object-cover"
-          placeholder="blur"
-        />
+        <Image src={thumbURL} fill alt="" className="object-cover" />
       </Card>
 
       <div className="flex flex-col gap-1">
