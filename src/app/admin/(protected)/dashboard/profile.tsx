@@ -47,7 +47,7 @@ export async function ProfileCard() {
       </Link>
 
       <Link
-        href={`/${store?.name.replace(' ', '-')}`}
+        href={`/${store?.name.replaceAll(' ', '-')}`}
         target="_blank"
         className={buttonVariants()}
       >

@@ -1,7 +1,9 @@
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { cn, queryParamsLink } from '@/lib/utils'
 import { AddressType } from '@/models/user'
 import { Edit } from 'lucide-react'
+import Link from 'next/link'
 
 export function Address({ address }: { address: AddressType | null }) {
   const street = `${address?.street}, ${address?.number}`
@@ -27,9 +29,15 @@ export function Address({ address }: { address: AddressType | null }) {
         </div>
       </div>
 
-      <Button variant={'ghost'} size="icon" className="absolute top-2 right-2">
+      <Link
+        href={`account/register/address?${queryParamsLink(address)}`}
+        className={cn(
+          buttonVariants({ variant: 'ghost', size: 'icon' }),
+          'absolute top-2 right-2',
+        )}
+      >
         <Edit className="w-4 h-4" />
-      </Button>
+      </Link>
     </Card>
   )
 }

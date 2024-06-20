@@ -9,72 +9,45 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { createClient } from '@/lib/supabase/client'
-import { supabaseErrors } from '@/services/supabase-errors'
-import { createRow } from '@/services/supabase-service'
 import { Loader } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { createSeller } from './actions'
+import { updateProfile } from './actions'
 
-const formSchema = z.object({
+export const profileSchema = z.object({
   name: z.string(),
+  phone: z.string(),
 })
 
-export function NameStep() {
-  const router = useRouter()
+export function ProfileForm() {
   const searchParams = useSearchParams()
 
   const name = searchParams.get('name') ?? ''
+  const phone = searchParams.get('phone') ?? ''
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
       name,
+      phone,
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const supabase = createClient()
-
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !userData?.user) {
-      return router.push('/admin/sign-in')
-    }
-
-    const { error } = await createRow({
-      route: 'users',
-      columns: {
-        id: userData.user.id,
-        name: values.name,
-        email: userData.user.email,
-        role: 'admin',
-      },
-    })
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    const { error } = await updateProfile(values)
 
     if (error) {
-      toast(supabaseErrors[error.code] ?? 'Erro desconhecido')
-      console.log(error)
-      return null
+      console.error(error)
+      return
     }
 
-    const response = await createSeller(userData.user.id, userData.user.email)
-
-    if (response) {
-      console.log('Seller account created successfully')
-    } else {
-      console.error('Error creating seller account')
-    }
-
-    return router.push('?step=profile&info=phone')
+    toast('Informações atualizadas com sucesso')
   }
 
   return (
@@ -92,9 +65,24 @@ export function NameStep() {
               <FormControl>
                 <Input placeholder="Digite o seu nome..." {...field} />
               </FormControl>
-              <FormDescription>
-                Digite o seu nome, ou do responsável pela loja.
-              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone</FormLabel>
+              <FormControl>
+                <Input
+                  type="tel"
+                  placeholder="Digite o seu telefone..."
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -112,7 +100,7 @@ export function NameStep() {
           {form.formState.isSubmitting && (
             <Loader className="w-4 h-4 mr-2 animate-spin" />
           )}
-          Continuar
+          Salvar
         </Button>
       </form>
     </Form>

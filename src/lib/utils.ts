@@ -34,15 +34,17 @@ export function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text)
 }
 
-export function queryParamsLink(params: QueryParamsGeneric) {
+export function queryParamsLink(params: any | null) {
   const queryParams = new URLSearchParams()
 
-  Object.keys(params).forEach((key) => {
-    const value = params[key]
-    if (value !== null) {
-      queryParams.append(key, String(value))
-    }
-  })
+  if (params) {
+    Object.keys(params).forEach((key) => {
+      const value = params[key]
+      if (value !== null) {
+        queryParams.append(key, String(value))
+      }
+    })
+  }
 
   return queryParams.toString()
 }

@@ -1,8 +1,10 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { cn, queryParamsLink } from '@/lib/utils'
 import { UserType } from '@/models/user'
 import { Edit, Phone } from 'lucide-react'
+import Link from 'next/link'
 
 export function Profile({ user }: { user: UserType | null }) {
   return (
@@ -21,9 +23,15 @@ export function Profile({ user }: { user: UserType | null }) {
         </div>
       </div>
 
-      <Button variant={'ghost'} size="icon" className="absolute top-2 right-2">
+      <Link
+        href={`account/register/profile?${queryParamsLink(user)}`}
+        className={cn(
+          buttonVariants({ variant: 'ghost', size: 'icon' }),
+          'absolute top-2 right-2',
+        )}
+      >
         <Edit className="w-4 h-4" />
-      </Button>
+      </Link>
     </Card>
   )
 }

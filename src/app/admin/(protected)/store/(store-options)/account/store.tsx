@@ -1,9 +1,11 @@
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StoreType } from '@/models/store'
 import { Edit } from 'lucide-react'
 import Image from 'next/image'
 
+import { cn, queryParamsLink } from '@/lib/utils'
+import Link from 'next/link'
 import vercel from '../../../../../../../public/vercel.svg'
 
 export function Store({ store }: { store: StoreType | null }) {
@@ -30,9 +32,15 @@ export function Store({ store }: { store: StoreType | null }) {
         </div>
       </div>
 
-      <Button variant={'ghost'} size="icon" className="absolute top-2 right-2">
+      <Link
+        href={`account/register/store?${queryParamsLink(store)}`}
+        className={cn(
+          buttonVariants({ variant: 'ghost', size: 'icon' }),
+          'absolute top-2 right-2',
+        )}
+      >
         <Edit className="w-4 h-4" />
-      </Button>
+      </Link>
     </Card>
   )
 }

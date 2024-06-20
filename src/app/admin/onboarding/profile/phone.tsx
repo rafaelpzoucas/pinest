@@ -20,7 +20,7 @@ import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { updateRow } from '@/services/supabase-service'
 import { Loader } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 const formSchema = z.object({
@@ -29,11 +29,14 @@ const formSchema = z.object({
 
 export function PhoneStep() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const phone = searchParams.get('phone') ?? ''
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      phone: '',
+      phone,
     },
   })
 
