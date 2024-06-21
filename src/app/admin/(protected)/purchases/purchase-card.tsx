@@ -16,8 +16,6 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
   const firstName = customerNames[0]
   const lastName = customerNames[customerNames.length - 1]
 
-  console.log(customer)
-
   return (
     <Link href={`purchases/${purchase.id}`}>
       <Card
