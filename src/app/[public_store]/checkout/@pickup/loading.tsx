@@ -12,9 +12,8 @@ export default async function PickupOptionsLoading() {
             <strong className="text-sm">Entregar no meu endereço</strong>
 
             <div className="flex flex-row items-center gap-1 text-xs text-muted-foreground">
-              <p>
-                <Skeleton className="w-14 h-3" />
-              </p>
+              <Skeleton className="w-14 h-3" />
+
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </header>
