@@ -83,7 +83,7 @@ export async function createStripeCheckout(
       quantity: item.amount,
     })),
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/cart`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/purchases/${purchaseId}`,
   })
 
   return redirect(session.url as string)

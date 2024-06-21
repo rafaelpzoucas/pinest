@@ -4,7 +4,6 @@ import { CustomerType } from '@/models/customer'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { getCart } from '../../cart/actions'
-import { createStripeCheckout } from '../actions'
 
 export async function readAddressById(id: string): Promise<{
   address: AddressType | null
@@ -104,7 +103,10 @@ export async function createPurchase(
   totalAmount: number,
   storeName: string,
   addressId: string,
-) {
+): Promise<{
+  purchase: { id: string } | null
+  purchaseError: any | null
+}> {
   const supabase = createClient()
   const bagItems: CartProductType[] = await getCart()
 
@@ -154,5 +156,5 @@ export async function createPurchase(
     console.error(purchaseItemsError)
   }
 
-  await createStripeCheckout(storeName, purchase?.id)
+  return { purchase, purchaseError }
 }

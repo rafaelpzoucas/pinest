@@ -12,11 +12,13 @@ const titles: Record<string, string> = {
 interface CheckoutLayoutProps {
   pickup: ReactNode
   summary: ReactNode
+  children: ReactNode
 }
 
 export default function CheckoutLayout({
   pickup,
   summary,
+  children,
 }: CheckoutLayoutProps) {
   const searchParams = useSearchParams()
 
@@ -30,6 +32,7 @@ export default function CheckoutLayout({
 
       {step === 'pickup' && pickup}
       {step === 'summary' && summary}
+      {children}
     </section>
   )
 }

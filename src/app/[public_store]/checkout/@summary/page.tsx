@@ -24,11 +24,12 @@ function CheckoutButton({
   }
 
   return (
-    <form action={handleCreatePurchase} className="w-full">
-      <Button type="submit" className="w-full">
-        Continuar para o pagamento
-      </Button>
-    </form>
+    <Link
+      href={`checkout/create?totalAmount=${totalAmount}&storeName=${storeName}&addressId=${addressId}`}
+      className={cn(buttonVariants(), 'w-full')}
+    >
+      Continuar para o pagamento
+    </Link>
   )
 }
 
