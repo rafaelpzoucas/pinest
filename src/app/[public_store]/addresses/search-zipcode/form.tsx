@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { ViacepType } from '@/models/viacep-address'
-import { ArrowLeft, ChevronRight, Loader } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -130,7 +130,7 @@ export function SearchZipCodeForm() {
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting && (
-                <Loader className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
               Continuar
             </Button>

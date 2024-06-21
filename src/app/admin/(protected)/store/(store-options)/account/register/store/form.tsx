@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { updateStore } from './actions'
@@ -106,7 +106,7 @@ export function StoreForm() {
           }
         >
           {form.formState.isSubmitting && (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           )}
           Salvar
         </Button>

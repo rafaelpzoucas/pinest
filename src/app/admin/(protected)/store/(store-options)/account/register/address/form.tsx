@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { ViacepType } from '@/models/viacep-address'
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -206,7 +206,7 @@ export function AddressForm() {
           onClick={verifyCEP}
         >
           {form.formState.isSubmitting && (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           )}
           {address ? 'Salvar' : 'Verificar CEP'}
         </Button>

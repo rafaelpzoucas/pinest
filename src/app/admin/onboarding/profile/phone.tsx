@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { updateRow } from '@/services/supabase-service'
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -103,7 +103,7 @@ export function PhoneStep() {
           }
         >
           {form.formState.isSubmitting && (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           )}
           Continuar
         </Button>

@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
@@ -62,7 +62,7 @@ export function SearchZipCode() {
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting && (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           )}
           Continuar
         </Button>
