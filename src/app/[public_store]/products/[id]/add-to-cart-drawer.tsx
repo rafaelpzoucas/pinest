@@ -11,7 +11,6 @@ import {
 import { Minus, Plus } from 'lucide-react'
 
 import { ProductCard } from '@/components/product-card'
-import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductType } from '@/models/product'
@@ -64,8 +63,6 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
           <section className="flex flex-row gap-2 items-center justify-between">
             <ProductCard variant={'bag_items'} data={product} />
           </section>
-
-          <Input placeholder="Escreva suas observações..." />
         </div>
 
         <DrawerFooter className="flex flex-row gap-4">
