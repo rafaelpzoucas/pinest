@@ -22,7 +22,7 @@ export default async function PurchasePage({
 
       {purchase && (
         <div className="flex flex-col gap-2 text-sm">
-          <Status purchase={purchase} />
+          <Status purchase={purchase} storeName={params.public_store} />
 
           <Card className="p-4">
             <span className="text-muted-foreground">

@@ -1,7 +1,7 @@
 export const statuses = {
   pending: {
     status: 'Pendente',
-    next_step: 'Aguardando confirmação do pedido.',
+    next_step: 'Aguardando pagamento do pedido.',
     delivery_address: 'O seu pedido será entregue',
     color: 'bg-blue-500',
   },
