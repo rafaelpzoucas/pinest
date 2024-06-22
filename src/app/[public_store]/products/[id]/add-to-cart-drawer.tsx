@@ -44,7 +44,6 @@ export function AddToCardDrawer({ product }: AddToCardDrawerProps) {
     const newCartProduct: CartProductType = {
       ...product,
       amount,
-      observations: '',
     }
     await addToCart(newCartProduct)
     router.back()
