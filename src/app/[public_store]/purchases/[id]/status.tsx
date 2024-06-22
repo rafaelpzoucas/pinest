@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatDistanceToNowDate } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
+import { statuses } from '@/models/statuses'
 import { createStripeCheckout } from '../../checkout/actions'
-import { statuses } from './statuses'
 
 export type StatusKey = keyof typeof statuses
 

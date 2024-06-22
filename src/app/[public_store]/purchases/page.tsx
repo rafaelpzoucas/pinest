@@ -2,9 +2,9 @@ import { Header } from '@/components/header'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { cn, formatDate } from '@/lib/utils'
+import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { statuses } from './[id]/statuses'
 import { readPurchases } from './actions'
 
 type StatusKey = keyof typeof statuses
