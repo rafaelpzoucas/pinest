@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -20,8 +19,6 @@ export async function GET(request: Request) {
   if (error) {
     console.error(error)
   }
-
-  cookies().delete('pinest_cart')
 
   revalidatePath('/purchases')
 

@@ -6,7 +6,7 @@ import { PurchaseType } from '@/models/purchase'
 import { createStripeCheckout } from '../../checkout/actions'
 import { statuses } from './statuses'
 
-type StatusKey = keyof typeof statuses
+export type StatusKey = keyof typeof statuses
 
 export function Status({
   purchase,
@@ -36,15 +36,11 @@ export function Status({
 
       <strong>{currentStatus.next_step}</strong>
 
-      <p className="text-muted-foreground">
-        {currentStatus.delivery_address} na {address?.street}, {address?.number}
-        {address?.complement && `, ${address?.complement}`} -{' '}
-        {address?.neighborhood} - {address?.city}/{address?.state}
-      </p>
-
-      <form action={handleCreateStripeCheckout}>
-        <Button>Continuar para pagamento</Button>
-      </form>
+      {purchase.status === 'pending' && (
+        <form action={handleCreateStripeCheckout} className="flex w-full">
+          <Button className="w-full">Continuar para pagamento</Button>
+        </form>
+      )}
     </Card>
   )
 }

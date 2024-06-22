@@ -17,7 +17,8 @@ export async function readPurchaseById(id: string): Promise<{
       purchase_items (
         *,
         products (
-          *
+          *,
+          product_images (*)
         )
       ),
       addresses (*)

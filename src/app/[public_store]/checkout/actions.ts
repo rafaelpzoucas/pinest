@@ -1,10 +1,9 @@
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
-import { CartProductType } from '@/models/cart'
+import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { redirect } from 'next/navigation'
-import { getCart } from '../cart/actions'
 
 export async function readCustomerAddress() {
   'use server'
@@ -63,24 +62,57 @@ export async function readStoreAddress(storeName: string): Promise<{
   return { storeAddresses, storeAddressError }
 }
 
+export async function readPurchaseItems(purchaseId: string): Promise<{
+  purchase: PurchaseType | null
+  purchaseError: any | null
+}> {
+  const supabase = createClient()
+
+  const { data: purchase, error: purchaseError } = await supabase
+    .from('purchases')
+    .select(
+      `
+        *,
+        purchase_items (
+          *,
+          products (*)
+        )
+      `,
+    )
+    .eq('id', purchaseId)
+    .single()
+
+  return { purchase, purchaseError }
+}
+
 export async function createStripeCheckout(
   storeName: string,
   purchaseId: string,
 ) {
-  const bagItems: CartProductType[] = await getCart()
+  const { purchase, purchaseError } = await readPurchaseItems(purchaseId)
+
+  if (purchaseError) {
+    console.error(purchaseError)
+  }
+
+  const purchaseItems = purchase?.purchase_items
+
+  if (!purchaseItems) {
+    return
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
-    line_items: bagItems.map((item) => ({
+    line_items: purchaseItems.map((item) => ({
       price_data: {
         currency: 'brl',
-        unit_amount: Math.round(item.price * 100),
+        unit_amount: Math.round(item.products.price * 100),
         product_data: {
-          name: item.name,
-          description: item.description,
+          name: item.products.name,
+          description: item.products.description,
         },
       },
-      quantity: item.amount,
+      quantity: item.quantity,
     })),
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/purchases/${purchaseId}`,

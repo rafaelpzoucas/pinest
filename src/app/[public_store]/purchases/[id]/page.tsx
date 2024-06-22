@@ -3,7 +3,8 @@ import { ProductCard } from '@/components/product-card'
 import { Card } from '@/components/ui/card'
 import { formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { readPurchaseById } from './actions'
-import { Status } from './status'
+import { Status, StatusKey } from './status'
+import { statuses } from './statuses'
 
 export default async function PurchasePage({
   params,
@@ -15,6 +16,8 @@ export default async function PurchasePage({
   if (purchaseError) console.error(purchaseError)
 
   const address = purchase?.addresses
+
+  const currentStatus = statuses[purchase?.status as StatusKey]
 
   return (
     <section className="p-4">
@@ -50,7 +53,8 @@ export default async function PurchasePage({
 
           <Card className="p-4">
             <p>
-              {address?.street}, {address?.number}
+              {currentStatus.delivery_address} na {address?.street},{' '}
+              {address?.number}
               {address?.complement && `, ${address?.complement}`} -{' '}
               {address?.neighborhood}
             </p>
@@ -63,7 +67,7 @@ export default async function PurchasePage({
             {purchase.purchase_items.map((item) => (
               <ProductCard
                 key={item.id}
-                data={{ ...item.products, price: item.product_price }}
+                data={item.products}
                 publicStore={params.public_store}
               />
             ))}
