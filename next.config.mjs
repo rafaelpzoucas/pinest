@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [process.env.SUPABASE_HOSTNAME],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: process.env.SUPABASE_HOSTNAME,
+        port: '',
+        pathname: '/**',
+      },
+    ],
     minimumCacheTTL: 60,
   },
 }
