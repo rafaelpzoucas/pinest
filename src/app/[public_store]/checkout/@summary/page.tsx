@@ -7,7 +7,7 @@ import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import Link from 'next/link'
 import { getCart } from '../../cart/actions'
-import { createPurchase, readAddressById } from './actions'
+import { readAddressById } from './actions'
 
 function CheckoutButton({
   totalAmount,
@@ -18,11 +18,6 @@ function CheckoutButton({
   storeName: string
   addressId: string
 }) {
-  async function handleCreatePurchase() {
-    'use server'
-    await createPurchase(totalAmount, storeName, addressId)
-  }
-
   return (
     <Link
       href={`checkout/create?totalAmount=${totalAmount}&storeName=${storeName}&addressId=${addressId}`}

@@ -3,7 +3,6 @@ import { CartProductType } from '@/models/cart'
 import { CustomerType } from '@/models/customer'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
-import { cookies } from 'next/headers'
 import { getCart } from '../../cart/actions'
 
 export async function readAddressById(id: string): Promise<{
@@ -156,8 +155,6 @@ export async function createPurchase(
   if (purchaseItemsError) {
     console.error(purchaseItemsError)
   }
-
-  cookies().delete('pinest_cart')
 
   return { purchase, purchaseError }
 }
