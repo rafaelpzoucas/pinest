@@ -1,7 +1,6 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { revalidatePath } from 'next/cache'
 import { v4 as uuidv4 } from 'uuid'
 import { FileType } from './logo-uploader'
 
@@ -30,8 +29,6 @@ export async function uploadLogo(
       logo_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${uploaded?.path}`,
     })
     .eq('id', storeId)
-
-  revalidatePath('/admin/store')
 
   return { updateError, uploadError }
 }
