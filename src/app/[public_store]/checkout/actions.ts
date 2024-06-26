@@ -85,29 +85,6 @@ export async function readPurchaseItems(purchaseId: string): Promise<{
   return { purchase, purchaseError }
 }
 
-export async function updateAmountSold(productId: string, quantity: number) {
-  const supabase = createClient()
-
-  const { data: product, error: productError } = await supabase
-    .from('products')
-    .select('amount_sold')
-    .eq('id', productId)
-    .single()
-
-  if (productError) {
-    console.error(productError)
-  }
-
-  const { error: updateAmountSoldError } = await supabase
-    .from('products')
-    .update({ amount_sold: product?.amount_sold + quantity })
-    .eq('id', productId)
-
-  if (updateAmountSoldError) {
-    console.error(updateAmountSoldError)
-  }
-}
-
 export async function createStripeCheckout(
   storeName: string,
   purchaseId: string,
@@ -122,10 +99,6 @@ export async function createStripeCheckout(
 
   if (!purchaseItems) {
     return
-  }
-
-  for (const item of purchaseItems) {
-    await updateAmountSold(item.product_id, item.quantity)
   }
 
   const session = await stripe.checkout.sessions.create({

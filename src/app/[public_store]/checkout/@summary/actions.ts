@@ -141,7 +141,7 @@ export async function createPurchase(
     console.error(purchaseError)
   }
 
-  const { error: purchaseItemsError } = await supabase
+  const { data: purchaseItems, error: purchaseItemsError } = await supabase
     .from('purchase_items')
     .insert(
       bagItems.map((item) => ({
@@ -151,10 +151,48 @@ export async function createPurchase(
         product_price: item?.price,
       })),
     )
+    .select('*')
 
   if (purchaseItemsError) {
     console.error(purchaseItemsError)
   }
 
+  if (purchaseItems) {
+    for (const item of purchaseItems) {
+      await updateAmountSoldAndStock(item.product_id, item.quantity)
+    }
+  }
+
   return { purchase, purchaseError }
+}
+
+export async function updateAmountSoldAndStock(
+  productId: string,
+  quantity: number,
+) {
+  const supabase = createClient()
+
+  const { data: product, error: productError } = await supabase
+    .from('products')
+    .select('amount_sold, stock')
+    .eq('id', productId)
+    .single()
+
+  if (productError) {
+    console.error(productError)
+  }
+
+  const { error: updateAmountSoldError } = await supabase
+    .from('products')
+    .update({
+      amount_sold: product?.amount_sold + quantity,
+      stock: product?.stock - quantity,
+    })
+    .eq('id', productId)
+
+  if (updateAmountSoldError) {
+    console.error(updateAmountSoldError)
+  }
+
+  console.log('passou aqui')
 }
