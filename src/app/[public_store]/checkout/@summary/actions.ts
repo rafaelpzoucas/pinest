@@ -193,6 +193,4 @@ export async function updateAmountSoldAndStock(
   if (updateAmountSoldError) {
     console.error(updateAmountSoldError)
   }
-
-  console.log('passou aqui')
 }
