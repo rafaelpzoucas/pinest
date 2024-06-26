@@ -2,7 +2,7 @@ import { Island } from '@/components/island'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Ching Ling | Pinest',
+  title: 'Loja | Pinest',
   description: 'Loja virtual criada com a Pinest',
 }
 

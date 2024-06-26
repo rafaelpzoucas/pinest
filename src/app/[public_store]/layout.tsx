@@ -3,7 +3,7 @@ import { getStores } from './actions'
 import NotFound from './not-found'
 
 export const metadata: Metadata = {
-  title: 'Ching Ling | Pinest',
+  title: 'Loja | Pinest',
   description: 'Loja virtual criada com a Pinest',
 }
 
@@ -26,5 +26,6 @@ export default async function PublicStoreLayout({
   if (stores && stores.length === 0) {
     return <NotFound />
   }
+
   return <div>{children}</div>
 }
