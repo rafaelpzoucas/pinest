@@ -7,7 +7,9 @@ export default async function Header({
 }: {
   params: { public_store: string }
 }) {
-  const { store, storeError } = await readStoreByName(params.public_store)
+  const { store, storeError } = await readStoreByName(
+    params.public_store.replaceAll('-', ' '),
+  )
 
   if (storeError) {
     console.error(storeError)
