@@ -6,7 +6,6 @@ import Image from 'next/image'
 
 import { cn, queryParamsLink } from '@/lib/utils'
 import Link from 'next/link'
-import vercel from '../../../../../../../public/vercel.svg'
 
 export function Store({ store }: { store: StoreType | null }) {
   return (
@@ -15,12 +14,14 @@ export function Store({ store }: { store: StoreType | null }) {
 
       <div className="grid grid-cols-1 gap-3">
         <div className="relative w-full h-8 max-w-40">
-          <Image
-            src={vercel}
-            fill
-            alt=""
-            className="object-contain object-left"
-          />
+          {store && store.logo_url && (
+            <Image
+              src={store.logo_url}
+              fill
+              alt=""
+              className="object-contain object-left"
+            />
+          )}
         </div>
         <div>
           <span className="opacity-80 text-xs">Nome da loja</span>

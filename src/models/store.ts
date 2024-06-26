@@ -3,4 +3,5 @@ export type StoreType = {
   name: string
   role: string
   user_id: string
+  logo_url: string
 }

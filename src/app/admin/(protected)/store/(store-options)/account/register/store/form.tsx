@@ -16,10 +16,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Trash } from 'lucide-react'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import { toast } from 'sonner'
-import { updateStore } from './actions'
+import { removeStoreLogo, updateStore } from './actions'
+import { uploadLogo } from './client-actions'
+import { FileType, LogoUploader } from './logo-uploader'
 
 export const storeSchema = z.object({
   name: z.string(),
@@ -32,6 +36,9 @@ export function StoreForm() {
   const id = searchParams.get('id') ?? ''
   const name = searchParams.get('name') ?? ''
   const role = searchParams.get('role') ?? ''
+  const logoUrl = searchParams.get('logo_url') ?? ''
+
+  const [file, setFile] = useState<FileType[]>([])
 
   const form = useForm<z.infer<typeof storeSchema>>({
     resolver: zodResolver(storeSchema),
@@ -41,12 +48,28 @@ export function StoreForm() {
     },
   })
 
+  async function handleDeleteLogo() {
+    const { data, error } = await removeStoreLogo(name)
+
+    if (error) {
+      console.error(error)
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof storeSchema>) {
     const { error } = await updateStore(values, id)
 
     if (error) {
       console.error(error)
       return
+    }
+
+    if (file.length > 0) {
+      const { uploadError } = await uploadLogo(file, id)
+
+      if (uploadError) {
+        console.error(uploadError)
+      }
     }
 
     toast('Informações atualizadas com sucesso')
@@ -58,6 +81,23 @@ export function StoreForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col w-full space-y-6"
       >
+        {logoUrl ? (
+          <div className="relative">
+            <Image src={logoUrl} alt="" width={200} height={200} />
+            <Button
+              type="button"
+              variant={'outline'}
+              size="icon"
+              className="absolute top-0 right-0 w-8 h-8"
+              onClick={handleDeleteLogo}
+            >
+              <Trash className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : (
+          <LogoUploader files={file} setFiles={setFile} logoUrl={logoUrl} />
+        )}
+
         <FormField
           control={form.control}
           name="name"
