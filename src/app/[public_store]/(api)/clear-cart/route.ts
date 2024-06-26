@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
 import { createStripeCheckout } from '../../checkout/actions'
 
 export async function GET(request: Request) {
@@ -12,6 +11,4 @@ export async function GET(request: Request) {
   if (storeName && purchaseId) {
     await createStripeCheckout(storeName, purchaseId)
   }
-
-  return NextResponse
 }
