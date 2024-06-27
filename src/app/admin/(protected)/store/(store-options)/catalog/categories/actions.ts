@@ -1,6 +1,5 @@
 'use server'
 
-import { readStoreByName } from '@/app/[public_store]/(app)/@header/actions'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -27,22 +26,16 @@ export async function createCategory(
   return { data, error }
 }
 
-export async function readCategoriesByStore(storeName: string): Promise<{
+export async function readCategoriesByStore(storeId?: string): Promise<{
   data: CategoryType[] | null
   error: any | null
 }> {
   const supabase = createClient()
 
-  const { store, storeError } = await readStoreByName(storeName)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
   const { data, error } = await supabase
     .from('categories')
     .select('*')
-    .eq('store_id', store?.id)
+    .eq('store_id', storeId)
 
   return { data, error }
 }
