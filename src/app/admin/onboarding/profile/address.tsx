@@ -111,7 +111,7 @@ export function AddressStep() {
               <FormLabel>CEP</FormLabel>
               <FormControl>
                 <Input
-                  type="zip-code"
+                  type="cep"
                   placeholder="Digite o CEP da sua loja..."
                   {...field}
                 />
@@ -211,11 +211,11 @@ export function AddressStep() {
         <Button
           type={address ? 'submit' : 'button'}
           className="ml-auto"
-          disabled={
-            form.formState.isSubmitting ||
-            form.formState.isSubmitting ||
-            (address && !form.formState.isValid)
-          }
+          // disabled={
+          //   form.formState.isSubmitting ||
+          //   form.formState.isSubmitting ||
+          //   (address && !form.formState.isValid)
+          // }
           onClick={verifyCEP}
         >
           {form.formState.isSubmitting && (

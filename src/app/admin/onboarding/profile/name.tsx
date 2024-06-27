@@ -25,7 +25,9 @@ import { toast } from 'sonner'
 import { createSeller } from './actions'
 
 const formSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1, {
+    message: 'O nome não pode estar vazio.',
+  }),
 })
 
 export function NameStep() {

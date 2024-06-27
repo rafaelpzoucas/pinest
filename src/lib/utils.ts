@@ -64,3 +64,14 @@ export function formatBytes(bytes: number, decimals = 2) {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+export const formatCEP = (value: string) => {
+  // Remove todos os caracteres não numéricos
+  const cleanedValue = value.replace(/\D/g, '')
+
+  // Aplica a formatação XXXXX-XXX
+  const formattedValue = cleanedValue.replace(/(\d{5})(\d{3})/, '$1-$2')
+
+  // Limita o resultado a 9 caracteres (XXXXX-XXX)
+  return formattedValue.length > 9 ? formattedValue.slice(0, 9) : formattedValue
+}

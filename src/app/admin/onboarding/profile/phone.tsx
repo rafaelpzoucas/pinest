@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/input-phone'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { updateRow } from '@/services/supabase-service'
@@ -24,7 +24,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 const formSchema = z.object({
-  phone: z.string(),
+  phone: z.string().min(13),
 })
 
 export function PhoneStep() {
@@ -79,11 +79,7 @@ export function PhoneStep() {
             <FormItem>
               <FormLabel>Telefone</FormLabel>
               <FormControl>
-                <Input
-                  type="tel"
-                  placeholder="Digite o seu telefone..."
-                  {...field}
-                />
+                <PhoneInput {...field} />
               </FormControl>
               <FormDescription>
                 Dê preferência ao número de WhatsApp.
