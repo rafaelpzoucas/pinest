@@ -1,9 +1,13 @@
 import { ProductCard } from '@/components/product-card'
 import { Box } from 'lucide-react'
-import { readProducts } from './actions'
+import { readUser } from '../../account/actions'
+import { readProductsByStore } from './actions'
 
 export async function Products() {
-  const { data: products, error } = await readProducts()
+  const { data: user } = await readUser()
+  const { data: products, error } = await readProductsByStore(
+    user?.stores[0].id,
+  )
 
   if (error) {
     console.log(error)

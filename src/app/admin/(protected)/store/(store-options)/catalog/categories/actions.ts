@@ -26,12 +26,15 @@ export async function createCategory(
   return { data, error }
 }
 
-export async function readCategories(): Promise<{
+export async function readCategoriesByStore(storeId?: string): Promise<{
   data: CategoryType[] | null
   error: any | null
 }> {
   const supabase = createClient()
-  const { data, error } = await supabase.from('categories').select('*')
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('store_id', storeId)
 
   return { data, error }
 }

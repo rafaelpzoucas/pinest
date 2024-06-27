@@ -79,7 +79,7 @@ export function PhoneStep() {
             <FormItem>
               <FormLabel>Telefone</FormLabel>
               <FormControl>
-                <PhoneInput {...field} />
+                <PhoneInput autoFocus {...field} />
               </FormControl>
               <FormDescription>
                 Dê preferência ao número de WhatsApp.

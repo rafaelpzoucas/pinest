@@ -11,10 +11,14 @@ import {
 import { queryParamsLink } from '@/lib/utils'
 import { Boxes, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
-import { readCategories } from './actions'
+import { readUser } from '../../account/actions'
+import { readCategoriesByStore } from './actions'
 
 export async function Categories() {
-  const { data: categories, error } = await readCategories()
+  const { data: user } = await readUser()
+  const { data: categories, error } = await readCategoriesByStore(
+    user?.stores[0].id,
+  )
 
   if (error) {
     console.log(error)

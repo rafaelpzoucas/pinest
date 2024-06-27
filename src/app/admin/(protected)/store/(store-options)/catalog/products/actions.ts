@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ProductType } from '@/models/product'
 import { revalidatePath } from 'next/cache'
 
-export async function readProducts(): Promise<{
+export async function readProductsByStore(storeId?: string): Promise<{
   data: ProductType[] | null
   error: any | null
 }> {
@@ -17,6 +17,7 @@ export async function readProducts(): Promise<{
       product_images (*)
     `,
     )
+    .eq('store_id', storeId)
     .order('created_at', { ascending: false })
 
   return { data, error }

@@ -76,7 +76,11 @@ export function NameStep() {
             <FormItem>
               <FormLabel>Nome da loja</FormLabel>
               <FormControl>
-                <Input placeholder="Digite o nome da loja..." {...field} />
+                <Input
+                  autoFocus
+                  placeholder="Digite o nome da loja..."
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
                 É o nome que aparecerá para seus clientes.

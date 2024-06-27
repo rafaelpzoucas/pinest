@@ -76,7 +76,11 @@ export function RoleStep() {
             <FormItem>
               <FormLabel>Nicho</FormLabel>
               <FormControl>
-                <Input placeholder="Insira o seu nicho..." {...field} />
+                <Input
+                  autoFocus
+                  placeholder="Insira o seu nicho..."
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
                 Qual o tipo de produtos que você vende?

@@ -12,7 +12,7 @@ import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { readUser } from '../store/(store-options)/account/actions'
 import { getConnectedAccount } from '../store/(store-options)/billing/actions'
-import { readProducts } from '../store/(store-options)/catalog/products/actions'
+import { readProductsByStore } from '../store/(store-options)/catalog/products/actions'
 
 type StepsType = {
   name: string
@@ -29,7 +29,7 @@ function calculateCompletionPercentage(steps: StepsType[]) {
 
 export async function FirstSteps() {
   const { data: user } = await readUser()
-  const { data: products } = await readProducts()
+  const { data: products } = await readProductsByStore(user?.stores[0].id)
   const connectedAccount = await getConnectedAccount()
 
   const steps: StepsType[] = [

@@ -1,5 +1,6 @@
 import { Header } from '@/components/header'
-import { readCategories } from '../../categories/actions'
+import { readUser } from '../../../account/actions'
+import { readCategoriesByStore } from '../../categories/actions'
 import { ProductForm } from './form'
 
 export default async function NewProduct({
@@ -7,7 +8,10 @@ export default async function NewProduct({
 }: {
   searchParams: { id: string }
 }) {
-  const { data: categories, error } = await readCategories()
+  const { data: user } = await readUser()
+  const { data: categories, error } = await readCategoriesByStore(
+    user?.stores[0].id,
+  )
 
   return (
     <div className="space-y-4">

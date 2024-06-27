@@ -101,7 +101,7 @@ export function AddressStep() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col space-y-6 pb-6"
+        className="flex flex-col space-y-6 pb-20"
       >
         <FormField
           control={form.control}
@@ -133,7 +133,7 @@ export function AddressStep() {
               <FormLabel>Número</FormLabel>
               <FormControl>
                 <Input
-                  inputMode="numeric"
+                  type="number"
                   placeholder="Digite o número..."
                   {...field}
                 />
@@ -210,12 +210,12 @@ export function AddressStep() {
 
         <Button
           type={address ? 'submit' : 'button'}
-          className="ml-auto"
-          // disabled={
-          //   form.formState.isSubmitting ||
-          //   form.formState.isSubmitting ||
-          //   (address && !form.formState.isValid)
-          // }
+          className="fixed bottom-4 right-4"
+          disabled={
+            form.formState.isSubmitting ||
+            form.formState.isSubmitting ||
+            (address && !form.formState.isValid)
+          }
           onClick={verifyCEP}
         >
           {form.formState.isSubmitting && (

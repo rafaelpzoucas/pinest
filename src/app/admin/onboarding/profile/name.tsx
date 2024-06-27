@@ -21,6 +21,7 @@ import { supabaseErrors } from '@/services/supabase-errors'
 import { createRow } from '@/services/supabase-service'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { createSeller } from './actions'
 
@@ -33,6 +34,8 @@ const formSchema = z.object({
 export function NameStep() {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   const name = searchParams.get('name') ?? ''
 
@@ -79,6 +82,12 @@ export function NameStep() {
     return router.push('?step=profile&info=phone')
   }
 
+  useEffect(() => {
+    if (nameInputRef.current) {
+      nameInputRef.current.focus()
+    }
+  }, [])
+
   return (
     <Form {...form}>
       <form
@@ -92,7 +101,11 @@ export function NameStep() {
             <FormItem>
               <FormLabel>Nome</FormLabel>
               <FormControl>
-                <Input placeholder="Digite o seu nome..." {...field} />
+                <Input
+                  autoFocus
+                  placeholder="Digite o seu nome..."
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
                 Digite o seu nome, ou do responsável pela loja.
