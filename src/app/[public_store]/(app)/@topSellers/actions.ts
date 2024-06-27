@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { ProductType } from '@/models/product'
 
-export async function getTopSellers(): Promise<{
+export async function getTopSellers(storeId?: string): Promise<{
   topSellers: ProductType[] | null
   topSellersError: any | null
 }> {
@@ -17,6 +17,7 @@ export async function getTopSellers(): Promise<{
       product_images (*)  
     `,
     )
+    .eq('store_id', storeId)
     .range(0, 9)
     .order('amount_sold', { ascending: false })
 

@@ -4,6 +4,7 @@ import { StoreType } from '@/models/store'
 import { Edit } from 'lucide-react'
 import Image from 'next/image'
 
+import { DefaultLogo } from '@/components/default-logo'
 import { cn, queryParamsLink } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -13,14 +14,16 @@ export function Store({ store }: { store: StoreType | null }) {
       <h1 className="font-bold">Loja</h1>
 
       <div className="grid grid-cols-1 gap-3">
-        <div className="relative w-full h-8 max-w-40">
-          {store && store.logo_url && (
+        <div className="relative w-full h-8 max-w-64">
+          {store && store.logo_url ? (
             <Image
               src={store.logo_url}
               fill
               alt=""
               className="object-contain object-left"
             />
+          ) : (
+            <DefaultLogo storeName={store?.name} />
           )}
         </div>
         <div>

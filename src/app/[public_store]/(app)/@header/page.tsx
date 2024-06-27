@@ -1,3 +1,4 @@
+import { DefaultLogo } from '@/components/default-logo'
 import Image from 'next/image'
 import { readStoreByName } from './actions'
 import { Menu } from './menu'
@@ -19,8 +20,8 @@ export default async function Header({
     <div className="p-2">
       <header className="relative p-4 py-4 bg-primary/80 rounded-2xl">
         <div className="flex flex-row items-center justify-between">
-          <div className="relative w-full h-8 max-w-40">
-            {store && store.logo_url && (
+          <div className="relative w-full h-8 max-w-64">
+            {store && store.logo_url ? (
               <Image
                 src={store.logo_url}
                 fill
@@ -28,6 +29,8 @@ export default async function Header({
                 className={'object-contain object-left'}
                 priority
               />
+            ) : (
+              <DefaultLogo storeName={store?.name} />
             )}
           </div>
 

@@ -5,6 +5,7 @@ import {
 } from '@/components/ui/carousel'
 
 import { ProductCard } from '@/components/product-card'
+import { readStoreByName } from '../@productsList/actions'
 import { getTopSellers } from './actions'
 
 export default async function TopSellersPage({
@@ -12,7 +13,8 @@ export default async function TopSellersPage({
 }: {
   params: { public_store: string }
 }) {
-  const { topSellers, topSellersError } = await getTopSellers()
+  const { store, storeError } = await readStoreByName(params.public_store)
+  const { topSellers, topSellersError } = await getTopSellers(store?.id)
 
   if (topSellersError) {
     console.log(topSellersError)

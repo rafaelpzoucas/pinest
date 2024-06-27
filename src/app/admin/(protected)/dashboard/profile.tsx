@@ -1,7 +1,8 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { DefaultLogo } from '@/components/default-logo'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ChevronRight, ExternalLink, MapPin, Phone, User } from 'lucide-react'
+import { ChevronRight, ExternalLink, MapPin, Phone } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { readUser } from '../store/(store-options)/account/actions'
 
@@ -21,14 +22,21 @@ export async function ProfileCard() {
       <Link href="store/account">
         <div className="flex flex-row gap-4">
           <div className="flex flex-col gap-4">
-            <Avatar className="w-16 h-16">
-              <AvatarFallback className="uppercase">
-                {store?.name[0] ?? <User />}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative w-full h-8 max-w-64">
+              {store && store.logo_url ? (
+                <Image
+                  src={store.logo_url}
+                  fill
+                  alt=""
+                  className="object-contain object-left"
+                />
+              ) : (
+                <DefaultLogo storeName={store?.name} />
+              )}
+            </div>
 
             <div>
-              <strong className="text-lg capitalize">{store?.name}</strong>
+              <p className="capitalize">{store?.name}</p>
               <div>
                 <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="w-4 h-4" />
