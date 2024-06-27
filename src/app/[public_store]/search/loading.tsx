@@ -1,6 +1,5 @@
 import { ProductCard } from '@/components/product-card'
 import { buttonVariants } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
@@ -18,7 +17,7 @@ export default async function SearchPageLoading() {
           <ArrowLeft className="w-5 h-5" />
         </div>
 
-        <Input type="search" placeholder="Buscar na loja..." />
+        <Skeleton className="w-full h-9" />
       </header>
 
       <div className="pl-4">
