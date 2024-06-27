@@ -1,6 +1,5 @@
 import Image from 'next/image'
 
-import { Island } from '@/components/island'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -18,7 +17,7 @@ import { CartProductType } from '@/models/cart'
 import Link from 'next/link'
 import { getCart } from '../../cart/actions'
 import { readProductById } from './actions'
-import { AddToCardDrawer } from './add-to-cart-drawer'
+import { AddToCard } from './add-to-cart'
 
 export default async function ProductPage({
   params,
@@ -35,7 +34,7 @@ export default async function ProductPage({
   const productImages = product.product_images
 
   return (
-    <main className="flex flex-col gap-6 p-4">
+    <main className="flex flex-col p-4">
       <header className="flex flex-row justify-between">
         <Header />
 
@@ -82,24 +81,16 @@ export default async function ProductPage({
         </Carousel>
       )}
 
-      <section className="space-y-2">
-        <h1 className="text-lg capitalize font-bold">{product.name}</h1>
-        <strong className="text-primary">
-          {formatCurrencyBRL(product.price)}
-        </strong>
+      <section className="mt-6 space-y-6">
+        <div>
+          <strong className="text-primary">
+            {formatCurrencyBRL(product.price)}
+          </strong>
+          <h1 className="text-lg capitalize font-bold">{product.name}</h1>
+        </div>
+        <AddToCard publicStore={params.public_store} product={product} />
         <p className="text-sm text-muted-foreground">{product.description}</p>
       </section>
-
-      <footer>
-        <Island>
-          <div className="flex w-full p-2">
-            <AddToCardDrawer
-              publicStore={params.public_store}
-              product={product}
-            />
-          </div>
-        </Island>
-      </footer>
     </main>
   )
 }
