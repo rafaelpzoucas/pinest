@@ -1,4 +1,3 @@
-import { readUser } from '@/app/admin/(protected)/store/(store-options)/account/actions'
 import { readCategoriesByStore } from '@/app/admin/(protected)/store/(store-options)/catalog/categories/actions'
 import {
   Accordion,
@@ -16,9 +15,8 @@ export default async function Search({
 }: {
   params: { public_store: string }
 }) {
-  const { data: user } = await readUser()
   const { data: categories, error: categoriesError } =
-    await readCategoriesByStore(user?.stores[0].id)
+    await readCategoriesByStore(params.public_store)
 
   if (categoriesError) {
     console.error(categoriesError)

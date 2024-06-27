@@ -1,27 +1,21 @@
 import { ProductCard } from '@/components/product-card'
 import { Box, Boxes } from 'lucide-react'
-import { getProductsByCategory, readStoreByName } from './actions'
+import { getProductsByCategory } from './actions'
 
 export default async function ProductsList({
   params,
 }: {
   params: { public_store: string }
 }) {
-  const { store, storeError } = await readStoreByName(params.public_store)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { categories, categoriesError } = await getProductsByCategory(store?.id)
+  const { categories, categoriesError } = await getProductsByCategory(
+    params.public_store,
+  )
 
   if (categoriesError) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted mx-auto">
         <Boxes className="w-20 h-20" />
-        <p className="text-muted-foreground">
-          Não encontramos nenhum produto :(
-        </p>
+        <p className="text-muted-foreground">Não encontramos nenhum produto</p>
       </div>
     )
   }
