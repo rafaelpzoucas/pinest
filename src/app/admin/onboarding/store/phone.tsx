@@ -15,34 +15,28 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/input-phone'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
-import { createRow } from '@/services/supabase-service'
+import { updateRow } from '@/services/supabase-service'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { createSeller } from './actions'
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: 'O nome não pode estar vazio.',
-  }),
+  phone: z.string().min(13),
 })
 
-export function NameStep() {
+export function PhoneForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const nameInputRef = useRef<HTMLInputElement>(null)
-
-  const name = searchParams.get('name') ?? ''
+  const phone = searchParams.get('phone') ?? ''
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name,
+      phone,
     },
   })
 
@@ -55,14 +49,12 @@ export function NameStep() {
       return router.push('/admin/sign-in')
     }
 
-    const { error } = await createRow({
-      route: 'users',
+    const { error } = await updateRow({
+      route: 'stores',
       columns: {
-        id: userData.user.id,
-        name: values.name,
-        email: userData.user.email,
-        role: 'admin',
+        phone: values.phone,
       },
+      filter: { key: 'user_id', value: userData.user.id },
     })
 
     if (error) {
@@ -71,44 +63,26 @@ export function NameStep() {
       return null
     }
 
-    const response = await createSeller(userData.user.id, userData.user.email)
-
-    if (response) {
-      console.log('Seller account created successfully')
-    } else {
-      console.error('Error creating seller account')
-    }
-
-    return router.push('?step=profile&info=phone')
+    return router.push('?step=2&info=role')
   }
-
-  useEffect(() => {
-    if (nameInputRef.current) {
-      nameInputRef.current.focus()
-    }
-  }, [])
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full space-y-6"
+        className="flex flex-col space-y-8"
       >
         <FormField
           control={form.control}
-          name="name"
+          name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome</FormLabel>
+              <FormLabel>Telefone</FormLabel>
               <FormControl>
-                <Input
-                  autoFocus
-                  placeholder="Digite o seu nome..."
-                  {...field}
-                />
+                <PhoneInput autoFocus {...field} />
               </FormControl>
               <FormDescription>
-                Digite o seu nome, ou do responsável pela loja.
+                Dê preferência ao número de WhatsApp.
               </FormDescription>
               <FormMessage />
             </FormItem>

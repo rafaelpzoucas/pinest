@@ -33,7 +33,7 @@ export function SearchZipCode() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    return router.push(`?step=profile&info=address&zip-code=${'19814060'}`)
+    return router.push(`?step=2&zip-code=${'19814060'}`)
   }
 
   return (

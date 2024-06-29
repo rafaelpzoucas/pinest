@@ -18,22 +18,31 @@ import {
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { supabaseErrors } from '@/services/supabase-errors'
+import { createRow } from '@/services/supabase-service'
 import { Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { updateStore } from './actions'
+import { createSeller } from './actions'
 
 const formSchema = z.object({
-  role: z.string(),
+  name: z.string().min(1, {
+    message: 'O nome não pode estar vazio.',
+  }),
 })
 
-export function RoleForm() {
+export function NameStep() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  const name = searchParams.get('name') ?? ''
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      role: '',
+      name,
     },
   })
 
@@ -46,40 +55,60 @@ export function RoleForm() {
       return router.push('/admin/sign-in')
     }
 
-    const { storeError } = await updateStore({
-      role: values.role,
+    const { error } = await createRow({
+      route: 'users',
+      columns: {
+        id: userData.user.id,
+        name: values.name,
+        email: userData.user.email,
+        role: 'admin',
+      },
     })
 
-    if (storeError) {
-      toast(supabaseErrors[storeError.code] ?? 'Erro desconhecido')
-      console.log(storeError)
+    if (error) {
+      toast(supabaseErrors[error.code] ?? 'Erro desconhecido')
+      console.log(error)
       return null
     }
 
-    return router.push('?step=2&info=address')
+    const response = await createSeller(userData.user.id, userData.user.email)
+
+    if (response) {
+      console.log('Seller account created successfully')
+    } else {
+      console.error('Error creating seller account')
+    }
+
+    return router.push('?step=1&info=phone')
   }
+
+  useEffect(() => {
+    if (nameInputRef.current) {
+      nameInputRef.current.focus()
+    }
+  }, [])
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col space-y-8"
+        className="flex flex-col w-full space-y-6"
       >
         <FormField
           control={form.control}
-          name="role"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nicho</FormLabel>
+              <FormLabel>Nome</FormLabel>
               <FormControl>
                 <Input
                   autoFocus
-                  placeholder="Insira o seu nicho..."
+                  placeholder="Digite o seu nome..."
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Qual o tipo de produtos que você vende?
+                Digite o seu nome, ou do responsável pela loja.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -89,7 +118,11 @@ export function RoleForm() {
         <Button
           type="submit"
           className="ml-auto"
-          disabled={form.formState.isSubmitting || !form.formState.isValid}
+          disabled={
+            form.formState.isSubmitting ||
+            form.formState.isSubmitted ||
+            !form.formState.isValid
+          }
         >
           {form.formState.isSubmitting && (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />

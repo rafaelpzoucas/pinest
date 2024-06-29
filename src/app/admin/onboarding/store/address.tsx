@@ -17,12 +17,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
 import { ViacepType } from '@/models/viacep-address'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { createRow } from '@/services/supabase-service'
 import { Loader2 } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -37,7 +35,7 @@ const formSchema = z.object({
   complement: z.string().optional(),
 })
 
-export function AddressStep() {
+export function AddressForm({ storeId }: { storeId: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [address, setAddress] = useState(false)
@@ -77,7 +75,7 @@ export function AddressStep() {
     const { error } = await createRow({
       route: 'addresses',
       columns: {
-        user_id: session.user.id,
+        store_id: storeId,
         zip_code: values.zip_code,
         street: values.street,
         number: values.number,
@@ -94,7 +92,7 @@ export function AddressStep() {
       return null
     }
 
-    return router.push('?step=store&info=name')
+    return router.push('?step=3')
   }
 
   return (
@@ -117,9 +115,9 @@ export function AddressStep() {
                 />
               </FormControl>
               <FormDescription className="flex">
-                <Link href="?step=search-zc" className={cn('text-primary')}>
+                {/* <Link href="?step=search-zc" className={cn('text-primary')}>
                   Não sei o CEP
-                </Link>
+                </Link> */}
               </FormDescription>
               <FormMessage />
             </FormItem>

@@ -4,18 +4,19 @@ import { Card } from '@/components/ui/card'
 import { ChevronRight, ExternalLink, MapPin, Phone } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { readUser } from '../store/(store-options)/account/actions'
+import { readStore } from './actions'
 
 export async function ProfileCard() {
-  const { data: user, error } = await readUser()
+  const { store, storeError } = await readStore()
 
-  if (error) {
-    console.log(error)
+  if (storeError) {
+    console.error(storeError)
   }
 
-  const store = user?.stores[0]
-
-  const address = `${user?.addresses[0].street}, ${user?.addresses[0].number}`
+  const address =
+    store?.addresses && store.addresses.length > 0
+      ? `${store?.addresses[0].street}, ${store?.addresses[0].number}`
+      : ''
 
   return (
     <Card className="flex flex-col gap-6 p-4">
@@ -40,7 +41,7 @@ export async function ProfileCard() {
               <div>
                 <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="w-4 h-4" />
-                  <span>{user?.phone}</span>
+                  <span>{store?.phone}</span>
                 </span>
                 <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="w-4 h-4" />

@@ -2,6 +2,7 @@ import { Island } from '@/components/island'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { readOwner } from './actions'
 import { Navigation } from './navigation'
 
 export const metadata: Metadata = {
@@ -17,23 +18,24 @@ export default async function ProtectedLayout({
 }>) {
   const supabase = createClient()
 
-  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const { data: session, error: sessionError } = await supabase.auth.getUser()
 
-  if (userError || !userData?.user) {
+  if (sessionError || !session?.user) {
     redirect('/admin/sign-in')
   }
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userData.user.id)
-    .single()
+  const { owner, ownerError } = await readOwner()
 
-  if (error && error.code === 'PGRST116') {
-    return redirect('/admin/onboarding')
+  if (ownerError) {
+    console.error(ownerError)
+    return redirect('/admin/sign-in')
   }
 
-  if (data && data?.role !== 'admin') {
+  if (!owner) {
+    return redirect('/admin/onboarding?step=1')
+  }
+
+  if (owner && owner?.role !== 'admin') {
     return redirect('/admin/sign-in')
   }
 

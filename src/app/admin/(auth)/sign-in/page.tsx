@@ -21,7 +21,7 @@ export default async function AdminSignIn({
       .single()
 
     if (error) {
-      return redirect('/admin/onboarding')
+      return redirect('/admin/onboarding?step=1')
     }
 
     if (user && user?.role === 'admin') redirect('/admin/dashboard')

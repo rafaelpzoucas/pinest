@@ -16,32 +16,47 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { createClient } from '@/lib/supabase/client'
+import { supabaseErrors } from '@/services/supabase-errors'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { createStore } from './actions'
+import { toast } from 'sonner'
+import { updateStore } from './actions'
 
 const formSchema = z.object({
-  name: z.string(),
+  description: z.string(),
 })
 
-export function NameForm() {
+export function DescriptionForm() {
   const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      description: '',
     },
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { storeError } = await createStore(values.name.toLocaleLowerCase())
+    const supabase = createClient()
 
-    if (storeError) {
-      console.log(storeError)
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !userData?.user) {
+      return router.push('/admin/sign-in')
     }
 
-    return router.push('?step=2&info=description')
+    const { storeError } = await updateStore({
+      description: values.description,
+    })
+
+    if (storeError) {
+      toast(supabaseErrors[storeError.code] ?? 'Erro desconhecido')
+      console.log(storeError)
+      return null
+    }
+
+    return router.push('?step=2&info=phone')
   }
 
   return (
@@ -52,20 +67,18 @@ export function NameForm() {
       >
         <FormField
           control={form.control}
-          name="name"
+          name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome da loja</FormLabel>
+              <FormLabel>Descrição da loja</FormLabel>
               <FormControl>
                 <Input
                   autoFocus
-                  placeholder="Digite o nome da loja..."
+                  placeholder="Insira uma descriçãopara a loja..."
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                É o nome que aparecerá para seus clientes.
-              </FormDescription>
+              <FormDescription>Você poderá alterar depois</FormDescription>
               <FormMessage />
             </FormItem>
           )}

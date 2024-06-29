@@ -63,7 +63,7 @@ export function PhoneStep() {
       return null
     }
 
-    return router.push('?step=profile&info=address')
+    return router.push('?step=2&info=name')
   }
 
   return (
