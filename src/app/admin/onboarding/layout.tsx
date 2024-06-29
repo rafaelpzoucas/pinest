@@ -5,10 +5,8 @@ import darkLogo from '@/../public/logo-dark.svg'
 
 export default function OnboardingLayout({
   children,
-  searchParams,
 }: {
   children: ReactNode
-  searchParams: { step: string }
 }) {
   return (
     <div className="flex flex-col md:grid md:grid-cols-[1fr_2fr] items-center justify-center gap-4 h-dvh">
