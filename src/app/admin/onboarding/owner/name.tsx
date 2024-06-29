@@ -99,11 +99,11 @@ export function NameStep() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome</FormLabel>
+              <FormLabel>Nome do proprietário</FormLabel>
               <FormControl>
                 <Input
                   autoFocus
-                  placeholder="Digite o seu nome..."
+                  placeholder="Digite o nome do proprietário..."
                   {...field}
                 />
               </FormControl>

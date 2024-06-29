@@ -77,7 +77,7 @@ export function PhoneStep() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone</FormLabel>
+              <FormLabel>Telefone do proprietário</FormLabel>
               <FormControl>
                 <PhoneInput autoFocus {...field} />
               </FormControl>

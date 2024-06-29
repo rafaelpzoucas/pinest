@@ -57,7 +57,9 @@ export default async function Onboarding({
         />
       )}
 
-      <div className="w-full md:max-w-sm h-full mt-20 px-4">{renderStep()}</div>
+      <div className="w-full md:max-w-sm h-full mt-32 md:mt-72 px-4">
+        {renderStep()}
+      </div>
     </div>
   )
 }

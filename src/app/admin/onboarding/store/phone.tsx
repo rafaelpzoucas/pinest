@@ -77,7 +77,7 @@ export function PhoneForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone</FormLabel>
+              <FormLabel>Telefone da loja</FormLabel>
               <FormControl>
                 <PhoneInput autoFocus {...field} />
               </FormControl>
