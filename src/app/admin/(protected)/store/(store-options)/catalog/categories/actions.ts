@@ -16,9 +16,26 @@ export async function createCategory(
   values: z.infer<typeof newCategoryFormSchema>,
 ) {
   const supabase = createClient()
+
+  const { data: session, error: sessionError } = await supabase.auth.getUser()
+
+  if (sessionError) {
+    console.error(sessionError)
+  }
+
+  const { data: store, error: storeError } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('user_id', session.user?.id)
+    .single()
+
+  if (storeError) {
+    console.error(storeError)
+  }
+
   const { data, error } = await supabase
     .from('categories')
-    .insert([values])
+    .insert([{ ...values, store_id: store?.id }])
     .select()
 
   revalidatePath('/catalog')
