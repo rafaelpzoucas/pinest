@@ -3,9 +3,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { UserType } from '@/models/user'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
+import { storeFormSchema } from './form'
 
-export async function createStore(name: string): Promise<{
-  store: UserType | null
+export async function createStore(
+  columns: z.infer<typeof storeFormSchema>,
+): Promise<{
   storeError: any | null
 }> {
   const supabase = createClient()
@@ -18,12 +21,11 @@ export async function createStore(name: string): Promise<{
     redirect('/admin/sign-in')
   }
 
-  const { data: store, error: storeError } = await supabase
+  const { error: storeError } = await supabase
     .from('stores')
-    .insert([{ user_id: session.user.id, name }])
-    .single()
+    .insert({ user_id: session.user.id, ...columns })
 
-  return { store, storeError }
+  return { storeError }
 }
 
 export async function updateStore(columns: any): Promise<{

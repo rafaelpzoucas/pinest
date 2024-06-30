@@ -208,7 +208,7 @@ export function AddressForm({ storeId }: { storeId: string }) {
 
         <Button
           type={address ? 'submit' : 'button'}
-          className="fixed bottom-4 right-4"
+          className="w-fit ml-auto"
           disabled={
             form.formState.isSubmitting ||
             form.formState.isSubmitting ||

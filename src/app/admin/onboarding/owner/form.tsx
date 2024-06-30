@@ -16,77 +16,46 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { createClient } from '@/lib/supabase/client'
+import { PhoneInput } from '@/components/ui/input-phone'
 import { supabaseErrors } from '@/services/supabase-errors'
-import { createRow } from '@/services/supabase-service'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { createSeller } from './actions'
+import { createOwner } from './actions'
 
-const formSchema = z.object({
+export const ownerFormSchema = z.object({
   name: z.string().min(1, {
     message: 'O nome não pode estar vazio.',
   }),
+  phone: z.string().min(13, {
+    message: 'O telefone não pode estar vazio.',
+  }),
 })
 
-export function NameStep() {
+export function OwnerForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const nameInputRef = useRef<HTMLInputElement>(null)
-
   const name = searchParams.get('name') ?? ''
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof ownerFormSchema>>({
+    resolver: zodResolver(ownerFormSchema),
     defaultValues: {
       name,
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const supabase = createClient()
+  async function onSubmit(values: z.infer<typeof ownerFormSchema>) {
+    const { ownerError } = await createOwner(values)
 
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !userData?.user) {
-      return router.push('/admin/sign-in')
-    }
-
-    const { error } = await createRow({
-      route: 'users',
-      columns: {
-        id: userData.user.id,
-        name: values.name,
-        email: userData.user.email,
-        role: 'admin',
-      },
-    })
-
-    if (error) {
-      toast(supabaseErrors[error.code] ?? 'Erro desconhecido')
-      console.log(error)
+    if (ownerError) {
+      toast(supabaseErrors[ownerError.code] ?? 'Erro desconhecido')
+      console.error(ownerError)
       return null
     }
 
-    const response = await createSeller(userData.user.id, userData.user.email)
-
-    if (response) {
-      console.log('Seller account created successfully')
-    } else {
-      console.error('Error creating seller account')
-    }
-
-    return router.push('?step=1&info=phone')
+    return router.push('?step=2')
   }
-
-  useEffect(() => {
-    if (nameInputRef.current) {
-      nameInputRef.current.focus()
-    }
-  }, [])
 
   return (
     <Form {...form}>
@@ -110,6 +79,21 @@ export function NameStep() {
               <FormDescription>
                 Digite o seu nome, ou do responsável pela loja.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone do proprietário</FormLabel>
+              <FormControl>
+                <PhoneInput {...field} />
+              </FormControl>
+              <FormDescription>O número de WhatsApp.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

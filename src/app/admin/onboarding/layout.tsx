@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { ReactNode } from 'react'
 
 import darkLogo from '@/../public/logo-dark.svg'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function OnboardingLayout({
   children,
@@ -14,8 +15,10 @@ export default function OnboardingLayout({
         <Image src={darkLogo} alt="Pinest" width={250} />
       </aside>
 
-      <div className="md:bg-secondary/50 h-full px-4 md:px-8 w-full">
-        {children}
+      <div className="md:bg-secondary/30 h-full w-full">
+        <ScrollArea className="h-screen px-4 md:px-8 border">
+          {children}
+        </ScrollArea>
       </div>
     </div>
   )
