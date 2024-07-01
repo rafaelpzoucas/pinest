@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { removeAccents } from '@/lib/utils'
 import { UserType } from '@/models/user'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -11,6 +12,13 @@ export async function createStore(
 ): Promise<{
   storeError: any | null
 }> {
+  const newColumns = {
+    ...columns,
+    name: columns.name.trim().toLowerCase(),
+    store_url: removeAccents(columns.name.trim())
+      .toLowerCase()
+      .replaceAll(' ', '-'),
+  }
   const supabase = createClient()
 
   const { data: session, error: sessionError } = await supabase.auth.getUser()
@@ -23,7 +31,7 @@ export async function createStore(
 
   const { error: storeError } = await supabase
     .from('stores')
-    .insert({ user_id: session.user.id, ...columns })
+    .insert({ user_id: session.user.id, ...newColumns })
 
   return { storeError }
 }

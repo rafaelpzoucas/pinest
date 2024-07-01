@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Loader2, Trash } from 'lucide-react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -81,6 +82,8 @@ export function StoreForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col w-full space-y-6"
       >
+        <Label>Logo</Label>
+
         {logoUrl ? (
           <div className="relative">
             <Image src={logoUrl} alt="" width={200} height={200} />
@@ -105,11 +108,7 @@ export function StoreForm() {
             <FormItem>
               <FormLabel>Nome da loja</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Digite o nome da loja..."
-                  className="capitalize"
-                  {...field}
-                />
+                <Input placeholder="Digite o nome da loja..." {...field} />
               </FormControl>
               <FormDescription>
                 É o nome que aparecerá para seus clientes.

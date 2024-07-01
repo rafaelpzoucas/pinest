@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 
+import { removeAccents } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { storeSchema } from './form'
@@ -10,11 +11,19 @@ export async function updateStore(
   columns: z.infer<typeof storeSchema>,
   id: string,
 ) {
+  const newColumns = {
+    ...columns,
+    name: columns.name.trim(),
+    store_url: removeAccents(columns.name.trim())
+      .toLowerCase()
+      .replaceAll(' ', '-'),
+  }
+
   const supabase = createClient()
 
   const { data, error } = await supabase
     .from('stores')
-    .update(columns)
+    .update(newColumns)
     .eq('id', id)
 
   return { data, error }

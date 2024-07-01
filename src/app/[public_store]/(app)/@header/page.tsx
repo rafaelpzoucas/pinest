@@ -1,6 +1,6 @@
 import { DefaultLogo } from '@/components/default-logo'
 import Image from 'next/image'
-import { readStoreByName } from './actions'
+import { getStoreByStoreURL } from '../../actions'
 import { Menu } from './menu'
 
 export default async function Header({
@@ -8,9 +8,7 @@ export default async function Header({
 }: {
   params: { public_store: string }
 }) {
-  const { store, storeError } = await readStoreByName(
-    params.public_store.replaceAll('-', ' '),
-  )
+  const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
   if (storeError) {
     console.error(storeError)

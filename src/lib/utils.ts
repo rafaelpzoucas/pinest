@@ -64,3 +64,7 @@ export function formatBytes(bytes: number, decimals = 2) {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+export function removeAccents(str: string) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}

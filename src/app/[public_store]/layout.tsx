@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getStores } from './actions'
+import { getStoreByStoreURL } from './actions'
 import NotFound from './not-found'
 
 export const metadata: Metadata = {
@@ -14,16 +14,13 @@ export default async function PublicStoreLayout({
   children: React.ReactNode
   params: { public_store: string }
 }>) {
-  const storeSlug = params.public_store.split('-')
-  const storeName = storeSlug.join(' ')
+  const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const { stores, storesError } = await getStores(storeName)
-
-  if (storesError) {
-    console.log(storesError)
+  if (storeError) {
+    console.log(storeError)
   }
 
-  if (stores && stores.length === 0) {
+  if (!store) {
     return <NotFound />
   }
 

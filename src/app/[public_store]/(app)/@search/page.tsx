@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { ListFilter } from 'lucide-react'
-import { readCategoriesByStoreName } from './actions'
+import { readCategoriesByStoreURL } from './actions'
 import { SearchIsland } from './search-island'
 import { SearchSheet } from './search-sheet'
 
@@ -16,7 +16,7 @@ export default async function Search({
   params: { public_store: string }
 }) {
   const { data: categories, error: categoriesError } =
-    await readCategoriesByStoreName(params.public_store)
+    await readCategoriesByStoreURL(params.public_store)
 
   if (categoriesError) {
     console.error(categoriesError)

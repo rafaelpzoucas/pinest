@@ -2,15 +2,15 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { CategoryType } from '@/models/category'
-import { readStoreByName } from '../@header/actions'
+import { getStoreByStoreURL } from '../../actions'
 
-export async function getProductsByCategory(storeName: string): Promise<{
+export async function getProductsByCategory(storeURL: string): Promise<{
   categories: CategoryType[] | null
   categoriesError: any | null
 }> {
   const supabase = createClient()
 
-  const { store, storeError } = await readStoreByName(storeName)
+  const { store, storeError } = await getStoreByStoreURL(storeURL)
 
   if (storeError) {
     console.error(storeError)

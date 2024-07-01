@@ -2,15 +2,15 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { ProductType } from '@/models/product'
-import { readStoreByName } from '../@header/actions'
+import { getStoreByStoreURL } from '../../actions'
 
-export async function getTopSellers(storeName?: string): Promise<{
+export async function getTopSellers(storeURL: string): Promise<{
   topSellers: ProductType[] | null
   topSellersError: any | null
 }> {
   const supabase = createClient()
 
-  const { store, storeError } = await readStoreByName(storeName)
+  const { store, storeError } = await getStoreByStoreURL(storeURL)
 
   if (storeError) {
     console.error(storeError)

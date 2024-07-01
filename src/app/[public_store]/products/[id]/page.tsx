@@ -54,7 +54,7 @@ export default async function ProductPage({
       {productImages.length < 2 && (
         <Card className="relative w-full aspect-square overflow-hidden border-none">
           <Image
-            src={productImages[0].image_url ?? defaultThumbUrl}
+            src={productImages[0]?.image_url ?? defaultThumbUrl}
             alt=""
             fill
             className="object-cover"

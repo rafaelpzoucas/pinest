@@ -22,5 +22,5 @@ export type UserType = {
   role: string
   phone: string
   stores: StoreType[]
-  addresses: AddressType[]
+  addresses?: AddressType[]
 }

@@ -8,5 +8,6 @@ export type StoreType = {
   role: string
   user_id: string
   logo_url: string
+  store_url: string
   addresses: AddressType[]
 }

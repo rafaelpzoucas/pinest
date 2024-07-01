@@ -10,7 +10,7 @@ import Link from 'next/link'
 
 export function Store({ store }: { store: StoreType | null }) {
   return (
-    <Card className="relative flex flex-col gap-4 p-4 bg-primary text-primary-foreground">
+    <Card className="relative flex flex-col gap-4 p-4">
       <h1 className="font-bold">Loja</h1>
 
       <div className="grid grid-cols-1 gap-3">

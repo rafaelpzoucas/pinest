@@ -37,7 +37,6 @@ export async function ProfileCard() {
             </div>
 
             <div>
-              <p className="capitalize">{store?.name}</p>
               <div>
                 <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="w-4 h-4" />
@@ -56,7 +55,7 @@ export async function ProfileCard() {
       </Link>
 
       <Link
-        href={`/${store?.name.replaceAll(' ', '-')}`}
+        href={`/${store?.store_url}`}
         target="_blank"
         className={buttonVariants()}
       >
