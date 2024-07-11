@@ -1,3 +1,4 @@
+import { Header } from '@/components/header'
 import { readPurchases } from './actions'
 import { Purchases } from './purchases'
 
@@ -8,13 +9,9 @@ export default async function WorkspacePage() {
 
   return (
     <main className="space-y-6 p-4">
-      <h1 className="text-lg text-center font-bold">Pedidos</h1>
+      <Header title="Pedidos" />
 
-      {purchases ? (
-        <Purchases purchases={purchases} />
-      ) : (
-        <div>Não há pedidos</div>
-      )}
+      <Purchases purchases={purchases} />
     </main>
   )
 }

@@ -1,6 +1,8 @@
+import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { cn, formatDistanceToNowDate } from '@/lib/utils'
+import { cn, formatDate } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
+import { statuses } from '@/models/statuses'
 import { ChevronRight } from 'lucide-react'
 
 import Link from 'next/link'
@@ -9,24 +11,25 @@ type PurchaseCardPropsType = {
   purchase: PurchaseType
 }
 
+type StatusKey = keyof typeof statuses
+
 export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
   const customer = purchase.customers.users
-
   const customerNames = customer.name.split(' ')
   const firstName = customerNames[0]
   const lastName = customerNames[customerNames.length - 1]
 
+  const displayId = purchase.id.substring(0, 4)
+
   return (
     <Link href={`purchases/${purchase.id}`}>
-      <Card
-        key={purchase.id}
-        className={cn(
-          'p-4',
-          purchase.status === 'waiting' && 'bg-primary text-primary-foreground',
-        )}
-      >
+      <Card key={purchase.id} className={cn('flex flex-col gap-2 p-4')}>
         <header className="flex flex-row">
-          <strong>{`${firstName} ${lastName}`}</strong>
+          <Badge className={cn(statuses[purchase.status as StatusKey].color)}>
+            {statuses[purchase.status as StatusKey].status}
+          </Badge>
+
+          <span className="text-muted-foreground ml-2">#{displayId}</span>
 
           <span
             className={cn(
@@ -34,24 +37,21 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
               purchase.status === 'waiting' && 'text-muted',
             )}
           >
-            há {formatDistanceToNowDate(purchase.created_at)}
+            {formatDate(purchase.created_at, 'dd/MM hh:mm')}
           </span>
 
           <ChevronRight className="w-4 h-4 ml-2" />
         </header>
 
+        <strong>{`${firstName} ${lastName}`}</strong>
+
         <section
           className={cn(
-            'pr-1 text-xs mt-2 space-y-1 text-muted-foreground',
+            'pr-1 text-xs space-y-1 text-muted-foreground',
             purchase.status === 'waiting' &&
               'bg-primary text-primary-foreground',
           )}
         >
-          <div className="flex flex-row justify-between">
-            <span>Frete</span>
-            <strong>Grátis</strong>
-          </div>
-
           <div className="flex flex-row justify-between">
             <span>{purchase.purchase_items.length} produto(s)</span>
             <strong>

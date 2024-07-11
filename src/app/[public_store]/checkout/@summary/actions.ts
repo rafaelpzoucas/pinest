@@ -44,7 +44,7 @@ export async function readStoreByName(storeName: string): Promise<{
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('*')
-    .eq('name', storeName)
+    .eq('store_url', storeName)
     .single()
 
   return { store, storeError }

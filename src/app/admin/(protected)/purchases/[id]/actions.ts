@@ -1,5 +1,8 @@
+'use server'
+
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
+import { revalidatePath } from 'next/cache'
 
 export async function readPurchaseById(purchaseId: string): Promise<{
   purchase: PurchaseType | null
@@ -27,4 +30,22 @@ export async function readPurchaseById(purchaseId: string): Promise<{
     .single()
 
   return { purchase, purchaseError }
+}
+
+export async function updatePurchaseStatus(
+  newStatus: string,
+  purchaseId: string,
+) {
+  const supabase = createClient()
+
+  const { error: updateStatusError } = await supabase
+    .from('purchases')
+    .update({ status: newStatus })
+    .eq('id', purchaseId)
+
+  if (updateStatusError) {
+    console.error(updateStatusError)
+  }
+
+  revalidatePath('/purchases')
 }
