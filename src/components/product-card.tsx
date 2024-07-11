@@ -1,7 +1,7 @@
 'use client'
 
 import defaultThumbUrl from '@/../public/default_thumb_url.png'
-import { ProductOptions } from '@/app/admin/(protected)/store/(store-options)/catalog/products/options'
+import { ProductOptions } from '@/app/admin/(protected)/catalog/products/options'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn, formatCurrencyBRL } from '@/lib/utils'

@@ -94,7 +94,7 @@ export function FileUploader({ files, setFiles }: FileUploaderProps) {
           >
             <ImagePlusIcon className="w-8 h-8 opacity-25" />
 
-            <div className="hidden md:flex">
+            <div className="hidden md:flex flex-col gap-4">
               {isDragActive ? (
                 <p>Solte sua imagem aqui</p>
               ) : (

@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-import { queryParamsLink } from '@/lib/utils'
 import { ProductType } from '@/models/product'
 import { MoreVertical } from 'lucide-react'
 import Link from 'next/link'
@@ -48,7 +47,7 @@ export function ProductOptions({ product }: { product: ProductOptions }) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Opções</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <Link href={`catalog/products/register?${queryParamsLink(product)}`}>
+          <Link href={`catalog/products/register?id=${product.id}`}>
             <DropdownMenuItem>Editar</DropdownMenuItem>
           </Link>
 
@@ -61,16 +60,18 @@ export function ProductOptions({ product }: { product: ProductOptions }) {
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Deseja excluir o produto?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteProduct(product.id)}>
-              Continue
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className={buttonVariants({ variant: 'destructive' })}
+              onClick={() => deleteProduct(product.id)}
+            >
+              Sim, excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

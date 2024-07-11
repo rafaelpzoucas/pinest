@@ -10,9 +10,9 @@ import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { readProductsByStore } from '../catalog/products/actions'
 import { readUser } from '../store/(store-options)/account/actions'
 import { getConnectedAccount } from '../store/(store-options)/billing/actions'
-import { readProductsByStore } from '../store/(store-options)/catalog/products/actions'
 
 type StepsType = {
   name: string
@@ -40,7 +40,7 @@ export async function FirstSteps() {
     },
     {
       name: 'Cadastrar produtos',
-      href: 'store/catalog',
+      href: 'catalog',
       is_checked: (products && products.length > 0) ?? false,
     },
     {

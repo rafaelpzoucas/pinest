@@ -1,10 +1,12 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { convertStringToNumber } from '@/lib/utils'
+import { ProductType } from '@/models/product'
 import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { newProductFormSchema } from './form'
+import { newProductFormSchema } from './form/form'
 
 export async function readStoreByUserId(): Promise<{
   store: StoreType | null
@@ -29,7 +31,10 @@ export async function readStoreByUserId(): Promise<{
 
 export async function createProduct(
   values: z.infer<typeof newProductFormSchema>,
-) {
+): Promise<{
+  createdProduct: any[] | null
+  createdProductError: any | null
+}> {
   const supabase = createClient()
 
   const { store, storeError } = await readStoreByUserId()
@@ -38,14 +43,43 @@ export async function createProduct(
     console.error(storeError)
   }
 
-  const { data, error } = await supabase
+  const { data: createdProduct, error: createdProductError } = await supabase
     .from('products')
     .insert({ ...values, store_id: store?.id })
     .select()
 
   revalidatePath('/catalog')
 
-  return { data, error }
+  return { createdProduct, createdProductError }
+}
+
+export async function readProductById(productId: string): Promise<{
+  product: ProductType | null
+  productError: any | null
+}> {
+  const supabase = createClient()
+
+  const { data: product, error: productError } = await supabase
+    .from('products')
+    .select(
+      `
+        *,
+        product_variations (
+          *,
+          product_variation_attributes (
+            *,
+            attribute_options (
+              *,
+              attributes (*)
+            )
+          )
+        )
+      `,
+    )
+    .eq('id', productId)
+    .single()
+
+  return { product, productError }
 }
 
 export async function updateProduct(
@@ -56,7 +90,13 @@ export async function updateProduct(
 
   const { data, error } = await supabase
     .from('products')
-    .update(values)
+    .update({
+      ...values,
+      price: values.price && convertStringToNumber(values.price),
+      promotional_price:
+        values.promotional_price &&
+        convertStringToNumber(values.promotional_price),
+    })
     .eq('id', id)
     .select()
 

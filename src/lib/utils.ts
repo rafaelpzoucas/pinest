@@ -68,3 +68,19 @@ export function formatBytes(bytes: number, decimals = 2) {
 export function removeAccents(str: string) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
+
+export function convertStringToNumber(string: string) {
+  if (typeof string === 'string') {
+    let numberString = string.replace(/[^0-9,.-]+/g, '')
+
+    if (numberString.includes(',')) {
+      numberString = numberString.replace(',', '.')
+    }
+
+    const number = parseFloat(numberString)
+
+    return number
+  }
+
+  return null
+}

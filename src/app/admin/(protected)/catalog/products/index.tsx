@@ -1,6 +1,7 @@
 import { ProductCard } from '@/components/product-card'
 import { Box } from 'lucide-react'
-import { readUser } from '../../account/actions'
+
+import { readUser } from '../../store/(store-options)/account/actions'
 import { readProductsByStore } from './actions'
 
 export async function Products() {

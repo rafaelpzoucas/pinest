@@ -11,7 +11,7 @@ import {
 import { queryParamsLink } from '@/lib/utils'
 import { Boxes, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
-import { readUser } from '../../account/actions'
+import { readUser } from '../../store/(store-options)/account/actions'
 import { readCategoriesByStore } from './actions'
 
 export async function Categories() {

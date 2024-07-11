@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { BarChart2, Home, Layers, Store, Users } from 'lucide-react'
+import { BarChart2, Home, Layers, LayoutList, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -25,14 +25,14 @@ export function Navigation() {
       icon: Layers,
     },
     {
+      href: '/admin/catalog',
+      name: 'Catálogo',
+      icon: LayoutList,
+    },
+    {
       href: '/admin/store',
       name: 'Minha loja',
       icon: Store,
-    },
-    {
-      href: '/admin/customers',
-      name: 'Clientes',
-      icon: Users,
     },
     {
       href: '/admin/reports',
