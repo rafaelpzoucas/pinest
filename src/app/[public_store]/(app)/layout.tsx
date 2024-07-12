@@ -23,7 +23,7 @@ export default function StoreLayout({
 }) {
   return (
     <main className="flex items-center justify-center pb-20">
-      <div className="max-w-6xl">
+      <div className="w-full lg:max-w-6xl">
         {header}
 
         {search}
