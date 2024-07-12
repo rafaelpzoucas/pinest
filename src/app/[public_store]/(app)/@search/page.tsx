@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import { ListFilter } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import { readCategoriesByStoreURL } from './actions'
 import { SearchIsland } from './search-island'
 import { SearchSheet } from './search-sheet'
@@ -30,7 +30,7 @@ export default async function Search({
             <SearchSheet publicStore={params.public_store} />
             <AccordionTrigger className="[&>svg]:hidden py-0">
               <span className="flex p-2 bg-primary text-primary-foreground rounded-md">
-                <ListFilter className="block w-4 h-4" />
+                <SlidersHorizontal className="block w-4 h-4" />
               </span>
             </AccordionTrigger>
           </div>

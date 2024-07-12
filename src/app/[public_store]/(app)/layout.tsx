@@ -22,16 +22,18 @@ export default function StoreLayout({
   bagIsland: React.ReactNode
 }) {
   return (
-    <main className="pb-20">
-      {header}
+    <main className="flex items-center justify-center pb-20">
+      <div className="max-w-6xl">
+        {header}
 
-      {search}
+        {search}
 
-      {promotions}
+        {promotions}
 
-      {topSellers}
+        {topSellers}
 
-      {productsList}
+        {productsList}
+      </div>
 
       <Island>{bagIsland}</Island>
     </main>

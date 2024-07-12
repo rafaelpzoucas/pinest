@@ -29,10 +29,10 @@ export default async function CartPage({
   }, 0)
 
   return (
-    <main className="p-4 pb-40">
+    <main className="w-full p-4 pb-40">
       <Header title="Finalizar compra" />
 
-      <section className="flex flex-col gap-2">
+      <section className="flex flex-col gap-2 w-full">
         {bagItems && bagItems.length > 0 ? (
           bagItems.map((product) => (
             <CartProduct product={product} key={product.name} />
@@ -56,7 +56,7 @@ export default async function CartPage({
       </section>
 
       <Island>
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full max-w-2xl">
           <Card className="p-4 w-full space-y-2">
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
               <p>Produtos ({bagItems.length})</p>

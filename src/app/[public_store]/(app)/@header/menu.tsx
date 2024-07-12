@@ -32,7 +32,11 @@ export function Menu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={'default'} size={'icon'} className="">
+        <Button
+          variant={'ghost'}
+          size={'icon'}
+          className="absolute top-1 right-1"
+        >
           <MenuIcon className="w-5 h-5" />
         </Button>
       </DropdownMenuTrigger>

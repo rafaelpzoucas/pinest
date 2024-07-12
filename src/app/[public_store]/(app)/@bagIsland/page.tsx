@@ -25,7 +25,7 @@ export default async function ShoppingBag({
 
   return (
     <Link href={`${params.public_store}/cart`}>
-      <Card className="flex flex-row items-center gap-3 p-3 w-full text-sm bg-primary text-primary-foreground">
+      <Card className="flex flex-row items-center gap-3 p-3 w-full text-sm bg-background/90 backdrop-blur-lg text-foreground">
         <Bag className="w-5 h-5" />
         <strong>Ver sacola ({products.length})</strong>
 
