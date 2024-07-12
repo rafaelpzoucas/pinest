@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { v4 as uuidv4 } from 'uuid'
-import { FileType } from './file-uploader'
+import { FileType } from './form/file-uploader'
 
 export async function readProductImages(productId: string): Promise<{
   productImages: any | null
