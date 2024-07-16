@@ -22,7 +22,11 @@ export function SignInWithGoogle() {
   }
 
   return (
-    <Button variant={'outline'} className="w-full" onClick={signInWithGoogle}>
+    <Button
+      variant={'outline'}
+      className="w-full max-w-md"
+      onClick={signInWithGoogle}
+    >
       <FaGoogle className="mr-3" />
       Continuar com o Google
     </Button>

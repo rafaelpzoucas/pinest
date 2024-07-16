@@ -17,9 +17,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
+import { StoreType } from '@/models/store'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { createStore } from './actions'
+import { createStore, updateStore } from './actions'
 
 export const storeFormSchema = z.object({
   name: z.string().min(3, { message: 'O nome da loja é obrigatório.' }),
@@ -28,17 +29,30 @@ export const storeFormSchema = z.object({
   role: z.string().min(3, { message: 'O nicho é obrigatório.' }),
 })
 
-export function StoreForm() {
+export function StoreForm({ store }: { store: StoreType | null }) {
   const router = useRouter()
 
   const form = useForm<z.infer<typeof storeFormSchema>>({
     resolver: zodResolver(storeFormSchema),
     defaultValues: {
-      name: '',
+      name: store?.name ?? '',
+      description: store?.description ?? '',
+      phone: store?.phone ?? '',
+      role: store?.role ?? '',
     },
   })
 
   async function onSubmit(values: z.infer<typeof storeFormSchema>) {
+    if (store) {
+      const { storeError } = await updateStore(values)
+
+      if (storeError) {
+        console.log(storeError)
+      }
+
+      return router.push('?step=2&info=address')
+    }
+
     const { storeError } = await createStore(values)
 
     if (storeError) {
@@ -134,10 +148,14 @@ export function StoreForm() {
             !form.formState.isValid
           }
         >
-          {form.formState.isSubmitting && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Salvando informações
+            </>
+          ) : (
+            'Continuar'
           )}
-          Continuar
         </Button>
       </form>
     </Form>

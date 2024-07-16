@@ -38,7 +38,7 @@ export function SignInForm() {
         <Input id="email" name="email" placeholder="Digite seu E-mail..." />
       </div>
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full max-w-md">
         Enviar super link
       </Button>
     </form>

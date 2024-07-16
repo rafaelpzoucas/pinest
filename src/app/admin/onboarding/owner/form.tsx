@@ -108,10 +108,14 @@ export function OwnerForm() {
             !form.formState.isValid
           }
         >
-          {form.formState.isSubmitting && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Salvando informações
+            </>
+          ) : (
+            'Continuar'
           )}
-          Continuar
         </Button>
       </form>
     </Form>

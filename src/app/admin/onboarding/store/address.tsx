@@ -109,7 +109,9 @@ export function AddressForm({ storeId }: { storeId: string }) {
               <FormLabel>CEP</FormLabel>
               <FormControl>
                 <Input
-                  type="cep"
+                  type="text"
+                  inputMode="numeric"
+                  maskType="cep"
                   placeholder="Digite o CEP da sua loja..."
                   {...field}
                 />
@@ -131,7 +133,8 @@ export function AddressForm({ storeId }: { storeId: string }) {
               <FormLabel>Número</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   placeholder="Digite o número..."
                   {...field}
                 />
@@ -216,10 +219,16 @@ export function AddressForm({ storeId }: { storeId: string }) {
           }
           onClick={verifyCEP}
         >
-          {form.formState.isSubmitting && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Salvando informações
+            </>
+          ) : address ? (
+            'Continuar'
+          ) : (
+            'Verificar CEP'
           )}
-          {address ? 'Continuar' : 'Verificar CEP'}
         </Button>
       </form>
     </Form>

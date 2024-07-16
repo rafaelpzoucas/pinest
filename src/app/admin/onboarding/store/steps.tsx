@@ -54,7 +54,7 @@ export function StoreStep({ store }: { store: StoreType | null }) {
         </div>
       ) : (
         <div>
-          {info !== 'address' && <StoreForm />}
+          {info !== 'address' && <StoreForm store={store} />}
           {store && info === 'address' && <AddressForm storeId={store?.id} />}
         </div>
       )}
