@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { convertStringToNumber } from '@/lib/utils'
+import { convertStringToNumber, removeAccents } from '@/lib/utils'
 import { ProductType } from '@/models/product'
 import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
@@ -47,12 +47,17 @@ export async function createProduct(
     .from('products')
     .insert({
       ...values,
+      name: values.name?.trim(),
+      description: values.description?.trim(),
       price: values.price && convertStringToNumber(values.price),
       promotional_price:
         values.promotional_price &&
         convertStringToNumber(values.promotional_price),
       pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
       store_id: store?.id,
+      product_url:
+        values.name &&
+        removeAccents(values.name.trim()).toLowerCase().replaceAll(' ', '-'),
     })
     .select()
 
@@ -100,11 +105,16 @@ export async function updateProduct(
     .from('products')
     .update({
       ...values,
+      name: values.name?.trim(),
+      description: values.description?.trim(),
       price: values.price && convertStringToNumber(values.price),
       promotional_price:
         values.promotional_price &&
         convertStringToNumber(values.promotional_price),
       pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
+      product_url:
+        values.name &&
+        removeAccents(values.name.trim()).toLowerCase().replaceAll(' ', '-'),
     })
     .eq('id', id)
     .select()
