@@ -1,7 +1,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StoreType } from '@/models/store'
-import { Edit } from 'lucide-react'
+import { Edit, Pyramid } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
@@ -13,7 +13,9 @@ export async function Store({ store }: { store: StoreType | null }) {
       <div className="flex flex-row items-center gap-3">
         <Avatar className="w-16 h-16">
           <AvatarImage src={store?.logo_url} />
-          <AvatarFallback>{store?.name[0]}</AvatarFallback>
+          <AvatarFallback>
+            <Pyramid />
+          </AvatarFallback>
         </Avatar>
         <div>
           <strong className="capitalize">{store?.name}</strong>

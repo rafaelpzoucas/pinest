@@ -1,7 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ChevronRight, ExternalLink, MapPin, Phone } from 'lucide-react'
+import {
+  ChevronRight,
+  ExternalLink,
+  MapPin,
+  Phone,
+  Pyramid,
+} from 'lucide-react'
 import Link from 'next/link'
 import { readStore } from './actions'
 
@@ -25,10 +31,17 @@ export async function ProfileCard() {
             <header className="relative flex flex-col gap-4 w-full">
               <Avatar className="w-16 h-16">
                 <AvatarImage src={store?.logo_url} />
-                <AvatarFallback>{store?.name[0]}</AvatarFallback>
+                <AvatarFallback className="uppercase">
+                  <Pyramid />
+                </AvatarFallback>
               </Avatar>
 
-              <strong className="text-xl font-bold">{store?.name}</strong>
+              <div>
+                <strong className="text-xl font-bold capitalize">
+                  {store?.name}
+                </strong>
+                <p className="text-xs text-muted-foreground">{store?.role}</p>
+              </div>
 
               <ChevronRight className="absolute top-1 right-1 w-4 h-4 text-muted-foreground" />
             </header>
