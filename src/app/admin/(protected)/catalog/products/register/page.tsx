@@ -23,10 +23,8 @@ export default async function NewProduct({
   }
 
   return (
-    <div className="space-y-4 p-2">
-      <div className="p-4 pb-0">
-        <Header title={`${searchParams.id ? 'Editar' : 'Novo'} produto`} />
-      </div>
+    <div className="space-y-4 p-4">
+      <Header title={`${searchParams.id ? 'Editar' : 'Novo'} produto`} />
 
       <ProductForm categories={categories} product={product} />
     </div>

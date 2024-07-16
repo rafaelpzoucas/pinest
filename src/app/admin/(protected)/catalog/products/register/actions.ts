@@ -45,7 +45,15 @@ export async function createProduct(
 
   const { data: createdProduct, error: createdProductError } = await supabase
     .from('products')
-    .insert({ ...values, store_id: store?.id })
+    .insert({
+      ...values,
+      price: values.price && convertStringToNumber(values.price),
+      promotional_price:
+        values.promotional_price &&
+        convertStringToNumber(values.promotional_price),
+      pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
+      store_id: store?.id,
+    })
     .select()
 
   revalidatePath('/catalog')

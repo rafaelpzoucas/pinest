@@ -7,7 +7,7 @@ export default function NewCategory({
   searchParams: { id: string }
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4">
       <Header title={`${searchParams.id ? 'Editar' : 'Nova'} categoria`} />
 
       <CategoryForm />

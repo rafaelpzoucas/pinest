@@ -28,12 +28,12 @@ export type VariationsFormType = {
 }
 
 export const newProductFormSchema = z.object({
-  category_id: z.string(),
-  name: z.string(),
+  category_id: z.string().min(1),
+  name: z.string().min(2, { message: 'O nome do produto é obrigatório.' }),
   description: z.string().optional(),
   price: z.string().optional(),
   promotional_price: z.string().optional(),
-  stock: z.number().optional(),
+  stock: z.string().optional(),
   sku: z.string().optional(),
   pkg_weight: z.string().optional(),
   pkg_length: z.string().optional(),
@@ -79,7 +79,7 @@ export function ProductForm({
       description: product?.description,
       price: product?.price.toString(),
       promotional_price: product?.promotional_price.toString(),
-      stock: product?.stock,
+      stock: product?.stock.toString(),
       category_id: product?.category_id ?? '',
       sku: product?.sku,
       pkg_weight: product?.pkg_weight.toString(),
@@ -127,7 +127,7 @@ export function ProductForm({
 
       if (createdProductError) {
         console.error(createdProductError)
-        return null
+        return
       }
 
       if (createdProduct) {
@@ -145,6 +145,8 @@ export function ProductForm({
 
       return router.push(`${redirectTo}?tab=products`)
     }
+
+    console.log('edição')
 
     const { error } = await updateProduct(productId, values)
 
@@ -182,7 +184,7 @@ export function ProductForm({
     return (
       <div className="flex flex-col items-end gap-4">
         <h1 className="text-xl font-bold">
-          Voce ainda não tem categorias cadastradas
+          Você ainda não tem categorias cadastradas
         </h1>
         <p className="text-sm text-muted-foreground">
           Para adicionar produtos, primeiro crie uma categoria.
@@ -218,7 +220,7 @@ export function ProductForm({
         <Button
           type="submit"
           className="ml-auto"
-          disabled={formState.isSubmitting}
+          disabled={formState.isSubmitting || !formState.isValid}
         >
           {formState.isSubmitting && (
             <Loader className="w-4 h-4 mr-2 animate-spin" />
