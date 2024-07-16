@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-import { removeAccents } from '@/lib/utils'
+import { generateSlug } from '@/lib/utils'
 import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -30,9 +30,7 @@ export async function updateStore(
   const newColumns = {
     ...columns,
     name: columns.name.trim(),
-    store_url: removeAccents(columns.name.trim())
-      .toLowerCase()
-      .replaceAll(' ', '-'),
+    store_url: generateSlug(columns.name.trim()),
   }
 
   const supabase = createClient()

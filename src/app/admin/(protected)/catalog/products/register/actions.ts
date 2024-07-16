@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { convertStringToNumber, removeAccents } from '@/lib/utils'
+import { convertStringToNumber, generateSlug } from '@/lib/utils'
 import { ProductType } from '@/models/product'
 import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
@@ -55,9 +55,7 @@ export async function createProduct(
         convertStringToNumber(values.promotional_price),
       pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
       store_id: store?.id,
-      product_url:
-        values.name &&
-        removeAccents(values.name.trim()).toLowerCase().replaceAll(' ', '-'),
+      product_url: values.name && generateSlug(values.name.trim()),
     })
     .select()
 
@@ -112,9 +110,7 @@ export async function updateProduct(
         values.promotional_price &&
         convertStringToNumber(values.promotional_price),
       pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
-      product_url:
-        values.name &&
-        removeAccents(values.name.trim()).toLowerCase().replaceAll(' ', '-'),
+      product_url: values.name && generateSlug(values.name.trim()),
     })
     .eq('id', id)
     .select()

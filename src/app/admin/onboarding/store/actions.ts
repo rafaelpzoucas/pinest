@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { removeAccents } from '@/lib/utils'
+import { generateSlug } from '@/lib/utils'
 import { UserType } from '@/models/user'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -15,9 +15,7 @@ export async function createStore(
   const newColumns = {
     ...columns,
     name: columns.name.trim().toLowerCase(),
-    store_url: removeAccents(columns.name.trim())
-      .toLowerCase()
-      .replaceAll(' ', '-'),
+    store_url: generateSlug(columns.name.trim()),
   }
   const supabase = createClient()
 

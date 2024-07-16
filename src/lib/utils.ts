@@ -84,3 +84,7 @@ export function convertStringToNumber(string: string) {
 
   return null
 }
+
+export function generateSlug(str: string) {
+  return removeAccents(str).toLowerCase().replace(' ', '-')
+}

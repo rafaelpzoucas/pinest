@@ -40,6 +40,7 @@ export type ProductType = {
   pkg_length: number
   pkg_width: number
   pkg_height: number
+  product_url: string
   product_images: ProductImageType[]
   product_variations: ProductVariationsType[]
 }
