@@ -9,14 +9,16 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/input-phone'
+import { UserType } from '@/models/user'
 import { Loader2 } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { updateProfile } from './actions'
 
@@ -25,11 +27,9 @@ export const profileSchema = z.object({
   phone: z.string(),
 })
 
-export function ProfileForm() {
-  const searchParams = useSearchParams()
-
-  const name = searchParams.get('name') ?? ''
-  const phone = searchParams.get('phone') ?? ''
+export function ProfileForm({ user }: { user: UserType | null }) {
+  const name = user?.name ?? ''
+  const phone = user?.phone ?? ''
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -75,14 +75,11 @@ export function ProfileForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone</FormLabel>
+              <FormLabel>Telefone do proprietário</FormLabel>
               <FormControl>
-                <Input
-                  type="tel"
-                  placeholder="Digite o seu telefone..."
-                  {...field}
-                />
+                <PhoneInput {...field} />
               </FormControl>
+              <FormDescription>O número de WhatsApp.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

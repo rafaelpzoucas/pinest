@@ -1,8 +1,8 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn, queryParamsLink } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { AddressType } from '@/models/user'
-import { Edit } from 'lucide-react'
+import { Edit, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 export function Address({ address }: { address: AddressType | null }) {
@@ -12,7 +12,10 @@ export function Address({ address }: { address: AddressType | null }) {
 
   return (
     <Card className="relative flex flex-col gap-4 p-4">
-      <h1 className="font-bold">Endereço</h1>
+      <header className="flex flex-row items-center">
+        <MapPin className="mr-2 w-4 h-4" />
+        <h1 className="font-bold">Endereço</h1>
+      </header>
 
       <div className="grid grid-cols-1 gap-3">
         <div>
@@ -30,7 +33,7 @@ export function Address({ address }: { address: AddressType | null }) {
       </div>
 
       <Link
-        href={`account/register/address?${queryParamsLink(address)}`}
+        href={`account/register/address?id=${address?.id}`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
           'absolute top-2 right-2',

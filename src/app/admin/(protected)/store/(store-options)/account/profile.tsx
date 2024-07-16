@@ -1,20 +1,39 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn, queryParamsLink } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/server'
+import { cn } from '@/lib/utils'
 import { UserType } from '@/models/user'
-import { Edit, Phone } from 'lucide-react'
+import { AtSign, Edit, Phone } from 'lucide-react'
 import Link from 'next/link'
 
-export function Profile({ user }: { user: UserType | null }) {
+export async function Profile({ user }: { user: UserType | null }) {
+  const supabase = createClient()
+  const { data: userData, error: userDataError } = await supabase.auth.getUser()
+
+  if (userDataError) {
+    console.error(userDataError)
+  }
+
+  const metadata = userData.user?.user_metadata
+
   return (
     <Card className="relative flex flex-col gap-4 p-4">
-      <Avatar className="w-16 h-16">
-        <AvatarFallback>{user?.name[0]}</AvatarFallback>
-      </Avatar>
+      <div className="flex flex-row gap-4 items-center">
+        <Avatar className="w-8 h-8">
+          <AvatarImage src={metadata?.picture} />
+          <AvatarFallback>{user?.name[0]}</AvatarFallback>
+        </Avatar>
+        <strong className="capitalize">{user?.name}</strong>
+      </div>
 
-      <div>
-        <strong className="text-lg capitalize">{user?.name}</strong>
+      <div className="space-y-1">
+        <div>
+          <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
+            <AtSign className="w-4 h-4" />
+            <span>{metadata?.email}</span>
+          </span>
+        </div>
         <div>
           <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
             <Phone className="w-4 h-4" />
@@ -24,7 +43,7 @@ export function Profile({ user }: { user: UserType | null }) {
       </div>
 
       <Link
-        href={`account/register/profile?${queryParamsLink(user)}`}
+        href={`account/register/profile?id=${user?.id}`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
           'absolute top-2 right-2',

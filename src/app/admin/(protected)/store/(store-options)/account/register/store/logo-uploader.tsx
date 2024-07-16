@@ -1,10 +1,10 @@
 'use client'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { formatBytes } from '@/lib/utils'
-import { ImagePlusIcon, Trash } from 'lucide-react'
-import Image from 'next/image'
+import { ImagePlusIcon, Trash, User } from 'lucide-react'
 
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { FileRejection, useDropzone } from 'react-dropzone'
@@ -16,10 +16,9 @@ export type FileType = File & {
 type FileUploaderProps = {
   files: FileType[]
   setFiles: Dispatch<SetStateAction<FileType[]>>
-  logoUrl: string
 }
 
-export function LogoUploader({ files, setFiles, logoUrl }: FileUploaderProps) {
+export function LogoUploader({ files, setFiles }: FileUploaderProps) {
   const maxSize = 1024 * 1024 * 10
   const maxFiles = 10
 
@@ -71,31 +70,38 @@ export function LogoUploader({ files, setFiles, logoUrl }: FileUploaderProps) {
           files.map((file) => (
             <div
               key={file.preview}
-              className="relative aspect-video rounded-lg overflow-hidden w-2/3"
+              className="flex items-center justify-center"
             >
-              <Image src={file.preview} alt="" fill className="object-fit" />
+              <div className="relative">
+                <Avatar className="w-32 h-32">
+                  <AvatarImage src={file.preview} />
+                  <AvatarFallback>
+                    <User className="w-10 h-10" />
+                  </AvatarFallback>
+                </Avatar>
 
-              <Button
-                type="button"
-                variant={'outline'}
-                size="icon"
-                className="absolute top-0 right-0 w-8 h-8"
-                onClick={() => handleDeleteFile(file)}
-              >
-                <Trash className="w-4 h-4" />
-              </Button>
+                <Button
+                  type="button"
+                  variant={'outline'}
+                  size="icon"
+                  className="absolute bottom-1 right-1 w-8 h-8 rounded-full"
+                  onClick={() => handleDeleteFile(file)}
+                >
+                  <Trash className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           ))
         ) : (
-          <div {...getRootProps()} className="w-2/3">
+          <div {...getRootProps()} className="">
             <input {...getInputProps()} />
             <div
               data-drag-active={isDragActive}
-              className="flex flex-col items-center justify-center gap-4 p-4 w-full aspect-video rounded-lg border border-dashed cursor-pointer text-sm text-center data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary data-[drag-active=true]:text-primary-foreground transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-4 p-4 w-32 h-32 aspect-square rounded-full border border-dashed cursor-pointer text-sm text-center data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary data-[drag-active=true]:text-primary-foreground transition-all duration-200"
             >
               <ImagePlusIcon className="w-8 h-8 opacity-25" />
 
-              <div className="hidden md:flex">
+              <div className="hidden md:flex flex-col gap-2">
                 {isDragActive ? (
                   <p>Solte sua imagem aqui</p>
                 ) : (

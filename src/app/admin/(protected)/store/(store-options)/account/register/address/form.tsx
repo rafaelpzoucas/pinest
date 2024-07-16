@@ -16,10 +16,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { AddressType } from '@/models/user'
 import { ViacepType } from '@/models/viacep-address'
 import { Loader2 } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -35,14 +34,14 @@ export const addressSchema = z.object({
   complement: z.string().optional(),
 })
 
-export function AddressForm() {
+export function AddressForm({ address }: { address: AddressType | null }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [address, setAddress] = useState(false)
+  const [hasAddress, setHasAddress] = useState(!!address)
 
-  const zipCode = searchParams.get('zip_code') ?? ''
-  const number = searchParams.get('number') ?? ''
-  const complement = searchParams.get('complement') ?? ''
+  const zipCode = address?.zip_code ?? ''
+  const number = address?.number ?? ''
+  const complement = address?.complement ?? ''
 
   const form = useForm<z.infer<typeof addressSchema>>({
     resolver: zodResolver(addressSchema),
@@ -59,7 +58,7 @@ export function AddressForm() {
     fetch(`https://viacep.com.br/ws/${zipCode ?? cep}/json`)
       .then((res) => res.json())
       .then((data: ViacepType) => {
-        setAddress(true)
+        setHasAddress(true)
         form.setValue('street', data.logradouro)
         form.setValue('neighborhood', data.bairro)
         form.setValue('city', data.localidade)
@@ -98,15 +97,15 @@ export function AddressForm() {
               <FormLabel>CEP</FormLabel>
               <FormControl>
                 <Input
-                  type="zip-code"
+                  maskType="cep"
                   placeholder="Digite o CEP da sua loja..."
                   {...field}
                 />
               </FormControl>
               <FormDescription className="flex">
-                <Link href="?step=search-zc" className={cn('text-primary')}>
+                {/* <Link href="?step=search-zc" className={cn('text-primary')}>
                   Não sei o CEP
-                </Link>
+                </Link> */}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -116,7 +115,7 @@ export function AddressForm() {
           control={form.control}
           name="number"
           render={({ field }) => (
-            <FormItem hidden={!address}>
+            <FormItem hidden={!hasAddress}>
               <FormLabel>Número</FormLabel>
               <FormControl>
                 <Input
@@ -133,7 +132,7 @@ export function AddressForm() {
           control={form.control}
           name="complement"
           render={({ field }) => (
-            <FormItem hidden={!address}>
+            <FormItem hidden={!hasAddress}>
               <FormLabel>Complemento (opcional)</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o complemento..." {...field} />
@@ -146,7 +145,7 @@ export function AddressForm() {
           control={form.control}
           name="street"
           render={({ field }) => (
-            <FormItem hidden={!address}>
+            <FormItem hidden={!hasAddress}>
               <FormLabel>Rua</FormLabel>
               <FormControl>
                 <Input readOnly {...field} />
@@ -159,7 +158,7 @@ export function AddressForm() {
           control={form.control}
           name="neighborhood"
           render={({ field }) => (
-            <FormItem hidden={!address}>
+            <FormItem hidden={!hasAddress}>
               <FormLabel>Bairro</FormLabel>
               <FormControl>
                 <Input readOnly {...field} />
@@ -172,7 +171,7 @@ export function AddressForm() {
           control={form.control}
           name="city"
           render={({ field }) => (
-            <FormItem hidden={!address}>
+            <FormItem hidden={!hasAddress}>
               <FormLabel>Cidade</FormLabel>
               <FormControl>
                 <Input readOnly {...field} />
@@ -185,7 +184,7 @@ export function AddressForm() {
           control={form.control}
           name="state"
           render={({ field }) => (
-            <FormItem hidden={!address}>
+            <FormItem hidden={!hasAddress}>
               <FormLabel>Estado</FormLabel>
               <FormControl>
                 <Input readOnly {...field} />
@@ -196,19 +195,19 @@ export function AddressForm() {
         />
 
         <Button
-          type={address ? 'submit' : 'button'}
+          type={hasAddress ? 'submit' : 'button'}
           className="ml-auto"
           disabled={
             form.formState.isSubmitting ||
             form.formState.isSubmitting ||
-            (address && !form.formState.isValid)
+            (hasAddress && !form.formState.isValid)
           }
           onClick={verifyCEP}
         >
           {form.formState.isSubmitting && (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           )}
-          {address ? 'Salvar' : 'Verificar CEP'}
+          {hasAddress ? 'Salvar' : 'Verificar CEP'}
         </Button>
       </form>
     </Form>

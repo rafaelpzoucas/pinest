@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -16,9 +17,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Loader2, Trash } from 'lucide-react'
-import Image from 'next/image'
+import { StoreType } from '@/models/store'
+import { Loader2, Trash, User } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -31,15 +31,13 @@ export const storeSchema = z.object({
   role: z.string(),
 })
 
-export function StoreForm() {
+export function StoreForm({ store }: { store: StoreType | null }) {
   const searchParams = useSearchParams()
 
-  const id = searchParams.get('id') ?? ''
-  const name = searchParams.get('name') ?? ''
-  const role = searchParams.get('role') ?? ''
-  const logoUrl = searchParams.get('logo_url') ?? ''
-
   const [file, setFile] = useState<FileType[]>([])
+
+  const name = store?.name ?? ''
+  const role = store?.role ?? ''
 
   const form = useForm<z.infer<typeof storeSchema>>({
     resolver: zodResolver(storeSchema),
@@ -50,30 +48,34 @@ export function StoreForm() {
   })
 
   async function handleDeleteLogo() {
-    const { data, error } = await removeStoreLogo(name)
+    if (store) {
+      const { data, error } = await removeStoreLogo(store?.id)
 
-    if (error) {
-      console.error(error)
+      if (error) {
+        console.error(error)
+      }
     }
   }
 
   async function onSubmit(values: z.infer<typeof storeSchema>) {
-    const { error } = await updateStore(values, id)
+    if (store) {
+      const { error } = await updateStore(values, store?.id)
 
-    if (error) {
-      console.error(error)
-      return
-    }
-
-    if (file.length > 0) {
-      const { uploadError } = await uploadLogo(file, id)
-
-      if (uploadError) {
-        console.error(uploadError)
+      if (error) {
+        console.error(error)
+        return
       }
-    }
 
-    toast('Informações atualizadas com sucesso')
+      if (file.length > 0) {
+        const { uploadError } = await uploadLogo(file, store?.id)
+
+        if (uploadError) {
+          console.error(uploadError)
+        }
+      }
+
+      toast('Informações atualizadas com sucesso')
+    }
   }
 
   return (
@@ -82,23 +84,29 @@ export function StoreForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col w-full space-y-6"
       >
-        <Label>Logo</Label>
+        {store?.logo_url ? (
+          <div className="flex items-center justify-center">
+            <div className="relative">
+              <Avatar className="w-32 h-32">
+                <AvatarImage src={store?.logo_url} />
+                <AvatarFallback>
+                  <User className="w-10 h-10" />
+                </AvatarFallback>
+              </Avatar>
 
-        {logoUrl ? (
-          <div className="relative">
-            <Image src={logoUrl} alt="" width={200} height={200} />
-            <Button
-              type="button"
-              variant={'outline'}
-              size="icon"
-              className="absolute top-0 right-0 w-8 h-8"
-              onClick={handleDeleteLogo}
-            >
-              <Trash className="w-4 h-4" />
-            </Button>
+              <Button
+                type="button"
+                variant={'outline'}
+                size="icon"
+                className="absolute bottom-1 right-1 w-8 h-8 rounded-full"
+                onClick={handleDeleteLogo}
+              >
+                <Trash className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         ) : (
-          <LogoUploader files={file} setFiles={setFile} logoUrl={logoUrl} />
+          <LogoUploader files={file} setFiles={setFile} />
         )}
 
         <FormField

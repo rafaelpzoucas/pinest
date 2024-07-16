@@ -3,9 +3,25 @@
 import { createClient } from '@/lib/supabase/server'
 
 import { removeAccents } from '@/lib/utils'
+import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { storeSchema } from './form'
+
+export async function readStoreById(storeId: string): Promise<{
+  store: StoreType | null
+  storeError: any | null
+}> {
+  const supabase = createClient()
+
+  const { data: store, error: storeError } = await supabase
+    .from('stores')
+    .select('*')
+    .eq('id', storeId)
+    .single()
+
+  return { store, storeError }
+}
 
 export async function updateStore(
   columns: z.infer<typeof storeSchema>,
@@ -29,15 +45,15 @@ export async function updateStore(
   return { data, error }
 }
 
-export async function removeStoreLogo(name: string) {
+export async function removeStoreLogo(storeId: string) {
   const supabase = createClient()
 
   const { data, error } = await supabase
     .from('stores')
     .update({ logo_url: null })
-    .eq('name', name)
+    .eq('id', storeId)
 
-  revalidatePath('/admin/store')
+  revalidatePath('/admin')
 
   return { data, error }
 }

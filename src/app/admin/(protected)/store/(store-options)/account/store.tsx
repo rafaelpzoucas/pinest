@@ -2,42 +2,29 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StoreType } from '@/models/store'
 import { Edit } from 'lucide-react'
-import Image from 'next/image'
 
-import { DefaultLogo } from '@/components/default-logo'
-import { cn, queryParamsLink } from '@/lib/utils'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-export function Store({ store }: { store: StoreType | null }) {
+export async function Store({ store }: { store: StoreType | null }) {
   return (
     <Card className="relative flex flex-col gap-4 p-4">
-      <h1 className="font-bold">Loja</h1>
-
-      <div className="grid grid-cols-1 gap-3">
-        <div className="relative w-full h-8 max-w-64">
-          {store && store.logo_url ? (
-            <Image
-              src={store.logo_url}
-              fill
-              alt=""
-              className="object-contain object-left"
-            />
-          ) : (
-            <DefaultLogo storeName={store?.name} />
-          )}
-        </div>
+      <div className="flex flex-row items-center gap-3">
+        <Avatar className="w-16 h-16">
+          <AvatarImage src={store?.logo_url} />
+          <AvatarFallback>{store?.name[0]}</AvatarFallback>
+        </Avatar>
         <div>
-          <span className="opacity-80 text-xs">Nome da loja</span>
-          <p className="text-sm capitalize">{store?.name}</p>
-        </div>
-        <div>
-          <span className="opacity-80 text-xs">Nicho</span>
-          <p className="text-sm capitalize">{store?.role}</p>
+          <strong className="capitalize">{store?.name}</strong>
+          <p className="text-sm text-muted-foreground capitalize">
+            {store?.role}
+          </p>
         </div>
       </div>
 
       <Link
-        href={`account/register/store?${queryParamsLink(store)}`}
+        href={`account/register/store?id=${store?.id}`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
           'absolute top-2 right-2',
