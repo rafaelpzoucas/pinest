@@ -104,6 +104,7 @@ export async function updateProduct(
       promotional_price:
         values.promotional_price &&
         convertStringToNumber(values.promotional_price),
+      pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
     })
     .eq('id', id)
     .select()

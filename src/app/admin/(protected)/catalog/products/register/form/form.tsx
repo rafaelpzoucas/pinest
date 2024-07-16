@@ -75,17 +75,17 @@ export function ProductForm({
   const form = useForm<z.infer<typeof newProductFormSchema>>({
     resolver: zodResolver(newProductFormSchema),
     defaultValues: {
-      name: product?.name ?? '',
-      description: product?.description,
-      price: product?.price.toString(),
-      promotional_price: product?.promotional_price.toString(),
-      stock: product?.stock.toString(),
-      category_id: product?.category_id ?? '',
-      sku: product?.sku,
-      pkg_weight: product?.pkg_weight.toString(),
-      pkg_length: product?.pkg_length.toString(),
-      pkg_width: product?.pkg_width.toString(),
-      pkg_height: product?.pkg_height.toString(),
+      name: product?.name ?? undefined,
+      description: product?.description ?? undefined,
+      price: product?.price?.toString() ?? undefined,
+      promotional_price: product?.promotional_price?.toString() ?? undefined,
+      stock: product?.stock?.toString() ?? undefined,
+      category_id: product?.category_id ?? undefined,
+      sku: product?.sku ?? undefined,
+      pkg_weight: product?.pkg_weight?.toString() ?? undefined,
+      pkg_length: product?.pkg_length?.toString() ?? undefined,
+      pkg_width: product?.pkg_width?.toString() ?? undefined,
+      pkg_height: product?.pkg_height?.toString() ?? undefined,
     },
   })
 
