@@ -21,6 +21,7 @@ export type UserType = {
   updated_at: string
   role: string
   phone: string
+  stripe_account_id: string
   stores: StoreType[]
   addresses?: AddressType[]
 }

@@ -7,7 +7,7 @@ import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Plus, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
-import { getCart } from './actions'
+import { getCart, getConnectedAccountByStoreUrl } from './actions'
 import { CartProduct } from './cart-product'
 
 export default async function CartPage({
@@ -18,6 +18,9 @@ export default async function CartPage({
   const supabase = createClient()
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
+  const connectedAccount = await getConnectedAccountByStoreUrl(
+    params.public_store,
+  )
 
   const bagItems: CartProductType[] = await getCart()
 
@@ -79,7 +82,9 @@ export default async function CartPage({
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {productsPrice > 0 &&
+            {connectedAccount &&
+              connectedAccount.data.length > 0 &&
+              productsPrice > 0 &&
               (!userData.user ? (
                 <Link
                   href={`/${params.public_store}/sign-in`}
