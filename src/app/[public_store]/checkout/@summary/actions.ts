@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { generateSlug } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { CustomerType } from '@/models/customer'
 import { StoreType } from '@/models/store'
@@ -108,7 +109,7 @@ export async function createPurchase(
   purchaseError: any | null
 }> {
   const supabase = createClient()
-  const bagItems: CartProductType[] = await getCart()
+  const bagItems: CartProductType[] = await getCart(generateSlug(storeName))
 
   const { customer, customerError } = await handleCustomer()
 

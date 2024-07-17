@@ -24,7 +24,7 @@ export default async function ProductPage({
 }: {
   params: { id: string; public_store: string }
 }) {
-  const products: CartProductType[] = await getCart()
+  const products: CartProductType[] = await getCart(params.public_store)
   const { product, productError } = await readProductById(params.id)
 
   if (productError) {

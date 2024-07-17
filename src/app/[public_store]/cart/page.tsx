@@ -22,7 +22,7 @@ export default async function CartPage({
     params.public_store,
   )
 
-  const bagItems: CartProductType[] = await getCart()
+  const bagItems: CartProductType[] = await getCart(params.public_store)
 
   const productsPrice = bagItems.reduce((acc, bagItem) => {
     const priceToAdd =
@@ -38,7 +38,11 @@ export default async function CartPage({
       <section className="flex flex-col gap-2 w-full">
         {bagItems && bagItems.length > 0 ? (
           bagItems.map((product) => (
-            <CartProduct product={product} key={product.name} />
+            <CartProduct
+              key={product.name}
+              product={product}
+              publicStore={params.public_store}
+            />
           ))
         ) : (
           <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted py-4">

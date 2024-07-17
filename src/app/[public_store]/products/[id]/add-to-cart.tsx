@@ -37,7 +37,7 @@ export function AddToCard({ product, publicStore }: AddToCardDrawerProps) {
       ...product,
       amount,
     }
-    await addToCart(newCartProduct)
+    await addToCart(publicStore, newCartProduct)
 
     router.push(`/${publicStore}/cart`)
   }

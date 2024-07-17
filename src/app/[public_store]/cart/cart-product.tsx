@@ -26,9 +26,10 @@ import { removeFromCart, updateItemAmount } from './actions'
 
 type CartProductPropsType = {
   product: CartProductType
+  publicStore: string
 }
 
-export function CartProduct({ product }: CartProductPropsType) {
+export function CartProduct({ publicStore, product }: CartProductPropsType) {
   const [isQttOpen, setIsQttOpen] = useState(false)
   const [amount, setAmount] = useState('')
 
@@ -43,7 +44,7 @@ export function CartProduct({ product }: CartProductPropsType) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => removeFromCart(product.id)}
+            onClick={() => removeFromCart(publicStore, product.id)}
           >
             <Trash className="w-4 h-4" />
           </Button>
@@ -52,7 +53,7 @@ export function CartProduct({ product }: CartProductPropsType) {
             onValueChange={(value) =>
               value === 'more'
                 ? setIsQttOpen(true)
-                : updateItemAmount(product.id, parseInt(value))
+                : updateItemAmount(publicStore, product.id, parseInt(value))
             }
           >
             <SelectTrigger className="w-[100px]">
@@ -90,7 +91,11 @@ export function CartProduct({ product }: CartProductPropsType) {
               <DrawerClose asChild>
                 <Button
                   onClick={() =>
-                    updateItemAmount(product.id, parseFloat(amount))
+                    updateItemAmount(
+                      publicStore,
+                      product.id,
+                      parseFloat(amount),
+                    )
                   }
                 >
                   Confirmar

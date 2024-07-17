@@ -6,14 +6,14 @@ import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
 import { cookies } from 'next/headers'
 
-export async function getCart() {
+export async function getCart(storeUrl: string) {
   const cookieStore = cookies()
-  return JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
+  return JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
 }
 
-export async function addToCart(newItem: CartProductType) {
+export async function addToCart(storeUrl: string, newItem: CartProductType) {
   const cookieStore = cookies()
-  const cart = JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
+  const cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
 
   // Encontre o item no carrinho
   const existingItemIndex = cart.findIndex(
@@ -26,12 +26,16 @@ export async function addToCart(newItem: CartProductType) {
     cart.push(newItem)
   }
 
-  cookieStore.set('pinest_cart', JSON.stringify(cart), { path: '/' })
+  cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
 }
 
-export async function updateItemAmount(itemId: string, newAmount: number) {
+export async function updateItemAmount(
+  storeUrl: string,
+  itemId: string,
+  newAmount: number,
+) {
   const cookieStore = cookies()
-  const cart = JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
+  const cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
 
   const existingItemIndex = cart.findIndex(
     (item: CartProductType) => item.id === itemId,
@@ -43,14 +47,14 @@ export async function updateItemAmount(itemId: string, newAmount: number) {
     throw new Error('Item not found in cart')
   }
 
-  cookieStore.set('pinest_cart', JSON.stringify(cart), { path: '/' })
+  cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
 }
 
-export async function removeFromCart(itemId: string) {
+export async function removeFromCart(storeUrl: string, itemId: string) {
   const cookieStore = cookies()
-  let cart = JSON.parse(cookieStore.get('pinest_cart')?.value || '[]')
+  let cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
   cart = cart.filter((item: CartProductType) => item.id !== itemId)
-  cookieStore.set('pinest_cart', JSON.stringify(cart), { path: '/' })
+  cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
 }
 
 export async function readUserStripeAccountIdByStoreUrl(

@@ -10,7 +10,7 @@ export default async function ShoppingBag({
 }: {
   params: { public_store: string }
 }) {
-  const products: CartProductType[] = await getCart()
+  const products: CartProductType[] = await getCart(params.public_store)
 
   const bagPrice = products.reduce((acc, bagItem) => {
     const priceToAdd =

@@ -37,7 +37,7 @@ export default async function Summary({
 }) {
   const addressId = searchParams.address
 
-  const bagItems: CartProductType[] = await getCart()
+  const bagItems: CartProductType[] = await getCart(params.public_store)
   const { address } = await readAddressById(addressId)
 
   const productsPrice = bagItems.reduce((acc, bagItem) => {
