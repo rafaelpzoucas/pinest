@@ -32,7 +32,12 @@ export interface ProductCardProps
   publicStore?: string
 }
 
-export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
+export function ProductCard({
+  data,
+  className,
+  variant,
+  publicStore,
+}: ProductCardProps) {
   const isPromotional = data?.promotional_price
 
   function getImageURL() {
@@ -67,7 +72,11 @@ export function ProductCard({ data, variant, publicStore }: ProductCardProps) {
   return (
     <Link
       href={publicStore ? `/${publicStore}/products/${data.id}` : '#'}
-      className={cn(productCardVariants({ variant }))}
+      className={cn(
+        productCardVariants({ variant }),
+        'focus:outline-none focus:ring ring-offset-4 ring-offset-background rounded-xl',
+        className,
+      )}
     >
       <Card
         className={cn(

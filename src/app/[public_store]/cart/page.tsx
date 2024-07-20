@@ -5,10 +5,10 @@ import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
-import { Plus, ShoppingBag } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { getCart, getConnectedAccountByStoreUrl } from './actions'
-import { CartProduct } from './cart-product'
+import { CartProducts } from './cart-products'
 
 export default async function CartPage({
   params,
@@ -36,22 +36,7 @@ export default async function CartPage({
       <Header title="Finalizar compra" />
 
       <section className="flex flex-col gap-2 w-full">
-        {bagItems && bagItems.length > 0 ? (
-          bagItems.map((product) => (
-            <CartProduct
-              key={product.name}
-              product={product}
-              publicStore={params.public_store}
-            />
-          ))
-        ) : (
-          <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted py-4">
-            <ShoppingBag className="w-20 h-20" />
-            <p className="text-center text-muted-foreground">
-              Você não possui produtos no carrinho
-            </p>
-          </div>
-        )}
+        <CartProducts bagItems={bagItems} storeName={params.public_store} />
 
         <Link
           href={`/${params.public_store}`}

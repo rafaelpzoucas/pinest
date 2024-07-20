@@ -2,6 +2,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from '@/components/ui/carousel'
 
 import { ProductCard } from '@/components/product-card'
@@ -26,8 +28,8 @@ export default async function TopSellersPage({
   }
 
   return (
-    <section className="space-y-4 p-4">
-      <h1 className="text-lg font-bold uppercase">Mais vendidos</h1>
+    <section className="space-y-4 p-4 px-5 bg-secondary/50 rounded-xl">
+      <h1 className="text-xl font-bold uppercase">Mais vendidos</h1>
 
       <Carousel
         opts={{
@@ -49,6 +51,11 @@ export default async function TopSellersPage({
               </CarouselItem>
             ))}
         </CarouselContent>
+
+        <div className="hidden lg:block">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div>
       </Carousel>
     </section>
   )

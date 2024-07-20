@@ -26,20 +26,21 @@ export default async function ProductsList({
         categories.map((category) => (
           <div
             id={category.name.toLowerCase()}
-            className="flex flex-col px-4"
+            className="flex flex-col"
             key={category.id}
           >
             <div className="py-4 bg-background">
               <h1 className="text-xl uppercase font-bold">{category.name}</h1>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {category.products.map((product) => (
                 <ProductCard
                   key={product.id}
                   variant={'featured'}
                   data={product}
                   publicStore={params.public_store}
+                  className="hover:scale-105 focus:scale-105 transition-all duration-300"
                 />
               ))}
             </div>

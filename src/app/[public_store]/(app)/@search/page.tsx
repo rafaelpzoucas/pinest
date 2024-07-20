@@ -1,10 +1,8 @@
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
 import { SlidersHorizontal } from 'lucide-react'
 import { readCategoriesByStoreURL } from './actions'
 import { SearchIsland } from './search-island'
@@ -35,14 +33,14 @@ export default async function Search({
             </AccordionTrigger>
           </div>
 
-          <AccordionContent className="flex flex-row flex-wrap gap-2 mt-4 pb-0">
+          {/* <AccordionContent className="flex flex-row flex-wrap gap-2 mt-4 pb-0">
             {categories &&
               categories.map((category) => (
                 <a href={`#${category.name.toLowerCase()}`} key={category.id}>
                   <Badge>{category.name}</Badge>
                 </a>
               ))}
-          </AccordionContent>
+          </AccordionContent> */}
         </AccordionItem>
       </Accordion>
     </SearchIsland>

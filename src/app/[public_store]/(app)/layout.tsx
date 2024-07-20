@@ -1,4 +1,3 @@
-import { Island } from '@/components/island'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -9,33 +8,33 @@ export const metadata: Metadata = {
 export default function StoreLayout({
   header,
   search,
+  categories,
   promotions,
   topSellers,
   productsList,
-  bagIsland,
 }: {
   header: React.ReactNode
   search: React.ReactNode
+  categories: React.ReactNode
   promotions: React.ReactNode
   topSellers: React.ReactNode
   productsList: React.ReactNode
-  bagIsland: React.ReactNode
 }) {
   return (
-    <main className="flex items-center justify-center pb-20">
-      <div className="w-full lg:max-w-6xl">
-        {header}
+    <div className="lg:space-y-4">
+      {search}
 
-        {search}
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <aside className="flex w-full lg:max-w-xs">{categories}</aside>
 
-        {promotions}
+        <div className="w-full max-w-[1014px]">
+          {promotions}
 
-        {topSellers}
+          {topSellers}
 
-        {productsList}
+          {productsList}
+        </div>
       </div>
-
-      <Island>{bagIsland}</Island>
-    </main>
+    </div>
   )
 }
