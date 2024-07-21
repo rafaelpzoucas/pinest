@@ -1,32 +1,28 @@
+'use client'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
-import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
+import { StoreType } from '@/models/store'
 import { Pyramid } from 'lucide-react'
 import { SearchSheet } from '../(app)/@search/search-sheet'
-import { getStoreByStoreURL } from '../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../cart/actions'
 import { PublicStoreNavigation } from '../navigation'
 
+type HeaderPropsType = {
+  userData: any
+  storeUrl: string
+  store: StoreType | null
+  bagItems: CartProductType[]
+  connectedAccount: any
+}
+
 export default async function Header({
-  params,
-}: {
-  params: { public_store: string }
-}) {
-  const supabase = createClient()
-
-  const { store, storeError } = await getStoreByStoreURL(params.public_store)
-  const bagItems: CartProductType[] = await getCart(params.public_store)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { data: userData, error: userError } = await supabase.auth.getUser()
-  const connectedAccount = await getConnectedAccountByStoreUrl(
-    params.public_store,
-  )
-
+  userData,
+  store,
+  storeUrl,
+  bagItems,
+  connectedAccount,
+}: HeaderPropsType) {
   return (
     <header className="flex items-center justify-center w-full">
       <Card className="flex flex-row items-center justify-between gap-2 w-full p-4 py-4 bg-secondary/50 border-0">
@@ -49,12 +45,12 @@ export default async function Header({
         </div>
 
         <div className="hidden lg:flex w-full max-w-xs">
-          <SearchSheet publicStore={params.public_store} />
+          <SearchSheet publicStore={storeUrl} />
         </div>
 
         <PublicStoreNavigation
           bagItems={bagItems}
-          connectedAccount={connectedAccount?.data}
+          connectedAccount={connectedAccount}
           userData={userData}
         />
       </Card>

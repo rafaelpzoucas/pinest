@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import { getStoreByStoreURL } from './actions'
-import Header from './header'
 import NotFound from './not-found'
 
 export const metadata: Metadata = {
@@ -9,9 +8,11 @@ export const metadata: Metadata = {
 }
 
 export default async function PublicStoreLayout({
+  header,
   children,
   params,
 }: Readonly<{
+  header: React.ReactNode
   children: React.ReactNode
   params: { public_store: string }
 }>) {
@@ -28,7 +29,7 @@ export default async function PublicStoreLayout({
   return (
     <div className="flex lg:flex-row items-center justify-center p-4 pb-20">
       <div className="w-full lg:max-w-7xl">
-        <Header params={params} />
+        {header}
 
         {children}
       </div>

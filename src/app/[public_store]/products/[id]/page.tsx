@@ -34,8 +34,8 @@ export default async function ProductPage({
   const productImages = product.product_images
 
   return (
-    <main className="flex flex-col p-4 items-center justify-center">
-      <div className="w-full max-w-6xl">
+    <main className="flex flex-col items-center justify-center">
+      <div className="w-full max-w-7xl">
         <header className="flex flex-row justify-between">
           <Header />
 
