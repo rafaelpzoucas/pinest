@@ -6,7 +6,7 @@ import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList
+  NavigationMenuList,
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
