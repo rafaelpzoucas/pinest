@@ -7,14 +7,12 @@ export const metadata: Metadata = {
 
 export default function StoreLayout({
   header,
-  search,
   categories,
   promotions,
   topSellers,
   productsList,
 }: {
   header: React.ReactNode
-  search: React.ReactNode
   categories: React.ReactNode
   promotions: React.ReactNode
   topSellers: React.ReactNode
