@@ -1,21 +1,20 @@
 import Image from 'next/image'
 
-import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel'
-import { ShoppingBag } from 'lucide-react'
 
-import { Header } from '@/components/header'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { formatCurrencyBRL } from '@/lib/utils'
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
+import { Header } from '@/components/header'
+import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
-import Link from 'next/link'
-import { getCart } from '../../cart/actions'
+import { getStoreByStoreURL } from '../../actions'
+import { getCart, getConnectedAccountByStoreUrl } from '../../cart/actions'
 import { readProductById } from './actions'
 import { AddToCard } from './add-to-cart'
 
@@ -24,7 +23,21 @@ export default async function ProductPage({
 }: {
   params: { id: string; public_store: string }
 }) {
-  const products: CartProductType[] = await getCart(params.public_store)
+  const supabase = createClient()
+
+  const { store, storeError } = await getStoreByStoreURL(params.public_store)
+
+  const bagItems: CartProductType[] = await getCart(params.public_store)
+
+  if (storeError) {
+    console.error(storeError)
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const connectedAccount = await getConnectedAccountByStoreUrl(
+    params.public_store,
+  )
+
   const { product, productError } = await readProductById(params.id)
 
   if (productError) {
@@ -34,26 +47,17 @@ export default async function ProductPage({
   const productImages = product.product_images
 
   return (
-    <main className="flex flex-col items-center justify-center">
+    <main className="flex flex-col items-center justify-center gap-6">
+      <Header
+        bagItems={bagItems}
+        connectedAccount={connectedAccount?.data}
+        store={store}
+        userData={userData}
+      />
+
       <div className="w-full max-w-7xl">
-        <header className="flex flex-row justify-between">
-          <Header />
-
-          <Link
-            href={`/${params.public_store}/cart`}
-            className={cn(buttonVariants({ variant: 'secondary' }), 'px-3')}
-          >
-            {products.length > 0 && (
-              <span className="text-xs text-muted-foreground mr-2">
-                {products.length}
-              </span>
-            )}
-            <ShoppingBag className="w-4 h-4" />
-          </Link>
-        </header>
-
-        <div className="flex flex-col xl:flex-row xl:gap-6">
-          <div className="w-full max-w-xl">
+        <div className="flex flex-col xl:flex-row xl:gap-12">
+          <div className="lg:sticky top-0 w-full max-w-md">
             {productImages.length < 2 && (
               <Card className="relative w-full aspect-square overflow-hidden border-none">
                 <Image
@@ -85,12 +89,14 @@ export default async function ProductPage({
             )}
           </div>
 
-          <section className="mt-6 space-y-6">
-            <div>
-              <strong className="text-primary">
+          <section className="mt-6 lg:mt-0 space-y-6 lg:space-y-12">
+            <div className="lg:flex flex-col-reverse gap-4">
+              <strong className="text-primary text-xl lg:text-3xl">
                 {formatCurrencyBRL(product.price)}
               </strong>
-              <h1 className="text-lg capitalize font-bold">{product.name}</h1>
+              <h1 className="text-lg lg:text-xl capitalize font-bold">
+                {product.name}
+              </h1>
             </div>
             <AddToCard publicStore={params.public_store} product={product} />
             <p className="text-sm text-muted-foreground">

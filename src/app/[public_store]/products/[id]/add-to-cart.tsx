@@ -64,7 +64,7 @@ export function AddToCard({ product, publicStore }: AddToCardDrawerProps) {
         </Button>
       </div>
       <Button
-        className="flex flex-row items-center justify-between w-full"
+        className="flex flex-row items-center justify-between w-full max-w-md"
         onClick={handleAddToCart}
       >
         <span className="flex flex-row items-center gap-1">

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
-import { getStoreByStoreURL } from '../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../cart/actions'
+import { getStoreByStoreURL } from '../../actions'
+import { getCart, getConnectedAccountByStoreUrl } from '../../cart/actions'
 import Header from './header'
 
 export default async function HeaderPage({

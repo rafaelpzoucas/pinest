@@ -40,7 +40,7 @@ export default async function ProductsList({
                   variant={'featured'}
                   data={product}
                   publicStore={params.public_store}
-                  className="hover:scale-105 focus:scale-105 transition-all duration-300"
+                  className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
                 />
               ))}
             </div>

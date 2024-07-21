@@ -48,12 +48,16 @@ export function PublicStoreNavigation({
     },
   ]
 
-  const productsPrice = bagItems.reduce((acc, bagItem) => {
-    const priceToAdd =
-      bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
+  const productsPrice =
+    bagItems &&
+    bagItems.reduce((acc, bagItem) => {
+      const priceToAdd =
+        bagItem.promotional_price > 0
+          ? bagItem.promotional_price
+          : bagItem.price
 
-    return acc + priceToAdd * bagItem.amount
-  }, 0)
+      return acc + priceToAdd * bagItem.amount
+    }, 0)
 
   return (
     <Card className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1 lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0">
@@ -80,9 +84,9 @@ export function PublicStoreNavigation({
                     'relative bg-transparent px-3',
                   )}
                 >
-                  {bagItems.length > 0 && (
+                  {bagItems?.length > 0 && (
                     <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
-                      {bagItems.length}
+                      {bagItems?.length}
                     </span>
                   )}
                   <ShoppingCart className="w-5 h-5" />

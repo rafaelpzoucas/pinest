@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,7 +11,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -42,38 +43,74 @@ export function SearchSheet({ publicStore }: { publicStore: string }) {
   }
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <SheetTrigger asChild>
-        <div className="flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm">
-          <span>{query ?? 'Buscar na loja'}</span>
-        </div>
-      </SheetTrigger>
-      <SheetContent autoFocus side="fade" className="h-[100dvh]">
-        <SheetHeader className="flex flex-row gap-2 items-center">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
-              <FormField
-                control={form.control}
-                name="search"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="search"
-                        placeholder="Buscar na loja..."
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-          <SheetClose className="flex items-center justify-center w-full max-w-8 h-8 aspect-square !mt-0">
-            <X className="w-5 h-5" />
-          </SheetClose>
-        </SheetHeader>
-      </SheetContent>
-    </Sheet>
+    <>
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetTrigger asChild>
+          <div className="lg:hidden">
+            <div className="hidden lg:flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm">
+              <span>{query ?? 'Buscar na loja'}</span>
+            </div>
+
+            <div className={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+              <Search className="lg:hidden w-5 h-5" />
+            </div>
+          </div>
+        </SheetTrigger>
+        <SheetContent autoFocus side="fade" className="h-[100dvh]">
+          <SheetHeader className="flex flex-row gap-2 items-center">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+                <FormField
+                  control={form.control}
+                  name="search"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="search"
+                          placeholder="Buscar na loja..."
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+            <SheetClose className="flex items-center justify-center w-full max-w-8 h-8 aspect-square !mt-0">
+              <X className="w-5 h-5" />
+            </SheetClose>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="hidden lg:flex justify-end flex-row gap-2"
+        >
+          <FormField
+            control={form.control}
+            name="search"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="search"
+                    placeholder="Buscar na loja..."
+                    className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" variant={'outline'} size={'icon'}>
+            <Search className="w-4 h-4" />
+          </Button>
+        </form>
+      </Form>
+    </>
   )
 }

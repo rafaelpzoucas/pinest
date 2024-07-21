@@ -1,5 +1,8 @@
+import { CartProductType } from '@/models/cart'
 import { Metadata } from 'next'
 import { getStoreByStoreURL } from './actions'
+import { getCart } from './cart/actions'
+import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
 export const metadata: Metadata = {
@@ -26,12 +29,16 @@ export default async function PublicStoreLayout({
     return <NotFound />
   }
 
+  const bagItems: CartProductType[] = await getCart(params.public_store)
+
   return (
     <div className="flex lg:flex-row items-center justify-center p-4 pb-20">
       <div className="w-full lg:max-w-7xl">
         {header}
 
         {children}
+
+        <MobileNavigation bagItems={bagItems} />
       </div>
     </div>
   )

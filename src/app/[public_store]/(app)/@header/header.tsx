@@ -1,12 +1,10 @@
-'use client'
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { CartProductType } from '@/models/cart'
 import { StoreType } from '@/models/store'
 import { Pyramid } from 'lucide-react'
-import { SearchSheet } from '../(app)/@search/search-sheet'
-import { PublicStoreNavigation } from '../navigation'
+import { PublicStoreNavigation } from '../../navigation'
+import { SearchSheet } from '../@search/search-sheet'
 
 type HeaderPropsType = {
   userData: any
@@ -48,11 +46,13 @@ export default async function Header({
           <SearchSheet publicStore={storeUrl} />
         </div>
 
-        <PublicStoreNavigation
-          bagItems={bagItems}
-          connectedAccount={connectedAccount}
-          userData={userData}
-        />
+        <div className="hidden lg:block">
+          <PublicStoreNavigation
+            bagItems={bagItems}
+            connectedAccount={connectedAccount}
+            userData={userData}
+          />
+        </div>
       </Card>
     </header>
   )

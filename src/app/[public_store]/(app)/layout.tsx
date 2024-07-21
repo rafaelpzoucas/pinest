@@ -21,8 +21,8 @@ export default function StoreLayout({
   productsList: React.ReactNode
 }) {
   return (
-    <div className="lg:space-y-4">
-      {search}
+    <div className="space-y-4">
+      {header}
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <aside className="flex w-full lg:max-w-xs">{categories}</aside>
