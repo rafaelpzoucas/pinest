@@ -2,7 +2,6 @@ import { CartProductType } from '@/models/cart'
 import { Metadata } from 'next'
 import { getStoreByStoreURL } from './actions'
 import { getCart } from './cart/actions'
-import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
 export const metadata: Metadata = {
@@ -38,7 +37,7 @@ export default async function PublicStoreLayout({
 
         {children}
 
-        <MobileNavigation bagItems={bagItems} />
+        {/* <MobileNavigation bagItems={bagItems} /> */}
       </div>
     </div>
   )

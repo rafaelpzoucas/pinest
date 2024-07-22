@@ -20,7 +20,7 @@ export default function StoreLayout({
 }) {
   return (
     <div className="space-y-4">
-      {/* {header}
+      {header}
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <aside className="flex w-full lg:max-w-xs">{categories}</aside>
@@ -32,7 +32,7 @@ export default function StoreLayout({
 
           {productsList}
         </div>
-      </div> */}
+      </div>
     </div>
   )
 }
