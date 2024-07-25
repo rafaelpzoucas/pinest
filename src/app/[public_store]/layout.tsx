@@ -11,13 +11,11 @@ export const metadata: Metadata = {
 }
 
 type PublicStoreLayoutProps = {
-  header: React.ReactNode
   children: React.ReactNode
   params: { public_store: string }
 }
 
 export default async function PublicStoreLayout({
-  header,
   children,
   params,
 }: PublicStoreLayoutProps) {
@@ -36,8 +34,6 @@ export default async function PublicStoreLayout({
   return (
     <div className="flex lg:flex-row items-center justify-center p-4 pb-20">
       <div className="w-full lg:max-w-7xl">
-        {header}
-
         {children}
 
         <MobileNavigation bagItems={bagItems} />
