@@ -1,9 +1,7 @@
 import { Header } from '@/components/header'
-import { Card } from '@/components/ui/card'
 import { readStoreByUserId, readUser } from './actions'
 import { Address } from './address'
 import { Profile } from './profile'
-import { SignOutButton } from './sign-out'
 import { Store } from './store'
 
 export default async function AccountPage() {
@@ -24,10 +22,6 @@ export default async function AccountPage() {
       <Profile user={user && user} />
       <Store store={store} />
       <Address address={store && store?.addresses[0]} />
-      <Card className="flex flex-row items-center justify-between p-4">
-        <p>Sair</p>
-        <SignOutButton />
-      </Card>
     </main>
   )
 }

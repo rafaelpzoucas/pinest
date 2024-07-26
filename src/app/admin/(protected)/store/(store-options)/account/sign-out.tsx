@@ -10,9 +10,10 @@ export async function SignOutButton() {
   }
 
   return (
-    <form action={handleSignOut}>
-      <Button variant="outline" size="icon">
-        <LogOut className="w-4 h-4" />
+    <form action={handleSignOut} className="flex">
+      <Button variant="ghost" className="mx-auto">
+        Sair
+        <LogOut className="ml-2 w-4 h-4" />
       </Button>
     </form>
   )
