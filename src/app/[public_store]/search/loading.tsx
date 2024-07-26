@@ -1,40 +1,36 @@
+import { Header } from '@/components/header'
 import { ProductCard } from '@/components/product-card'
-import { buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import { ArrowLeft } from 'lucide-react'
 
 export default async function SearchPageLoading() {
   return (
-    <div>
-      <header className="flex flex-row p-4 gap-2">
-        <div
-          className={cn(
-            buttonVariants({ variant: 'ghost', size: 'icon' }),
-            'w-full max-w-9',
-          )}
-        >
-          <ArrowLeft className="w-5 h-5" />
+    <div className="space-y-6 lg:space-y-8">
+      <Header
+        store={null}
+        bagItems={[]}
+        userData={null}
+        connectedAccount={null}
+      />
+
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="w-full space-y-2">
+          <Skeleton className="w-48 h-6" />
+
+          <Skeleton className="w-52 h-3" />
+
+          <section className="flex flex-col gap-8 pt-4 pb-16 w-full">
+            <div className="flex flex-col">
+              <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
+                <ProductCard variant={'featured'} />
+                <ProductCard variant={'featured'} />
+                <ProductCard variant={'featured'} />
+                <ProductCard variant={'featured'} />
+                <ProductCard variant={'featured'} />
+              </div>
+            </div>
+          </section>
         </div>
-
-        <Skeleton className="w-full h-9" />
-      </header>
-
-      <div className="pl-4">
-        <Skeleton className="w-1/2 h-3" />
       </div>
-
-      <section className="flex flex-col gap-8 pt-4 pb-16">
-        <div className="flex flex-col px-4">
-          <div className="grid grid-cols-2 gap-4">
-            <ProductCard variant={'featured'} />
-            <ProductCard variant={'featured'} />
-            <ProductCard variant={'featured'} />
-            <ProductCard variant={'featured'} />
-            <ProductCard variant={'featured'} />
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react'
 
 export default async function PurchasesPageLoading() {
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       <Header title="Minhas compras" />
 
       <div className="flex flex-col gap-2">
