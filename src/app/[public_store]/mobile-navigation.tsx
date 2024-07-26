@@ -49,7 +49,7 @@ export function MobileNavigation({
     }, 0)
 
   return (
-    <Card className="fixed lg:hidden z-50 bottom-3 left-1/2 -translate-x-1/2 p-1 bg-background/90 backdrop-blur-lg">
+    <Card className="fixed lg:hidden z-50 bottom-3 left-1/2 -translate-x-1/2 p-2 bg-background/90 backdrop-blur-sm">
       <NavigationMenu>
         <NavigationMenuList>
           {links.map((link) => (
@@ -74,7 +74,7 @@ export function MobileNavigation({
               <NavigationMenuLink
                 className={cn(
                   buttonVariants({ variant: 'ghost', size: 'icon' }),
-                  'relative bg-transparent px-3',
+                  'relative bg-transparent',
                 )}
               >
                 {bagItems?.length > 0 && (

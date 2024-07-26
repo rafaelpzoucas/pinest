@@ -1,5 +1,4 @@
 import { Header } from '@/components/header'
-import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
@@ -32,8 +31,52 @@ export default async function CartPage({
   }, 0)
 
   return (
-    <main className="w-full p-4 pb-40">
+    <main className="w-full space-y-4 pb-40">
       <Header title="Finalizar compra" />
+
+      <section className="flex flex-col gap-2 w-full max-w-2xl">
+        <Card className="p-4 w-full space-y-2">
+          <div className="flex flex-row justify-between text-xs text-muted-foreground">
+            <p>Produtos ({bagItems.length})</p>
+            <span>{formatCurrencyBRL(productsPrice)}</span>
+          </div>
+
+          <div className="flex flex-row justify-between text-xs text-muted-foreground">
+            <p>Frete</p>
+            <span className="text-emerald-600">Grátis</span>
+          </div>
+
+          <div className="flex flex-row justify-between text-xs text-muted-foreground">
+            <Button variant={'link'} className="p-0">
+              Inserir cupom
+            </Button>
+          </div>
+
+          <div className="flex flex-row justify-between text-sm pb-2">
+            <p>Total</p>
+            <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
+          </div>
+
+          {connectedAccount &&
+            connectedAccount.data.length > 0 &&
+            productsPrice > 0 &&
+            (!userData.user ? (
+              <Link
+                href={`/${params.public_store}/sign-in`}
+                className={cn(buttonVariants(), 'w-full')}
+              >
+                Finalizar compra
+              </Link>
+            ) : (
+              <Link
+                href={`/${params.public_store}/checkout?step=pickup`}
+                className={cn(buttonVariants(), 'w-full')}
+              >
+                Finalizar compra
+              </Link>
+            ))}
+        </Card>
+      </section>
 
       <section className="flex flex-col gap-2 w-full">
         <CartProducts bagItems={bagItems} storeName={params.public_store} />
@@ -46,52 +89,6 @@ export default async function CartPage({
           Adicionar itens
         </Link>
       </section>
-
-      <Island>
-        <div className="flex flex-col gap-2 w-full max-w-2xl">
-          <Card className="p-4 w-full space-y-2">
-            <div className="flex flex-row justify-between text-xs text-muted-foreground">
-              <p>Produtos ({bagItems.length})</p>
-              <span>{formatCurrencyBRL(productsPrice)}</span>
-            </div>
-
-            <div className="flex flex-row justify-between text-xs text-muted-foreground">
-              <p>Frete</p>
-              <span className="text-emerald-600">Grátis</span>
-            </div>
-
-            <div className="flex flex-row justify-between text-xs text-muted-foreground">
-              <Button variant={'link'} className="p-0">
-                Inserir cupom
-              </Button>
-            </div>
-
-            <div className="flex flex-row justify-between text-sm pb-2">
-              <p>Total</p>
-              <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
-            </div>
-
-            {connectedAccount &&
-              connectedAccount.data.length > 0 &&
-              productsPrice > 0 &&
-              (!userData.user ? (
-                <Link
-                  href={`/${params.public_store}/sign-in`}
-                  className={cn(buttonVariants(), 'w-full')}
-                >
-                  Finalizar compra
-                </Link>
-              ) : (
-                <Link
-                  href={`/${params.public_store}/checkout?step=pickup`}
-                  className={cn(buttonVariants(), 'w-full')}
-                >
-                  Finalizar compra
-                </Link>
-              ))}
-          </Card>
-        </div>
-      </Island>
     </main>
   )
 }

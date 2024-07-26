@@ -1,4 +1,13 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel'
+import { cn } from '@/lib/utils'
+import { Box } from 'lucide-react'
 import Link from 'next/link'
 import { readCategoriesByStoreURL } from '../@search/actions'
 
@@ -15,17 +24,52 @@ export default async function Header({
   }
 
   return (
-    <Card className="sticky top-4 flex flex-col gap-2 w-full p-4 bg-secondary/50 border-0 h-fit">
-      {categories &&
-        categories.map((category) => (
-          <Link
-            key={category.id}
-            href={`#${category.name.toLowerCase()}`}
-            className="inline-flex h-9 w-full items-start justify-start rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
-          >
-            {category.name}
-          </Link>
-        ))}
-    </Card>
+    <>
+      <div className="lg:hidden w-full">
+        <Carousel
+          opts={{
+            dragFree: true,
+          }}
+        >
+          <CarouselContent>
+            {categories &&
+              categories.map((category) => (
+                <CarouselItem className="flex-[0_0_27.5%]" key={category.id}>
+                  <Link
+                    href={`#${category.name.toLowerCase()}`}
+                    className="flex flex-col items-center justify-center gap-2"
+                  >
+                    <Avatar className="w-14 h-14">
+                      <AvatarImage src={category.image_url} />
+                      <AvatarFallback>
+                        <Box />
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="text-xs text-center">{category.name}</p>
+                  </Link>
+                </CarouselItem>
+              ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+
+      <div className="hidden lg:flex w-full">
+        <Card className="sticky top-4 flex flex-col gap-2 w-full p-4 bg-secondary/50 border-0 h-fit">
+          {categories &&
+            categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`#${category.name.toLowerCase()}`}
+                className={cn(
+                  buttonVariants({ variant: 'ghost' }),
+                  'justify-start',
+                )}
+              >
+                {category.name}
+              </Link>
+            ))}
+        </Card>
+      </div>
+    </>
   )
 }

@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { Skeleton } from '@/components/ui/skeleton'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Search, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -22,7 +23,7 @@ const formSchema = z.object({
   search: z.string(),
 })
 
-export function SearchSheet({ publicStore }: { publicStore: string }) {
+export function SearchSheet({ publicStore }: { publicStore?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -40,6 +41,24 @@ export function SearchSheet({ publicStore }: { publicStore: string }) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSheetOpen(false)
     return router.push(`/${publicStore}/search?q=${values.search}`)
+  }
+
+  if (!publicStore) {
+    return (
+      <>
+        <div className="lg:hidden">
+          <div className="hidden lg:flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm">
+            <span>{query ?? 'Buscar na loja'}</span>
+          </div>
+
+          <div className={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+            <Search className="lg:hidden w-5 h-5" />
+          </div>
+        </div>
+
+        <Skeleton className="hidden lg:block w-[265px] h-9" />
+      </>
+    )
   }
 
   return (

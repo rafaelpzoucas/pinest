@@ -22,10 +22,10 @@ export default function StoreLayout({
     <div className="space-y-4">
       {header}
 
-      <div className="flex flex-col gap-6 lg:flex-row">
-        <aside className="flex w-full lg:max-w-xs">{categories}</aside>
+      <div className="flex flex-col gap-6 lg:grid grid-cols-[1fr_3.5fr]">
+        <aside className="flex w-full">{categories}</aside>
 
-        <div className="w-full max-w-[1014px]">
+        <div className="w-full">
           {promotions}
 
           {topSellers}
