@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { UserType } from '@/models/user'
 import { AtSign, Edit, Phone } from 'lucide-react'
 import Link from 'next/link'
+import { SignOutButton } from './sign-out'
 
 export async function Profile({ user }: { user: UserType | null }) {
   const supabase = createClient()
@@ -42,15 +43,16 @@ export async function Profile({ user }: { user: UserType | null }) {
         </div>
       </div>
 
-      <Link
-        href={`account/register/profile?id=${user?.id}`}
-        className={cn(
-          buttonVariants({ variant: 'ghost', size: 'icon' }),
-          'absolute top-2 right-2',
-        )}
-      >
-        <Edit className="w-4 h-4" />
-      </Link>
+      <div className="absolute top-2 right-2 flex flex-col">
+        <Link
+          href={`account/register/profile?id=${user?.id}`}
+          className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+        >
+          <Edit className="w-4 h-4" />
+        </Link>
+
+        <SignOutButton />
+      </div>
     </Card>
   )
 }
