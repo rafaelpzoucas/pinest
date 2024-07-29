@@ -1,4 +1,3 @@
-import { Island } from '@/components/island'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -41,9 +40,7 @@ export default async function ProtectedLayout({
 
   return (
     <main className="pb-16 md:flex flex-row">
-      <Island>
-        <Navigation />
-      </Island>
+      <Navigation />
 
       {children}
     </main>
