@@ -19,7 +19,7 @@ export default function StoreLayout({
   productsList: React.ReactNode
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       {header}
 
       <div className="flex flex-col gap-6 lg:grid grid-cols-[1fr_3.5fr]">

@@ -78,13 +78,15 @@ export function Header({
 
         <SearchSheet publicStore={storeUrl} />
 
-        {bagItems && connectedAccount && userData && (
-          <PublicStoreNavigation
-            bagItems={bagItems}
-            connectedAccount={connectedAccount}
-            userData={userData}
-          />
-        )}
+        <div className="hidden lg:block">
+          {bagItems && connectedAccount && userData && (
+            <PublicStoreNavigation
+              bagItems={bagItems}
+              connectedAccount={connectedAccount.data}
+              userData={userData}
+            />
+          )}
+        </div>
       </Card>
     </header>
   )

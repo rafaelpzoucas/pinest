@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const storeName = requestUrl.searchParams.get('store-name')
   const purchaseId = requestUrl.searchParams.get('purchase')
 
-  cookies().set('pinest_cart', '')
+  cookies().set(`${storeName}_cart`, '')
 
   if (storeName && purchaseId) {
     await createStripeCheckout(storeName, purchaseId)

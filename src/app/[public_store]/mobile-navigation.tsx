@@ -2,17 +2,11 @@
 
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { SearchSheet } from './(app)/@search/search-sheet'
 
 export function MobileNavigation({
@@ -21,8 +15,11 @@ export function MobileNavigation({
   bagItems: CartProductType[]
 }) {
   const params = useParams()
+  const pathname = usePathname()
 
   const storeUrl = params.public_store as unknown as string
+
+  const iconsClassNames = 'w-5 h-5'
 
   const links = [
     {
@@ -37,57 +34,65 @@ export function MobileNavigation({
     },
   ]
 
-  const productsPrice =
-    bagItems &&
-    bagItems.reduce((acc, bagItem) => {
-      const priceToAdd =
-        bagItem.promotional_price > 0
-          ? bagItem.promotional_price
-          : bagItem.price
-
-      return acc + priceToAdd * bagItem.amount
-    }, 0)
-
   return (
-    <Card className="fixed lg:hidden z-50 bottom-3 left-1/2 -translate-x-1/2 p-2 bg-background/90 backdrop-blur-sm">
-      <NavigationMenu>
-        <NavigationMenuList>
-          {links.map((link) => (
-            <NavigationMenuItem key={link.href}>
-              <Link href={link.href} legacyBehavior passHref>
-                <NavigationMenuLink
-                  className={cn(
-                    buttonVariants({ variant: 'ghost', size: 'icon' }),
-                    'bg-transparent',
-                  )}
-                >
-                  <link.icon className="w-5 h-5" />
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          ))}
+    <nav
+      className={cn(
+        'fixed lg:hidden z-50 bottom-0 left-0 flex items-center justify-center p-2 w-full',
+        'lg:static lg:p-4 lg:w-fit',
+      )}
+    >
+      <Card className="flex flex-row lg:flex-col items-center justify-between gap-4 w-fit p-1 bg-background/90 backdrop-blur-sm">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={cn(
+              buttonVariants({ variant: 'ghost', size: 'icon' }),
+              'bg-transparent relative',
+            )}
+          >
+            <link.icon
+              className={cn(
+                iconsClassNames,
+                'opacity-50',
+                pathname === link.href && 'opacity-100',
+              )}
+            />
+            {pathname === link.href && (
+              <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg mt-8 bg-primary"></span>
+            )}
+          </Link>
+        ))}
 
+        <div className="relative">
           <SearchSheet publicStore={storeUrl} />
+          {pathname === `/${storeUrl}/search` && (
+            <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg -mt-1 bg-primary"></span>
+          )}
+        </div>
 
-          <NavigationMenuItem>
-            <Link href={`/${storeUrl}/cart`} legacyBehavior passHref>
-              <NavigationMenuLink
-                className={cn(
-                  buttonVariants({ variant: 'ghost', size: 'icon' }),
-                  'relative bg-transparent',
-                )}
-              >
-                {bagItems?.length > 0 && (
-                  <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
-                    {bagItems?.length}
-                  </span>
-                )}
-                <ShoppingCart className="w-5 h-5" />
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-    </Card>
+        <Link
+          href={`/${storeUrl}/cart`}
+          className={cn(
+            buttonVariants({ variant: 'ghost', size: 'icon' }),
+            'relative bg-transparent',
+          )}
+        >
+          {bagItems?.length > 0 && (
+            <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
+              {bagItems?.length}
+            </span>
+          )}
+
+          <div className="relative">
+            <ShoppingCart className="w-5 h-5" />
+
+            {pathname === `/${storeUrl}/cart` && (
+              <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg mt-1 bg-primary"></span>
+            )}
+          </div>
+        </Link>
+      </Card>
+    </nav>
   )
 }

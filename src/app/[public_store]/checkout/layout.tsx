@@ -27,7 +27,7 @@ export default function CheckoutLayout({
   const pageTitle = titles[step] ?? 'Finalizar compra'
 
   return (
-    <section className="flex flex-col items-center gap-4 p-4">
+    <section className="flex flex-col items-center gap-4">
       <Header title={pageTitle} />
 
       {step === 'pickup' && pickup}

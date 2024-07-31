@@ -60,7 +60,7 @@ export function PublicStoreNavigation({
     }, 0)
 
   return (
-    <Card className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1 lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0">
+    <Card className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1 lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0 bg-red-700">
       <NavigationMenu>
         <NavigationMenuList>
           {links.map((link) => (

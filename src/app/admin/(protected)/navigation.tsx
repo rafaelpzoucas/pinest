@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Home, Layers, LayoutList, Store } from 'lucide-react'
+import { Layers, LayoutGrid, LayoutList, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -16,8 +16,8 @@ export function Navigation() {
   const links = [
     {
       href: '/admin/dashboard',
-      name: 'Home',
-      icon: Home,
+      name: 'Dashboard',
+      icon: LayoutGrid,
     },
     {
       href: '/admin/purchases',

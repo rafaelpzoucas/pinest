@@ -3,40 +3,64 @@
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Stripe from 'stripe'
 
-export async function getStripeAccountId() {
+export async function getStripeAccount() {
   const supabase = createClient()
   const { data: session } = await supabase.auth.getUser()
 
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('stripe_account_id')
+    .select('stripe_account_id, stripe_connected_account')
     .eq('id', session.user?.id)
     .single()
 
   return { user, userError }
 }
 
-export async function getConnectedAccount() {
-  const { user, userError } = await getStripeAccountId()
+export async function updateStripeConnectedAccount(account: any) {
+  const supabase = createClient()
+  const { data: session } = await supabase.auth.getUser()
+
+  const { error } = await supabase
+    .from('users')
+    .update({ stripe_connected_account: account })
+    .eq('id', session.user?.id)
+
+  if (error) {
+    console.error(error)
+  }
+}
+
+export async function getConnectedAccount(): Promise<
+  Stripe.ApiListPromise<Stripe.ExternalAccount>
+> {
+  const { user, userError } = await getStripeAccount()
+  let connectedAccount = user?.stripe_connected_account
 
   if (userError) {
-    return
+    console.error(userError)
   }
 
-  const connectedAccounts = await stripe.accounts.listExternalAccounts(
-    user?.stripe_account_id,
-  )
+  if (!connectedAccount) {
+    const connectedAccounts = await stripe.accounts.listExternalAccounts(
+      user?.stripe_account_id,
+    )
 
-  if (!connectedAccounts) {
-    return null
+    if (!connectedAccounts) {
+      console.error(userError)
+    }
+
+    connectedAccount = connectedAccounts
+
+    await updateStripeConnectedAccount(connectedAccounts)
   }
 
-  return connectedAccounts
+  return connectedAccount
 }
 
 export async function createStripeAccountLink() {
-  const { user, userError } = await getStripeAccountId()
+  const { user, userError } = await getStripeAccount()
 
   if (userError) {
     console.error(userError)

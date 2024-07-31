@@ -50,7 +50,7 @@ export default async function ProductPage({
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
         bagItems={bagItems}
-        connectedAccount={connectedAccount?.data}
+        connectedAccount={connectedAccount}
         store={store}
         userData={userData}
       />

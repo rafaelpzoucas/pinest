@@ -6,7 +6,7 @@ import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { getCart, getConnectedAccountByStoreUrl } from './actions'
+import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
 
 export default async function CartPage({
@@ -17,7 +17,7 @@ export default async function CartPage({
   const supabase = createClient()
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
@@ -57,8 +57,8 @@ export default async function CartPage({
             <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
           </div>
 
-          {connectedAccount &&
-            connectedAccount.data.length > 0 &&
+          {user?.stripe_connected_account &&
+            user.stripe_connected_account.data.length > 0 &&
             productsPrice > 0 &&
             (!userData.user ? (
               <Link

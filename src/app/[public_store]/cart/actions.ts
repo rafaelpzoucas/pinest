@@ -1,7 +1,6 @@
 // app/actions/addToCart.js
 'use server'
 
-import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
 import { cookies } from 'next/headers'
@@ -57,10 +56,10 @@ export async function removeFromCart(storeUrl: string, itemId: string) {
   cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
 }
 
-export async function readUserStripeAccountIdByStoreUrl(
+export async function readStripeConnectedAccountByStoreUrl(
   storeUrl: string,
 ): Promise<{
-  user: { stripe_account_id: string } | null
+  user: { stripe_connected_account: any } | null
   userError: any | null
 }> {
   const supabase = createClient()
@@ -77,29 +76,9 @@ export async function readUserStripeAccountIdByStoreUrl(
 
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('stripe_account_id')
+    .select('stripe_connected_account')
     .eq('id', store?.user_id)
     .single()
 
   return { user, userError }
-}
-
-export async function getConnectedAccountByStoreUrl(storeUrl: string) {
-  const { user, userError } = await readUserStripeAccountIdByStoreUrl(storeUrl)
-
-  if (userError) {
-    console.error(userError)
-  }
-
-  if (user) {
-    const connectedAccounts = await stripe.accounts.listExternalAccounts(
-      user?.stripe_account_id,
-    )
-
-    if (!connectedAccounts) {
-      return null
-    }
-
-    return connectedAccounts
-  }
 }
