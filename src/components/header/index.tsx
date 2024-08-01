@@ -82,7 +82,7 @@ export function Header({
           {bagItems && connectedAccount && userData && (
             <PublicStoreNavigation
               bagItems={bagItems}
-              connectedAccount={connectedAccount.data}
+              connectedAccount={connectedAccount}
               userData={userData}
             />
           )}

@@ -8,7 +8,7 @@ import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { getStoreByStoreURL } from '../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../cart/actions'
+import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { readPurchases } from './actions'
 
 type StatusKey = keyof typeof statuses
@@ -34,7 +34,7 @@ export default async function PurchasesPage({
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
@@ -45,7 +45,7 @@ export default async function PurchasesPage({
         store={store}
         bagItems={bagItems}
         userData={userData}
-        connectedAccount={connectedAccount}
+        connectedAccount={user?.stripe_connected_account}
       />
 
       <div className="flex flex-col gap-2">

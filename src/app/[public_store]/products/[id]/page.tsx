@@ -14,7 +14,10 @@ import { Header } from '@/components/header'
 import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
 import { getStoreByStoreURL } from '../../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../../cart/actions'
+import {
+  getCart,
+  readStripeConnectedAccountByStoreUrl,
+} from '../../cart/actions'
 import { readProductById } from './actions'
 import { AddToCard } from './add-to-cart'
 
@@ -34,7 +37,7 @@ export default async function ProductPage({
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
@@ -50,7 +53,7 @@ export default async function ProductPage({
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
         bagItems={bagItems}
-        connectedAccount={connectedAccount}
+        connectedAccount={user?.stripe_connected_account}
         store={store}
         userData={userData}
       />

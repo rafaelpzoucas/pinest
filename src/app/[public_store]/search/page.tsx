@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
 import { Search } from 'lucide-react'
 import { getStoreByStoreURL } from '../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../cart/actions'
+import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { getSearchedProducts } from './actions'
 
 export default async function SearchPage({
@@ -32,7 +32,7 @@ export default async function SearchPage({
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
@@ -42,7 +42,7 @@ export default async function SearchPage({
         store={store}
         bagItems={bagItems}
         userData={userData}
-        connectedAccount={connectedAccount}
+        connectedAccount={user?.stripe_connected_account}
       />
 
       <div className="flex flex-col gap-6 lg:flex-row">
