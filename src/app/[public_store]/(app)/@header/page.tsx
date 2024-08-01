@@ -4,7 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
 import { Pyramid } from 'lucide-react'
 import { getStoreByStoreURL } from '../../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../../cart/actions'
+import {
+  getCart,
+  readStripeConnectedAccountByStoreUrl,
+} from '../../cart/actions'
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../@search/search-sheet'
 
@@ -23,7 +26,7 @@ export default async function HeaderPage({
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
@@ -55,7 +58,7 @@ export default async function HeaderPage({
         <div className="hidden lg:block">
           <PublicStoreNavigation
             bagItems={bagItems}
-            connectedAccount={connectedAccount}
+            connectedAccount={user?.stripe_connected_account}
             userData={userData}
           />
         </div>

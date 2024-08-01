@@ -99,7 +99,7 @@ export function PublicStoreNavigation({
                   <CartProducts bagItems={bagItems} storeName={storeUrl} />
                 </ScrollArea>
                 {connectedAccount &&
-                  connectedAccount.length > 0 &&
+                  connectedAccount.data.length > 0 &&
                   productsPrice > 0 &&
                   (!userData.user ? (
                     <Link
