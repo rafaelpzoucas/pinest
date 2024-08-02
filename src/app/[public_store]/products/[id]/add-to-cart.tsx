@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Minus, Plus } from 'lucide-react'
 
 import { formatCurrencyBRL } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import { ProductType } from '@/models/product'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -33,13 +32,16 @@ export function AddToCard({ product, publicStore }: AddToCardDrawerProps) {
   }
 
   async function handleAddToCart() {
-    const newCartProduct: CartProductType = {
-      ...product,
+    const newCartProduct: {
+      product_id: string
+      amount: number
+    } = {
+      product_id: product.id,
       amount,
     }
     await addToCart(publicStore, newCartProduct)
 
-    router.push(`/${publicStore}/cart`)
+    router.push(`/${publicStore}`)
   }
 
   return (

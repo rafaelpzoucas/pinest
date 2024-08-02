@@ -10,13 +10,16 @@ export async function getCart(storeUrl: string) {
   return JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
 }
 
-export async function addToCart(storeUrl: string, newItem: CartProductType) {
+export async function addToCart(
+  storeUrl: string,
+  newItem: { product_id: string; amount: number },
+) {
   const cookieStore = cookies()
   const cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
 
   // Encontre o item no carrinho
   const existingItemIndex = cart.findIndex(
-    (item: CartProductType) => item.id === newItem.id,
+    (item: CartProductType) => item.id === newItem.product_id,
   )
 
   if (existingItemIndex !== -1) {
@@ -25,7 +28,11 @@ export async function addToCart(storeUrl: string, newItem: CartProductType) {
     cart.push(newItem)
   }
 
-  cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
+  try {
+    cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
+  } catch (error) {
+    console.error('Error setting cookie:', error)
+  }
 }
 
 export async function updateItemAmount(
@@ -59,7 +66,7 @@ export async function removeFromCart(storeUrl: string, itemId: string) {
 export async function readStripeConnectedAccountByStoreUrl(
   storeUrl: string,
 ): Promise<{
-  user: { stripe_connected_account: any } | null
+  user: { stripe_connected_account: 'connected' | null } | null
   userError: any | null
 }> {
   const supabase = createClient()
@@ -79,6 +86,10 @@ export async function readStripeConnectedAccountByStoreUrl(
     .select('stripe_connected_account')
     .eq('id', store?.user_id)
     .single()
+
+  if (userError) {
+    console.error(userError)
+  }
 
   return { user, userError }
 }

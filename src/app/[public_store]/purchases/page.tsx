@@ -38,6 +38,8 @@ export default async function PurchasesPage({
     params.public_store,
   )
 
+  const connectedAccount = user?.stripe_connected_account
+
   return (
     <div className="space-y-4">
       <Header
@@ -45,7 +47,7 @@ export default async function PurchasesPage({
         store={store}
         bagItems={bagItems}
         userData={userData}
-        connectedAccount={user?.stripe_connected_account}
+        connectedAccount={connectedAccount}
       />
 
       <div className="flex flex-col gap-2">

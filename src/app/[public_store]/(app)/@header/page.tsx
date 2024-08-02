@@ -26,9 +26,12 @@ export default async function HeaderPage({
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
+
   const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
+
+  const connectedAccount = user?.stripe_connected_account
 
   return (
     <header className="flex items-center justify-center w-full">
@@ -58,7 +61,7 @@ export default async function HeaderPage({
         <div className="hidden lg:block">
           <PublicStoreNavigation
             bagItems={bagItems}
-            connectedAccount={user?.stripe_connected_account}
+            connectedAccount={connectedAccount}
             userData={userData}
           />
         </div>

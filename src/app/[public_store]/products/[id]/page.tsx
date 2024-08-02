@@ -37,9 +37,12 @@ export default async function ProductPage({
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
+
   const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
+
+  const connectedAccount = user?.stripe_connected_account
 
   const { product, productError } = await readProductById(params.id)
 
@@ -53,7 +56,7 @@ export default async function ProductPage({
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
         bagItems={bagItems}
-        connectedAccount={user?.stripe_connected_account}
+        connectedAccount={connectedAccount}
         store={store}
         userData={userData}
       />

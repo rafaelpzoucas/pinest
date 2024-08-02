@@ -21,6 +21,8 @@ export default async function CartPage({
     params.public_store,
   )
 
+  const connectedAccount = user?.stripe_connected_account
+
   const bagItems: CartProductType[] = await getCart(params.public_store)
 
   const productsPrice = bagItems.reduce((acc, bagItem) => {
@@ -57,8 +59,7 @@ export default async function CartPage({
             <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
           </div>
 
-          {user?.stripe_connected_account &&
-            user.stripe_connected_account.data.length > 0 &&
+          {connectedAccount &&
             productsPrice > 0 &&
             (!userData.user ? (
               <Link
