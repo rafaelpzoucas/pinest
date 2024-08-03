@@ -10,9 +10,9 @@ import { useParams, usePathname } from 'next/navigation'
 import { SearchSheet } from './(app)/@search/search-sheet'
 
 export function MobileNavigation({
-  bagItems,
+  cartProducts,
 }: {
-  bagItems: CartProductType[]
+  cartProducts: CartProductType[] | null
 }) {
   const params = useParams()
   const pathname = usePathname()
@@ -78,9 +78,9 @@ export function MobileNavigation({
             'relative bg-transparent',
           )}
         >
-          {bagItems?.length > 0 && (
+          {cartProducts && cartProducts?.length > 0 && (
             <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
-              {bagItems?.length}
+              {cartProducts?.length}
             </span>
           )}
 
