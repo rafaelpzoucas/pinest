@@ -18,7 +18,7 @@ import { Card } from '../ui/card'
 type HeaderPropsType = {
   store?: StoreType | null
   title?: string
-  bagItems?: CartProductType[]
+  cartProducts?: CartProductType[]
   connectedAccount?: any
   userData?: any
 }
@@ -26,7 +26,7 @@ type HeaderPropsType = {
 export function Header({
   title,
   store,
-  bagItems,
+  cartProducts,
   connectedAccount,
   userData,
 }: HeaderPropsType) {
@@ -79,9 +79,9 @@ export function Header({
         <SearchSheet publicStore={storeUrl} />
 
         <div className="hidden lg:block">
-          {bagItems && connectedAccount && userData && (
+          {cartProducts && connectedAccount && userData && (
             <PublicStoreNavigation
-              bagItems={bagItems}
+              cartProducts={cartProducts}
               connectedAccount={connectedAccount}
               userData={userData}
             />

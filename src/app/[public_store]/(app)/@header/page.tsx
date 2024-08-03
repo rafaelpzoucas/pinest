@@ -1,7 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
-import { CartProductType } from '@/models/cart'
 import { Pyramid } from 'lucide-react'
 import { getStoreByStoreURL } from '../../actions'
 import {
@@ -19,7 +18,7 @@ export default async function HeaderPage({
   const supabase = createClient()
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
@@ -32,6 +31,8 @@ export default async function HeaderPage({
   )
 
   const connectedAccount = user?.stripe_connected_account
+
+  console.log(cart)
 
   return (
     <header className="flex items-center justify-center w-full">
@@ -60,7 +61,7 @@ export default async function HeaderPage({
 
         <div className="hidden lg:block">
           <PublicStoreNavigation
-            bagItems={bagItems}
+            cartProducts={cart}
             connectedAccount={connectedAccount}
             userData={userData}
           />

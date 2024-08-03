@@ -3,64 +3,194 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { CartProductType } from '@/models/cart'
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import { v4 as uuidv4 } from 'uuid'
 
-export async function getCart(storeUrl: string) {
+async function createCartSession(storeUrl: string) {
   const cookieStore = cookies()
-  return JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
-}
-
-export async function addToCart(
-  storeUrl: string,
-  newItem: { product_id: string; amount: number },
-) {
-  const cookieStore = cookies()
-  const cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
-
-  // Encontre o item no carrinho
-  const existingItemIndex = cart.findIndex(
-    (item: CartProductType) => item.id === newItem.product_id,
-  )
-
-  if (existingItemIndex !== -1) {
-    cart[existingItemIndex].amount += newItem.amount
-  } else {
-    cart.push(newItem)
-  }
+  const uuid = uuidv4()
 
   try {
-    cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
+    cookieStore.set(`${storeUrl}_cart_session`, uuid)
+    return cookieStore.get(`${storeUrl}_cart_session`)
   } catch (error) {
     console.error('Error setting cookie:', error)
   }
 }
 
-export async function updateItemAmount(
-  storeUrl: string,
-  itemId: string,
-  newAmount: number,
-) {
+async function getCartSession(storeUrl: string) {
   const cookieStore = cookies()
-  const cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
 
-  const existingItemIndex = cart.findIndex(
-    (item: CartProductType) => item.id === itemId,
-  )
+  const session = cookieStore.get(`${storeUrl}_cart_session`)
 
-  if (existingItemIndex !== -1) {
-    cart[existingItemIndex].amount = newAmount
-  } else {
-    throw new Error('Item not found in cart')
+  if (!session) {
+    const createdSession = await createCartSession(storeUrl)
+
+    if (createdSession) {
+      return createdSession
+    }
   }
 
-  cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
+  return session
 }
 
-export async function removeFromCart(storeUrl: string, itemId: string) {
-  const cookieStore = cookies()
-  let cart = JSON.parse(cookieStore.get(`${storeUrl}_cart`)?.value || '[]')
-  cart = cart.filter((item: CartProductType) => item.id !== itemId)
-  cookieStore.set(`${storeUrl}_cart`, JSON.stringify(cart), { path: '/' })
+async function getCartProduct(
+  storeUrl: string,
+  productId?: string,
+): Promise<{
+  cartProduct: CartProductType | null
+  cartProductError: any | null
+}> {
+  const supabase = createClient()
+  const cartSession = await getCartSession(storeUrl)
+
+  const { data: cartProduct, error: cartProductError } = await supabase
+    .from('cart_sessions')
+    .select('*')
+    .eq('session_id', cartSession?.value)
+    .eq('product_id', productId)
+    .single()
+
+  if (cartProductError) {
+    console.error(cartProductError)
+  }
+
+  return { cartProduct, cartProductError }
+}
+
+async function insertCartProduct(
+  newItem: CartProductType,
+  cartSession?: string,
+) {
+  const supabase = createClient()
+
+  const { error: insertedCartProductError } = await supabase
+    .from('cart_sessions')
+    .insert({
+      session_id: cartSession,
+      product_id: newItem.products.id,
+      quantity: newItem.quantity,
+    })
+    .select()
+
+  if (insertedCartProductError) {
+    console.error(insertedCartProductError)
+  }
+}
+
+async function updateCartProduct(
+  newItem: CartProductType,
+  cartProduct: CartProductType | null,
+  cartSession?: string,
+) {
+  const supabase = createClient()
+
+  const { error: updatedCartProductError } = await supabase
+    .from('cart_sessions')
+    .update({
+      quantity: cartProduct && cartProduct?.quantity + newItem.quantity,
+    })
+    .eq('session_id', cartSession)
+    .eq('product_id', newItem.id)
+    .select()
+
+  if (updatedCartProductError) {
+    console.error(updatedCartProductError)
+  }
+}
+
+export async function getCart(storeUrl: string): Promise<{
+  cart: CartProductType[] | null
+  cartError: any | null
+}> {
+  const supabase = createClient()
+  const cartSession = await getCartSession(storeUrl)
+
+  const { data: cart, error: cartError } = await supabase
+    .from('cart_sessions')
+    .select(
+      `
+        *,
+        products (*)
+      `,
+    )
+    .eq('session_id', cartSession?.value)
+
+  if (cartError) {
+    console.error(cartError)
+  }
+
+  return { cart, cartError }
+}
+
+export async function addToCart(storeUrl: string, newItem: CartProductType) {
+  const cartSession = await getCartSession(storeUrl)
+
+  const { cartProduct, cartProductError } = await getCartProduct(
+    storeUrl,
+    newItem.id,
+  )
+
+  if (cartProductError) {
+    console.error(cartProductError)
+  }
+
+  if (!cartProduct) {
+    await insertCartProduct(newItem, cartSession?.value)
+  }
+
+  await updateCartProduct(newItem, cartProduct, cartSession?.value)
+
+  revalidatePath('/')
+}
+
+export async function updateCartProductQuantity(
+  cartProductId: string,
+  newQuantity: number,
+) {
+  const supabase = createClient()
+
+  const { error: updatedCartProductError } = await supabase
+    .from('cart_sessions')
+    .update({ quantity: newQuantity })
+    .eq('id', cartProductId)
+
+  if (updatedCartProductError) {
+    console.error(updatedCartProductError)
+  }
+
+  revalidatePath('/')
+}
+
+export async function removeFromCart(cartProductId: string) {
+  const supabase = createClient()
+
+  const { error: removedFromCartError } = await supabase
+    .from('cart_sessions')
+    .delete()
+    .eq('id', cartProductId)
+
+  if (removedFromCartError) {
+    console.error(removedFromCartError)
+  }
+
+  revalidatePath('/')
+}
+
+export async function clearCart(storeUrl: string) {
+  const supabase = createClient()
+
+  const cartSession = await getCartSession(storeUrl)
+
+  const { error: clearCartError } = await supabase
+    .from('cart_sessions')
+    .delete()
+    .eq('session_id', cartSession?.value)
+
+  if (clearCartError) {
+    console.error(clearCartError)
+  }
 }
 
 export async function readStripeConnectedAccountByStoreUrl(

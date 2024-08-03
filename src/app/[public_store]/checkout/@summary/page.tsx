@@ -4,7 +4,6 @@ import { MapPin } from 'lucide-react'
 
 import { ProductCard } from '@/components/product-card'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import Link from 'next/link'
 import { getCart } from '../../cart/actions'
 import { readAddressById } from './actions'
@@ -37,21 +36,25 @@ export default async function Summary({
 }) {
   const addressId = searchParams.address
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
   const { address } = await readAddressById(addressId)
 
-  const productsPrice = bagItems.reduce((acc, bagItem) => {
-    const priceToAdd =
-      bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
+  const productsPrice = cart
+    ? cart.reduce((acc, cartProduct) => {
+        const priceToAdd =
+          cartProduct.products.promotional_price > 0
+            ? cartProduct.products.promotional_price
+            : cartProduct.products.price
 
-    return acc + priceToAdd * bagItem.amount
-  }, 0)
+        return acc + priceToAdd * cartProduct.quantity
+      }, 0)
+    : 0
 
   return (
     <div className="flex flex-col w-full">
       <Card className="flex flex-col p-4 w-full space-y-2">
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <p>Produtos ({bagItems.length})</p>
+          <p>Produtos ({cart ? cart.length : 0})</p>
           <span>{formatCurrencyBRL(productsPrice)}</span>
         </div>
 
@@ -118,15 +121,16 @@ export default async function Summary({
       </section> */}
 
       <section className="flex flex-col items-start gap-2 py-6">
-        {bagItems.map((item) => (
-          <ProductCard
-            key={item.id}
-            data={item}
-            publicStore={params.public_store}
-            variant={'bag_items'}
-            className="w-full"
-          />
-        ))}
+        {cart &&
+          cart.map((item) => (
+            <ProductCard
+              key={item.id}
+              data={item.products}
+              publicStore={params.public_store}
+              variant={'bag_items'}
+              className="w-full"
+            />
+          ))}
       </section>
 
       <CheckoutButton

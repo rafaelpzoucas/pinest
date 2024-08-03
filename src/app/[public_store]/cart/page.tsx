@@ -3,7 +3,6 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
@@ -23,14 +22,18 @@ export default async function CartPage({
 
   const connectedAccount = user?.stripe_connected_account
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
-  const productsPrice = bagItems.reduce((acc, bagItem) => {
-    const priceToAdd =
-      bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
+  const productsPrice = cart
+    ? cart.reduce((acc, cartProduct) => {
+        const priceToAdd =
+          cartProduct.products.promotional_price > 0
+            ? cartProduct.products.promotional_price
+            : cartProduct.products.price
 
-    return acc + priceToAdd * bagItem.amount
-  }, 0)
+        return acc + priceToAdd * cartProduct.quantity
+      }, 0)
+    : 0
 
   return (
     <main className="w-full space-y-4 pb-40">
@@ -39,7 +42,7 @@ export default async function CartPage({
       <section className="flex flex-col gap-2 w-full max-w-2xl">
         <Card className="p-4 w-full space-y-2">
           <div className="flex flex-row justify-between text-xs text-muted-foreground">
-            <p>Produtos ({bagItems.length})</p>
+            <p>Produtos ({cart?.length})</p>
             <span>{formatCurrencyBRL(productsPrice)}</span>
           </div>
 
@@ -80,7 +83,7 @@ export default async function CartPage({
       </section>
 
       <section className="flex flex-col gap-2 w-full">
-        <CartProducts bagItems={bagItems} storeName={params.public_store} />
+        <CartProducts cartProducts={cart} storeName={params.public_store} />
 
         <Link
           href={`/${params.public_store}`}
