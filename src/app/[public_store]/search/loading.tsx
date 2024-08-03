@@ -7,7 +7,7 @@ export default async function SearchPageLoading() {
     <div className="space-y-6 lg:space-y-8">
       <Header
         store={null}
-        bagItems={[]}
+        cartProducts={[]}
         userData={null}
         connectedAccount={null}
       />

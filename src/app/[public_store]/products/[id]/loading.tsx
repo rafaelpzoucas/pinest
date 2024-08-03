@@ -6,7 +6,7 @@ export default async function ProductPageLoading() {
   return (
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
-        bagItems={[]}
+        cartProducts={[]}
         connectedAccount={null}
         store={null}
         userData={null}

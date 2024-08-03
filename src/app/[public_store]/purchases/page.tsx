@@ -3,7 +3,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatDate } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -26,7 +25,7 @@ export default async function PurchasesPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
@@ -45,7 +44,7 @@ export default async function PurchasesPage({
       <Header
         title="Minhas compras"
         store={store}
-        bagItems={bagItems}
+        cartProducts={cart}
         userData={userData}
         connectedAccount={connectedAccount}
       />

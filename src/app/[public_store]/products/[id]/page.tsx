@@ -12,7 +12,6 @@ import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 import { Header } from '@/components/header'
 import { createClient } from '@/lib/supabase/server'
-import { CartProductType } from '@/models/cart'
 import { getStoreByStoreURL } from '../../actions'
 import {
   getCart,
@@ -30,7 +29,7 @@ export default async function ProductPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
@@ -55,7 +54,7 @@ export default async function ProductPage({
   return (
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
-        bagItems={bagItems}
+        cartProducts={cart}
         connectedAccount={connectedAccount}
         store={store}
         userData={userData}

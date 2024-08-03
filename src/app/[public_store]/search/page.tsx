@@ -1,7 +1,6 @@
 import { Header } from '@/components/header'
 import { ProductCard } from '@/components/product-card'
 import { createClient } from '@/lib/supabase/server'
-import { CartProductType } from '@/models/cart'
 import { Search } from 'lucide-react'
 import { getStoreByStoreURL } from '../actions'
 import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
@@ -24,7 +23,7 @@ export default async function SearchPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
@@ -42,7 +41,7 @@ export default async function SearchPage({
     <div className="space-y-6 lg:space-y-8">
       <Header
         store={store}
-        bagItems={bagItems}
+        cartProducts={cart}
         userData={userData}
         connectedAccount={connectedAccount}
       />

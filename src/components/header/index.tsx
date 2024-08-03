@@ -18,7 +18,7 @@ import { Card } from '../ui/card'
 type HeaderPropsType = {
   store?: StoreType | null
   title?: string
-  cartProducts?: CartProductType[]
+  cartProducts: CartProductType[] | null
   connectedAccount?: any
   userData?: any
 }
