@@ -6,7 +6,7 @@ import { ChevronRight } from 'lucide-react'
 export default async function AddressesPageLoading() {
   return (
     <div className="p-4 space-y-4">
-      <Header title="Meus endereços" />
+      <Header title="Meus endereços" cartProducts={null} />
 
       <div className="flex flex-col gap-2">
         <Card className="relative flex flex-col gap-1 items-start p-4 text-sm">
