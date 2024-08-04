@@ -39,32 +39,31 @@ export default async function CartPage({
     <main className="w-full space-y-4 pb-40">
       <Header title="Finalizar compra" />
 
-      <section className="flex flex-col gap-2 w-full max-w-2xl">
-        <Card className="p-4 w-full space-y-2">
-          <div className="flex flex-row justify-between text-xs text-muted-foreground">
-            <p>Produtos ({cart?.length})</p>
-            <span>{formatCurrencyBRL(productsPrice)}</span>
-          </div>
+      {connectedAccount && productsPrice > 0 && (
+        <section className="flex flex-col gap-2 w-full max-w-2xl">
+          <Card className="p-4 w-full space-y-2">
+            <div className="flex flex-row justify-between text-xs text-muted-foreground">
+              <p>Produtos ({cart?.length})</p>
+              <span>{formatCurrencyBRL(productsPrice)}</span>
+            </div>
 
-          <div className="flex flex-row justify-between text-xs text-muted-foreground">
-            <p>Frete</p>
-            <span className="text-emerald-600">Grátis</span>
-          </div>
+            <div className="flex flex-row justify-between text-xs text-muted-foreground">
+              <p>Frete</p>
+              <span className="text-emerald-600">Grátis</span>
+            </div>
 
-          <div className="flex flex-row justify-between text-xs text-muted-foreground">
-            <Button variant={'link'} className="p-0">
-              Inserir cupom
-            </Button>
-          </div>
+            <div className="flex flex-row justify-between text-xs text-muted-foreground">
+              <Button variant={'link'} className="p-0">
+                Inserir cupom
+              </Button>
+            </div>
 
-          <div className="flex flex-row justify-between text-sm pb-2">
-            <p>Total</p>
-            <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
-          </div>
+            <div className="flex flex-row justify-between text-sm pb-2">
+              <p>Total</p>
+              <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
+            </div>
 
-          {connectedAccount &&
-            productsPrice > 0 &&
-            (!userData.user ? (
+            {!userData.user ? (
               <Link
                 href={`/${params.public_store}/sign-in`}
                 className={cn(buttonVariants(), 'w-full')}
@@ -78,9 +77,10 @@ export default async function CartPage({
               >
                 Finalizar compra
               </Link>
-            ))}
-        </Card>
-      </section>
+            )}
+          </Card>
+        </section>
+      )}
 
       <section className="flex flex-col gap-2 w-full">
         <CartProducts cartProducts={cart} storeName={params.public_store} />

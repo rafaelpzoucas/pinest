@@ -64,7 +64,12 @@ export function MobileNavigation({
           </Link>
         ))}
 
-        <div className="relative">
+        <div
+          className={cn(
+            'relative',
+            pathname !== `/${storeUrl}/search` && 'opacity-50',
+          )}
+        >
           <SearchSheet publicStore={storeUrl} />
           {pathname === `/${storeUrl}/search` && (
             <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg -mt-1 bg-primary"></span>
@@ -84,7 +89,12 @@ export function MobileNavigation({
             </span>
           )}
 
-          <div className="relative">
+          <div
+            className={cn(
+              'relative',
+              pathname !== `/${storeUrl}/cart` && 'opacity-50',
+            )}
+          >
             <ShoppingCart className="w-5 h-5" />
 
             {pathname === `/${storeUrl}/cart` && (
