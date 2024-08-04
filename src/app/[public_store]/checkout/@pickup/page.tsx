@@ -63,11 +63,11 @@ export default async function PickupOptions({
               </p>
             </Link>
 
-            <Link href={``}>
+            {/* <Link href={``}>
               <footer className="border-t pt-4 pb-1 mt-2 text-sm">
                 <strong>Editar ou escolher outro endereço</strong>
               </footer>
-            </Link>
+            </Link> */}
           </>
         )}
       </Card>
