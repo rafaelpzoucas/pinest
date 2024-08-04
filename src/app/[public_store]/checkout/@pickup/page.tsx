@@ -72,30 +72,32 @@ export default async function PickupOptions({
         )}
       </Card>
 
-      <Card className="flex flex-col gap-2 p-4 w-full">
-        <Link href={``} className="space-y-2">
-          <header className="flex flex-row items-center justify-between">
-            <strong className="text-sm">Retirar na loja</strong>
+      {storeAddress && (
+        <Card className="flex flex-col gap-2 p-4 w-full">
+          <Link href={``} className="space-y-2">
+            <header className="flex flex-row items-center justify-between">
+              <strong className="text-sm">Retirar na loja</strong>
 
-            <div className="flex flex-row items-center gap-1 text-xs text-muted-foreground">
-              <p>Grátis</p>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </div>
-          </header>
+              <div className="flex flex-row items-center gap-1 text-xs text-muted-foreground">
+                <p>Grátis</p>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </header>
 
-          <p className="text-muted-foreground line-clamp-2">
-            {storeAddress?.street}, {storeAddress?.number} -{' '}
-            {storeAddress?.neighborhood} - {storeAddress?.city}/
-            {storeAddress?.state}
-          </p>
-        </Link>
+            <p className="text-muted-foreground line-clamp-2">
+              {storeAddress?.street}, {storeAddress?.number} -{' '}
+              {storeAddress?.neighborhood} - {storeAddress?.city}/
+              {storeAddress?.state}
+            </p>
+          </Link>
 
-        <Link href="">
-          <footer className="border-t pt-4 pb-1 mt-2 text-sm">
-            <strong>Ver localização</strong>
-          </footer>
-        </Link>
-      </Card>
+          <Link href="">
+            <footer className="border-t pt-4 pb-1 mt-2 text-sm">
+              <strong>Ver localização</strong>
+            </footer>
+          </Link>
+        </Card>
+      )}
     </div>
   )
 }
