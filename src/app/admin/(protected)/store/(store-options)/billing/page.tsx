@@ -11,7 +11,7 @@ export default async function PaymentMethodsPage() {
       <Header title="Pagamentos" />
 
       <Card className="p-4">
-        {connectedAccount && connectedAccount.data.length > 0 ? (
+        {connectedAccount && connectedAccount === 'connected' ? (
           <div>
             <strong>Conta de saque conectada</strong>
           </div>

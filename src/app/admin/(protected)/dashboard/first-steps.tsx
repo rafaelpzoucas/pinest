@@ -47,7 +47,7 @@ export async function FirstSteps() {
       name: 'Formas de pagamento',
       href: 'store/billing',
       is_checked:
-        (connectedAccount && connectedAccount.data.length > 0) ?? false,
+        (connectedAccount && connectedAccount === 'connected') ?? false,
     },
     {
       name: 'Formas de envio',
