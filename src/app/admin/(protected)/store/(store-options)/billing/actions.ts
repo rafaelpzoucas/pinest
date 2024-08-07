@@ -33,13 +33,14 @@ export async function updateStripeConnectedAccount(account: any) {
 
 export async function getConnectedAccount() {
   const { user, userError } = await getStripeAccount()
+
   let connectedAccount = user?.stripe_connected_account
 
   if (userError) {
     console.error(userError)
   }
 
-  if (!connectedAccount) {
+  if (user && !connectedAccount) {
     const connectedAccounts = await stripe.accounts.listExternalAccounts(
       user?.stripe_account_id,
     )
