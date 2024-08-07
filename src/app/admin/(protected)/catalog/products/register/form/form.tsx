@@ -146,8 +146,6 @@ export function ProductForm({
       return router.push(`${redirectTo}?tab=products`)
     }
 
-    console.log('edição')
-
     const { error } = await updateProduct(productId, values)
 
     if (error) {

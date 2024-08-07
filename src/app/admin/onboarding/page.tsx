@@ -17,7 +17,7 @@ export default async function Onboarding({
   const connectedAccount = await getConnectedAccount()
 
   const isAccountConnected = !!(
-    connectedAccount && connectedAccount.data.length > 0
+    connectedAccount && connectedAccount === 'connected'
   )
 
   if (userError) {

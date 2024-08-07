@@ -32,8 +32,6 @@ export default async function HeaderPage({
 
   const connectedAccount = user?.stripe_connected_account
 
-  console.log(cart)
-
   return (
     <header className="flex items-center justify-center w-full">
       <Card className="flex flex-row items-center justify-between gap-2 w-full p-4 py-4 bg-secondary/50 border-0">

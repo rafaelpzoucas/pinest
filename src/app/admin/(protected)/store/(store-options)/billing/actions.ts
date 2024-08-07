@@ -3,7 +3,6 @@
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Stripe from 'stripe'
 
 export async function getStripeAccount() {
   const supabase = createClient()
@@ -32,9 +31,7 @@ export async function updateStripeConnectedAccount(account: any) {
   }
 }
 
-export async function getConnectedAccount(): Promise<
-  Stripe.ApiListPromise<Stripe.ExternalAccount>
-> {
+export async function getConnectedAccount() {
   const { user, userError } = await getStripeAccount()
   let connectedAccount = user?.stripe_connected_account
 

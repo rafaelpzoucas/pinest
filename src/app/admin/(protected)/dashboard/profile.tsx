@@ -18,10 +18,11 @@ export async function ProfileCard() {
     console.error(storeError)
   }
 
-  const address =
-    store?.addresses && store.addresses.length > 0
-      ? `${store?.addresses[0].street}, ${store?.addresses[0].number}`
-      : ''
+  const addresses = store && store.addresses && store.addresses.length > 0
+
+  const address = addresses
+    ? `${store?.addresses[0].street}, ${store?.addresses[0].number}`
+    : ''
 
   return (
     <Card className="flex flex-col gap-6 p-4">
