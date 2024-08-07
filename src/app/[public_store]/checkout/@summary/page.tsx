@@ -132,12 +132,6 @@ export default async function Summary({
             />
           ))}
       </section>
-
-      <CheckoutButton
-        storeName={params.public_store}
-        totalAmount={productsPrice}
-        addressId={searchParams.address}
-      />
     </div>
   )
 }

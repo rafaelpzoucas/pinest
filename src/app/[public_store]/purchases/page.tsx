@@ -49,7 +49,7 @@ export default async function PurchasesPage({
         connectedAccount={connectedAccount}
       />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 lg:grid grid-cols-4">
         {purchases && purchases.length > 0 ? (
           purchases.map((purchase) => (
             <Link href={`purchases/${purchase.id}`} key={purchase?.id}>

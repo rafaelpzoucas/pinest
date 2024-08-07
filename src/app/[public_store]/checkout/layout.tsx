@@ -30,9 +30,11 @@ export default function CheckoutLayout({
     <section className="flex flex-col items-center gap-4">
       <Header title={pageTitle} />
 
-      {step === 'pickup' && pickup}
-      {step === 'summary' && summary}
-      {children}
+      <div className="w-full max-w-lg">
+        {step === 'pickup' && pickup}
+        {step === 'summary' && summary}
+        {children}
+      </div>
     </section>
   )
 }
