@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { StoreType } from '@/models/store'
 import { UserType } from '@/models/user'
+import { redirect } from 'next/navigation'
 
 export async function readUser(): Promise<{
   data: UserType | null
@@ -55,4 +56,16 @@ export async function readStoreByUserId(): Promise<{
     .single()
 
   return { store, storeError }
+}
+
+export async function signUserOut() {
+  const supabase = createClient()
+
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    console.error(error)
+  }
+
+  return redirect('/admin/sign-in')
 }

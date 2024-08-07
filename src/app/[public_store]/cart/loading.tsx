@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default async function CartPageLoading() {
   return (
-    <main className="p-4 pb-40">
+    <main className="pb-40">
       <Header title="Finalizar compra" />
 
       <section className="flex flex-col gap-2">

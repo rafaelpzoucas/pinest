@@ -1,13 +1,11 @@
 import { Header } from '@/components/header'
-import { Island } from '@/components/island'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { getCart, getConnectedAccountByStoreUrl } from './actions'
+import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
 
 export default async function CartPage({
@@ -18,40 +16,34 @@ export default async function CartPage({
   const supabase = createClient()
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const connectedAccount = user?.stripe_connected_account
 
-  const productsPrice = bagItems.reduce((acc, bagItem) => {
-    const priceToAdd =
-      bagItem.promotional_price > 0 ? bagItem.promotional_price : bagItem.price
+  const { cart } = await getCart(params.public_store)
 
-    return acc + priceToAdd * bagItem.amount
-  }, 0)
+  const productsPrice = cart
+    ? cart.reduce((acc, cartProduct) => {
+        const priceToAdd =
+          cartProduct.products.promotional_price > 0
+            ? cartProduct.products.promotional_price
+            : cartProduct.products.price
+
+        return acc + priceToAdd * cartProduct.quantity
+      }, 0)
+    : 0
 
   return (
-    <main className="w-full p-4 pb-40">
+    <main className="w-full space-y-4 pb-40">
       <Header title="Finalizar compra" />
 
-      <section className="flex flex-col gap-2 w-full">
-        <CartProducts bagItems={bagItems} storeName={params.public_store} />
-
-        <Link
-          href={`/${params.public_store}`}
-          className={cn(buttonVariants({ variant: 'outline' }))}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar itens
-        </Link>
-      </section>
-
-      <Island>
-        <div className="flex flex-col gap-2 w-full max-w-2xl">
+      {connectedAccount && productsPrice > 0 && (
+        <section className="flex flex-col gap-2 w-full max-w-2xl">
           <Card className="p-4 w-full space-y-2">
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
-              <p>Produtos ({bagItems.length})</p>
+              <p>Produtos ({cart?.length})</p>
               <span>{formatCurrencyBRL(productsPrice)}</span>
             </div>
 
@@ -71,27 +63,36 @@ export default async function CartPage({
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {connectedAccount &&
-              connectedAccount.data.length > 0 &&
-              productsPrice > 0 &&
-              (!userData.user ? (
-                <Link
-                  href={`/${params.public_store}/sign-in`}
-                  className={cn(buttonVariants(), 'w-full')}
-                >
-                  Finalizar compra
-                </Link>
-              ) : (
-                <Link
-                  href={`/${params.public_store}/checkout?step=pickup`}
-                  className={cn(buttonVariants(), 'w-full')}
-                >
-                  Finalizar compra
-                </Link>
-              ))}
+            {!userData.user ? (
+              <Link
+                href={`/${params.public_store}/sign-in`}
+                className={cn(buttonVariants(), 'w-full')}
+              >
+                Finalizar compra
+              </Link>
+            ) : (
+              <Link
+                href={`/${params.public_store}/checkout?step=pickup`}
+                className={cn(buttonVariants(), 'w-full')}
+              >
+                Finalizar compra
+              </Link>
+            )}
           </Card>
-        </div>
-      </Island>
+        </section>
+      )}
+
+      <section className="flex flex-col gap-2 w-full">
+        <CartProducts cartProducts={cart} storeName={params.public_store} />
+
+        <Link
+          href={`/${params.public_store}`}
+          className={cn(buttonVariants({ variant: 'outline' }))}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Adicionar itens
+        </Link>
+      </section>
     </main>
   )
 }

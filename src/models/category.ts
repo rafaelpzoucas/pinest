@@ -5,5 +5,6 @@ export type CategoryType = {
   created_at: string
   name: string
   description: string
+  image_url: string
   products: ProductType[]
 }

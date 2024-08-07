@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { generateSlug } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import { CustomerType } from '@/models/customer'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
@@ -109,7 +108,7 @@ export async function createPurchase(
   purchaseError: any | null
 }> {
   const supabase = createClient()
-  const bagItems: CartProductType[] = await getCart(generateSlug(storeName))
+  const { cart } = await getCart(generateSlug(storeName))
 
   const { customer, customerError } = await handleCustomer()
 
@@ -125,16 +124,14 @@ export async function createPurchase(
 
   const { data: purchase, error: purchaseError } = await supabase
     .from('purchases')
-    .insert([
-      {
-        customer_id: customer?.id,
-        status: 'pending',
-        total_amount: totalAmount,
-        updated_at: new Date().toISOString(),
-        address_id: addressId,
-        store_id: store?.id,
-      },
-    ])
+    .insert({
+      customer_id: customer?.id,
+      status: 'pending',
+      total_amount: totalAmount,
+      updated_at: new Date().toISOString(),
+      address_id: addressId,
+      store_id: store?.id,
+    })
     .select('id')
     .single()
 
@@ -145,12 +142,13 @@ export async function createPurchase(
   const { data: purchaseItems, error: purchaseItemsError } = await supabase
     .from('purchase_items')
     .insert(
-      bagItems.map((item) => ({
-        purchase_id: purchase?.id,
-        product_id: item?.id,
-        quantity: item?.amount,
-        product_price: item?.price,
-      })),
+      cart &&
+        cart.map((item) => ({
+          purchase_id: purchase?.id,
+          product_id: item?.products.id,
+          quantity: item?.quantity,
+          product_price: item?.products.price,
+        })),
     )
     .select('*')
 

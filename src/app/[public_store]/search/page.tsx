@@ -1,10 +1,9 @@
 import { Header } from '@/components/header'
 import { ProductCard } from '@/components/product-card'
 import { createClient } from '@/lib/supabase/server'
-import { CartProductType } from '@/models/cart'
 import { Search } from 'lucide-react'
 import { getStoreByStoreURL } from '../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../cart/actions'
+import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { getSearchedProducts } from './actions'
 
 export default async function SearchPage({
@@ -24,7 +23,7 @@ export default async function SearchPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
@@ -32,27 +31,31 @@ export default async function SearchPage({
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
+
+  const connectedAccount = user?.stripe_connected_account
 
   return (
     <div className="space-y-6 lg:space-y-8">
       <Header
         store={store}
-        bagItems={bagItems}
+        cartProducts={cart}
         userData={userData}
         connectedAccount={connectedAccount}
       />
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="w-full">
-          <p className="text-xs lg:text-base text-muted-foreground px-4">
+          <h1 className="text-2xl">&quot;{searchParams.q}&quot;</h1>
+
+          <p className="text-xs lg:text-base text-muted-foreground">
             {products && products.length} resultado(s) encontrado(s)
           </p>
 
           <section className="flex flex-col gap-8 pt-4 pb-16 w-full">
-            <div className="flex flex-col px-4">
+            <div className="flex flex-col">
               {products && products.length > 0 ? (
                 <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
                   {products.map((product) => (
@@ -69,7 +72,8 @@ export default async function SearchPage({
                 <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted">
                   <Search className="w-20 h-20" />
                   <p className="text-center text-muted-foreground">
-                    Não encontramos nenhum resultado para &quot;{searchParams.q}
+                    Não encontramos nenhum resultado para &quot;
+                    {searchParams.q}
                     &quot;
                   </p>
                 </div>

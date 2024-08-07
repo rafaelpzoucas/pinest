@@ -1,7 +1,5 @@
-import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import Link from 'next/link'
+import { formatCurrencyBRL } from '@/lib/utils'
 import { getTotalPurchasesOfToday } from './actions'
 
 export async function TodaySummary() {
@@ -46,9 +44,6 @@ export async function TodaySummary() {
           <span className="text-muted-foreground">Ticket Médio</span>
           <strong>{formatCurrencyBRL(AOV)}</strong>
         </div>
-        <Link href={'reports'} className={cn(buttonVariants(), 'w-full mt-4')}>
-          Ver relatórios
-        </Link>
       </CardContent>
     </Card>
   )

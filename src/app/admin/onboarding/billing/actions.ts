@@ -2,10 +2,10 @@
 
 import { stripe } from '@/lib/stripe'
 import { redirect } from 'next/navigation'
-import { getStripeAccountId } from '../../(protected)/store/(store-options)/billing/actions'
+import { getStripeAccount } from '../../(protected)/store/(store-options)/billing/actions'
 
 export async function onboardingCreateStripeAccountLink() {
-  const { user, userError } = await getStripeAccountId()
+  const { user, userError } = await getStripeAccount()
 
   if (userError) {
     console.error(userError)

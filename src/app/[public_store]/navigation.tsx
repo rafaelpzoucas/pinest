@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
@@ -23,13 +23,13 @@ import { useParams } from 'next/navigation'
 import { CartProducts } from './cart/cart-products'
 
 export function PublicStoreNavigation({
-  bagItems,
+  cartProducts,
   connectedAccount,
   userData,
 }: {
   connectedAccount: any
   userData: any
-  bagItems: CartProductType[]
+  cartProducts: CartProductType[] | null
 }) {
   const params = useParams()
 
@@ -48,19 +48,19 @@ export function PublicStoreNavigation({
     },
   ]
 
-  const productsPrice =
-    bagItems &&
-    bagItems.reduce((acc, bagItem) => {
-      const priceToAdd =
-        bagItem.promotional_price > 0
-          ? bagItem.promotional_price
-          : bagItem.price
+  const productsPrice = cartProducts
+    ? cartProducts.reduce((acc, cartProduct) => {
+        const priceToAdd =
+          cartProduct.products.promotional_price > 0
+            ? cartProduct.products.promotional_price
+            : cartProduct.products.price
 
-      return acc + priceToAdd * bagItem.amount
-    }, 0)
+        return acc + priceToAdd * cartProduct.quantity
+      }, 0)
+    : 0
 
   return (
-    <Card className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1 lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0">
+    <Card className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1 lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0 bg-red-700">
       <NavigationMenu>
         <NavigationMenuList>
           {links.map((link) => (
@@ -84,9 +84,9 @@ export function PublicStoreNavigation({
                     'relative bg-transparent px-3',
                   )}
                 >
-                  {bagItems?.length > 0 && (
+                  {cartProducts && cartProducts?.length > 0 && (
                     <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
-                      {bagItems?.length}
+                      {cartProducts?.length}
                     </span>
                   )}
                   <ShoppingCart className="w-5 h-5" />
@@ -95,27 +95,39 @@ export function PublicStoreNavigation({
             </PopoverTrigger>
             <PopoverContent align="end" className="w-96">
               <section className="flex flex-col gap-2">
-                <ScrollArea className="max-h-[394px]">
-                  <CartProducts bagItems={bagItems} storeName={storeUrl} />
+                <ScrollArea className="h-[394px]">
+                  <CartProducts
+                    cartProducts={cartProducts}
+                    storeName={storeUrl}
+                  />
                 </ScrollArea>
-                {connectedAccount &&
-                  connectedAccount.length > 0 &&
-                  productsPrice > 0 &&
-                  (!userData.user ? (
-                    <Link
-                      href={`/${params.public_store}/sign-in`}
-                      className={cn(buttonVariants(), 'w-full')}
-                    >
-                      Finalizar compra
-                    </Link>
-                  ) : (
-                    <Link
-                      href={`/${params.public_store}/checkout?step=pickup`}
-                      className={cn(buttonVariants(), 'w-full')}
-                    >
-                      Finalizar compra
-                    </Link>
-                  ))}
+
+                <footer className="pt-3 bg-background">
+                  {connectedAccount &&
+                    productsPrice > 0 &&
+                    (!userData.user ? (
+                      <Link
+                        href={`/${params.public_store}/sign-in`}
+                        className={cn(
+                          buttonVariants(),
+                          'flex justify-between w-full',
+                        )}
+                      >
+                        Finalizar compra {formatCurrencyBRL(productsPrice)}
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/${params.public_store}/checkout?step=pickup`}
+                        className={cn(
+                          buttonVariants(),
+                          'flex justify-between w-full',
+                        )}
+                      >
+                        Finalizar compra{' '}
+                        <strong>{formatCurrencyBRL(productsPrice)}</strong>
+                      </Link>
+                    ))}
+                </footer>
               </section>
             </PopoverContent>
           </Popover>

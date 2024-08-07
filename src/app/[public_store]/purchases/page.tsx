@@ -3,12 +3,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatDate } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
 import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { getStoreByStoreURL } from '../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../cart/actions'
+import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { readPurchases } from './actions'
 
 type StatusKey = keyof typeof statuses
@@ -26,7 +25,7 @@ export default async function PurchasesPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
@@ -34,21 +33,23 @@ export default async function PurchasesPage({
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
+
+  const connectedAccount = user?.stripe_connected_account
 
   return (
     <div className="space-y-4">
       <Header
         title="Minhas compras"
         store={store}
-        bagItems={bagItems}
+        cartProducts={cart}
         userData={userData}
         connectedAccount={connectedAccount}
       />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 lg:grid grid-cols-4">
         {purchases && purchases.length > 0 ? (
           purchases.map((purchase) => (
             <Link href={`purchases/${purchase.id}`} key={purchase?.id}>

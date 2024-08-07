@@ -20,11 +20,11 @@ export default async function PurchasePage({
   const currentStatus = statuses[purchase?.status as StatusKey]
 
   return (
-    <section className="p-4">
+    <section className="flex flex-col items-center justify-center gap-4">
       <Header title="Detalhes do pedido" />
 
       {purchase && (
-        <div className="flex flex-col gap-2 text-sm">
+        <div className="flex flex-col gap-2 text-sm w-full max-w-lg">
           <Status purchase={purchase} storeName={params.public_store} />
 
           <Card className="p-4">

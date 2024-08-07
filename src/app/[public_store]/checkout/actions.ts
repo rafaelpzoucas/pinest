@@ -4,6 +4,7 @@ import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { redirect } from 'next/navigation'
+import { clearCart } from '../cart/actions'
 
 export async function readCustomerAddress() {
   'use server'
@@ -117,6 +118,8 @@ export async function createStripeCheckout(
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/purchases/${purchaseId}`,
   })
+
+  await clearCart(storeName)
 
   return redirect(session.url as string)
 }

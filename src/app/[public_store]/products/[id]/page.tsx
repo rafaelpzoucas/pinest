@@ -12,9 +12,11 @@ import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 import { Header } from '@/components/header'
 import { createClient } from '@/lib/supabase/server'
-import { CartProductType } from '@/models/cart'
 import { getStoreByStoreURL } from '../../actions'
-import { getCart, getConnectedAccountByStoreUrl } from '../../cart/actions'
+import {
+  getCart,
+  readStripeConnectedAccountByStoreUrl,
+} from '../../cart/actions'
 import { readProductById } from './actions'
 import { AddToCard } from './add-to-cart'
 
@@ -27,16 +29,19 @@ export default async function ProductPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
-  const bagItems: CartProductType[] = await getCart(params.public_store)
+  const { cart } = await getCart(params.public_store)
 
   if (storeError) {
     console.error(storeError)
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
-  const connectedAccount = await getConnectedAccountByStoreUrl(
+
+  const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
+
+  const connectedAccount = user?.stripe_connected_account
 
   const { product, productError } = await readProductById(params.id)
 
@@ -49,8 +54,8 @@ export default async function ProductPage({
   return (
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
-        bagItems={bagItems}
-        connectedAccount={connectedAccount?.data}
+        cartProducts={cart}
+        connectedAccount={connectedAccount}
         store={store}
         userData={userData}
       />

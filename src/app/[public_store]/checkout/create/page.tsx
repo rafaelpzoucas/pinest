@@ -1,8 +1,8 @@
 import { buttonVariants } from '@/components/ui/button'
 import { CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { createPurchase } from '../@summary/actions'
+import { createStripeCheckout } from '../actions'
 
 export default async function CreatePurchase({
   searchParams,
@@ -20,9 +20,9 @@ export default async function CreatePurchase({
       console.error(purchaseError)
     }
 
-    redirect(
-      `/${searchParams.storeName}/clear-cart?store-name=${searchParams.storeName}&purchase=${purchase?.id}`,
-    )
+    if (purchase) {
+      await createStripeCheckout(searchParams.storeName, purchase.id)
+    }
   }
 
   await handleCreatePurchase()

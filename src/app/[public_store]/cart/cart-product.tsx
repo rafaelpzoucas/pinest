@@ -22,16 +22,33 @@ import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Trash } from 'lucide-react'
 import { useState } from 'react'
-import { removeFromCart, updateItemAmount } from './actions'
+import { removeFromCart, updateCartProductQuantity } from './actions'
 
 type CartProductPropsType = {
-  product: CartProductType
+  cartProduct: CartProductType
   publicStore: string
 }
 
-export function CartProduct({ publicStore, product }: CartProductPropsType) {
+export function CartProduct({
+  publicStore,
+  cartProduct,
+}: CartProductPropsType) {
   const [isQttOpen, setIsQttOpen] = useState(false)
   const [amount, setAmount] = useState('')
+
+  const product = cartProduct.products
+
+  function handleUpdateQuantity(quantity: string) {
+    if (cartProduct && cartProduct.id) {
+      updateCartProductQuantity(cartProduct.id, parseInt(quantity))
+    }
+  }
+
+  function handleDeleteFromCart() {
+    if (cartProduct && cartProduct.id) {
+      removeFromCart(cartProduct.id)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0">
@@ -41,19 +58,15 @@ export function CartProduct({ publicStore, product }: CartProductPropsType) {
 
       <footer className="flex flex-row items-center justify-between">
         <div className="flex flex-row gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => removeFromCart(publicStore, product.id)}
-          >
+          <Button variant="outline" size="icon" onClick={handleDeleteFromCart}>
             <Trash className="w-4 h-4" />
           </Button>
           <Select
-            defaultValue={product.amount.toString()}
+            defaultValue={cartProduct.quantity.toString()}
             onValueChange={(value) =>
               value === 'more'
                 ? setIsQttOpen(true)
-                : updateItemAmount(publicStore, product.id, parseInt(value))
+                : handleUpdateQuantity(value)
             }
           >
             <SelectTrigger className="w-[100px]">
@@ -67,7 +80,9 @@ export function CartProduct({ publicStore, product }: CartProductPropsType) {
               <SelectItem value="5">5 un.</SelectItem>
               <SelectItem value="6">6 un.</SelectItem>
               <SelectItem value="more">
-                {product.amount > 6 ? product.amount + ' un.' : 'Mais de 6 un.'}
+                {cartProduct.quantity > 6
+                  ? cartProduct.quantity + ' un.'
+                  : 'Mais de 6 un.'}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -89,15 +104,7 @@ export function CartProduct({ publicStore, product }: CartProductPropsType) {
             </div>
             <DrawerFooter>
               <DrawerClose asChild>
-                <Button
-                  onClick={() =>
-                    updateItemAmount(
-                      publicStore,
-                      product.id,
-                      parseFloat(amount),
-                    )
-                  }
-                >
+                <Button onClick={() => handleUpdateQuantity(amount)}>
                   Confirmar
                 </Button>
               </DrawerClose>
@@ -112,7 +119,7 @@ export function CartProduct({ publicStore, product }: CartProductPropsType) {
               product.price > 0 && 'font-light text-xs',
             )}
           >
-            {formatCurrencyBRL(product.price * product.amount)}
+            {formatCurrencyBRL(product.price * cartProduct.quantity)}
           </p>
         </div>
       </footer>

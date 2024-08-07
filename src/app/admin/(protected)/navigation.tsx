@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { BarChart2, Home, Layers, LayoutList, Store } from 'lucide-react'
+import { Layers, LayoutGrid, LayoutList, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -16,8 +16,8 @@ export function Navigation() {
   const links = [
     {
       href: '/admin/dashboard',
-      name: 'Home',
-      icon: Home,
+      name: 'Dashboard',
+      icon: LayoutGrid,
     },
     {
       href: '/admin/purchases',
@@ -34,11 +34,6 @@ export function Navigation() {
       name: 'Minha loja',
       icon: Store,
     },
-    {
-      href: '/admin/reports',
-      name: 'Relatórios',
-      icon: BarChart2,
-    },
   ]
 
   return (
@@ -46,6 +41,8 @@ export function Navigation() {
       className={cn(
         !hide && 'translate-y-0 duration-200',
         hide && 'translate-y-16 duration-200',
+        'fixed z-50 bottom-0 left-0 flex items-center justify-center p-2 w-full',
+        'lg:static lg:p-4 lg:w-fit',
       )}
     >
       <Card className="flex flex-row lg:flex-col items-center justify-around gap-4 w-fit p-1 px-2 bg-background">

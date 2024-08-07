@@ -3,19 +3,19 @@ import { ShoppingBag } from 'lucide-react'
 import { CartProduct } from './cart-product'
 
 export function CartProducts({
-  bagItems,
+  cartProducts,
   storeName,
 }: {
-  bagItems: CartProductType[]
+  cartProducts: CartProductType[] | null
   storeName: string
 }) {
   return (
     <div className="p-1 pr-2">
-      {bagItems && bagItems.length > 0 ? (
-        bagItems.map((product) => (
+      {cartProducts && cartProducts.length > 0 ? (
+        cartProducts.map((product) => (
           <CartProduct
-            key={product.name}
-            product={product}
+            key={product.id}
+            cartProduct={product}
             publicStore={storeName}
           />
         ))
