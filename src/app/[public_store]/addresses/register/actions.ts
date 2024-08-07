@@ -15,8 +15,6 @@ export async function createCustomerAddress(
     console.error(sessionError)
   }
 
-  console.log(session?.user)
-
   const { error } = await supabase
     .from('addresses')
     .insert([

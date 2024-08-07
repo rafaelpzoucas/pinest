@@ -12,7 +12,5 @@ export async function getSearchedProducts(query: string) {
     .select('*')
     .ilike('name', sanitizedQuery)
 
-  console.log('entrou')
-
   return { products, searchError }
 }
