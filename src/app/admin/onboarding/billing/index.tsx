@@ -1,9 +1,14 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { getConnectedAccount } from '../../(protected)/store/(store-options)/billing/actions'
 import { onboardingCreateStripeAccountLink } from './actions'
 
-export function PaymentStep({ isConnected = false }: { isConnected: boolean }) {
+export async function PaymentStep() {
+  const connectedAccount = await getConnectedAccount()
+
+  const isConnected = connectedAccount && connectedAccount === 'connected'
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold">Conta bancária</h1>

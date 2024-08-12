@@ -1,11 +1,8 @@
 import { ThemeProvider } from '@/components/theme-provider'
-import { buttonVariants } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Link from 'next/link'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -30,37 +27,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>
-            {children}
-            <footer className="w-full bg-secondary p-8">
-              <div className="container">
-                <ul>
-                  <li>
-                    <Link
-                      href="/privacy-policy"
-                      className={cn(
-                        buttonVariants({ variant: 'link' }),
-                        'text-sm',
-                      )}
-                    >
-                      Política de privacidade
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/service-terms"
-                      className={cn(
-                        buttonVariants({ variant: 'link' }),
-                        'text-sm',
-                      )}
-                    >
-                      Termos de serviço
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </footer>
-          </TooltipProvider>
+          <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>
       </body>

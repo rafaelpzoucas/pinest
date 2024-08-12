@@ -16,9 +16,7 @@ export default function OnboardingLayout({
       </aside>
 
       <div className="md:bg-secondary/30 h-full w-full">
-        <ScrollArea className="h-screen px-4 md:px-8 border">
-          {children}
-        </ScrollArea>
+        <ScrollArea className="h-screen px-4 md:px-8">{children}</ScrollArea>
       </div>
     </div>
   )

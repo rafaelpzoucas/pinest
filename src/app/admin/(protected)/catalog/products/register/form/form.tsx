@@ -30,7 +30,7 @@ export type VariationsFormType = {
 export const newProductFormSchema = z.object({
   category_id: z.string().min(1),
   name: z.string().min(2, { message: 'O nome do produto é obrigatório.' }),
-  description: z.string().optional(),
+  description: z.string().min(1, { message: 'Escreva uma descrição.' }),
   price: z.string().optional(),
   promotional_price: z.string().optional(),
   stock: z.string().optional(),

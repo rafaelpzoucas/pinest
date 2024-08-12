@@ -8,41 +8,43 @@ export async function getStripeAccount() {
   const supabase = createClient()
   const { data: session } = await supabase.auth.getUser()
 
-  const { data: user, error: userError } = await supabase
+  const { data: stripeAccount, error: userError } = await supabase
     .from('users')
     .select('stripe_account_id, stripe_connected_account')
     .eq('id', session.user?.id)
     .single()
 
-  return { user, userError }
+  return { stripeAccount, userError }
 }
 
-export async function updateStripeConnectedAccount(account: any) {
+async function updateStripeConnectedAccount(account: any) {
   const supabase = createClient()
   const { data: session } = await supabase.auth.getUser()
 
-  const { error } = await supabase
-    .from('users')
-    .update({ stripe_connected_account: account })
-    .eq('id', session.user?.id)
+  if (account) {
+    const { error } = await supabase
+      .from('users')
+      .update({ stripe_connected_account: 'connected' })
+      .eq('id', session.user?.id)
 
-  if (error) {
-    console.error(error)
+    if (error) {
+      console.error(error)
+    }
   }
 }
 
 export async function getConnectedAccount() {
-  const { user, userError } = await getStripeAccount()
+  const { stripeAccount, userError } = await getStripeAccount()
 
-  let connectedAccount = user?.stripe_connected_account
+  let connectedAccount = stripeAccount?.stripe_connected_account
 
   if (userError) {
     console.error(userError)
   }
 
-  if (user && !connectedAccount) {
+  if (stripeAccount && !connectedAccount) {
     const connectedAccounts = await stripe.accounts.listExternalAccounts(
-      user?.stripe_account_id,
+      stripeAccount?.stripe_account_id,
     )
 
     if (!connectedAccounts) {
@@ -58,15 +60,15 @@ export async function getConnectedAccount() {
 }
 
 export async function createStripeAccountLink() {
-  const { user, userError } = await getStripeAccount()
+  const { stripeAccount, userError } = await getStripeAccount()
 
   if (userError) {
     console.error(userError)
   }
 
-  if (user) {
+  if (stripeAccount) {
     const accountLink = await stripe.accountLinks.create({
-      account: user.stripe_account_id as string,
+      account: stripeAccount.stripe_account_id as string,
       refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/store/billing`,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/store/billing`,
       type: 'account_onboarding',

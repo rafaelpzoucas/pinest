@@ -1,5 +1,5 @@
 import { Stepper } from '@/components/stepper'
-import { getConnectedAccount } from '../(protected)/store/(store-options)/billing/actions'
+import { getStripeAccount } from '../(protected)/store/(store-options)/billing/actions'
 import { readOwner, readStore } from './actions'
 import { PaymentStep } from './billing'
 import { OwnerStep } from './owner/steps'
@@ -14,10 +14,10 @@ export default async function Onboarding({
 }) {
   const { user, userError } = await readOwner()
   const { store, storeError } = await readStore()
-  const connectedAccount = await getConnectedAccount()
+  const { stripeAccount } = await getStripeAccount()
 
   const isAccountConnected = !!(
-    connectedAccount && connectedAccount === 'connected'
+    stripeAccount && stripeAccount.stripe_connected_account === 'connected'
   )
 
   if (userError) {
