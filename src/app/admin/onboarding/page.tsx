@@ -35,7 +35,7 @@ export default async function Onboarding({
       case '2':
         return <StoreStep store={store} />
       case '3':
-        return <PaymentStep isConnected={isAccountConnected} />
+        return <PaymentStep />
       case '4':
         return <ShippingStep />
       case 'search-zc':
