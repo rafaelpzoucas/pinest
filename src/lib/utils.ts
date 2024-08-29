@@ -70,6 +70,10 @@ export function removeAccents(str: string) {
 }
 
 export function convertStringToNumber(string: string) {
+  if (string === '') {
+    return
+  }
+
   if (typeof string === 'string') {
     let numberString = string.replace(/[^0-9,.-]+/g, '')
 

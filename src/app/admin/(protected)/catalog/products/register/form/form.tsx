@@ -6,7 +6,11 @@ import { z } from 'zod'
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { ProductImageType, ProductType } from '@/models/product'
+import {
+  ProductImageType,
+  ProductType,
+  ProductVariationsType,
+} from '@/models/product'
 import { Loader, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -15,17 +19,12 @@ import { toast } from 'sonner'
 import { CategoryType } from '../../../categories/actions'
 import { createProduct, deleteProductImage, updateProduct } from '../actions'
 import { readProductImages, uploadImages } from '../client-actions'
-import { updateProductVariations } from './actions'
+import { createProductVariations } from './actions'
 import { Dimensions } from './dimensions'
 import { FileType } from './file-uploader'
 import { ProductImages } from './product-images'
 import { ProductInfo } from './product-info'
-
-export type VariationsFormType = {
-  id: string
-  price: string
-  stock: string
-}
+import { Variations } from './variations'
 
 export const newProductFormSchema = z.object({
   category_id: z.string().min(1),
@@ -52,18 +51,52 @@ export function ProductForm({
   const pathname = usePathname()
 
   const defaultVariations =
-    product &&
-    product.product_variations.map((variation) => ({
-      id: variation.id,
-      price: variation.price ?? '',
-      stock: variation.stock ?? '',
-    }))
+    (product &&
+      product.product_variations?.map((variation) => ({
+        id: variation.id,
+        attribute: variation.attributes.name,
+        product_variations: {
+          id: variation.id,
+          name: variation.name,
+          price: variation.price,
+          stock: variation.stock,
+        },
+      }))) ??
+    []
+
+  const groupedVariations = defaultVariations.reduce(
+    (acc, variation) => {
+      if (!acc[variation.attribute]) {
+        acc[variation.attribute] = {
+          id: variation.id,
+          attribute: variation.attribute,
+          product_variations: [],
+        }
+      }
+
+      acc[variation.attribute].product_variations.push(
+        variation.product_variations,
+      )
+
+      return acc
+    },
+    {} as Record<
+      string,
+      {
+        id: string
+        attribute: string
+        product_variations: (typeof defaultVariations)[0]['product_variations'][]
+      }
+    >,
+  )
+
+  const groupedVariationsArray = Object.values(groupedVariations)
 
   const [files, setFiles] = useState<FileType[]>([])
   const [productImages, setProductImages] = useState<ProductImageType[]>([])
-  const [variationsForm, setVariationsForm] = useState<
-    VariationsFormType[] | null
-  >(defaultVariations)
+  const [variationsForm, setVariationsForm] = useState<ProductVariationsType[]>(
+    groupedVariationsArray,
+  )
 
   const pathnameParts = pathname.split('/')
   pathnameParts.pop()
@@ -161,16 +194,14 @@ export function ProductForm({
       }
     }
 
-    if (variationsForm) {
-      const { variationsError } = await updateProductVariations(variationsForm)
-
-      if (variationsError) {
-        console.error(variationsError)
-      }
+    if (variationsForm.length > 0) {
+      await createProductVariations(variationsForm, productId)
     }
 
     toast('Produto atualizado com sucesso!')
   }
+
+  console.log(variationsForm)
 
   useEffect(() => {
     if (productId) {
@@ -206,6 +237,11 @@ export function ProductForm({
       >
         <ProductInfo form={form} categories={categories} />
 
+        <Variations
+          variations={variationsForm}
+          setVariations={setVariationsForm}
+        />
+
         <ProductImages
           files={files}
           setFiles={setFiles}
@@ -215,16 +251,18 @@ export function ProductForm({
 
         <Dimensions form={form} />
 
-        <Button
-          type="submit"
-          className="ml-auto"
-          disabled={formState.isSubmitting || !formState.isValid}
-        >
-          {formState.isSubmitting && (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
-          )}
-          {productId ? 'Salvar alterações' : 'Criar produto'}
-        </Button>
+        <footer className="fixed bottom-0 left-0 right-0 flex p-4 bg-background">
+          <Button
+            type="submit"
+            disabled={formState.isSubmitting || !formState.isValid}
+            className="w-full"
+          >
+            {formState.isSubmitting && (
+              <Loader className="w-4 h-4 mr-2 animate-spin" />
+            )}
+            {productId ? 'Salvar alterações' : 'Criar produto'}
+          </Button>
+        </footer>
       </form>
     </Form>
   )

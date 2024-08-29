@@ -77,13 +77,7 @@ export async function readProductById(productId: string): Promise<{
         *,
         product_variations (
           *,
-          product_variation_attributes (
-            *,
-            attribute_options (
-              *,
-              attributes (*)
-            )
-          )
+          attributes (*)
         )
       `,
     )
@@ -135,4 +129,21 @@ export async function deleteProductImage(imageId: string) {
   revalidatePath('/catalog')
 
   return { tableError, storageError }
+}
+
+export async function readProductVariations(productId: string) {
+  const supabase = createClient()
+
+  const { data: productVariations, error: productVariationsError } =
+    await supabase
+      .from('product_variations')
+      .select(
+        `
+          *,
+          attributes (*)
+        `,
+      )
+      .eq('product_id', productId)
+
+  return { productVariations, productVariationsError }
 }
