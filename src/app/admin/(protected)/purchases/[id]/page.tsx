@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
@@ -26,68 +26,76 @@ export default async function OrderPage({
   const address = purchase?.addresses
 
   return (
-    <section className="flex flex-col gap-4 p-4">
-      <Header title={`Detalhes: #${displayId}`} />
+    <section className="flex flex-col gap-4 p-4 lg:px-0">
+      <AdminHeader title={`Detalhes: #${displayId}`} withBackButton />
 
-      <Card className="flex flex-col items-start w-full gap-2 p-4">
-        <Badge className={cn(statuses[purchase?.status as StatusKey].color)}>
-          {statuses[purchase?.status as StatusKey].status}
-        </Badge>
+      <div className="flex flex-col lg:grid grid-cols-2 gap-6">
+        <div className="flex flex-col gap-4">
+          <Card className="flex flex-col items-start w-full gap-2 p-4">
+            <Badge
+              className={cn(statuses[purchase?.status as StatusKey].color)}
+            >
+              {statuses[purchase?.status as StatusKey].status}
+            </Badge>
 
-        <p>{statuses[purchase?.status as StatusKey].next_step}</p>
+            <p>{statuses[purchase?.status as StatusKey].next_step}</p>
 
-        <div className="flex flex-row items-center justify-between text-sm w-full">
-          <strong>Total da venda</strong>
-          <strong>{formatCurrencyBRL(purchase?.total_amount ?? 0)}</strong>
+            <div className="flex flex-row items-center justify-between text-sm w-full">
+              <strong>Total da venda</strong>
+              <strong>{formatCurrencyBRL(purchase?.total_amount ?? 0)}</strong>
+            </div>
+
+            {purchase && (
+              <UpdateStatusButton
+                currentStatus={purchase.status}
+                purchaseId={params.id}
+              />
+            )}
+          </Card>
+
+          <Card className="p-4">
+            <header className="flex flex-row gap-4">
+              <div className="flex flex-col gap-1">
+                <strong>{customer?.name}</strong>
+
+                {customer?.phone && (
+                  <p className="text-xs text-muted-foreground">
+                    Telefone: {customer?.phone}
+                  </p>
+                )}
+
+                {address && (
+                  <>
+                    <span className="text-sm text-muted-foreground">
+                      Endereço de entrega:
+                    </span>
+                    <p>{formatAddress(address)}</p>
+                  </>
+                )}
+              </div>
+            </header>
+          </Card>
         </div>
 
-        {purchase && (
-          <UpdateStatusButton
-            currentStatus={purchase.status}
-            purchaseId={params.id}
-          />
-        )}
-      </Card>
+        <section className="flex flex-col gap-2">
+          <h1 className="text-lg font-bold mb-2">Itens da venda</h1>
 
-      <Card className="p-4">
-        <header className="flex flex-row gap-4">
-          <div className="flex flex-col gap-1">
-            <strong>{customer?.name}</strong>
-
-            {customer?.phone && (
-              <p className="text-xs text-muted-foreground">
-                Telefone: {customer?.phone}
-              </p>
-            )}
-
-            {address && (
-              <>
-                <span className="text-sm text-muted-foreground">
-                  Endereço de entrega:
-                </span>
-                <p>{formatAddress(address)}</p>
-              </>
-            )}
+          <div className="flex flex-col gap-2">
+            {purchaseItems &&
+              purchaseItems.length > 0 &&
+              purchaseItems.map((item) => (
+                <Card key={item.id} className="p-4 space-y-2">
+                  <header className="flex flex-row items-start justify-between gap-4 text-sm">
+                    <strong className="line-clamp-2">
+                      x{item.quantity} {item?.products?.name}
+                    </strong>
+                    <span>{formatCurrencyBRL(item?.products?.price)}</span>
+                  </header>
+                </Card>
+              ))}
           </div>
-        </header>
-      </Card>
-
-      <section className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2">
-          {purchaseItems &&
-            purchaseItems.length > 0 &&
-            purchaseItems.map((item) => (
-              <Card key={item.id} className="p-4 space-y-2">
-                <header className="flex flex-row items-start justify-between gap-4 text-sm">
-                  <strong className="line-clamp-2">
-                    x{item.quantity} {item?.products?.name}
-                  </strong>
-                  <span>{formatCurrencyBRL(item?.products?.price)}</span>
-                </header>
-              </Card>
-            ))}
-        </div>
-      </section>
+        </section>
+      </div>
     </section>
   )
 }

@@ -27,7 +27,7 @@ export async function TodaySummary() {
   const AOV = purchasesCount ? totalAmount / purchasesCount : 0
 
   return (
-    <Card>
+    <Card className="w-full max-w-lg">
       <CardHeader>
         <CardTitle>Resumo de hoje</CardTitle>
       </CardHeader>

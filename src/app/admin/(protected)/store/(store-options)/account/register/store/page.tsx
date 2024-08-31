@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { readStoreById } from './actions'
 import { StoreForm } from './form'
 
@@ -15,7 +15,7 @@ export default async function StoreRegister({
 
   return (
     <section className="flex flex-col gap-4">
-      <Header title="Editar Loja" />
+      <AdminHeader title="Editar loja" withBackButton />
 
       <StoreForm store={store} />
     </section>

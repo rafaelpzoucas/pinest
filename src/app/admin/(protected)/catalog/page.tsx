@@ -1,6 +1,7 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Categories } from './categories'
@@ -12,10 +13,10 @@ export default function CatalogPage({
   searchParams: { tab: string }
 }) {
   return (
-    <div className="p-5">
-      <Tabs defaultValue={searchParams.tab ?? 'products'}>
-        <Header title="Catálogo" />
+    <div className="space-y-4 p-4 lg:px-0">
+      <AdminHeader title="Catálogo" />
 
+      <Tabs defaultValue={searchParams.tab ?? 'products'}>
         <TabsList>
           <TabsTrigger value="products" asChild>
             <Link href="?tab=products">Produtos</Link>
@@ -26,7 +27,10 @@ export default function CatalogPage({
         </TabsList>
         <TabsContent value="products">
           <div className="flex flex-col gap-6">
-            <Link href="catalog/products/register" className={buttonVariants()}>
+            <Link
+              href="catalog/products/register"
+              className={cn(buttonVariants(), 'max-w-md')}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Adicionar produto
             </Link>
@@ -39,7 +43,7 @@ export default function CatalogPage({
           <div className="flex flex-col gap-6">
             <Link
               href="catalog/categories/register"
-              className={buttonVariants()}
+              className={cn(buttonVariants(), 'max-w-md')}
             >
               <Plus className="w-4 h-4 mr-2" />
               Adicionar categoria

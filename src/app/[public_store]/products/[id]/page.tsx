@@ -10,7 +10,7 @@ import {
 import { formatCurrencyBRL } from '@/lib/utils'
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
-import { Header } from '@/components/header'
+import { Header } from '@/components/store-header'
 import { createClient } from '@/lib/supabase/server'
 import { getStoreByStoreURL } from '../../actions'
 import {

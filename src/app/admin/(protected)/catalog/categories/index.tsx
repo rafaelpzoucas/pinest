@@ -1,18 +1,10 @@
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { queryParamsLink } from '@/lib/utils'
-import { Boxes, MoreVertical } from 'lucide-react'
-import Link from 'next/link'
+import { Boxes } from 'lucide-react'
 import { readUser } from '../../store/(store-options)/account/actions'
 import { readCategoriesByStore } from './actions'
+import { columns } from './data-table/columns'
+import { DataTable } from './data-table/table'
+import { CategoryOptions } from './options'
 
 export async function Categories() {
   const { data: user } = await readUser()
@@ -35,39 +27,28 @@ export async function Categories() {
   }
 
   return (
-    <div className="space-y-2">
-      {categories &&
-        categories.map((category) => (
-          <Card className="relative p-4" key={category.id}>
-            <strong>{category.name}</strong>
-            {category.description && (
-              <p className="text-sm text-muted-foreground">
-                {category.description}
-              </p>
-            )}
+    <div className="space-y-3">
+      <div className="lg:hidden">
+        {categories &&
+          categories.map((category) => (
+            <Card className="relative p-4" key={category.id}>
+              <strong>{category.name}</strong>
+              {category.description && (
+                <p className="text-sm text-muted-foreground">
+                  {category.description}
+                </p>
+              )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant={'ghost'}
-                  size={'icon'}
-                  className="absolute top-1 right-1"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Opções</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link
-                  href={`catalog/categories/register?${queryParamsLink(category)}`}
-                >
-                  <DropdownMenuItem>Editar</DropdownMenuItem>
-                </Link>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </Card>
-        ))}
+              <div className="absolute top-1 right-1">
+                <CategoryOptions categoryId={category.id} />
+              </div>
+            </Card>
+          ))}
+      </div>
+
+      <div className="hidden lg:flex">
+        {categories && <DataTable columns={columns} data={categories} />}
+      </div>
     </div>
   )
 }

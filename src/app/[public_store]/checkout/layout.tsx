@@ -1,6 +1,6 @@
 'use client'
 
-import { Header } from '@/components/header'
+import { Header } from '@/components/store-header'
 import { useSearchParams } from 'next/navigation'
 import { ReactNode } from 'react'
 

@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { readStoreByUserId, readUser } from './actions'
 import { Address } from './address'
 import { Profile } from './profile'
@@ -18,7 +18,8 @@ export default async function AccountPage() {
 
   return (
     <main className="flex flex-col gap-4">
-      <Header title="Minha conta" />
+      <AdminHeader title="Minha conta" />
+
       <Profile user={user && user} />
       <Store store={store} />
       <Address address={store && store?.addresses[0]} />

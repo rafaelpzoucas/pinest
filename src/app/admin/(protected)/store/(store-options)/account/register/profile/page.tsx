@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { readUserById } from './actions'
 import { ProfileForm } from './form'
 
@@ -15,7 +15,7 @@ export default async function ProfileRegister({
 
   return (
     <section className="flex flex-col gap-4">
-      <Header title="Editar Perfil" />
+      <AdminHeader title="Editar perfil" withBackButton />
 
       <ProfileForm user={user} />
     </section>

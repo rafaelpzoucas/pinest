@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { stripe } from '@/lib/stripe'
@@ -18,12 +18,12 @@ export default async function PaymentMethodsPage() {
   )
 
   return (
-    <section>
-      <Header title="Pagamentos" />
+    <section className="space-y-6">
+      <AdminHeader title="Pagamentos" />
 
-      <Card className="p-4">
+      <Card className="p-4 max-w-md">
         {connectedAccount && connectedAccount === 'connected' ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             <strong>Conta de saque conectada</strong>
             <Link
               href={loginLink.url}
@@ -34,7 +34,7 @@ export default async function PaymentMethodsPage() {
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-4">
             <p>
               Você precisa cadastrar uma conta bancária para poder resgatar suas
               vendas.

@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
 import { readAddresses } from './actions'
 

@@ -65,12 +65,12 @@ export function FileUploader({ files, setFiles }: FileUploaderProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="grid grid-cols-4 gap-2">
+      <section className="grid grid-cols-4 lg:grid-cols-5 gap-2">
         {files.length > 0 &&
           files.map((file) => (
-            <div
+            <Card
               key={file.preview}
-              className="relative aspect-square rounded-lg overflow-hidden"
+              className="relative aspect-square overflow-hidden"
             >
               <Image src={file.preview} alt="" fill className="object-cover" />
 
@@ -83,7 +83,7 @@ export function FileUploader({ files, setFiles }: FileUploaderProps) {
               >
                 <Trash className="w-4 h-4" />
               </Button>
-            </div>
+            </Card>
           ))}
 
         <div {...getRootProps()}>

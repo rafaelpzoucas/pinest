@@ -26,11 +26,11 @@ export function ProductImages({
       <FileUploader files={files} setFiles={setFiles} />
 
       {productImages.length > 0 && (
-        <section className="grid grid-cols-4 gap-2">
+        <section className="grid grid-cols-4 lg:grid-cols-5 gap-2">
           {productImages.map((image) => (
-            <div
+            <Card
               key={image.id}
-              className="relative aspect-square rounded-lg overflow-hidden"
+              className="relative aspect-square overflow-hidden"
             >
               <Image
                 src={image.image_url}
@@ -48,7 +48,7 @@ export function ProductImages({
               >
                 <Trash className="w-4 h-4" />
               </Button>
-            </div>
+            </Card>
           ))}
         </section>
       )}

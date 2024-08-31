@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { Header } from '@/components/store-header'
 import { AddressForm } from './form'
 
 export default function CustomerAddressRegister() {

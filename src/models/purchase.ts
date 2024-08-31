@@ -2,11 +2,11 @@ import { CustomerType } from './customer'
 import { ProductType } from './product'
 import { AddressType, UserType } from './user'
 
-interface CustomersType extends CustomerType {
+export interface CustomersType extends CustomerType {
   users: UserType
 }
 
-type PurchaseItemsType = {
+export type PurchaseItemsType = {
   id: string
   created_at: string
   order_id: string

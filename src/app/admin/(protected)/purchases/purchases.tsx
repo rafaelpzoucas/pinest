@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input'
 import { PurchaseType } from '@/models/purchase'
 import { Scroll, Search } from 'lucide-react'
 import { useState } from 'react'
+import { columns } from './data-table/columns'
+import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
 
 export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
@@ -85,7 +87,7 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
         />
       </div>
 
-      <section className="grid grid-cols-2 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}
@@ -104,13 +106,19 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
         Exibindo {filteredPurchases?.length} pedido(s)
       </span>
 
-      {filteredPurchases && filteredPurchases.length > 0 ? (
-        filteredPurchases?.map((purchase) => (
-          <PurchaseCard key={purchase.id} purchase={purchase} />
-        ))
-      ) : (
-        <div>Não encontramos nenhum resultado para &apos;{search}&apos;</div>
-      )}
+      <div className="lg:hidden flex flex-col gap-2">
+        {filteredPurchases && filteredPurchases.length > 0 ? (
+          filteredPurchases?.map((purchase) => (
+            <PurchaseCard key={purchase.id} purchase={purchase} />
+          ))
+        ) : (
+          <div>Não encontramos nenhum resultado para &apos;{search}&apos;</div>
+        )}
+      </div>
+
+      <div className="hidden lg:flex w-full">
+        {purchases && <DataTable columns={columns} data={purchases} />}
+      </div>
     </section>
   )
 }

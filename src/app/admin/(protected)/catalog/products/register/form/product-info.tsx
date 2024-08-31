@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import { CategoryType } from '../../../categories/actions'
+
+import { CategoryType } from '@/models/category'
 import { newProductFormSchema } from './form'
 
 export function ProductInfo({

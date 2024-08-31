@@ -12,7 +12,7 @@ export async function Store({ store }: { store: StoreType | null }) {
     <Card className="relative flex flex-col gap-4 p-4">
       <div className="flex flex-row items-center gap-3">
         <Avatar className="w-16 h-16">
-          <AvatarImage src={store?.logo_url} />
+          <AvatarImage src={store?.logo_url} className="object-scale-down" />
           <AvatarFallback>
             <Pyramid />
           </AvatarFallback>

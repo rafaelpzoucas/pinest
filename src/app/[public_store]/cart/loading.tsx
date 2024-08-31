@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { Header } from '@/components/store-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'

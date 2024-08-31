@@ -50,7 +50,7 @@ export function queryParamsLink(params: any | null) {
 }
 
 export function formatAddress(address: AddressType) {
-  return `${address.street}, ${address.number}${address.complement && ', ' + address.complement} - ${address.neighborhood} - ${address.city}/${address.state}`
+  return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
 }
 
 export function formatBytes(bytes: number, decimals = 2) {
@@ -70,6 +70,10 @@ export function removeAccents(str: string) {
 }
 
 export function convertStringToNumber(string: string) {
+  if (string === '') {
+    return
+  }
+
   if (typeof string === 'string') {
     let numberString = string.replace(/[^0-9,.-]+/g, '')
 

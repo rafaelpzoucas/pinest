@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { readUser } from '../../../store/(store-options)/account/actions'
 import { readCategoriesByStore } from '../../categories/actions'
 import { readProductById } from './actions'
@@ -14,6 +14,8 @@ export default async function NewProduct({
     await readCategoriesByStore(user?.stores[0].id)
   const { product, productError } = await readProductById(searchParams.id)
 
+  const displayId = product?.id.substring(0, 4)
+
   if (productError) {
     console.error(productError)
   }
@@ -23,8 +25,11 @@ export default async function NewProduct({
   }
 
   return (
-    <div className="space-y-4 p-4">
-      <Header title={`${searchParams.id ? 'Editar' : 'Novo'} produto`} />
+    <div className="space-y-4 p-4 lg:px-0">
+      <AdminHeader
+        title={`${searchParams.id ? 'Editando produto #' + displayId : 'Novo produto'}`}
+        withBackButton
+      />
 
       <ProductForm categories={categories} product={product} />
     </div>

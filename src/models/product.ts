@@ -1,20 +1,14 @@
-import { AttributeOptionsType } from './attribute'
-
-export type ProductVariationAttributesType = {
-  id: string
-  created_at: string
-  attribute_option_id: string
-  product_variation_id: string
-  attribute_options: AttributeOptionsType
+export type VariationOption = {
+  id?: string
+  name?: string
+  price?: number
+  stock?: number
 }
 
 export type ProductVariationsType = {
-  id: string
-  price: string | null
-  stock: string | null
-  created_at: string
-  product_id: string
-  product_variation_attributes: ProductVariationAttributesType[]
+  id?: string
+  attribute: string
+  product_variations?: VariationOption[]
 }
 
 export type ProductImageType = {
@@ -42,5 +36,18 @@ export type ProductType = {
   pkg_height: number
   product_url: string
   product_images: ProductImageType[]
-  product_variations: ProductVariationsType[]
+  product_variations: {
+    id: string
+    name: string
+    price: number
+    stock: number
+    attributes: {
+      id: string
+      name: string
+      created_at: string
+    }
+    created_at: string
+    product_id: string
+    attribute_id: string
+  }[]
 }
