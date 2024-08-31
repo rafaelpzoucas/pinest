@@ -1,16 +1,10 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { CategoryType } from '@/models/category'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { newCategoryFormSchema } from './register/form'
-
-export type CategoryType = {
-  id: string
-  name: string
-  description: string
-  created_at: string
-}
 
 export async function createCategory(
   values: z.infer<typeof newCategoryFormSchema>,
@@ -51,10 +45,33 @@ export async function readCategoriesByStore(storeId?: string): Promise<{
 
   const { data, error } = await supabase
     .from('categories')
-    .select('*')
+    .select(
+      `
+        *,
+        products (*)
+      `,
+    )
     .eq('store_id', storeId)
 
   return { data, error }
+}
+
+export async function readCategoryById(
+  categoryId: string,
+): Promise<{ category: CategoryType }> {
+  const supabase = createClient()
+
+  const { data: category, error: categoryError } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', categoryId)
+    .single()
+
+  if (categoryError) {
+    console.error(categoryError)
+  }
+
+  return { category }
 }
 
 export async function updateCategory(

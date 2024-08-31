@@ -22,32 +22,28 @@ import {
 } from '@/components/ui/alert-dialog'
 
 import { ProductType } from '@/models/product'
-import { MoreVertical } from 'lucide-react'
+import { Edit, MoreVertical, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { deleteProduct } from './actions'
 
 type ProductOptions = Omit<ProductType, 'product_images'>
 
-export function ProductOptions({ product }: { product: ProductOptions }) {
+export function ProductOptions({ productId }: { productId: string }) {
   const [isAlertOpen, setIsAlertOpen] = useState(false)
 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant={'ghost'}
-            size={'icon'}
-            className="absolute top-1 right-1"
-          >
+        <DropdownMenuTrigger asChild className="lg:hidden">
+          <Button variant={'ghost'} size={'icon'}>
             <MoreVertical className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Opções</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <Link href={`catalog/products/register?id=${product.id}`}>
+          <Link href={`catalog/products/register?id=${productId}`}>
             <DropdownMenuItem>Editar</DropdownMenuItem>
           </Link>
 
@@ -56,6 +52,22 @@ export function ProductOptions({ product }: { product: ProductOptions }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <div className="hidden lg:flex flex-row ">
+        <Link
+          href={`catalog/products/register?id=${productId}`}
+          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+        >
+          <Edit className="w-4 h-4" />
+        </Link>
+        <Button
+          onClick={() => setIsAlertOpen(true)}
+          variant="ghost"
+          size="icon"
+        >
+          <Trash className="w-4 h-4" />
+        </Button>
+      </div>
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
@@ -69,7 +81,7 @@ export function ProductOptions({ product }: { product: ProductOptions }) {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteProduct(product.id)}
+              onClick={() => deleteProduct(productId)}
             >
               Sim, excluir
             </AlertDialogAction>

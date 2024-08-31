@@ -74,7 +74,10 @@ export function LogoUploader({ files, setFiles }: FileUploaderProps) {
             >
               <div className="relative">
                 <Avatar className="w-32 h-32">
-                  <AvatarImage src={file.preview} />
+                  <AvatarImage
+                    src={file.preview}
+                    className="object-scale-down"
+                  />
                   <AvatarFallback>
                     <User className="w-10 h-10" />
                   </AvatarFallback>
@@ -100,25 +103,6 @@ export function LogoUploader({ files, setFiles }: FileUploaderProps) {
               className="flex flex-col items-center justify-center gap-4 p-4 w-32 h-32 aspect-square rounded-full border border-dashed cursor-pointer text-sm text-center data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary data-[drag-active=true]:text-primary-foreground transition-all duration-200"
             >
               <ImagePlusIcon className="w-8 h-8 opacity-25" />
-
-              <div className="hidden md:flex flex-col gap-2">
-                {isDragActive ? (
-                  <p>Solte sua imagem aqui</p>
-                ) : (
-                  <p className="hidden md:flex">
-                    Arraste e solte sua imagem aqui ou clique para selecionar
-                  </p>
-                )}
-
-                <div className="flex flex-col">
-                  <p className="text-xs text-muted-foreground">
-                    Formatos aceitos: JPEG, PNG, WEBP, SVG
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Tamanho máximo: 2Mb
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         )}

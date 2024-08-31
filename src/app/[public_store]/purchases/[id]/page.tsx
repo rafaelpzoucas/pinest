@@ -1,5 +1,5 @@
-import { Header } from '@/components/header'
 import { ProductCard } from '@/components/product-card'
+import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
 import { formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'

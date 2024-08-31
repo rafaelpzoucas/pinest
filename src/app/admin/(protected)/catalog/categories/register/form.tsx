@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { CategoryType } from '@/models/category'
 import { Loader2 } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { createCategory, updateCategory } from '../actions'
@@ -23,7 +24,7 @@ export const newCategoryFormSchema = z.object({
   description: z.string().optional(),
 })
 
-export function CategoryForm() {
+export function CategoryForm({ category }: { category: CategoryType }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -39,8 +40,8 @@ export function CategoryForm() {
   const form = useForm<z.infer<typeof newCategoryFormSchema>>({
     resolver: zodResolver(newCategoryFormSchema),
     defaultValues: {
-      name: searchParams.get('name') ?? '',
-      description: searchParams.get('description') ?? '',
+      name: category.name ?? '',
+      description: category.description ?? '',
     },
   })
 

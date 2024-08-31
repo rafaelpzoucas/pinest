@@ -1,8 +1,10 @@
-import { ProductCard } from '@/components/product-card'
 import { Box } from 'lucide-react'
+import { ProductCard } from './product-card'
 
 import { readUser } from '../../store/(store-options)/account/actions'
 import { readProductsByStore } from './actions'
+import { columns } from './data-table/columns'
+import { DataTable } from './data-table/table'
 
 export async function Products() {
   const { data: user } = await readUser()
@@ -26,15 +28,16 @@ export async function Products() {
 
   return (
     <div className="space-y-3">
-      {products &&
-        products.map((product) => (
-          <ProductCard
-            key={product.id}
-            data={product}
-            variant={'catalog'}
-            className="w-full"
-          />
-        ))}
+      <div className="lg:hidden">
+        {products &&
+          products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+      </div>
+
+      <div className="hidden lg:flex">
+        {products && <DataTable columns={columns} data={products} />}
+      </div>
     </div>
   )
 }

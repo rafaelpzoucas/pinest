@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { Header } from '@/components/store-header'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'

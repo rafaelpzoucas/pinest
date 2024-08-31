@@ -1,5 +1,5 @@
 import { readAddressById } from '@/app/[public_store]/checkout/@summary/actions'
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 import { AddressForm } from './form'
 
 export default async function AddressRegister({
@@ -15,7 +15,7 @@ export default async function AddressRegister({
 
   return (
     <section className="flex flex-col gap-4">
-      <Header title="Editar Perfil" />
+      <AdminHeader title="Editar endereço" withBackButton />
 
       <AddressForm address={address} />
     </section>

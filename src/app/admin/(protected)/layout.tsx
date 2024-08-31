@@ -1,8 +1,9 @@
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { readOwner } from './actions'
-import { Navigation } from './navigation'
+import { Navigation } from './navigation/index'
 
 export const metadata: Metadata = {
   title: 'Pinest | Admin',
@@ -39,10 +40,14 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <main className="pb-16 md:flex flex-row">
+    <main className="md:flex flex-row">
       <Navigation />
 
-      {children}
+      <ScrollArea className="w-full h-[calc(100vh_-_73px)] lg:px-5">
+        <main className="flex flex-col items-center w-full">
+          <div className="w-full max-w-7xl pb-16">{children}</div>
+        </main>
+      </ScrollArea>
     </main>
   )
 }

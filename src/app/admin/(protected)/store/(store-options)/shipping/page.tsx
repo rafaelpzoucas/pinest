@@ -1,9 +1,9 @@
-import { Header } from '@/components/header'
+import { AdminHeader } from '@/components/admin-header'
 
 export default function ShippingPage() {
   return (
     <div>
-      <Header title="Envio" />
+      <AdminHeader title="Envio" />
       Envio
     </div>
   )

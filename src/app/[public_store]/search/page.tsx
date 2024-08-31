@@ -1,5 +1,5 @@
-import { Header } from '@/components/header'
 import { ProductCard } from '@/components/product-card'
+import { Header } from '@/components/store-header'
 import { createClient } from '@/lib/supabase/server'
 import { Search } from 'lucide-react'
 import { getStoreByStoreURL } from '../actions'

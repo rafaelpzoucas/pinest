@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
+import { CategoryType } from '@/models/category'
 import {
   ProductImageType,
   ProductType,
@@ -16,7 +17,6 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { CategoryType } from '../../../categories/actions'
 import { createProduct, deleteProductImage, updateProduct } from '../actions'
 import { readProductImages, uploadImages } from '../client-actions'
 import { createProductVariations } from './actions'
@@ -201,8 +201,6 @@ export function ProductForm({
     toast('Produto atualizado com sucesso!')
   }
 
-  console.log(variationsForm)
-
   useEffect(() => {
     if (productId) {
       handleReadProductImages()
@@ -235,34 +233,36 @@ export function ProductForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col w-full space-y-6"
       >
-        <ProductInfo form={form} categories={categories} />
+        <div className="flex flex-col w-full space-y-6">
+          <ProductImages
+            files={files}
+            setFiles={setFiles}
+            productImages={productImages}
+            handleDeleteImage={handleDeleteImage}
+          />
 
-        <Variations
-          variations={variationsForm}
-          setVariations={setVariationsForm}
-        />
+          <ProductInfo form={form} categories={categories} />
 
-        <ProductImages
-          files={files}
-          setFiles={setFiles}
-          productImages={productImages}
-          handleDeleteImage={handleDeleteImage}
-        />
+          <Variations
+            variations={variationsForm}
+            setVariations={setVariationsForm}
+          />
 
-        <Dimensions form={form} />
+          <Dimensions form={form} />
 
-        <footer className="fixed bottom-0 left-0 right-0 flex p-4 bg-background">
-          <Button
-            type="submit"
-            disabled={formState.isSubmitting || !formState.isValid}
-            className="w-full"
-          >
-            {formState.isSubmitting && (
-              <Loader className="w-4 h-4 mr-2 animate-spin" />
-            )}
-            {productId ? 'Salvar alterações' : 'Criar produto'}
-          </Button>
-        </footer>
+          <footer className="fixed bottom-0 left-0 right-0 flex p-4 bg-background">
+            <Button
+              type="submit"
+              disabled={formState.isSubmitting || !formState.isValid}
+              className="w-full max-w-sm ml-auto"
+            >
+              {formState.isSubmitting && (
+                <Loader className="w-4 h-4 mr-2 animate-spin" />
+              )}
+              {productId ? 'Salvar alterações' : 'Criar produto'}
+            </Button>
+          </footer>
+        </div>
       </form>
     </Form>
   )
