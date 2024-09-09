@@ -1,10 +1,11 @@
 import { Header } from '@/components/store-header'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
+import { readOwnShipping } from '../(app)/@header/actions'
 import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
 
@@ -15,10 +16,11 @@ export default async function CartPage({
 }) {
   const supabase = createClient()
 
-  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const { data: userData } = await supabase.auth.getUser()
   const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
+  const { shipping } = await readOwnShipping(params.public_store)
 
   const connectedAccount = user?.stripe_connected_account
 
@@ -47,16 +49,18 @@ export default async function CartPage({
               <span>{formatCurrencyBRL(productsPrice)}</span>
             </div>
 
-            <div className="flex flex-row justify-between text-xs text-muted-foreground">
-              <p>Frete</p>
-              <span className="text-emerald-600">Grátis</span>
-            </div>
-
-            <div className="flex flex-row justify-between text-xs text-muted-foreground">
-              <Button variant={'link'} className="p-0">
-                Inserir cupom
-              </Button>
-            </div>
+            {shipping && shipping.status && (
+              <div className="flex flex-row justify-between text-xs text-muted-foreground">
+                <p>Frete</p>
+                <span
+                  className={cn(shipping?.price === 0 && 'text-emerald-600')}
+                >
+                  Entrega{' '}
+                  {(shipping && formatCurrencyBRL(shipping.price)) ?? 'Grátis'}{' '}
+                  | Retirar grátis
+                </span>
+              </div>
+            )}
 
             <div className="flex flex-row justify-between text-sm pb-2">
               <p>Total</p>

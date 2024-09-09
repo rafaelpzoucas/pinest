@@ -7,13 +7,23 @@ import { createStripeCheckout } from '../actions'
 export default async function CreatePurchase({
   searchParams,
 }: {
-  searchParams: { totalAmount: string; storeName: string; addressId: string }
+  searchParams: {
+    totalAmount: string
+    storeName: string
+    addressId: string
+    shippingPrice: string
+    shippingTime: string
+    pickup: string
+  }
 }) {
   async function handleCreatePurchase() {
     const { purchase, purchaseError } = await createPurchase(
       parseInt(searchParams.totalAmount),
       searchParams.storeName,
       searchParams.addressId,
+      parseFloat(searchParams.shippingPrice),
+      parseFloat(searchParams.shippingTime),
+      searchParams.pickup,
     )
 
     if (purchaseError) {

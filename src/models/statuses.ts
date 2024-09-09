@@ -17,7 +17,7 @@ export const statuses = {
   },
   approved: {
     status: 'Aprovado',
-    next_step: 'Preparando para envio.',
+    next_step: 'Preparando seu pedido.',
     delivery_address: 'O seu pedido será entregue',
     color: 'bg-green-500',
     next_status: 'preparing',
@@ -25,7 +25,7 @@ export const statuses = {
   },
   preparing: {
     status: 'Em preparo',
-    next_step: 'Preparando para envio.',
+    next_step: 'Preparando seu pedido.',
     delivery_address: 'O seu pedido será entregue',
     color: 'bg-blue-500',
     next_status: 'picking',
@@ -33,7 +33,7 @@ export const statuses = {
   },
   picking: {
     status: 'Em Separação',
-    next_step: 'Separando para envio.',
+    next_step: 'Separando seu pedido.',
     delivery_address: 'O seu pedido será entregue',
     color: 'bg-blue-500',
     next_status: 'shipped',

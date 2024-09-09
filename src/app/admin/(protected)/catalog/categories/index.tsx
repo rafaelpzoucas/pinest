@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Boxes } from 'lucide-react'
-import { readUser } from '../../store/(store-options)/account/actions'
+import { readUser } from '../../config/(store-options)/account/actions'
 import { readCategoriesByStore } from './actions'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'

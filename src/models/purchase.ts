@@ -23,6 +23,8 @@ export type PurchaseType = {
   customer_id: string
   status: string
   total_amount: number
+  shipping_price: number
+  delivery_time: number
   purchase_items: PurchaseItemsType[]
   addresses: AddressType
   customers: CustomersType

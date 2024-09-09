@@ -15,7 +15,6 @@ export function Status({
   purchase: PurchaseType
   storeName: string
 }) {
-  const address = purchase.addresses
   const currentStatus = statuses[purchase.status as StatusKey]
 
   async function handleCreateStripeCheckout() {

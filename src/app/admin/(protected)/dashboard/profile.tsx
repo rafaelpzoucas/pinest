@@ -1,13 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  ChevronRight,
-  ExternalLink,
-  MapPin,
-  Phone,
-  Pyramid,
-} from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { readStore } from './actions'
 
@@ -18,49 +11,8 @@ export async function ProfileCard() {
     console.error(storeError)
   }
 
-  const addresses = store && store.addresses && store.addresses.length > 0
-
-  const address = addresses
-    ? `${store?.addresses[0].street}, ${store?.addresses[0].number}`
-    : ''
-
   return (
-    <Card className="flex flex-col gap-6 p-4">
-      <Link href="store/account">
-        <div className="flex flex-row gap-4">
-          <div className="flex flex-col gap-4 w-full">
-            <header className="relative flex flex-col gap-4 w-full">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={store?.logo_url} />
-                <AvatarFallback className="uppercase">
-                  <Pyramid />
-                </AvatarFallback>
-              </Avatar>
-
-              <div>
-                <strong className="text-xl font-bold capitalize">
-                  {store?.name}
-                </strong>
-                <p className="text-xs text-muted-foreground">{store?.role}</p>
-              </div>
-
-              <ChevronRight className="absolute top-1 right-1 w-4 h-4 text-muted-foreground" />
-            </header>
-
-            <div>
-              <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="w-4 h-4" />
-                <span>{store?.phone}</span>
-              </span>
-              <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                <span>{address}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </Link>
-
+    <Card className="flex flex-col gap-6 p-4 max-w-sm">
       <Link
         href={`/${store?.store_url}`}
         target="_blank"

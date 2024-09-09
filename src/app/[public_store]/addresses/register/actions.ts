@@ -1,12 +1,17 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { AddressType } from '@/models/user'
+import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { addressFormSchema } from './form'
 
 export async function createCustomerAddress(
   values: z.infer<typeof addressFormSchema>,
-) {
+): Promise<{
+  createdAddress: AddressType | null
+  createAddressError: any | null
+}> {
   const supabase = createClient()
 
   const { data: session, error: sessionError } = await supabase.auth.getUser()
@@ -15,7 +20,7 @@ export async function createCustomerAddress(
     console.error(sessionError)
   }
 
-  const { error } = await supabase
+  const { data: createdAddress, error: createAddressError } = await supabase
     .from('addresses')
     .insert([
       {
@@ -30,10 +35,31 @@ export async function createCustomerAddress(
       },
     ])
     .select()
+    .single()
 
-  if (error) {
-    console.error(error)
+  if (createAddressError) {
+    console.error(createAddressError)
   }
 
-  return { error }
+  revalidatePath('/checkout')
+
+  return { createdAddress, createAddressError }
+}
+
+export async function updateCustomerAddress(
+  values: z.infer<typeof addressFormSchema>,
+  addressId: string,
+) {
+  const supabase = createClient()
+
+  const { data: updatedAddress, error: updateAddressError } = await supabase
+    .from('addresses')
+    .update(values)
+    .eq('id', addressId)
+
+  if (updateAddressError) {
+    console.error(updateAddressError)
+  }
+
+  return { updatedAddress, updateAddressError }
 }

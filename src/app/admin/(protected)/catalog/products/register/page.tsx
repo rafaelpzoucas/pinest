@@ -1,5 +1,5 @@
 import { AdminHeader } from '@/components/admin-header'
-import { readUser } from '../../../store/(store-options)/account/actions'
+import { readUser } from '../../../config/(store-options)/account/actions'
 import { readCategoriesByStore } from '../../categories/actions'
 import { readProductById } from './actions'
 import { ProductForm } from './form/form'

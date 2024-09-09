@@ -1,18 +1,31 @@
 import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
-import { readAddresses } from './actions'
+import Link from 'next/link'
+import { readAddress } from './actions'
 
-export default async function AddressesPage() {
-  const { addresses, addressesError } = await readAddresses()
+export default async function AddressesPage({
+  searchParams,
+}: {
+  searchParams: { checkout: string; pickup: string }
+}) {
+  const { address } = await readAddress()
+
+  console.log(searchParams.checkout)
 
   return (
-    <div className="p-4 space-y-4">
-      <Header title="Meus endereços" />
+    <div className="space-y-4">
+      <Header title="Meu endereço" />
 
       <div>
-        {addresses &&
-          addresses.map((address) => (
-            <Card key={address.id} className="p-4">
+        {address && (
+          <Link
+            href={
+              searchParams.checkout
+                ? `${searchParams.checkout}&pickup=${searchParams.pickup}&address=${address.id}`
+                : `addresses/register?id=${address.id}`
+            }
+          >
+            <Card className="p-4">
               <p>
                 {address.street}, {address.number}
               </p>
@@ -20,7 +33,8 @@ export default async function AddressesPage() {
                 {address.city}/{address.state}
               </span>
             </Card>
-          ))}
+          </Link>
+        )}
       </div>
     </div>
   )

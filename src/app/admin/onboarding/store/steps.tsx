@@ -18,7 +18,7 @@ export function StoreStep({ store }: { store: StoreType | null }) {
 
   useEffect(() => {
     if (store && store?.addresses.length > 0) {
-      router.push('?step=3')
+      router.push('/admin/dashboard')
     }
 
     setIsLoading(false)
