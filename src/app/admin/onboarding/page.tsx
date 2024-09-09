@@ -1,6 +1,8 @@
 import { Stepper } from '@/components/stepper'
 import { readOwner, readStore } from './actions'
+import { PaymentStep } from './billing'
 import { OwnerStep } from './owner/steps'
+import { ShippingStep } from './shipping'
 import { SearchZipCode } from './store/search-zip-code'
 import { StoreStep } from './store/steps'
 
@@ -26,6 +28,10 @@ export default async function Onboarding({
         return <OwnerStep owner={user} />
       case '2':
         return <StoreStep store={store} />
+      case '3':
+        return <PaymentStep />
+      case '4':
+        return <ShippingStep />
       case 'search-zc':
         return <SearchZipCode />
     }
@@ -39,6 +45,8 @@ export default async function Onboarding({
           steps={[
             { label: 'Dados do proprietário' },
             { label: 'Dados da loja' },
+            { label: 'Conta bancária' },
+            { label: 'Configurar envios' },
           ]}
         />
       )}
