@@ -10,6 +10,7 @@ import {
 } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { ColumnDef } from '@tanstack/react-table'
+import { PurchaseOptions } from './options'
 
 export const columns: ColumnDef<PurchaseType>[] = [
   {
@@ -58,6 +59,32 @@ export const columns: ColumnDef<PurchaseType>[] = [
       const totalAmount = row.getValue('total_amount') as number
 
       return formatCurrencyBRL(totalAmount)
+    },
+  },
+  {
+    accessorKey: 'shipping_price',
+    header: 'Frete',
+    cell: ({ row }) => {
+      const shippingPrice = row.getValue('shipping_price') as number
+
+      return shippingPrice > 0 ? (
+        formatCurrencyBRL(shippingPrice)
+      ) : (
+        <p>Grátis</p>
+      )
+    },
+  },
+  {
+    accessorKey: 'id',
+    header: 'Ações',
+    cell: ({ row }) => {
+      const currentStatus = row.original.status as string
+      return (
+        <PurchaseOptions
+          purchaseId={row.getValue('id')}
+          currentStatus={currentStatus}
+        />
+      )
     },
   },
 ]

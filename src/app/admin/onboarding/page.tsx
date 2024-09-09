@@ -1,9 +1,6 @@
 import { Stepper } from '@/components/stepper'
-import { getStripeAccount } from '../(protected)/store/(store-options)/billing/actions'
 import { readOwner, readStore } from './actions'
-import { PaymentStep } from './billing'
 import { OwnerStep } from './owner/steps'
-import { ShippingStep } from './shipping'
 import { SearchZipCode } from './store/search-zip-code'
 import { StoreStep } from './store/steps'
 
@@ -14,11 +11,6 @@ export default async function Onboarding({
 }) {
   const { user, userError } = await readOwner()
   const { store, storeError } = await readStore()
-  const { stripeAccount } = await getStripeAccount()
-
-  const isAccountConnected = !!(
-    stripeAccount && stripeAccount.stripe_connected_account === 'connected'
-  )
 
   if (userError) {
     console.error(userError)
@@ -34,10 +26,6 @@ export default async function Onboarding({
         return <OwnerStep owner={user} />
       case '2':
         return <StoreStep store={store} />
-      case '3':
-        return <PaymentStep />
-      case '4':
-        return <ShippingStep />
       case 'search-zc':
         return <SearchZipCode />
     }
@@ -51,8 +39,6 @@ export default async function Onboarding({
           steps={[
             { label: 'Dados do proprietário' },
             { label: 'Dados da loja' },
-            { label: 'Conta bancária' },
-            { label: 'Configurar envios' },
           ]}
         />
       )}

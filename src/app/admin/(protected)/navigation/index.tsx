@@ -1,6 +1,6 @@
 'use client'
 
-import { Layers, LayoutGrid, LayoutList, Store } from 'lucide-react'
+import { Layers, LayoutGrid, LayoutList, Settings } from 'lucide-react'
 
 import { LinkType } from '@/models/nav-links'
 import { DesktopNav } from './desktop/sidebar'
@@ -24,21 +24,21 @@ export function Navigation() {
       icon: LayoutList,
     },
     {
-      route: '/admin/store',
-      title: 'Minha loja',
-      icon: Store,
+      route: '/admin/config',
+      title: 'Configurações',
+      icon: Settings,
       subLinks: [
         {
           title: 'Conta',
-          route: '/admin/store/account',
+          route: '/admin/config/account',
         },
         {
-          title: 'Formas de pagamento',
-          route: '/admin/store/billing',
+          title: 'Pagamento',
+          route: '/admin/config/billing',
         },
         {
-          title: 'Formas de envio',
-          route: '/admin/store/shipping',
+          title: 'Envio',
+          route: '/admin/config/shipping',
         },
       ],
     },

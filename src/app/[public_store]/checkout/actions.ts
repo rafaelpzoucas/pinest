@@ -5,6 +5,7 @@ import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { redirect } from 'next/navigation'
 import { clearCart } from '../cart/actions'
+import { readStoreByName } from './@summary/actions'
 
 export async function readCustomerAddress() {
   'use server'
@@ -57,22 +58,22 @@ export async function readUserConnectedAccountId(userId: string) {
 }
 
 export async function readStoreAddress(storeName: string): Promise<{
-  storeAddresses: { addresses: AddressType[] } | null
+  storeAddress: AddressType | null
   storeAddressError: any | null
 }> {
   const supabase = createClient()
 
-  const { store, storeError } = await readStore(storeName)
+  const { store, storeError } = await readStoreByName(storeName)
 
   if (storeError) console.error(storeError)
 
-  const { data: storeAddresses, error: storeAddressError } = await supabase
-    .from('users')
-    .select('addresses (*)')
-    .eq('id', store?.user_id)
+  const { data: storeAddress, error: storeAddressError } = await supabase
+    .from('addresses')
+    .select('*')
+    .eq('store_id', store?.id)
     .single()
 
-  return { storeAddresses, storeAddressError }
+  return { storeAddress, storeAddressError }
 }
 
 export async function readPurchaseItems(purchaseId: string): Promise<{

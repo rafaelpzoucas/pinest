@@ -2,7 +2,7 @@
 
 import { stripe } from '@/lib/stripe'
 import { redirect } from 'next/navigation'
-import { getStripeAccount } from '../../(protected)/store/(store-options)/billing/actions'
+import { getStripeAccount } from '../../(protected)/config/(store-options)/billing/actions'
 
 export async function onboardingCreateStripeAccountLink() {
   const { stripeAccount, userError } = await getStripeAccount()

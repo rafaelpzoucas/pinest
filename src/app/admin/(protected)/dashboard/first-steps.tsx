@@ -11,8 +11,9 @@ import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { readProductsByStore } from '../catalog/products/actions'
-import { readUser } from '../store/(store-options)/account/actions'
-import { getConnectedAccount } from '../store/(store-options)/billing/actions'
+import { readUser } from '../config/(store-options)/account/actions'
+import { getConnectedAccount } from '../config/(store-options)/billing/actions'
+import { readOwnShipping } from '../config/(store-options)/shipping/own-shipping/actions'
 
 type StepsType = {
   name: string
@@ -30,6 +31,7 @@ function calculateCompletionPercentage(steps: StepsType[]) {
 export async function FirstSteps() {
   const { data: user } = await readUser()
   const { data: products } = await readProductsByStore(user?.stores[0].id)
+  const { shipping } = await readOwnShipping()
   const connectedAccount = await getConnectedAccount()
 
   const steps: StepsType[] = [
@@ -45,14 +47,14 @@ export async function FirstSteps() {
     },
     {
       name: 'Formas de pagamento',
-      href: 'store/billing',
+      href: 'config/billing',
       is_checked:
         (connectedAccount && connectedAccount === 'connected') ?? false,
     },
     {
       name: 'Formas de envio',
-      href: 'store/delivery',
-      is_checked: false,
+      href: 'config/shipping',
+      is_checked: shipping ?? false,
     },
   ]
   const progress = calculateCompletionPercentage(steps)

@@ -10,32 +10,32 @@ import Link from 'next/link'
 export default function StorePage() {
   const storeOptions = [
     {
-      link: 'store/account',
+      link: 'config/account',
       name: 'Conta',
       icon: User,
     },
     {
-      link: 'store/catalog',
+      link: 'config/catalog',
       name: 'Catálogo',
       icon: LayoutList,
     },
     // {
-    //   link: 'store/appearence',
+    //   link: 'config/appearence',
     //   name: 'Aparência da loja',
     //   icon: Paintbrush,
     // },
     {
-      link: 'store/billing',
+      link: 'config/billing',
       name: 'Formas de pagamento',
       icon: CircleDollarSign,
     },
     {
-      link: 'store/shipping',
+      link: 'config/shipping',
       name: 'Formas de envio',
       icon: Truck,
     },
     // {
-    //   link: 'store/marketing',
+    //   link: 'config/marketing',
     //   name: 'Divulgação',
     //   icon: Megaphone,
     // },

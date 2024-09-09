@@ -1,25 +1,41 @@
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MapPin } from 'lucide-react'
 
 import { ProductCard } from '@/components/product-card'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import { OwnShippingType } from '@/models/own-shipping'
 import Link from 'next/link'
+import { readOwnShipping } from '../../(app)/@header/actions'
 import { getCart } from '../../cart/actions'
+import { readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
 
 function CheckoutButton({
   totalAmount,
   storeName,
   addressId,
+  shipping,
+  pickup,
 }: {
   totalAmount: number
   storeName: string
   addressId: string
+  shipping: OwnShippingType | null
+  pickup: string
 }) {
+  const qTotalAmount = `totalAmount=${totalAmount}`
+  const qStoreName = `&storeName=${storeName}`
+  const qAddressId = addressId ? `&addressId=${addressId}` : ''
+  const qShippingPrice =
+    shipping && shipping.status ? `&shippingPrice=${shipping.price}` : ''
+  const qShippingTime =
+    shipping && shipping.status ? `&shippingTime=${shipping.delivery_time}` : ''
+  const qPickup = `&pickup=${pickup}`
+
   return (
     <Link
-      href={`checkout/create?totalAmount=${totalAmount}&storeName=${storeName}&addressId=${addressId}`}
+      href={`checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup === 'delivery' ? qShippingPrice + qShippingTime : ''}${qPickup}`}
       className={cn(buttonVariants(), 'w-full')}
     >
       Continuar para o pagamento
@@ -32,12 +48,14 @@ export default async function Summary({
   searchParams,
 }: {
   params: { public_store: string }
-  searchParams: { address: string }
+  searchParams: { address: string; pickup: string }
 }) {
   const addressId = searchParams.address
 
   const { cart } = await getCart(params.public_store)
   const { address } = await readAddressById(addressId)
+  const { storeAddress } = await readStoreAddress(params.public_store)
+  const { shipping } = await readOwnShipping(params.public_store)
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
@@ -50,6 +68,10 @@ export default async function Summary({
       }, 0)
     : 0
 
+  const totalPrice = shipping?.price
+    ? productsPrice + shipping.price
+    : productsPrice
+
   return (
     <div className="flex flex-col w-full">
       <Card className="flex flex-col p-4 w-full space-y-2">
@@ -59,42 +81,70 @@ export default async function Summary({
         </div>
 
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <p>Frete</p>
-          <span className="text-emerald-600">Grátis</span>
-        </div>
-
-        <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <Button variant={'link'} className="p-0">
-            Inserir cupom
-          </Button>
+          <p>{searchParams.pickup === 'delivery' ? 'Frete' : 'Retirar'}</p>
+          {searchParams.pickup === 'delivery' && shipping && (
+            <span>{formatCurrencyBRL(shipping?.price)}</span>
+          )}
+          {searchParams.pickup === 'pickup' && shipping && (
+            <span className="text-emerald-600">Grátis</span>
+          )}
         </div>
 
         <div className="flex flex-row justify-between text-sm pb-2">
           <p>Total</p>
-          <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
+          <strong>{formatCurrencyBRL(totalPrice)}</strong>
         </div>
 
         <CheckoutButton
           storeName={params.public_store}
           totalAmount={productsPrice}
           addressId={searchParams.address}
+          shipping={shipping}
+          pickup={searchParams.pickup}
         />
       </Card>
 
-      <section className="flex flex-col items-center gap-2 text-center border-b py-6">
-        <MapPin />
-        <p>
-          {address?.street}, {address?.number}
-        </p>
-        <span className="text-xs text-muted-foreground">
-          CEP {address?.zip_code} - {address?.neighborhood} - {address?.city}/
-          {address?.state}
-        </span>
+      {searchParams.pickup === 'delivery' && (
+        <section className="flex flex-col items-center gap-2 text-center border-b py-6">
+          <MapPin />
+          <p>
+            {address?.street}, {address?.number}
+          </p>
+          <span className="text-xs text-muted-foreground">
+            CEP {address?.zip_code} - {address?.neighborhood} - {address?.city}/
+            {address?.state}
+          </span>
 
-        <Link href="" className={cn(buttonVariants({ variant: 'link' }))}>
-          Editar ou escolher outro
-        </Link>
-      </section>
+          <Link href="" className={cn(buttonVariants({ variant: 'link' }))}>
+            Editar ou escolher outro
+          </Link>
+        </section>
+      )}
+
+      {searchParams.pickup === 'pickup' && (
+        <section className="flex flex-col items-center gap-2 text-center border-b py-6">
+          <MapPin />
+          <p>Retirar na loja</p>
+
+          <p>
+            {storeAddress?.street}, {storeAddress?.number}
+          </p>
+
+          <span className="text-xs text-muted-foreground">
+            CEP {storeAddress?.zip_code} - {storeAddress?.neighborhood} -{' '}
+            {storeAddress?.city}/{storeAddress?.state}
+          </span>
+
+          {storeAddress && (
+            <Link
+              href={`https://www.google.com/maps?q=${formatAddress(storeAddress).replaceAll(' ', '+')}`}
+              className={cn(buttonVariants({ variant: 'link' }))}
+            >
+              Ver localização
+            </Link>
+          )}
+        </section>
+      )}
 
       {/* <section className="flex flex-col items-center gap-2 text-center border-b py-6">
         <DollarSign />

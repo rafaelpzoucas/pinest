@@ -1,8 +1,9 @@
 import { ProductCard } from '@/components/product-card'
 import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
-import { formatCurrencyBRL, formatDate } from '@/lib/utils'
+import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
+import { readStoreAddress } from '../../checkout/actions'
 import { readPurchaseById } from './actions'
 import { Status, StatusKey } from './status'
 
@@ -12,12 +13,14 @@ export default async function PurchasePage({
   params: { id: string; public_store: string }
 }) {
   const { purchase, purchaseError } = await readPurchaseById(params.id)
+  const { storeAddress } = await readStoreAddress(params.public_store)
 
   if (purchaseError) console.error(purchaseError)
 
   const address = purchase?.addresses
 
   const currentStatus = statuses[purchase?.status as StatusKey]
+  const shippingPrice = purchase?.shipping_price ?? 0
 
   return (
     <section className="flex flex-col items-center justify-center gap-4">
@@ -37,31 +40,45 @@ export default async function PurchasePage({
               </span>
               <span>{formatCurrencyBRL(purchase.total_amount)}</span>
             </p>
-            <p className="flex flex-row items-center justify-between">
-              <span className="text-muted-foreground">Desconto</span>
-              <span>R$ 0,00</span>
-            </p>
-            <p className="flex flex-row items-center justify-between">
-              <span className="text-muted-foreground">Frete</span>
-              <span>Grátis</span>
-            </p>
+            {shippingPrice ? (
+              <p className="flex flex-row items-center justify-between">
+                <span className="text-muted-foreground">Frete</span>
+                <span>
+                  {shippingPrice > 0
+                    ? formatCurrencyBRL(shippingPrice)
+                    : 'Grátis'}
+                </span>
+              </p>
+            ) : (
+              <p className="text-muted-foreground">Retirar pedido na loja</p>
+            )}
             <p className="flex flex-row items-center justify-between">
               <span className="text-muted-foreground">Total</span>
-              <span>{formatCurrencyBRL(purchase.total_amount)}</span>
+              <span>
+                {formatCurrencyBRL(purchase.total_amount + shippingPrice)}
+              </span>
             </p>
           </Card>
 
-          <Card className="p-4">
-            <p>
-              {currentStatus.delivery_address} na {address?.street},{' '}
-              {address?.number}
-              {address?.complement && `, ${address?.complement}`} -{' '}
-              {address?.neighborhood}
-            </p>
-            <span className="text-muted-foreground">
-              {address?.city}/{address?.state}
-            </span>
-          </Card>
+          {shippingPrice && address ? (
+            <Card className="p-4">
+              <p>
+                <span className="text-muted-foreground">
+                  {currentStatus.delivery_address} na
+                </span>{' '}
+                <strong>{formatAddress(address)}</strong>
+              </p>
+            </Card>
+          ) : (
+            <Card className="p-4">
+              <p>
+                <span className="text-muted-foreground">
+                  Retire seu pedido na
+                </span>{' '}
+                <strong>{storeAddress && formatAddress(storeAddress)}</strong>
+              </p>
+            </Card>
+          )}
 
           <Card className="flex flex-col gap-3 p-4">
             {purchase.purchase_items.map((item) => (

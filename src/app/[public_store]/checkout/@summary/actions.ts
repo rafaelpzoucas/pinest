@@ -103,6 +103,9 @@ export async function createPurchase(
   totalAmount: number,
   storeName: string,
   addressId: string,
+  shippingPrice: number,
+  shippingTime: number,
+  pickup: string,
 ): Promise<{
   purchase: { id: string } | null
   purchaseError: any | null
@@ -122,16 +125,22 @@ export async function createPurchase(
     console.error(storeError)
   }
 
+  const valuesToInsert = {
+    customer_id: customer?.id,
+    status: 'pending',
+    total_amount: totalAmount,
+    updated_at: new Date().toISOString(),
+    address_id: addressId,
+    store_id: store?.id,
+    shipping_price: pickup === 'delivery' ? shippingPrice : 0,
+    delivery_time: pickup === 'delivery' ? shippingTime : null,
+  }
+
+  console.log(valuesToInsert)
+
   const { data: purchase, error: purchaseError } = await supabase
     .from('purchases')
-    .insert({
-      customer_id: customer?.id,
-      status: 'pending',
-      total_amount: totalAmount,
-      updated_at: new Date().toISOString(),
-      address_id: addressId,
-      store_id: store?.id,
-    })
+    .insert(valuesToInsert)
     .select('id')
     .single()
 

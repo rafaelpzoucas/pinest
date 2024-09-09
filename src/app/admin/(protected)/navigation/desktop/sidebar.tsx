@@ -19,8 +19,8 @@ export function DesktopNav({ links }: { links: LinkType[] }) {
   return (
     <div className="p-4 hidden lg:block">
       <aside>
-        <Card className="relative bg-secondary/50 border-0 z-40">
-          <ScrollArea className="h-[calc(100vh_-_2rem)]">
+        <Card className="relative bg-secondary/50 z-40">
+          <ScrollArea className="h-[calc(100vh_-_2rem_-_2px)]">
             <TooltipProvider>
               <div
                 className={cn('flex items-center p-2', !isCollapsed && 'pl-4')}

@@ -19,7 +19,7 @@ export function AdminHeader({ title, withBackButton }: HeaderPropsType) {
 
   return (
     <header className="flex items-center justify-center w-full">
-      <Card className="flex flex-row items-center gap-2 w-full h-[68px] p-2 lg:p-4 bg-secondary/50 border-0">
+      <Card className="flex flex-row items-center gap-2 w-full h-[68px] p-2 lg:p-4 bg-secondary/50">
         {withBackButton && (
           <Button onClick={getBack} variant="ghost" size={'icon'}>
             <ArrowLeft className="w-5 h-5" />
