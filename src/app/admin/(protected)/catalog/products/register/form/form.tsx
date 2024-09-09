@@ -154,6 +154,8 @@ export function ProductForm({
   }
 
   async function onSubmit(values: z.infer<typeof newProductFormSchema>) {
+    console.log(values)
+
     if (!productId) {
       const { createdProduct, createdProductError } =
         await createProduct(values)
@@ -165,15 +167,16 @@ export function ProductForm({
 
       if (createdProduct) {
         if (files.length > 0) {
-          const { uploadErrors } = await uploadImages(
-            files,
-            createdProduct[0].id,
-          )
+          const { uploadErrors } = await uploadImages(files, createdProduct.id)
 
           if (uploadErrors) {
             console.error(uploadErrors)
           }
         }
+      }
+
+      if (variationsForm.length > 0 && createdProduct) {
+        await createProductVariations(variationsForm, createdProduct.id)
       }
 
       return router.push(`${redirectTo}?tab=products`)

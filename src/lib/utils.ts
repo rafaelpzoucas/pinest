@@ -75,11 +75,16 @@ export function convertStringToNumber(string: string) {
   }
 
   if (typeof string === 'string') {
+    // Remove todos os caracteres que não são dígitos, vírgulas ou pontos.
     let numberString = string.replace(/[^0-9,.-]+/g, '')
 
-    if (numberString.includes(',')) {
-      numberString = numberString.replace(',', '.')
+    // Se a string contiver uma vírgula e ponto, remover os pontos (separadores de milhar).
+    if (numberString.includes('.') && numberString.includes(',')) {
+      numberString = numberString.replace(/\./g, '')
     }
+
+    // Substitui a última vírgula pelo ponto decimal.
+    numberString = numberString.replace(',', '.')
 
     const number = parseFloat(numberString)
 

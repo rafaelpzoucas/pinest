@@ -32,7 +32,7 @@ export async function readStoreByUserId(): Promise<{
 export async function createProduct(
   values: z.infer<typeof newProductFormSchema>,
 ): Promise<{
-  createdProduct: any[] | null
+  createdProduct: ProductType | null
   createdProductError: any | null
 }> {
   const supabase = createClient()
@@ -58,6 +58,7 @@ export async function createProduct(
       product_url: values.name && generateSlug(values.name.trim()),
     })
     .select()
+    .single()
 
   revalidatePath('/catalog')
 
