@@ -40,8 +40,8 @@ export function CategoryForm({ category }: { category: CategoryType }) {
   const form = useForm<z.infer<typeof newCategoryFormSchema>>({
     resolver: zodResolver(newCategoryFormSchema),
     defaultValues: {
-      name: category.name ?? '',
-      description: category.description ?? '',
+      name: category?.name ?? '',
+      description: category?.description ?? '',
     },
   })
 
