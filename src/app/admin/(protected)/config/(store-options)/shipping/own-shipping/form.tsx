@@ -218,7 +218,7 @@ export function OwnShippingForm({
               {formState.isSubmitting && (
                 <Loader className="w-4 h-4 mr-2 animate-spin" />
               )}
-              {shipping ? 'Salvar alterações' : 'Criar produto'}
+              Salvar alterações
             </Button>
           </form>
         </Form>
