@@ -3,6 +3,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { stripe } from '@/lib/stripe'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import {
   createStripeAccountLink,
   getConnectedAccount,
@@ -12,6 +13,21 @@ import {
 export default async function PaymentMethodsPage() {
   const connectedAccount = await getConnectedAccount()
   const { stripeAccount } = await getStripeAccount()
+
+  const account = await stripe.accounts.retrieve(
+    stripeAccount?.stripe_account_id,
+  )
+
+  if (!account.details_submitted) {
+    const accountLink = await stripe.accountLinks.create({
+      account: stripeAccount?.stripe_account_id,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/config/billing`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/config/billing`,
+      type: 'account_onboarding',
+    })
+
+    return redirect(accountLink.url)
+  }
 
   const loginLink = await stripe.accounts.createLoginLink(
     stripeAccount?.stripe_account_id,

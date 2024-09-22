@@ -16,7 +16,12 @@ export async function readCategoriesByStoreURL(storeURL: string): Promise<{
 
   const { data, error } = await supabase
     .from('categories')
-    .select('*')
+    .select(
+      `
+      *,
+      products (*)  
+    `,
+    )
     .eq('store_id', store?.id)
 
   return { data, error }

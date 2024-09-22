@@ -33,22 +33,26 @@ export default async function Header({
         >
           <CarouselContent>
             {categories &&
-              categories.map((category) => (
-                <CarouselItem className="flex-[0_0_27.5%]" key={category.id}>
-                  <Link
-                    href={`#${category.name.toLowerCase()}`}
-                    className="flex flex-col items-center justify-center gap-2"
-                  >
-                    <Avatar className="w-14 h-14">
-                      <AvatarImage src={category.image_url} />
-                      <AvatarFallback>
-                        <Box />
-                      </AvatarFallback>
-                    </Avatar>
-                    <p className="text-xs text-center">{category.name}</p>
-                  </Link>
-                </CarouselItem>
-              ))}
+              categories.map((category) => {
+                if (category?.products.length === 0) return null
+
+                return (
+                  <CarouselItem className="flex-[0_0_27.5%]" key={category.id}>
+                    <Link
+                      href={`#${category.name.toLowerCase()}`}
+                      className="flex flex-col items-center justify-center gap-2"
+                    >
+                      <Avatar className="w-14 h-14">
+                        <AvatarImage src={category.image_url} />
+                        <AvatarFallback>
+                          <Box />
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-xs text-center">{category.name}</p>
+                    </Link>
+                  </CarouselItem>
+                )
+              })}
           </CarouselContent>
         </Carousel>
       </div>
