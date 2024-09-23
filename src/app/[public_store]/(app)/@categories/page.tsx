@@ -60,18 +60,22 @@ export default async function Header({
       <div className="hidden lg:flex w-full">
         <Card className="sticky top-4 flex flex-col gap-2 w-full p-4 bg-secondary/50 border-0 h-fit">
           {categories &&
-            categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`#${category.name.toLowerCase()}`}
-                className={cn(
-                  buttonVariants({ variant: 'ghost' }),
-                  'justify-start',
-                )}
-              >
-                {category.name}
-              </Link>
-            ))}
+            categories.map((category) => {
+              if (category?.products.length === 0) return null
+
+              return (
+                <Link
+                  key={category.id}
+                  href={`#${category.name.toLowerCase()}`}
+                  className={cn(
+                    buttonVariants({ variant: 'ghost' }),
+                    'justify-start',
+                  )}
+                >
+                  {category.name}
+                </Link>
+              )
+            })}
         </Card>
       </div>
     </>
