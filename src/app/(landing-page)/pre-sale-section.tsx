@@ -18,7 +18,6 @@ export function PreSaleSection() {
         'Acesso antecipado à Pinest',
         'Criação fácil e rápida',
         'Design otimizado para vendas',
-        'Suporte básico',
         'Prorrogação do desconto por 6 meses',
       ],
     },
@@ -34,8 +33,8 @@ export function PreSaleSection() {
 
           <p className="text-center mt-4 text-muted-foreground">
             Aproveite a pré-venda e garanta o plano básico com 50% de desconto!
-            Tenha acesso a todas as funcionalidades do MVP e prorrogue esse
-            preço por mais 6 meses!
+            Tenha acesso a todas as funcionalidades essenciais da plataforma e
+            mantenha esse preço especial por mais 6 meses!
           </p>
         </div>
 
