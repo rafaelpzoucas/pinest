@@ -18,7 +18,7 @@ export function ResourcesSection() {
       icon: Paintbrush,
       title: 'Design pronto e otimizado para vendas',
       description:
-        'Layouts profissionais e modernos, prontos para usar e projetados para maximizar a conversão de visitantes em clientes. Não precisa se preocupar com o visual — ele já vem perfeito para vender.',
+        'Visual profissional e moderno, pronto para usar e projetado para maximizar a conversão de visitantes em clientes. Não precisa se preocupar com o visual — ele já vem perfeito para vender.',
     },
     {
       icon: CircleDollarSign,

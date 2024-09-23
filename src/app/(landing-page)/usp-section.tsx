@@ -7,10 +7,10 @@ export function USPSection() {
         </h3>
 
         <p className="max-w-2xl text-muted-foreground">
-          Na Pinest, criamos sua loja usando as melhores práticas de design,
-          garantindo não apenas uma aparência profissional, mas também uma
-          experiência que converte visitantes em clientes. Tudo isso de forma
-          simples, rápida e sem complicações.
+          Na Pinest, sua loja já vem pronta com um visual profissional e
+          otimizado para vendas. Além de bonita, ela é fácil de usar,
+          proporcionando uma ótima experiência para seus clientes e ajudando
+          você a vender mais.
         </p>
       </div>
     </section>
