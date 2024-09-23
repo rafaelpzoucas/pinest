@@ -4,9 +4,9 @@ export function BenefitsSection() {
   const benefits = [
     {
       icon: TrendingUp,
-      title: 'Foque nas vendas, não no design',
+      title: 'Economize tempo',
       description:
-        'Com a Pinest, você não perde tempo escolhendo temas ou personalizando sua loja. Nós cuidamos do design, para que você possa focar 100% em vender.',
+        'Com a Pinest, você não perde tempo escolhendo temas ou ajustando a aparência da loja. Tudo já vem pronto, para que você possa focar 100% em vender.',
     },
     {
       icon: Wand,
