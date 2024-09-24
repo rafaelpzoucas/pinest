@@ -125,7 +125,12 @@ export function SearchSheet({ publicStore }: { publicStore?: string }) {
             )}
           />
 
-          <Button type="submit" variant={'outline'} size={'icon'}>
+          <Button
+            type="submit"
+            variant={'outline'}
+            size={'icon'}
+            className="w-full max-w-9"
+          >
             <Search className="w-4 h-4" />
           </Button>
         </form>

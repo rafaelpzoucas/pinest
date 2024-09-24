@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { Box } from 'lucide-react'
 import Link from 'next/link'
 import { readCategoriesByStoreURL } from '../@search/actions'
+import { SearchSheet } from '../@search/search-sheet'
 
 export default async function Header({
   params,
@@ -58,24 +59,28 @@ export default async function Header({
       </div>
 
       <div className="hidden lg:flex w-full">
-        <Card className="sticky top-4 flex flex-col gap-2 w-full p-4 bg-secondary/50 border-0 h-fit">
-          {categories &&
-            categories.map((category) => {
-              if (category?.products.length === 0) return null
+        <Card className="sticky top-4 flex flex-col gap-4 w-full p-4 bg-secondary/50 border-0 h-fit">
+          <SearchSheet publicStore={params.public_store} />
 
-              return (
-                <Link
-                  key={category.id}
-                  href={`#${category.name.toLowerCase()}`}
-                  className={cn(
-                    buttonVariants({ variant: 'ghost' }),
-                    'justify-start',
-                  )}
-                >
-                  {category.name}
-                </Link>
-              )
-            })}
+          <div className="flex flex-col">
+            {categories &&
+              categories.map((category) => {
+                if (category?.products.length === 0) return null
+
+                return (
+                  <Link
+                    key={category.id}
+                    href={`#${category.name.toLowerCase()}`}
+                    className={cn(
+                      buttonVariants({ variant: 'ghost' }),
+                      'justify-start',
+                    )}
+                  >
+                    {category.name}
+                  </Link>
+                )
+              })}
+          </div>
         </Card>
       </div>
     </>
