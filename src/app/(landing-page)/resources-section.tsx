@@ -10,33 +10,33 @@ export function ResourcesSection() {
   const resources = [
     {
       icon: Sparkle,
-      title: 'Criação fácil e rápida',
+      title: 'Crie sua loja virtual em minutos',
       description:
-        'Monte sua loja virtual em minutos, sem necessidade de habilidades técnicas ou complicações. O processo é simples, direto e pensado para quem precisa começar a vender rapidamente.',
+        'Construa sua loja virtual de forma rápida e intuitiva, sem precisar de habilidades técnicas ou complicações. O processo é simples e direto, permitindo que você comece a vender rapidamente.',
     },
     {
       icon: Paintbrush,
       title: 'Design pronto e otimizado para vendas',
       description:
-        'Visual profissional e moderno, pronto para usar e projetado para maximizar a conversão de visitantes em clientes. Não precisa se preocupar com o visual — ele já vem perfeito para vender.',
+        'Aproveite um visual profissional e moderno, projetado para maximizar a conversão de visitantes em clientes. Não precisa se preocupar com o design - tudo já vem perfeito para impulsionar suas vendas.',
     },
     {
       icon: CircleDollarSign,
-      title: 'Integração com Stripe para pagamentos',
+      title: 'Receba pagamentos de forma fácil e segura',
       description:
-        'Receba pagamentos de maneira fácil e segura com a integração automática com o Stripe. Aceite diversas formas de pagamento sem complicações técnicas.',
+        'Integre sua loja diretamente com o Stripe e ofereça diversas formas de pagamento aos seus clientes, sem complicações técnicas.',
     },
     {
       icon: Truck,
-      title: 'Opções de envio integradas',
+      title: 'Ofereça opções de envio integradas',
       description:
-        'Facilite o envio de seus produtos com integrações diretas a transportadoras confiáveis. Ofereça aos clientes diferentes opções de frete sem complicações.',
+        'Facilite o envio de seus produtos com integrações diretas a transportadoras confiáveis. Ofereça aos clientes diferentes opções de frete sem complicações, melhorando sua experiência de compra.',
     },
     {
       icon: Lightbulb,
       title: 'Venda produtos físicos ou digitais',
       description:
-        'Com a Pinest, você pode vender tanto produtos físicos quanto digitais, ampliando suas oportunidades de mercado de forma fácil e eficiente.',
+        'Com a Pinest, você pode vender tanto produtos físicos quanto digitais, ampliando suas oportunidades de negócio de forma fácil e eficiente.',
     },
   ]
 

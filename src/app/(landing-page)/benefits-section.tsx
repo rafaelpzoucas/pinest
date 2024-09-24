@@ -4,21 +4,21 @@ export function BenefitsSection() {
   const benefits = [
     {
       icon: TrendingUp,
-      title: 'Economize tempo',
+      title: 'Poupe tempo valioso',
       description:
-        'Com a Pinest, você não perde tempo escolhendo temas ou ajustando a aparência da loja. Tudo já vem pronto, para que você possa focar 100% em vender.',
+        'Com a Pinest, você não perde tempo escolhendo temas ou ajustando a aparência da loja. Tudo já vem pronto, permitindo que você se concentre 100% em vender e impulsionar seus negócios.',
     },
     {
       icon: Wand,
       title: 'Gerenciamento simples e eficiente',
       description:
-        'Controle produtos e pedidos com facilidade usando um painel intuitivo, sem complicações técnicas.',
+        'Controle seus produtos e pedidos com facilidade usando um painel intuitivo, sem complicações técnicas. Foque em crescer sua loja, e deixe a Pinest cuidar dos detalhes.',
     },
     {
       icon: Rocket,
-      title: 'Venda rapidamente',
+      title: 'Inicie suas vendas rapidamente',
       description:
-        'Lance sua loja em minutos e comece a vender de imediato, aproveitando uma estrutura pronta para gerar vendas.',
+        'Lance sua loja em minutos e comece a vender de imediato, aproveitando uma plataforma pronta para gerar vendas e impulsionar seu negócio.',
     },
   ]
 

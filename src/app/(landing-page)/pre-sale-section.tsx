@@ -12,13 +12,14 @@ import { CheckCircle2 } from 'lucide-react'
 export function PreSaleSection() {
   const plans = [
     {
-      name: 'Básico (Pré-venda)',
-      price: 'R$ 19/mês (50% de desconto)',
+      name: 'Básico (Oferta Limitada)',
+      price: 'R$ 38/mês',
+      discount_price: 'R$ 19/mês (50% de desconto)',
       features: [
-        'Acesso antecipado à Pinest',
+        'Acesso antecipado à Plataforma',
         'Criação fácil e rápida',
         'Design otimizado para vendas',
-        'Prorrogação do desconto por 6 meses',
+        'Preço especial por 6 meses',
       ],
     },
   ]
@@ -28,13 +29,14 @@ export function PreSaleSection() {
       <div className="relative z-10 w-full md:max-w-3xl flex flex-col items-center justify-center gap-6 md:gap-16 text-center md:text-left">
         <div>
           <h2 className="text-3xl font-bold text-center">
-            Reserve Seu Acesso à Pinest
+            Garanta seu acesso antecipado à Pinest com 50% de desconto
           </h2>
 
           <p className="text-center mt-4 text-muted-foreground">
-            Aproveite a pré-venda e garanta o plano básico com 50% de desconto!
-            Tenha acesso a todas as funcionalidades essenciais da plataforma e
-            mantenha esse preço especial por mais 6 meses!
+            Aproveite esta oferta especial de pré-venda e garanta o plano básico
+            da Pinest com 50% de desconto. Tenha acesso a todas as
+            funcionalidades essenciais da plataforma e mantenha esse preço
+            promocional por 6 meses adicionais.
           </p>
         </div>
 
@@ -43,7 +45,13 @@ export function PreSaleSection() {
             <Card key={plan.name} className=" ">
               <CardHeader>
                 <CardDescription>{plan.name}</CardDescription>
-                <CardTitle>{plan.price}</CardTitle>
+
+                <div>
+                  <CardDescription className="line-through">
+                    {plan.price}
+                  </CardDescription>
+                  <CardTitle>{plan.discount_price}</CardTitle>
+                </div>
               </CardHeader>
 
               <CardContent>
@@ -61,7 +69,7 @@ export function PreSaleSection() {
               </CardContent>
 
               <CardFooter>
-                <Button className="w-full">Começar Agora</Button>
+                <Button className="w-full">Garanta Seu Acesso Agora</Button>
               </CardFooter>
             </Card>
           ))}
