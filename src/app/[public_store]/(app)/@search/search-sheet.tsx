@@ -106,18 +106,17 @@ export function SearchSheet({ publicStore }: { publicStore?: string }) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="hidden lg:flex justify-end flex-row gap-2"
+          className="hidden lg:flex justify-end flex-row gap-2 w-full max-w-md"
         >
           <FormField
             control={form.control}
             name="search"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormControl>
                   <Input
                     type="search"
                     placeholder="Buscar na loja..."
-                    className="w-full"
                     {...field}
                   />
                 </FormControl>

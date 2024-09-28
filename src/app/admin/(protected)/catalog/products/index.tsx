@@ -1,7 +1,7 @@
 import { Box } from 'lucide-react'
 import { ProductCard } from './product-card'
 
-import { readUser } from '../../config/(store-options)/account/actions'
+import { readUser } from '../../config/(options)/account/actions'
 import { readProductsByStore } from './actions'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'

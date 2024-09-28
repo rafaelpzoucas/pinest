@@ -6,11 +6,9 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel'
-import { cn } from '@/lib/utils'
 import { Box } from 'lucide-react'
 import Link from 'next/link'
 import { readCategoriesByStoreURL } from '../@search/actions'
-import { SearchSheet } from '../@search/search-sheet'
 
 export default async function Header({
   params,
@@ -60,9 +58,7 @@ export default async function Header({
 
       <div className="hidden lg:flex w-full">
         <Card className="sticky top-4 flex flex-col gap-4 w-full p-4 bg-secondary/50 border-0 h-fit">
-          <SearchSheet publicStore={params.public_store} />
-
-          <div className="flex flex-col">
+          <div className="flex flex-row justify-around">
             {categories &&
               categories.map((category) => {
                 if (category?.products.length === 0) return null
@@ -71,10 +67,7 @@ export default async function Header({
                   <Link
                     key={category.id}
                     href={`#${category.name.toLowerCase()}`}
-                    className={cn(
-                      buttonVariants({ variant: 'ghost' }),
-                      'justify-start',
-                    )}
+                    className={buttonVariants({ variant: 'ghost' })}
                   >
                     {category.name}
                   </Link>

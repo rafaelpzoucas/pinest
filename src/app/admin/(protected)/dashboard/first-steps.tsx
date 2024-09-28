@@ -1,19 +1,19 @@
 import { buttonVariants } from '@/components/ui/button'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { readProductsByStore } from '../catalog/products/actions'
-import { readUser } from '../config/(store-options)/account/actions'
-import { getConnectedAccount } from '../config/(store-options)/billing/actions'
-import { readOwnShipping } from '../config/(store-options)/shipping/own-shipping/actions'
+import { readUser } from '../config/(options)/account/actions'
+import { getConnectedAccount } from '../config/(options)/billing/actions'
+import { readOwnShipping } from '../config/(options)/shipping/own-shipping/actions'
 
 type StepsType = {
   name: string

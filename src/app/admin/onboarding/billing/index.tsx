@@ -1,7 +1,7 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { getConnectedAccount } from '../../(protected)/config/(store-options)/billing/actions'
+import { getConnectedAccount } from '../../(protected)/config/(options)/billing/actions'
 import { onboardingCreateStripeAccountLink } from './actions'
 
 export async function PaymentStep() {

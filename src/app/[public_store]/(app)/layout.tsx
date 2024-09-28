@@ -8,31 +8,31 @@ export const metadata: Metadata = {
 export default function StoreLayout({
   header,
   categories,
+  benefits,
   promotions,
   topSellers,
   productsList,
 }: {
   header: React.ReactNode
   categories: React.ReactNode
+  benefits: React.ReactNode
   promotions: React.ReactNode
   topSellers: React.ReactNode
   productsList: React.ReactNode
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {header}
 
-      <div className="flex flex-col gap-6 lg:grid grid-cols-[1fr_3.5fr]">
-        <aside className="flex w-full">{categories}</aside>
+      {categories}
 
-        <div className="w-full">
-          {promotions}
+      {promotions}
 
-          {topSellers}
+      {topSellers}
 
-          {productsList}
-        </div>
-      </div>
+      {benefits}
+
+      {productsList}
     </div>
   )
 }

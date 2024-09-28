@@ -9,6 +9,7 @@ import {
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
 import { PublicStoreNavigation } from '../../navigation'
+import { SearchSheet } from '../@search/search-sheet'
 import { readOwnShipping } from './actions'
 
 export default async function HeaderPage({
@@ -60,6 +61,10 @@ export default async function HeaderPage({
               </p>
             )}
           </div>
+        </div>
+
+        <div className="hidden lg:block">
+          <SearchSheet publicStore={params.public_store} />
         </div>
 
         <div className="hidden lg:block">
