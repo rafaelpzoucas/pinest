@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SearchSheet } from '../search/search-sheet'
+import { SearchSheet } from '../(search)/search-sheet'
 
 export default function HeaderLoading() {
   return (

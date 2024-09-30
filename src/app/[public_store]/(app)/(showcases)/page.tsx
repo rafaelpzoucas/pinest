@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/carousel'
 
 import { ProductCard } from '@/components/product-card'
-import Benefits from '../benefits/page'
+import Benefits from '../(benefits)/page'
 import { readShowcases } from './actions'
 
 export default async function Showcases({

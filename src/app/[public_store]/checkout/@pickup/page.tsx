@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { readOwnShipping } from '../../(app)/header/actions'
+import { readOwnShipping } from '../../(app)/(header)/actions'
 import { readCustomerAddress, readStoreAddress } from '../actions'
 
 export default async function PickupOptions({

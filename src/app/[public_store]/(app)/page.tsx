@@ -1,7 +1,8 @@
-import Categories from './categories/page'
-import Header from './header/page'
-import ProductsList from './productsList/page'
-import Showcases from './showcases/page'
+import Categories from './(categories)/page'
+import { Footer } from './(footer)'
+import Header from './(header)/page'
+import ProductsList from './(productsList)/page'
+import Showcases from './(showcases)/page'
 
 export default function HomePage({
   params,
@@ -14,6 +15,7 @@ export default function HomePage({
       <Categories params={{ public_store: params.public_store }} />
       <Showcases params={{ public_store: params.public_store }} />
       <ProductsList params={{ public_store: params.public_store }} />
+      <Footer />
     </div>
   )
 }

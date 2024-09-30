@@ -3,13 +3,13 @@ import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { Pyramid } from 'lucide-react'
+import { SearchSheet } from '../(search)/search-sheet'
 import { getStoreByStoreURL } from '../../actions'
 import {
   getCart,
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
 import { PublicStoreNavigation } from '../../navigation'
-import { SearchSheet } from '../search/search-sheet'
 import { readOwnShipping } from './actions'
 
 export default async function HeaderPage({
