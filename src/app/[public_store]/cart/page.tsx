@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { readOwnShipping } from '../(app)/(header)/actions'
+import { readOwnShipping } from '../(app)/header/actions'
 import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
 

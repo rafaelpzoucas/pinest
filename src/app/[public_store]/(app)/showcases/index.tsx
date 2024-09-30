@@ -7,18 +7,15 @@ import {
 } from '@/components/ui/carousel'
 
 import { ProductCard } from '@/components/product-card'
-import Benefits from '../(benefits)/page'
+
+import { Benefits } from '../benefits'
 import { readShowcases } from './actions'
 
-export default async function Showcases({
-  params,
-}: {
-  params: { public_store: string }
-}) {
-  const showcases = await readShowcases(params.public_store)
+export async function Showcases({ storeURL }: { storeURL: string }) {
+  const showcases = await readShowcases(storeURL)
 
   if (!showcases || showcases.length === 0) {
-    return <Benefits params={{ public_store: params.public_store }} />
+    return <Benefits storeURL={storeURL} />
   }
 
   const [firstShowcase, ...otherShowcases] = showcases
@@ -46,7 +43,7 @@ export default async function Showcases({
                   <ProductCard
                     variant={'featured'}
                     data={product}
-                    publicStore={params.public_store}
+                    publicStore={storeURL}
                   />
                 </CarouselItem>
               ))}
@@ -59,7 +56,7 @@ export default async function Showcases({
         </Carousel>
       </section>
 
-      <Benefits params={{ public_store: params.public_store }} />
+      <Benefits storeURL={storeURL} />
 
       {otherShowcases.map((showcase) => (
         <section
@@ -83,7 +80,7 @@ export default async function Showcases({
                     <ProductCard
                       variant={'featured'}
                       data={product}
-                      publicStore={params.public_store}
+                      publicStore={storeURL}
                     />
                   </CarouselItem>
                 ))}

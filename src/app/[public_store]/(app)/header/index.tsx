@@ -3,25 +3,21 @@ import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { Pyramid } from 'lucide-react'
-import { SearchSheet } from '../(search)/search-sheet'
 import { getStoreByStoreURL } from '../../actions'
 import {
   getCart,
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
 import { PublicStoreNavigation } from '../../navigation'
+import { SearchSheet } from '../search/search-sheet'
 import { readOwnShipping } from './actions'
 
-export default async function HeaderPage({
-  params,
-}: {
-  params: { public_store: string }
-}) {
+export async function Header({ storeURL }: { storeURL: string }) {
   const supabase = createClient()
 
-  const { store, storeError } = await getStoreByStoreURL(params.public_store)
-  const { cart } = await getCart(params.public_store)
-  const { shipping } = await readOwnShipping(params.public_store)
+  const { store, storeError } = await getStoreByStoreURL(storeURL)
+  const { cart } = await getCart(storeURL)
+  const { shipping } = await readOwnShipping(storeURL)
 
   if (storeError) {
     console.error(storeError)
@@ -29,9 +25,7 @@ export default async function HeaderPage({
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  const { user } = await readStripeConnectedAccountByStoreUrl(
-    params.public_store,
-  )
+  const { user } = await readStripeConnectedAccountByStoreUrl(storeURL)
 
   const connectedAccount = user?.stripe_connected_account
 
@@ -64,7 +58,7 @@ export default async function HeaderPage({
         </div>
 
         <div className="hidden lg:block">
-          <SearchSheet publicStore={params.public_store} />
+          <SearchSheet publicStore={storeURL} />
         </div>
 
         <div className="hidden lg:block">

@@ -1,16 +1,16 @@
 'use client'
 
-import { SearchSheet } from '@/app/[public_store]/(app)/(search)/search-sheet'
+import { SearchSheet } from '@/app/[public_store]/(app)/search/search-sheet'
 import { PublicStoreNavigation } from '@/app/[public_store]/navigation'
 import { Button } from '@/components/ui/button'
 import { CartProductType } from '@/models/cart'
 import { StoreType } from '@/models/store'
 import { ArrowLeft } from 'lucide-react'
 import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
+    useParams,
+    usePathname,
+    useRouter,
+    useSearchParams,
 } from 'next/navigation'
 import { Card } from './ui/card'
 

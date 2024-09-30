@@ -2,14 +2,8 @@ import { ProductCard } from '@/components/product-card'
 import { Box, Boxes } from 'lucide-react'
 import { getProductsByCategory } from './actions'
 
-export default async function ProductsList({
-  params,
-}: {
-  params: { public_store: string }
-}) {
-  const { categories, categoriesError } = await getProductsByCategory(
-    params.public_store,
-  )
+export async function ProductsList({ storeURL }: { storeURL: string }) {
+  const { categories, categoriesError } = await getProductsByCategory(storeURL)
 
   if (categoriesError) {
     return (
@@ -44,7 +38,7 @@ export default async function ProductsList({
                     key={product.id}
                     variant={'featured'}
                     data={product}
-                    publicStore={params.public_store}
+                    publicStore={storeURL}
                     className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
                   />
                 ))}

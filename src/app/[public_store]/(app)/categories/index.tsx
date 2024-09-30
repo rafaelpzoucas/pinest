@@ -8,15 +8,11 @@ import {
 } from '@/components/ui/carousel'
 import { Box } from 'lucide-react'
 import Link from 'next/link'
-import { readCategoriesByStoreURL } from '../(search)/actions'
+import { readCategoriesByStoreURL } from '../search/actions'
 
-export default async function Header({
-  params,
-}: {
-  params: { public_store: string }
-}) {
+export async function Categories({ storeURL }: { storeURL: string }) {
   const { data: categories, error: categoriesError } =
-    await readCategoriesByStoreURL(params.public_store)
+    await readCategoriesByStoreURL(storeURL)
 
   if (categoriesError) {
     console.error(categoriesError)

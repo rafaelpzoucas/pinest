@@ -3,14 +3,8 @@ import { Card } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
 import { readBenefitsByStoreId } from './actions'
 
-export default async function Benefits({
-  params,
-}: {
-  params: { public_store: string }
-}) {
-  const { benefits, readBenefitsError } = await readBenefitsByStoreId(
-    params.public_store,
-  )
+export async function Benefits({ storeURL }: { storeURL: string }) {
+  const { benefits, readBenefitsError } = await readBenefitsByStoreId(storeURL)
 
   if (readBenefitsError) {
     console.error(readBenefitsError)
