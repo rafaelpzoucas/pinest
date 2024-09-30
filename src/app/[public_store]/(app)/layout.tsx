@@ -6,33 +6,9 @@ export const metadata: Metadata = {
 }
 
 export default function StoreLayout({
-  header,
-  categories,
-  benefits,
-  promotions,
-  topSellers,
-  productsList,
+  children,
 }: {
-  header: React.ReactNode
-  categories: React.ReactNode
-  benefits: React.ReactNode
-  promotions: React.ReactNode
-  topSellers: React.ReactNode
-  productsList: React.ReactNode
+  children: React.ReactNode
 }) {
-  return (
-    <div className="space-y-4">
-      {header}
-
-      {categories}
-
-      {promotions}
-
-      {topSellers}
-
-      {benefits}
-
-      {productsList}
-    </div>
-  )
+  return <>{children}</>
 }

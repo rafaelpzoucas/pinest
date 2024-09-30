@@ -2,13 +2,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
 } from '@/components/ui/carousel'
 import { Box } from 'lucide-react'
 import Link from 'next/link'
-import { readCategoriesByStoreURL } from '../@search/actions'
+import { readCategoriesByStoreURL } from '../search/actions'
 
 export default async function Header({
   params,

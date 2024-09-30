@@ -10,12 +10,15 @@ export default async function BenefitsRegister({
   const { benefit, readBenefitError } = await readBenefitById(searchParams.id)
 
   if (readBenefitError) {
-    throw new Error(readBenefitError)
+    console.error(readBenefitError)
   }
 
   return (
     <div className="space-y-6">
-      <AdminHeader title="Novo benefício" withBackButton />
+      <AdminHeader
+        title={`${benefit ? 'Editar ' : 'Novo '} benefício`}
+        withBackButton
+      />
 
       <BenefitForm benefit={benefit} />
     </div>

@@ -9,7 +9,7 @@ import {
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
 import { PublicStoreNavigation } from '../../navigation'
-import { SearchSheet } from '../@search/search-sheet'
+import { SearchSheet } from '../search/search-sheet'
 import { readOwnShipping } from './actions'
 
 export default async function HeaderPage({

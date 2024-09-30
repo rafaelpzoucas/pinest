@@ -7,7 +7,7 @@ import { CartProductType } from '@/models/cart'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { SearchSheet } from './(app)/@search/search-sheet'
+import { SearchSheet } from './(app)/search/search-sheet'
 
 export function MobileNavigation({
   cartProducts,

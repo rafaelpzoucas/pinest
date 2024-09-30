@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 import { MoreVertical, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { readBenefits } from './actions'
-import { DeleteDialog } from './benefits/delete-dialog'
+import { DeleteDialog } from './delete-dialog'
 
 export async function BenefitsSection() {
   const { benefits, readBenefitsError } = await readBenefits()
@@ -37,6 +37,15 @@ export async function BenefitsSection() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
+        {benefits && benefits?.length < 6 && (
+          <Link
+            href="layout/benefits/register"
+            className={cn(buttonVariants({ variant: 'outline' }))}
+          >
+            <Plus className="w-4 h-4 mr-2" /> Adicionar novo benefício
+          </Link>
+        )}
+
         <AlertDialog>
           {benefits &&
             benefits.length > 0 &&
@@ -79,15 +88,6 @@ export async function BenefitsSection() {
               </Card>
             ))}
         </AlertDialog>
-
-        {benefits && benefits?.length < 6 && (
-          <Link
-            href="layout/benefits/register"
-            className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}
-          >
-            <Plus className="w-4 h-4 mr-2" /> Adicionar novo benefício
-          </Link>
-        )}
       </CardContent>
     </Card>
   )
