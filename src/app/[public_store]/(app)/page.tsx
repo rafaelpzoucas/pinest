@@ -10,12 +10,12 @@ export default function HomePage({
   params: { public_store: string }
 }) {
   return (
-    <div className="space-y-8">
+    <div className="w-full space-y-8">
       <Header storeURL={params.public_store} />
       <Categories storeURL={params.public_store} />
       <Showcases storeURL={params.public_store} />
       <ProductsList storeURL={params.public_store} />
-      <Footer />
+      <Footer storeURL={params.public_store} />
     </div>
   )
 }

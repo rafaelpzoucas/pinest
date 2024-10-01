@@ -20,7 +20,7 @@ export async function Categories({ storeURL }: { storeURL: string }) {
 
   return (
     <>
-      <div className="lg:hidden w-full">
+      <div className="lg:hidden w-full max-w-7xl">
         <Carousel
           opts={{
             dragFree: true,
