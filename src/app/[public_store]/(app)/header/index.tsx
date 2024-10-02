@@ -42,9 +42,9 @@ export async function Header({ storeURL }: { storeURL: string }) {
 
           <div className="text-center lg:text-left w-full max-w-72">
             <h1 className="text-xl capitalize font-bold">{store?.name}</h1>
-            {store?.description && (
+            {store?.role && (
               <p className="text-xs text-muted-foreground line-clamp-2">
-                {store?.description}
+                {store?.role}
               </p>
             )}
 
