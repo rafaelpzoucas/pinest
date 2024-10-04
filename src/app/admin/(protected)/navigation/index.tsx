@@ -49,17 +49,17 @@ export const navLinks: LinkType[] = [
       {
         icon: LayoutDashboard,
         title: 'Organização da loja',
-        route: 'config/layout',
+        route: '/admin/config/layout',
       },
       {
         icon: CircleDollarSign,
         title: 'Pagamento',
-        route: 'config/billing',
+        route: '/admin/config/billing',
       },
       {
         icon: Truck,
         title: 'Envio',
-        route: 'config/shipping',
+        route: '/admin/config/shipping',
       },
     ],
   },
