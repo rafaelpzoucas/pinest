@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import React from 'react'
 import { Card } from './ui/card'
 
 type StepType = {
@@ -16,7 +17,7 @@ export function Stepper({ currentStep, steps }: StepperPropsType) {
       {steps &&
         steps.length > 0 &&
         steps.map((step, index) => (
-          <>
+          <React.Fragment key={index}>
             <div
               className={cn(
                 'h-1 w-full bg-primary first-of-type:hidden',
@@ -41,11 +42,16 @@ export function Stepper({ currentStep, steps }: StepperPropsType) {
                 {index + 1}
               </Card>
 
-              <span className="absolute text-center top-12 md:w-32 text-xs md:text-sm">
+              <span
+                className={cn(
+                  currentStep < index + 1 && 'text-muted-foreground',
+                  'absolute text-center top-12 md:w-24 text-xs md:text-sm',
+                )}
+              >
                 {step.label}
               </span>
             </div>
-          </>
+          </React.Fragment>
         ))}
     </div>
   )
