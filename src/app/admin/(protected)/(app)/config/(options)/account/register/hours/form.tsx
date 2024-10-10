@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -35,6 +35,9 @@ export type HoursFormValues = z.infer<typeof hoursFormSchema>
 
 export function BusinessHoursForm() {
   const router = useRouter()
+  const params = useParams()
+
+  const isOnboarding = !!params.current_step
 
   const [defaultTime, setDefaultTime] = useState({
     open_time: '09:00',
@@ -119,7 +122,11 @@ export function BusinessHoursForm() {
       console.error(createHoursError)
     }
 
-    router.push('/admin/onboarding/store/socials')
+    if (isOnboarding) {
+      router.push('/admin/onboarding/store/socials')
+    } else {
+      router.back()
+    }
   }
 
   return (

@@ -19,10 +19,10 @@ import { Input } from '@/components/ui/input'
 import { AddressType } from '@/models/user'
 import { ViacepType } from '@/models/viacep-address'
 import { Loader2 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { updateAddress } from './actions'
+import { createAddress, updateAddress } from './actions'
 
 export const addressSchema = z.object({
   zip_code: z.string().min(8),
@@ -36,7 +36,10 @@ export const addressSchema = z.object({
 
 export function AddressForm({ address }: { address: AddressType | null }) {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const params = useParams()
+
+  const isOnboarding = !!params.current_step
+
   const [hasAddress, setHasAddress] = useState(!!address)
 
   const zipCode = address?.zip_code ?? ''
@@ -67,14 +70,29 @@ export function AddressForm({ address }: { address: AddressType | null }) {
   }
 
   async function onSubmit(values: z.infer<typeof addressSchema>) {
-    const { error } = await updateAddress(values)
+    if (address) {
+      const { error } = await updateAddress(values)
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      toast('Informações atualizadas com sucesso')
+    }
+
+    const { error } = await createAddress(values)
 
     if (error) {
       console.error(error)
       return
     }
 
-    toast('Informações atualizadas com sucesso')
+    if (isOnboarding) {
+      router.push('/admin/onboarding/store/hours')
+    } else {
+      router.back()
+    }
   }
 
   useEffect(() => {

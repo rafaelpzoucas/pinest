@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2, Plus, Trash } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { createSocialMedias } from './actions'
 import { SOCIAL_MEDIAS } from './socials'
 
@@ -38,6 +38,9 @@ export const socialFormSchema = z.object({
 
 export function SocialsForm() {
   const router = useRouter()
+  const params = useParams()
+
+  const isOnboarding = !!params.current_step
 
   const form = useForm<z.infer<typeof socialFormSchema>>({
     resolver: zodResolver(socialFormSchema),
@@ -59,7 +62,11 @@ export function SocialsForm() {
       return
     }
 
-    router.push('/admin/onboarding/appearence/logo')
+    if (isOnboarding) {
+      router.push('/admin/onboarding/appearence/logo')
+    } else {
+      router.back()
+    }
   }
 
   return (

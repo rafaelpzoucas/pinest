@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils'
 
 import { MarketNicheType } from '@/models/market-niches'
 import { CaretSortIcon } from '@radix-ui/react-icons'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 export const storeSchema = z.object({
   name: z.string().min(3, { message: 'O nome da loja é obrigatório.' }),
@@ -57,6 +57,9 @@ export function StoreForm({
   marketNiches: MarketNicheType[] | null
 }) {
   const router = useRouter()
+  const params = useParams()
+
+  const isOnboarding = !!params.current_step
 
   const name = store?.name ?? ''
   const marketNicheId = store?.market_niches[0].id ?? ''
@@ -87,7 +90,11 @@ export function StoreForm({
       console.error(storeError)
     }
 
-    router.push('/admin/onboarding/store/hours')
+    if (isOnboarding) {
+      router.push('/admin/onboarding/store/address')
+    } else {
+      router.back()
+    }
   }
 
   return (
