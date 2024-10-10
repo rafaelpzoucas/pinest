@@ -11,7 +11,12 @@ export async function getStoreByStoreURL(storeURL: string): Promise<{
 
   const { data: store, error: storeError } = await supabase
     .from('stores')
-    .select('*')
+    .select(
+      `
+        *,
+        market_niches (*)  
+      `,
+    )
     .eq('store_url', storeURL)
     .single()
 
