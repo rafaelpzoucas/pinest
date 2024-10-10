@@ -1,16 +1,12 @@
 import { Card } from '@/components/ui/card'
 import { Boxes } from 'lucide-react'
-import { readUser } from '../../config/(options)/account/actions'
 import { readCategoriesByStore } from './actions'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { CategoryOptions } from './options'
 
 export async function Categories() {
-  const { data: user } = await readUser()
-  const { data: categories, error } = await readCategoriesByStore(
-    user?.stores[0].id,
-  )
+  const { data: categories, error } = await readCategoriesByStore()
 
   if (error) {
     console.log(error)
