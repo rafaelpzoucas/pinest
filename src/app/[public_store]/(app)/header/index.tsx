@@ -29,6 +29,8 @@ export async function Header({ storeURL }: { storeURL: string }) {
 
   const connectedAccount = user?.stripe_connected_account
 
+  const storeNiche = store && store?.market_niches[0]
+
   return (
     <header className="flex items-center justify-center w-full">
       <Card className="flex flex-row items-center justify-between gap-2 w-full p-4 py-4 bg-secondary/50 border-0">
@@ -42,9 +44,9 @@ export async function Header({ storeURL }: { storeURL: string }) {
 
           <div className="text-center lg:text-left w-full max-w-72">
             <h1 className="text-xl capitalize font-bold">{store?.name}</h1>
-            {store?.role && (
+            {storeNiche && (
               <p className="text-xs text-muted-foreground line-clamp-2">
-                {store?.role}
+                {storeNiche.name}
               </p>
             )}
 
