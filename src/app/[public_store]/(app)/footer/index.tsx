@@ -1,31 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { stripe } from '@/lib/stripe'
 import { cn } from '@/lib/utils'
 import { Clock, Pyramid } from 'lucide-react'
 import Link from 'next/link'
-import { FaFacebook, FaInstagram, FaWhatsapp, FaYoutube } from 'react-icons/fa'
+import { FaWhatsapp } from 'react-icons/fa'
 import { getStoreByStoreURL } from '../../actions'
 import { readCategoriesByStoreURL } from '../search/actions'
 import GoogleTransparencyBadge from './google-transparency-badge'
 import { PaymentMethods } from './payment-methods'
+import { StoreSocials } from './socials'
 
 export async function Footer({ storeURL }: { storeURL: string }) {
-  const { store, storeError } = await getStoreByStoreURL(storeURL)
-  const { data: categories, error: categoriesError } =
-    await readCategoriesByStoreURL(storeURL)
-
-  await stripe.paymentMethods
-    .list({
-      type: 'card', // Tipo de método de pagamento (pode ser "card", "bank", etc.)
-    })
-    .then((paymentMethods) => {
-      console.log(paymentMethods)
-    })
-    .catch((error) => {
-      console.error('Erro:', error)
-    })
+  const { store } = await getStoreByStoreURL(storeURL)
+  const { data: categories } = await readCategoriesByStoreURL(storeURL)
 
   return (
     <footer>
@@ -49,35 +37,7 @@ export async function Footer({ storeURL }: { storeURL: string }) {
             </div>
           </div>
 
-          <div className="flex flex-row justify-center gap-2 w-full max-w-sm">
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'icon' }),
-                'text-2xl',
-              )}
-            >
-              <FaFacebook />
-            </Link>
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'icon' }),
-                'text-2xl',
-              )}
-            >
-              <FaInstagram />
-            </Link>
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'icon' }),
-                'text-2xl',
-              )}
-            >
-              <FaYoutube />
-            </Link>
-          </div>
+          <StoreSocials storeURL={storeURL} />
         </section>
 
         <section>

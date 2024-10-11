@@ -1,20 +1,13 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StoreType } from '@/models/store'
-import { Edit, Plus, Pyramid } from 'lucide-react'
+import { Edit, Pyramid } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { readSocials } from './register/socials/actions'
 
 export async function Store({ store }: { store: StoreType | null }) {
-  const { socials, readSocialsError } = await readSocials()
-
-  if (readSocialsError) {
-    console.error(readSocialsError)
-  }
-
   const storeNiche = store && store.market_niches[0]
 
   return (
@@ -43,23 +36,6 @@ export async function Store({ store }: { store: StoreType | null }) {
       >
         <Edit className="w-4 h-4" />
       </Link>
-
-      <section className="space-y-2">
-        <h3 className="text-lg font-bold">Redes sociais</h3>
-
-        <div>
-          {socials &&
-            socials.map((media) => <p key={media.id}>{media.link}</p>)}
-        </div>
-
-        <Link
-          href="account/register/socials"
-          className={buttonVariants({ variant: 'outline' })}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar rede social
-        </Link>
-      </section>
     </Card>
   )
 }

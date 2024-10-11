@@ -62,12 +62,16 @@ export function StoreForm({
   const isOnboarding = !!params.current_step
 
   const name = store?.name ?? ''
-  const marketNicheId = store?.market_niches[0].id ?? ''
+  const description = store?.description ?? ''
+  const phone = store?.phone ?? ''
+  const marketNicheId = store?.market_niche_id ?? ''
 
   const form = useForm<z.infer<typeof storeSchema>>({
     resolver: zodResolver(storeSchema),
     defaultValues: {
       name,
+      description,
+      phone,
       market_niche_id: marketNicheId,
     },
   })

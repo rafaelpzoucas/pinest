@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { SocialMediaType } from '@/models/social'
 import { StoreType } from '@/models/store'
 import { UserType } from '@/models/user'
 import { redirect } from 'next/navigation'
@@ -69,4 +70,32 @@ export async function signUserOut() {
   }
 
   return redirect('/admin/sign-in')
+}
+
+export async function readStoreByStoreURL(storeURL: string) {
+  const supabase = createClient()
+
+  const { data: store, error: readStoreError } = await supabase
+    .from('stores')
+    .select('*')
+    .eq('store_url', storeURL)
+    .single()
+
+  return { store, readStoreError }
+}
+
+export async function readStoreSocials(storeURL: string): Promise<{
+  socials: SocialMediaType[] | null
+  readSocialsError: any | null
+}> {
+  const supabase = createClient()
+
+  const { store } = await readStoreByStoreURL(storeURL)
+
+  const { data: socials, error: readSocialsError } = await supabase
+    .from('store_socials')
+    .select('*')
+    .eq('store_id', store.id)
+
+  return { socials, readSocialsError }
 }
