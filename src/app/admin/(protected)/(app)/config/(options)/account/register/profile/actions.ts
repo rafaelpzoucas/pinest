@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { UserType } from '@/models/user'
+import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { profileSchema } from './form'
 
@@ -29,6 +30,8 @@ export async function updateProfile(columns: z.infer<typeof profileSchema>) {
     .from('users')
     .update(columns)
     .eq('id', session.user?.id)
+
+  revalidatePath('/admin/config/account')
 
   return { data, error }
 }

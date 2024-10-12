@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator'
 import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { UserType } from '@/models/user'
-import { AtSign, Edit, Phone } from 'lucide-react'
+import { AtSign, Edit } from 'lucide-react'
 import Link from 'next/link'
 import { SignOutButton } from './sign-out'
 
@@ -34,12 +34,6 @@ export async function Profile({ user }: { user: UserType | null }) {
           <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
             <AtSign className="w-4 h-4" />
             <span>{metadata?.email}</span>
-          </span>
-        </div>
-        <div>
-          <span className="flex flex-row items-center gap-2 text-sm text-muted-foreground">
-            <Phone className="w-4 h-4" />
-            <span>{user?.phone}</span>
           </span>
         </div>
       </div>
