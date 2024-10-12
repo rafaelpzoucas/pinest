@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { HourType } from '@/models/hour'
 import { SocialMediaType } from '@/models/social'
 import { StoreType } from '@/models/store'
 import { UserType } from '@/models/user'
@@ -98,4 +99,40 @@ export async function readStoreSocials(storeURL: string): Promise<{
     .eq('store_id', store.id)
 
   return { socials, readSocialsError }
+}
+
+export async function readStoreHours(storeURL: string): Promise<{
+  hours: HourType[] | null
+  readHoursError: any | null
+}> {
+  const supabase = createClient()
+
+  const { store } = await readStoreByStoreURL(storeURL)
+
+  const { data: hours, error: readHoursError } = await supabase
+    .from('store_hours')
+    .select('*')
+    .eq('store_id', store.id)
+
+  if (readHoursError) {
+    return { hours: null, readHoursError }
+  }
+
+  // Ordem dos dias da semana para referência
+  const dayOrder = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ]
+
+  // Ordenar os horários com base na referência
+  const sortedHours = hours?.sort(
+    (a, b) => dayOrder.indexOf(a.day_of_week) - dayOrder.indexOf(b.day_of_week),
+  )
+
+  return { hours: sortedHours, readHoursError: null }
 }

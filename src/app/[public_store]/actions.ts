@@ -14,7 +14,8 @@ export async function getStoreByStoreURL(storeURL: string): Promise<{
     .select(
       `
         *,
-        market_niches (*)  
+        store_hours (*),
+        market_niches (*) 
       `,
     )
     .eq('store_url', storeURL)

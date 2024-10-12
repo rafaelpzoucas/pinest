@@ -12,17 +12,22 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { dayTranslation } from '@/lib/utils'
+import { HourType } from '@/models/hour'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { createStoreHours } from './actions'
+import { createStoreHours, updateStoreHours } from './actions'
 
 const hoursFormSchema = z.object({
   week_days: z.array(
     z.object({
+      id: z.string().optional(),
+      created_at: z.string().optional(),
+      store_id: z.string().optional(),
       day_of_week: z.string(),
       is_open: z.boolean(),
       open_time: z.string().optional(),
@@ -33,7 +38,7 @@ const hoursFormSchema = z.object({
 
 export type HoursFormValues = z.infer<typeof hoursFormSchema>
 
-export function BusinessHoursForm() {
+export function BusinessHoursForm({ hours }: { hours: HourType[] | null }) {
   const router = useRouter()
   const params = useParams()
 
@@ -47,43 +52,43 @@ export function BusinessHoursForm() {
   const initialDays: HoursFormValues = {
     week_days: [
       {
-        day_of_week: 'Domingo',
+        day_of_week: 'sunday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
       },
       {
-        day_of_week: 'Segunda',
+        day_of_week: 'monday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
       },
       {
-        day_of_week: 'Terça',
+        day_of_week: 'tuesday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
       },
       {
-        day_of_week: 'Quarta',
+        day_of_week: 'wednesday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
       },
       {
-        day_of_week: 'Quinta',
+        day_of_week: 'thursday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
       },
       {
-        day_of_week: 'Sexta',
+        day_of_week: 'friday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
       },
       {
-        day_of_week: 'Sábado',
+        day_of_week: 'saturday',
         is_open: false,
         open_time: defaultTime.open_time,
         close_time: defaultTime.close_time,
@@ -91,9 +96,22 @@ export function BusinessHoursForm() {
     ],
   }
 
+  const transformedHours: HoursFormValues = {
+    week_days:
+      hours?.map((hour) => ({
+        id: hour.id,
+        created_at: hour.created_at,
+        store_id: hour.store_id,
+        day_of_week: hour.day_of_week,
+        is_open: hour.is_open,
+        open_time: hour.open_time,
+        close_time: hour.close_time,
+      })) ?? initialDays.week_days,
+  }
+
   const form = useForm<HoursFormValues>({
     resolver: zodResolver(hoursFormSchema),
-    defaultValues: initialDays,
+    defaultValues: transformedHours,
   })
 
   const { fields, update } = useFieldArray({
@@ -101,21 +119,29 @@ export function BusinessHoursForm() {
     name: 'week_days',
   })
 
-  const handleOpenTimeChange = (index: number, e: any) => {
+  const handleOpenTimeChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newTime = e.target.value
     setDefaultTime((prev) => ({ ...prev, open_time: newTime }))
-
     form.setValue(`week_days.${index}.open_time`, newTime)
   }
 
-  const handleCloseTimeChange = (index: number, e: any) => {
+  const handleCloseTimeChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newTime = e.target.value
     setDefaultTime((prev) => ({ ...prev, close_time: newTime }))
-
     form.setValue(`week_days.${index}.close_time`, newTime)
   }
 
   async function onSubmit(values: HoursFormValues) {
+    if (hours) {
+      await updateStoreHours(values)
+    }
+
     const { createHoursError } = await createStoreHours(values)
 
     if (createHoursError) {
@@ -141,8 +167,8 @@ export function BusinessHoursForm() {
               key={field.id}
               className="relative border-b last:border-b-0 py-4"
             >
-              <Label className="text-lg">
-                {field.day_of_week}{' '}
+              <Label className="text-lg capitalize">
+                {dayTranslation[field.day_of_week]}{' '}
                 <span className="text-sm text-muted-foreground">
                   (
                   {form.watch(`week_days.${index}.is_open`)

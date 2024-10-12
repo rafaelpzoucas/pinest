@@ -1,3 +1,5 @@
+import { readStoreHours } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
+import { HoursList } from '@/app/admin/(protected)/(app)/config/(options)/account/register/hours/hours-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -14,6 +16,11 @@ import { StoreSocials } from './socials'
 export async function Footer({ storeURL }: { storeURL: string }) {
   const { store } = await getStoreByStoreURL(storeURL)
   const { data: categories } = await readCategoriesByStoreURL(storeURL)
+  const { hours } = await readStoreHours(storeURL)
+
+  if (!store) {
+    return null
+  }
 
   return (
     <footer>
@@ -80,15 +87,12 @@ export async function Footer({ storeURL }: { storeURL: string }) {
               <FaWhatsapp className="w-5 h-5" />
               <p>{store?.phone}</p>
             </Link>
-            <div>
+            <div className="space-y-2">
               <div className="flex flex-row items-center gap-2">
                 <Clock className="w-5 h-5" />
                 <p>Horário de Atendimento</p>
               </div>
-
-              <p className="text-sm text-muted-foreground">
-                Seg a Sex das 8h às 18h
-              </p>
+              {hours && <HoursList hours={hours} />}
             </div>
           </div>
         </section>
