@@ -7,12 +7,12 @@ export type VariationOption = {
 
 export type ProductVariationType = {
   id: string
-  created_at: string
   name: string
   price: number
   stock: number
   attribute_id: string
   product_id: string
+  created_at: string
   attributes: {
     id: string
     name: string
