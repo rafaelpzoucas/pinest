@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { ProductVariationsType } from '@/models/product'
+import { ProductVariationType } from '@/models/product'
 import { Plus, Trash } from 'lucide-react'
 import { ChangeEvent, Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner'
@@ -18,37 +18,28 @@ export function Variations({
   variations,
   setVariations,
 }: {
-  variations: ProductVariationsType[]
-  setVariations: Dispatch<SetStateAction<ProductVariationsType[]>>
+  variations: ProductVariationType[]
+  setVariations: Dispatch<SetStateAction<ProductVariationType[]>>
 }) {
-  function handleAddOption(index: number) {
-    setVariations((prev) => {
-      const newVariations = [...prev]
-      const variation = newVariations[index]
-
-      const newOptions = variation.product_variations
-        ? [...variation.product_variations]
-        : []
-
-      newOptions.push({
-        name: undefined,
-        price: undefined,
-        stock: undefined,
-      })
-
-      newVariations[index] = {
-        ...variation,
-        product_variations: newOptions,
-      }
-
-      return newVariations
-    })
+  function handleAddVariation() {
+    setVariations((prev) => [
+      ...prev,
+      {
+        id: '',
+        name: '',
+        price: 0,
+        stock: 0,
+        attribute_id: '',
+        product_id: '',
+        created_at: new Date().toISOString(),
+        attributes: { id: '', name: '', created_at: new Date().toISOString() },
+      },
+    ])
   }
 
   async function handleRemoveVariation(index: number, variationId?: string) {
     if (variationId) {
       const { deleteVariationError } = await deleteVariation(variationId)
-
       if (!deleteVariationError) {
         toast('Variação removida com sucesso!')
       }
@@ -56,52 +47,24 @@ export function Variations({
     setVariations((prev) => prev.filter((_, idx) => idx !== index))
   }
 
-  function handleRemoveOption(variationIndex: number, optionIndex: number) {
-    setVariations((prev) => {
-      const newVariations = [...prev]
-      const variation = { ...newVariations[variationIndex] }
-
-      if (variation.product_variations) {
-        variation.product_variations = variation.product_variations.filter(
-          (_, idx) => idx !== optionIndex,
-        )
-      }
-
-      newVariations[variationIndex] = variation
-
-      return newVariations
-    })
-  }
-
   function handleInputChange(
-    variationIndex: number,
-    optionIndex: number,
-    field: 'name' | 'price' | 'stock',
+    index: number,
+    field: keyof ProductVariationType,
     value: string | number,
   ) {
     setVariations((prev) => {
       const newVariations = [...prev]
-      const variation = { ...newVariations[variationIndex] }
-      const newOptions = [...(variation.product_variations || [])]
-
-      newOptions[optionIndex] = {
-        ...newOptions[optionIndex],
-        [field]: value,
-      }
-
-      variation.product_variations = newOptions
-      newVariations[variationIndex] = variation
-
+      newVariations[index] = { ...newVariations[index], [field]: value }
       return newVariations
     })
   }
 
-  function handleAttributeChange(variationIndex: number, value: string) {
+  function handleAttributeChange(index: number, value: string) {
     setVariations((prev) => {
       const newVariations = [...prev]
-      newVariations[variationIndex] = {
-        ...newVariations[variationIndex],
-        attribute: value,
+      newVariations[index] = {
+        ...newVariations[index],
+        attributes: { ...newVariations[index].attributes, name: value },
       }
       return newVariations
     })
@@ -118,9 +81,9 @@ export function Variations({
           <Button
             type="button"
             variant="ghost"
-            size={'icon'}
+            size="icon"
             className="absolute top-1 right-1"
-            onClick={() => handleRemoveVariation(index, variation?.id)}
+            onClick={() => handleRemoveVariation(index, variation.id)}
           >
             <Trash className="w-4 h-4" />
           </Button>
@@ -128,117 +91,69 @@ export function Variations({
           <h1>Variação {index + 1}</h1>
 
           <FormItem>
+            <FormLabel>Nome da Variação</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Insira o nome..."
+                value={variation.name}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange(index, 'name', e.target.value)
+                }
+              />
+            </FormControl>
+            <FormDescription>Exemplo: vermelho, grande, etc...</FormDescription>
+            <FormMessage />
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Preço</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Insira o preço..."
+                type="number"
+                value={variation.price}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange(index, 'price', parseFloat(e.target.value))
+                }
+              />
+            </FormControl>
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Estoque</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Insira o estoque..."
+                type="number"
+                value={variation.stock}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange(
+                    index,
+                    'stock',
+                    parseInt(e.target.value, 10) || 0,
+                  )
+                }
+              />
+            </FormControl>
+          </FormItem>
+
+          <FormItem>
             <FormLabel>Atributo</FormLabel>
             <FormControl>
               <Input
-                placeholder="Insira o nome do atributo..."
-                value={variation.attribute}
+                placeholder="Insira o atributo..."
+                value={variation.attributes.name}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   handleAttributeChange(index, e.target.value)
                 }
               />
             </FormControl>
             <FormDescription>Exemplo: cor, tamanho, etc...</FormDescription>
-            <FormMessage />
           </FormItem>
-
-          {variation?.product_variations?.map((option, optionIndex) => (
-            <Card
-              key={optionIndex}
-              className="relative flex flex-col gap-2 p-2"
-            >
-              <FormItem className="flex-grow">
-                <FormLabel>Opção</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Insira a opção..."
-                    value={option.name}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleInputChange(
-                        index,
-                        optionIndex,
-                        'name',
-                        e.target.value,
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormDescription>
-                  Exemplo: vermelho, grande, etc...
-                </FormDescription>
-              </FormItem>
-              <FormItem className="flex-grow">
-                <FormLabel>Preço da opção</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Insira o preço..."
-                    type="number"
-                    value={option.price}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleInputChange(
-                        index,
-                        optionIndex,
-                        'price',
-                        e.target.value,
-                      )
-                    }
-                  />
-                </FormControl>
-              </FormItem>
-
-              <FormItem className="flex-grow">
-                <FormLabel>Estoque</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Insira o estoque..."
-                    type="number"
-                    value={option.stock}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleInputChange(
-                        index,
-                        optionIndex,
-                        'stock',
-                        parseInt(e.target.value, 10) || 0,
-                      )
-                    }
-                  />
-                </FormControl>
-              </FormItem>
-              <Button
-                type="button"
-                variant="ghost"
-                size={'icon'}
-                className="absolute top-1 right-1"
-                onClick={() => handleRemoveOption(index, optionIndex)}
-              >
-                <Trash className="w-4 h-4" />
-              </Button>
-            </Card>
-          ))}
-
-          <Button
-            type="button"
-            variant={'outline'}
-            onClick={() => handleAddOption(index)}
-          >
-            <Plus className="w-4 h-4 mr-2" /> Adicionar opção
-          </Button>
         </Card>
       ))}
 
-      <Button
-        type="button"
-        variant={'outline'}
-        onClick={() =>
-          setVariations((prev) => [
-            ...prev,
-            {
-              attribute: '',
-              product_variations: [],
-            },
-          ])
-        }
-      >
+      <Button type="button" variant="outline" onClick={handleAddVariation}>
         <Plus className="w-4 h-4 mr-2" /> Adicionar variação
       </Button>
     </Card>
