@@ -38,7 +38,7 @@ const hoursFormSchema = z.object({
 
 export type HoursFormValues = z.infer<typeof hoursFormSchema>
 
-export function BusinessHoursForm({ hours }: { hours: HourType[] | null }) {
+export function BusinessHoursForm({ hours }: { hours?: HourType[] | null }) {
   const router = useRouter()
   const params = useParams()
 
