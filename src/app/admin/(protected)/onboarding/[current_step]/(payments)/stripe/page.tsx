@@ -2,13 +2,13 @@ import {
   createStripeAccountLink,
   getConnectedAccount,
   getStripeAccount,
+  onboardingCreateStripeAccountLink,
 } from '@/app/admin/(protected)/(app)/config/(options)/billing/actions'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { stripe } from '@/lib/stripe'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { onboardingCreateStripeAccountLink } from '../../../billing/actions'
 
 export default async function Payments() {
   const connectedAccount = await getConnectedAccount()

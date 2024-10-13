@@ -5,10 +5,19 @@ export type VariationOption = {
   stock?: number
 }
 
-export type ProductVariationsType = {
-  id?: string
-  attribute: string
-  product_variations?: VariationOption[]
+export type ProductVariationType = {
+  id: string
+  name: string
+  price: number
+  stock: number
+  attribute_id: string
+  product_id: string
+  created_at: string
+  attributes: {
+    id: string
+    name: string
+    created_at: string
+  }
 }
 
 export type ProductImageType = {
@@ -36,18 +45,5 @@ export type ProductType = {
   pkg_height: number
   product_url: string
   product_images: ProductImageType[]
-  product_variations: {
-    id: string
-    name: string
-    price: number
-    stock: number
-    attributes: {
-      id: string
-      name: string
-      created_at: string
-    }
-    created_at: string
-    product_id: string
-    attribute_id: string
-  }[]
+  product_variations: ProductVariationType[]
 }

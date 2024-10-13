@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { ProductVariationsType, VariationOption } from '@/models/product'
+import { ProductVariationType, VariationOption } from '@/models/product'
 import { revalidatePath } from 'next/cache'
 
 async function readAttributeByName(attributeName: string) {
@@ -83,59 +83,66 @@ export async function deleteVariation(variationId: string) {
 }
 
 export async function createProductVariations(
-  variations: ProductVariationsType[],
+  variations: ProductVariationType[],
   productId: string,
 ) {
   for (const variation of variations) {
-    let attribute = null
-
-    const { attribute: readAttribute, attributeError } =
-      await readAttributeByName(variation.attribute)
-
-    if (attributeError) {
-      console.error(attributeError)
-    }
-
-    console.log(attribute)
+    // Ler ou criar o atributo associado à variação
+    const attribute = await findOrCreateAttribute(variation.attributes.name)
 
     if (!attribute) {
-      const { createdAttribute, createAttributeError } = await createAttribute(
-        variation.attribute,
-      )
-
-      if (createAttributeError) {
-        console.error(createAttributeError)
-      }
-
-      attribute = createdAttribute
+      console.error('Erro ao criar ou encontrar o atributo.')
+      continue
     }
 
-    attribute = readAttribute
+    // Verificar se a variação já existe e decidir entre criar ou atualizar
+    if (!variation.id) {
+      const { createVariationError } = await createVariation(
+        variation,
+        attribute.id,
+        productId,
+      )
 
-    if (variation.product_variations) {
-      for (const productVariation of variation.product_variations) {
-        if (!productVariation.id) {
-          const { createVariationError } = await createVariation(
-            productVariation,
-            attribute.id,
-            productId,
-          )
-          if (createVariationError) {
-            console.error(createVariationError)
-          }
-        } else {
-          const { updateVariationError } = await updateVariation(
-            productVariation,
-            attribute.id,
-            productId,
-          )
-          if (updateVariationError) {
-            console.error(updateVariationError)
-          }
-        }
+      if (createVariationError) {
+        console.error(createVariationError)
+      }
+    } else {
+      const { updateVariationError } = await updateVariation(
+        variation,
+        attribute.id,
+        productId,
+      )
+
+      if (updateVariationError) {
+        console.error(updateVariationError)
       }
     }
   }
 
   revalidatePath('/catalog')
+}
+
+// Função auxiliar para ler ou criar o atributo
+async function findOrCreateAttribute(attributeName: string) {
+  const { attribute: readAttribute, attributeError } =
+    await readAttributeByName(attributeName)
+
+  if (attributeError) {
+    console.error(attributeError)
+    return null
+  }
+
+  if (readAttribute) {
+    return readAttribute
+  }
+
+  const { createdAttribute, createAttributeError } =
+    await createAttribute(attributeName)
+
+  if (createAttributeError) {
+    console.error(createAttributeError)
+    return null
+  }
+
+  return createdAttribute
 }

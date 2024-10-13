@@ -1,31 +1,26 @@
+import { readStoreHours } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
+import { HoursList } from '@/app/admin/(protected)/(app)/config/(options)/account/register/hours/hours-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { stripe } from '@/lib/stripe'
 import { cn } from '@/lib/utils'
 import { Clock, Pyramid } from 'lucide-react'
 import Link from 'next/link'
-import { FaFacebook, FaInstagram, FaWhatsapp, FaYoutube } from 'react-icons/fa'
+import { FaWhatsapp } from 'react-icons/fa'
 import { getStoreByStoreURL } from '../../actions'
 import { readCategoriesByStoreURL } from '../search/actions'
 import GoogleTransparencyBadge from './google-transparency-badge'
 import { PaymentMethods } from './payment-methods'
+import { StoreSocials } from './socials'
 
 export async function Footer({ storeURL }: { storeURL: string }) {
-  const { store, storeError } = await getStoreByStoreURL(storeURL)
-  const { data: categories, error: categoriesError } =
-    await readCategoriesByStoreURL(storeURL)
+  const { store } = await getStoreByStoreURL(storeURL)
+  const { data: categories } = await readCategoriesByStoreURL(storeURL)
+  const { hours } = await readStoreHours(storeURL)
 
-  await stripe.paymentMethods
-    .list({
-      type: 'card', // Tipo de método de pagamento (pode ser "card", "bank", etc.)
-    })
-    .then((paymentMethods) => {
-      console.log(paymentMethods)
-    })
-    .catch((error) => {
-      console.error('Erro:', error)
-    })
+  if (!store) {
+    return null
+  }
 
   return (
     <footer>
@@ -49,35 +44,7 @@ export async function Footer({ storeURL }: { storeURL: string }) {
             </div>
           </div>
 
-          <div className="flex flex-row justify-center gap-2 w-full max-w-sm">
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'icon' }),
-                'text-2xl',
-              )}
-            >
-              <FaFacebook />
-            </Link>
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'icon' }),
-                'text-2xl',
-              )}
-            >
-              <FaInstagram />
-            </Link>
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'icon' }),
-                'text-2xl',
-              )}
-            >
-              <FaYoutube />
-            </Link>
-          </div>
+          <StoreSocials storeURL={storeURL} />
         </section>
 
         <section>
@@ -120,15 +87,12 @@ export async function Footer({ storeURL }: { storeURL: string }) {
               <FaWhatsapp className="w-5 h-5" />
               <p>{store?.phone}</p>
             </Link>
-            <div>
+            <div className="space-y-2">
               <div className="flex flex-row items-center gap-2">
                 <Clock className="w-5 h-5" />
                 <p>Horário de Atendimento</p>
               </div>
-
-              <p className="text-sm text-muted-foreground">
-                Seg a Sex das 8h às 18h
-              </p>
+              {hours && <HoursList hours={hours} />}
             </div>
           </div>
         </section>

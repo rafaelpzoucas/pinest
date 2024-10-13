@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { SocialMediaType } from '@/models/social'
+import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { readStoreByUserId } from '../../actions'
 import { socialFormSchema } from './form'
@@ -46,18 +47,35 @@ export async function createSocialMedias(
     .from('store_socials')
     .insert(socialsToAdd)
 
+  revalidatePath('/admin/config/account')
+
   return { socials, createSocialError }
 }
 
 export async function updateSocialMedia(
   values: z.infer<typeof socialFormSchema>,
-  socialId: string,
 ) {
   const supabase = createClient()
-  const { data: updatedSocials, error: updateSocialError } = await supabase
+
+  const socials = values.socials
+
+  for (const social of socials) {
+    await supabase
+      .from('store_socials')
+      .update({
+        link: social.link,
+      })
+      .eq('id', social.id)
+  }
+}
+
+export async function deleteSocialMedia(socialId: string) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
     .from('store_socials')
-    .update(values)
+    .delete()
     .eq('id', socialId)
 
-  return { updatedSocials, updateSocialError }
+  return { error }
 }

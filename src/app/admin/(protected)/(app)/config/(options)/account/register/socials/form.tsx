@@ -22,9 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { SocialMediaType } from '@/models/social'
 import { Loader2, Plus, Trash } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { createSocialMedias } from './actions'
+import { useParams, useRouter } from 'next/navigation'
+import {
+  createSocialMedias,
+  deleteSocialMedia,
+  updateSocialMedia,
+} from './actions'
 import { SOCIAL_MEDIAS } from './socials'
 
 export const socialFormSchema = z.object({
@@ -32,17 +37,32 @@ export const socialFormSchema = z.object({
     z.object({
       social_id: z.string(),
       link: z.string().url('Insira um link válido'),
+      id: z.string().optional(),
+      created_at: z.string().optional(),
+      store_id: z.string().optional(),
     }),
   ),
 })
 
-export function SocialsForm() {
+export function SocialsForm({
+  storeSocials,
+}: {
+  storeSocials?: SocialMediaType[] | null
+}) {
   const router = useRouter()
+  const params = useParams()
+
+  const isOnboarding = !!params.current_step
+
+  const defaultSocials =
+    storeSocials && storeSocials.length > 0
+      ? storeSocials.map((storeSocial) => storeSocial)
+      : undefined
 
   const form = useForm<z.infer<typeof socialFormSchema>>({
     resolver: zodResolver(socialFormSchema),
     defaultValues: {
-      socials: [{ social_id: '', link: '' }],
+      socials: defaultSocials ?? [{ social_id: '', link: '' }],
     },
   })
 
@@ -51,15 +71,48 @@ export function SocialsForm() {
     name: 'socials',
   })
 
-  async function onSubmit(values: z.infer<typeof socialFormSchema>) {
-    const { createSocialError } = await createSocialMedias(values)
+  async function handleDeleteSocial(index: number) {
+    if (storeSocials) {
+      const { error } = await deleteSocialMedia(storeSocials[index].id)
 
-    if (createSocialError) {
-      console.error(createSocialError)
-      return
+      if (error) {
+        console.error(error)
+        return null
+      }
     }
 
-    router.push('/admin/onboarding/appearence/logo')
+    remove(index)
+  }
+
+  async function onSubmit(values: z.infer<typeof socialFormSchema>) {
+    const socialsToUpdate = values.socials.filter((social) =>
+      storeSocials?.some((stored) => stored.social_id === social.social_id),
+    )
+    const socialsToCreate = values.socials.filter(
+      (social) =>
+        !storeSocials?.some((stored) => stored.social_id === social.social_id),
+    )
+
+    if (socialsToUpdate.length > 0) {
+      await updateSocialMedia({ socials: socialsToUpdate })
+    }
+
+    if (socialsToCreate.length > 0) {
+      const { createSocialError } = await createSocialMedias({
+        socials: socialsToCreate,
+      })
+
+      if (createSocialError) {
+        console.error(createSocialError)
+        return
+      }
+    }
+
+    if (isOnboarding) {
+      router.push('/admin/onboarding/appearence/logo')
+    } else {
+      router.back()
+    }
   }
 
   return (
@@ -114,10 +167,11 @@ export function SocialsForm() {
 
             {fields.length > 1 && (
               <Button
+                type="button"
                 variant="ghost"
                 size="icon"
                 className="absolute -top-2 right-2"
-                onClick={() => remove(index)}
+                onClick={() => handleDeleteSocial(index)}
               >
                 <Trash className="w-4 h-4" />
               </Button>

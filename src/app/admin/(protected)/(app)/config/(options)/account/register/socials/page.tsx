@@ -1,16 +1,25 @@
 import { AdminHeader } from '@/components/admin-header'
+import { readStoreByUserId, readStoreSocials } from '../../actions'
 import { SocialsForm } from './form'
 
-export default async function ProfileRegister({
-  searchParams,
-}: {
-  searchParams: { id: string }
-}) {
+export default async function ProfileRegister() {
+  const { store } = await readStoreByUserId()
+
+  if (!store) {
+    return null
+  }
+
+  const { socials, readSocialsError } = await readStoreSocials(store.store_url)
+
+  if (readSocialsError) {
+    console.error(readSocialsError)
+  }
+
   return (
     <section className="flex flex-col gap-4">
       <AdminHeader title="Redes sociais" withBackButton />
 
-      <SocialsForm />
+      <SocialsForm storeSocials={socials} />
     </section>
   )
 }

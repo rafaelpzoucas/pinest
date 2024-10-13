@@ -5,6 +5,20 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { addressSchema } from './form'
 
+export async function createAddress(columns: z.infer<typeof addressSchema>) {
+  const supabase = createClient()
+
+  const { data: session } = await supabase.auth.getUser()
+
+  const { data, error } = await supabase
+    .from('addresses')
+    .insert({ ...columns, user_id: session.user?.id })
+
+  revalidatePath('account')
+
+  return { data, error }
+}
+
 export async function updateAddress(columns: z.infer<typeof addressSchema>) {
   const supabase = createClient()
 

@@ -25,6 +25,8 @@ export default async function OrderPage({
   const customer = purchase?.customers.users
   const address = purchase?.addresses
 
+  const variations = purchase?.purchase_item_variations
+
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0">
       <AdminHeader title={`Detalhes: #${displayId}`} withBackButton />
@@ -91,6 +93,15 @@ export default async function OrderPage({
                     </strong>
                     <span>{formatCurrencyBRL(item?.products?.price)}</span>
                   </header>
+
+                  <div>
+                    {variations &&
+                      variations.map((variation) => (
+                        <Badge key={variation.id} className="mr-2">
+                          {variation.product_variations.name}
+                        </Badge>
+                      ))}
+                  </div>
                 </Card>
               ))}
           </div>

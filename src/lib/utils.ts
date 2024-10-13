@@ -97,3 +97,13 @@ export function convertStringToNumber(string: string) {
 export function generateSlug(str: string) {
   return removeAccents(str).toLowerCase().replace(' ', '-')
 }
+
+export const dayTranslation: Record<string, string> = {
+  monday: 'segunda',
+  tuesday: 'terça',
+  wednesday: 'quarta',
+  thursday: 'quinta',
+  friday: 'sexta',
+  saturday: 'sábado',
+  sunday: 'domingo',
+}

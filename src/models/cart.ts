@@ -6,4 +6,7 @@ export type CartProductType = {
   product_id: string
   quantity: number
   products: ProductType
+  product_variations: {
+    variation_id: string
+  }[]
 }

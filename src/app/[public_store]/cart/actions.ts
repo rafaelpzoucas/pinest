@@ -71,6 +71,7 @@ async function insertCartProduct(
       session_id: cartSession,
       product_id: newItem.products.id,
       quantity: newItem.quantity,
+      product_variations: newItem.product_variations,
     })
     .select()
 

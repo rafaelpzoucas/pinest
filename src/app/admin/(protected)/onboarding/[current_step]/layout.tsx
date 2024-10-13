@@ -16,8 +16,6 @@ export default function StepsLayout({
     shipping: 5,
   }
 
-  console.log(params.current_step)
-
   return (
     <main className="flex flex-col items-center justify-center pt-8">
       <Stepper

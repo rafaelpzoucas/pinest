@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { ProductType } from '@/models/product'
+import { ProductType, ProductVariationType } from '@/models/product'
 
 export async function readProductById(productId: string): Promise<{
   product: ProductType
@@ -21,4 +21,22 @@ export async function readProductById(productId: string): Promise<{
   const product = products && products.length > 0 && products[0]
 
   return { product, productError }
+}
+
+export async function readProductVariations(productId: string): Promise<{
+  variations: ProductVariationType[] | null
+  variationsError: any | null
+}> {
+  const supabase = createClient()
+  const { data: variations, error: variationsError } = await supabase
+    .from('product_variations')
+    .select(
+      `
+        *,
+        attributes (*)
+      `,
+    )
+    .eq('product_id', productId)
+
+  return { variations, variationsError }
 }

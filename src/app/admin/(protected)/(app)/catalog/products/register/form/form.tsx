@@ -10,7 +10,7 @@ import { CategoryType } from '@/models/category'
 import {
   ProductImageType,
   ProductType,
-  ProductVariationsType,
+  ProductVariationType,
 } from '@/models/product'
 import { Loader, Plus } from 'lucide-react'
 import Link from 'next/link'
@@ -51,50 +51,26 @@ export function ProductForm({
   const pathname = usePathname()
 
   const defaultVariations =
-    (product &&
-      product.product_variations?.map((variation) => ({
-        id: variation.id,
-        attribute: variation.attributes.name,
-        product_variations: {
-          id: variation.id,
-          name: variation.name,
-          price: variation.price,
-          stock: variation.stock,
-        },
-      }))) ??
-    []
+    product?.product_variations?.map((variation) => ({
+      id: variation.id,
+      name: variation.name,
+      price: variation.price,
+      stock: variation.stock,
+      product_id: variation.product_id,
+      attribute_id: variation.attributes.id,
+      created_at: variation.created_at,
+      attributes: {
+        id: variation.attributes.id,
+        name: variation.attributes.name,
+        created_at: variation.attributes.created_at,
+      },
+    })) ?? []
 
-  const groupedVariations = defaultVariations.reduce(
-    (acc, variation) => {
-      if (!acc[variation.attribute]) {
-        acc[variation.attribute] = {
-          id: variation.id,
-          attribute: variation.attribute,
-          product_variations: [],
-        }
-      }
-
-      acc[variation.attribute].product_variations.push(
-        variation.product_variations,
-      )
-
-      return acc
-    },
-    {} as Record<
-      string,
-      {
-        id: string
-        attribute: string
-        product_variations: (typeof defaultVariations)[0]['product_variations'][]
-      }
-    >,
-  )
-
-  const groupedVariationsArray = Object.values(groupedVariations)
+  const groupedVariationsArray: ProductVariationType[] = defaultVariations
 
   const [files, setFiles] = useState<FileType[]>([])
   const [productImages, setProductImages] = useState<ProductImageType[]>([])
-  const [variationsForm, setVariationsForm] = useState<ProductVariationsType[]>(
+  const [variationsForm, setVariationsForm] = useState<ProductVariationType[]>(
     groupedVariationsArray,
   )
 
@@ -154,8 +130,6 @@ export function ProductForm({
   }
 
   async function onSubmit(values: z.infer<typeof newProductFormSchema>) {
-    console.log(values)
-
     if (!productId) {
       const { createdProduct, createdProductError } =
         await createProduct(values)
@@ -209,8 +183,6 @@ export function ProductForm({
       handleReadProductImages()
     }
   }, [productId]) //eslint-disable-line
-
-  console.log(categories?.length)
 
   if (!categories || categories?.length === 0) {
     return (
