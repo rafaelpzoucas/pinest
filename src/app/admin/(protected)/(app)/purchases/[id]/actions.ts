@@ -19,6 +19,10 @@ export async function readPurchaseById(purchaseId: string): Promise<{
         *,
         products (*)
       ),
+      purchase_item_variations (
+        *,
+        product_variations (*)
+      ),
       customers (
         *,
         users (*)

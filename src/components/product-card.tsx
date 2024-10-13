@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ProductType } from '@/models/product'
+import { PurchaseItemVariations } from '@/models/purchase'
 import { cva, type VariantProps } from 'class-variance-authority'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -27,11 +28,13 @@ export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
   data?: ProductType
+  variations?: PurchaseItemVariations[]
   publicStore?: string
 }
 
 export function ProductCard({
   data,
+  variations,
   className,
   variant,
   publicStore,
@@ -113,7 +116,6 @@ export function ProductCard({
             </p>
           )}
         </div>
-
         <p
           className={cn(
             'line-clamp-2 text-muted-foreground text-sm',
@@ -122,6 +124,15 @@ export function ProductCard({
         >
           {data.name}
         </p>
+
+        <div>
+          {variations &&
+            variations.map((variation) => (
+              <Badge key={variation.id} variant="outline" className="mr-2">
+                {variation.product_variations.name}
+              </Badge>
+            ))}
+        </div>
       </div>
     </Link>
   )

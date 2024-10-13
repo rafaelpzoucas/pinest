@@ -7,8 +7,6 @@ import Link from 'next/link'
 export default async function RegisterProduct() {
   const { data: categories } = await readCategoriesByStore()
 
-  console.log(categories)
-
   return (
     <div className="flex flex-col gap-4 pb-16">
       <h1 className="text-3xl font-bold">Novo produto</h1>

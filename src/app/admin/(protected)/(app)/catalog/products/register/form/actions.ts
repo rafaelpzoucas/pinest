@@ -96,8 +96,6 @@ export async function createProductVariations(
       console.error(attributeError)
     }
 
-    console.log(attribute)
-
     if (!attribute) {
       const { createdAttribute, createAttributeError } = await createAttribute(
         variation.attribute,

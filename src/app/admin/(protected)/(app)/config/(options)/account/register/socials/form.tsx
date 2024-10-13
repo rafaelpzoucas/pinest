@@ -54,8 +54,6 @@ export function SocialsForm({
 
   const isOnboarding = !!params.current_step
 
-  console.log({ storeSocials })
-
   const defaultSocials =
     storeSocials && storeSocials.length > 0
       ? storeSocials.map((storeSocial) => storeSocial)

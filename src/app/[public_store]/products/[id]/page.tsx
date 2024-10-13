@@ -7,7 +7,6 @@ import {
   CarouselItem,
 } from '@/components/ui/carousel'
 
-import { formatCurrencyBRL } from '@/lib/utils'
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 import { Header } from '@/components/store-header'
@@ -17,8 +16,8 @@ import {
   getCart,
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
-import { readProductById } from './actions'
-import { AddToCard } from './add-to-cart'
+import { readProductById, readProductVariations } from './actions'
+import { ProductInfo } from './info'
 
 export default async function ProductPage({
   params,
@@ -44,9 +43,14 @@ export default async function ProductPage({
   const connectedAccount = user?.stripe_connected_account
 
   const { product, productError } = await readProductById(params.id)
+  const { variations, variationsError } = await readProductVariations(params.id)
 
   if (productError) {
     console.error(productError)
+  }
+
+  if (variationsError) {
+    console.error(variationsError)
   }
 
   const productImages = product.product_images
@@ -61,7 +65,7 @@ export default async function ProductPage({
       />
 
       <div className="w-full max-w-7xl">
-        <div className="flex flex-col xl:flex-row xl:gap-12">
+        <div className="flex flex-col md:flex-row md:gap-12">
           <div className="lg:sticky top-0 w-full max-w-md">
             {productImages.length < 2 && (
               <Card className="relative w-full aspect-square overflow-hidden border-none">
@@ -94,20 +98,11 @@ export default async function ProductPage({
             )}
           </div>
 
-          <section className="mt-6 lg:mt-0 space-y-6 lg:space-y-12">
-            <div className="lg:flex flex-col-reverse gap-4">
-              <strong className="text-primary text-xl lg:text-3xl">
-                {formatCurrencyBRL(product.price)}
-              </strong>
-              <h1 className="text-lg lg:text-xl capitalize font-bold">
-                {product.name}
-              </h1>
-            </div>
-            <AddToCard publicStore={params.public_store} product={product} />
-            <p className="text-sm text-muted-foreground">
-              {product.description}
-            </p>
-          </section>
+          <ProductInfo
+            product={product}
+            publicStore={params.public_store}
+            variations={variations}
+          />
         </div>
       </div>
     </main>

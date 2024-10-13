@@ -77,7 +77,5 @@ export async function deleteSocialMedia(socialId: string) {
     .delete()
     .eq('id', socialId)
 
-  console.log({ socialId })
-
   return { error }
 }

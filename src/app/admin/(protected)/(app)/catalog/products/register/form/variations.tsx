@@ -46,8 +46,6 @@ export function Variations({
   }
 
   async function handleRemoveVariation(index: number, variationId?: string) {
-    console.log(variationId)
-
     if (variationId) {
       const { deleteVariationError } = await deleteVariation(variationId)
 

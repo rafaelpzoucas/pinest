@@ -154,8 +154,6 @@ export function ProductForm({
   }
 
   async function onSubmit(values: z.infer<typeof newProductFormSchema>) {
-    console.log(values)
-
     if (!productId) {
       const { createdProduct, createdProductError } =
         await createProduct(values)
@@ -209,8 +207,6 @@ export function ProductForm({
       handleReadProductImages()
     }
   }, [productId]) //eslint-disable-line
-
-  console.log(categories?.length)
 
   if (!categories || categories?.length === 0) {
     return (

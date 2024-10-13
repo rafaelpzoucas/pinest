@@ -136,8 +136,6 @@ export async function createPurchase(
     delivery_time: pickup === 'delivery' ? shippingTime : null,
   }
 
-  console.log(valuesToInsert)
-
   const { data: purchase, error: purchaseError } = await supabase
     .from('purchases')
     .insert(valuesToInsert)
@@ -146,6 +144,22 @@ export async function createPurchase(
 
   if (purchaseError) {
     console.error(purchaseError)
+  }
+
+  const variationsToInsert =
+    cart &&
+    cart.map((variation) =>
+      variation.product_variations.map((variation) => ({
+        purchase_id: purchase?.id,
+        variation_id: variation.variation_id,
+      })),
+    )[0]
+
+  const { data: purchaseVariations, error: createPurchaseVariationsError } =
+    await supabase.from('purchase_item_variations').insert(variationsToInsert)
+
+  if (createPurchaseVariationsError) {
+    console.error(createPurchaseVariationsError)
   }
 
   const { data: purchaseItems, error: purchaseItemsError } = await supabase

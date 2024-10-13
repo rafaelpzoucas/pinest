@@ -94,7 +94,6 @@ export function OwnShippingForm({
   }
 
   useEffect(() => {
-    console.log({ status, shippingStatus: shipping?.status })
     if (status !== shipping?.status) {
       updateStatus()
     }
