@@ -47,7 +47,7 @@ export const socialFormSchema = z.object({
 export function SocialsForm({
   storeSocials,
 }: {
-  storeSocials: SocialMediaType[] | null
+  storeSocials?: SocialMediaType[] | null
 }) {
   const router = useRouter()
   const params = useParams()
