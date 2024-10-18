@@ -2,20 +2,30 @@
 
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ProductType, ProductVariationType } from '@/models/product'
+import { AddressType } from '@/models/user'
 import { useProduct } from '@/stores/productStore'
 import { AddToCard } from './add-to-cart'
+import { ShippingForm } from './shipping/form'
 
 export function ProductInfo({
   product,
   variations,
   publicStore,
+  storeAddress,
 }: {
   product: ProductType
   variations: ProductVariationType[] | null
   publicStore: string
+  storeAddress: AddressType
 }) {
   const isPromotional = product?.promotional_price
   const { productPrice } = useProduct()
+
+  const productHasDimensions =
+    product.pkg_height !== null &&
+    product.pkg_width !== null &&
+    product.pkg_length !== null &&
+    product.pkg_weight !== null
 
   return (
     <section className="mt-6 lg:mt-0 space-y-6 lg:space-y-12">
@@ -47,6 +57,14 @@ export function ProductInfo({
         product={product}
         variations={variations}
       />
+
+      {productHasDimensions && (
+        <ShippingForm
+          publicStore={publicStore}
+          storeAddress={storeAddress}
+          product={product}
+        />
+      )}
 
       <p className="text-sm text-muted-foreground">{product.description}</p>
     </section>

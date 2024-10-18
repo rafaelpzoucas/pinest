@@ -4,6 +4,8 @@ type UseProductType = {
   productPrice: number
   setProductPrice: (price: number) => void
   amount: number
+  setAmount: (newAmount: number) => void
+
   increase: (max: number) => void
   decrease: () => void
 }
@@ -13,6 +15,7 @@ export const useProduct = create<UseProductType>((set) => ({
   amount: 1,
 
   setProductPrice: (price) => set(() => ({ productPrice: price })),
+  setAmount: (newAmount) => set(() => ({ amount: newAmount })),
 
   increase: (max) =>
     set((state) => ({

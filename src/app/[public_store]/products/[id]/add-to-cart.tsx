@@ -26,11 +26,13 @@ import { z } from 'zod'
 import { addToCart } from '../../cart/actions'
 
 const formSchema = z.object({
-  variations: z.array(
-    z.object({
-      variation_id: z.string(),
-    }),
-  ),
+  variations: z
+    .array(
+      z.object({
+        variation_id: z.string(),
+      }),
+    )
+    .optional(),
   quantity: z.number(),
 })
 
@@ -47,8 +49,20 @@ export function AddToCard({
 }: AddToCardDrawerProps) {
   const router = useRouter()
 
-  const { productPrice, setProductPrice, amount, decrease, increase } =
-    useProduct()
+  const productHasDimensions =
+    product.pkg_height !== null &&
+    product.pkg_width !== null &&
+    product.pkg_length !== null &&
+    product.pkg_weight !== null
+
+  const {
+    productPrice,
+    setProductPrice,
+    amount,
+    setAmount,
+    decrease,
+    increase,
+  } = useProduct()
 
   const groupedByAttribute =
     variations &&
@@ -104,13 +118,15 @@ export function AddToCard({
       product_id: product.id,
       products: product,
       quantity: values.quantity,
-      product_variations: values.variations,
+      product_variations: values.variations ?? [],
     }
 
     await addToCart(publicStore, newCartProduct)
 
     router.push(`/${publicStore}`)
   }
+
+  console.log(form.formState.errors)
 
   useEffect(() => {
     setProductPrice(maxPrice ?? product.promotional_price ?? product.price)
@@ -139,11 +155,18 @@ export function AddToCard({
     return () => subscription.unsubscribe()
   }, [form, variations, product])
 
+  useEffect(() => {
+    setAmount(1)
+  }, [product]) // eslint-disable-line
+
   if (product.stock > 0) {
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="space-y-2">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-8 max-w-sm"
+        >
+          <div className="flex flex-col md:flex-row gap-2">
             {groupedByAttribute &&
               groupedByAttribute.length > 0 &&
               groupedByAttribute.map((attribute, index) => (
@@ -230,7 +253,7 @@ export function AddToCard({
               <Button
                 className="flex flex-row items-center justify-between w-full max-w-md"
                 type="submit"
-                disabled={product.stock === 0}
+                disabled={product.stock === 0 || !productHasDimensions}
               >
                 <span className="flex flex-row items-center gap-1">
                   <Plus className="w-4 h-4" /> Adicionar{' '}
