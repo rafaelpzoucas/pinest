@@ -48,12 +48,13 @@ export function PublicStoreNavigation({
     },
   ]
 
+  const finishPurchaseLink = !userData.user
+    ? `/${params.public_store}/sign-in`
+    : `/${params.public_store}/checkout?step=pickup`
+
   const productsPrice = cartProducts
     ? cartProducts.reduce((acc, cartProduct) => {
-        const priceToAdd =
-          cartProduct.products.promotional_price > 0
-            ? cartProduct.products.promotional_price
-            : cartProduct.products.price
+        const priceToAdd = cartProduct.product_price
 
         return acc + priceToAdd * cartProduct.quantity
       }, 0)
@@ -95,7 +96,7 @@ export function PublicStoreNavigation({
             </PopoverTrigger>
             <PopoverContent align="end" className="w-96">
               <section className="flex flex-col gap-2">
-                <ScrollArea className="h-[394px]">
+                <ScrollArea className="h-full max-h-[394px]">
                   <CartProducts
                     cartProducts={cartProducts}
                     storeName={storeUrl}
@@ -103,30 +104,18 @@ export function PublicStoreNavigation({
                 </ScrollArea>
 
                 <footer className="pt-3 bg-background">
-                  {connectedAccount &&
-                    productsPrice > 0 &&
-                    (!userData.user ? (
-                      <Link
-                        href={`/${params.public_store}/sign-in`}
-                        className={cn(
-                          buttonVariants(),
-                          'flex justify-between w-full',
-                        )}
-                      >
-                        Finalizar compra {formatCurrencyBRL(productsPrice)}
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/${params.public_store}/checkout?step=pickup`}
-                        className={cn(
-                          buttonVariants(),
-                          'flex justify-between w-full',
-                        )}
-                      >
-                        Finalizar compra{' '}
-                        <strong>{formatCurrencyBRL(productsPrice)}</strong>
-                      </Link>
-                    ))}
+                  {connectedAccount && productsPrice > 0 && (
+                    <Link
+                      href={finishPurchaseLink}
+                      className={cn(
+                        buttonVariants(),
+                        'flex justify-between w-full',
+                      )}
+                    >
+                      Finalizar compra{' '}
+                      <strong>{formatCurrencyBRL(productsPrice)}</strong>
+                    </Link>
+                  )}
                 </footer>
               </section>
             </PopoverContent>

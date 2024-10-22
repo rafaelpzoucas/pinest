@@ -9,4 +9,5 @@ export type CartProductType = {
   product_variations: {
     variation_id: string
   }[]
+  product_price: number
 }

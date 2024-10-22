@@ -10,8 +10,6 @@ export default async function AddressesPage({
 }) {
   const { address } = await readAddress()
 
-  console.log(searchParams.checkout)
-
   return (
     <div className="space-y-4">
       <Header title="Meu endereço" />

@@ -6,6 +6,15 @@ export interface CustomersType extends CustomerType {
   users: UserType
 }
 
+export type CreatePurchaseType = {
+  totalAmount: number
+  storeName: string
+  addressId: string
+  shippingPrice: number
+  shippingTime: number
+  pickup: string
+}
+
 export type PurchaseItemsType = {
   id: string
   created_at: string

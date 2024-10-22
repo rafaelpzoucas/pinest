@@ -1,3 +1,4 @@
+import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
@@ -8,6 +9,9 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const storeName = requestUrl.searchParams.get('store-name')
   const purchaseId = requestUrl.searchParams.get('purchase')
+  const stripeAccountId = requestUrl.searchParams.get('stripe_account')
+  const amount = requestUrl.searchParams.get('amount')
+
   const origin = requestUrl.origin
 
   const { error } = await supabase
@@ -18,6 +22,18 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error(error)
+  }
+
+  if (stripeAccountId && amount) {
+    const transfer = await stripe.transfers.create({
+      amount: parseFloat(amount),
+      currency: 'brl',
+      destination: stripeAccountId,
+    })
+
+    if (!transfer) {
+      console.error(transfer)
+    }
   }
 
   revalidatePath('/purchases')

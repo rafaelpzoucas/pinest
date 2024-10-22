@@ -1,5 +1,6 @@
 'use server'
 
+import { createSeller } from '@/app/admin/(protected)/onboarding/actions'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -34,7 +35,17 @@ async function updateStripeConnectedAccount(account: any) {
 }
 
 export async function getConnectedAccount() {
+  const supabase = createClient()
+
   const { stripeAccount, userError } = await getStripeAccount()
+
+  if (stripeAccount?.stripe_account_id === null) {
+    const { data: session } = await supabase.auth.getUser()
+
+    if (session && session.user) {
+      await createSeller(session.user?.id, session.user?.email)
+    }
+  }
 
   let connectedAccount = stripeAccount?.stripe_connected_account
 

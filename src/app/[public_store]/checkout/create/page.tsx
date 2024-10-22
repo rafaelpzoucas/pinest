@@ -1,4 +1,5 @@
 import { buttonVariants } from '@/components/ui/button'
+import { CreatePurchaseType } from '@/models/purchase'
 import { CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { createPurchase } from '../@summary/actions'
@@ -17,14 +18,15 @@ export default async function CreatePurchase({
   }
 }) {
   async function handleCreatePurchase() {
-    const { purchase, purchaseError } = await createPurchase(
-      parseInt(searchParams.totalAmount),
-      searchParams.storeName,
-      searchParams.addressId,
-      parseFloat(searchParams.shippingPrice),
-      parseFloat(searchParams.shippingTime),
-      searchParams.pickup,
-    )
+    const newPurchase: CreatePurchaseType = {
+      addressId: searchParams.addressId,
+      pickup: searchParams.pickup,
+      storeName: searchParams.storeName,
+      totalAmount: parseInt(searchParams.totalAmount),
+      shippingPrice: parseFloat(searchParams.shippingPrice),
+      shippingTime: parseFloat(searchParams.shippingTime),
+    }
+    const { purchase, purchaseError } = await createPurchase(newPurchase)
 
     if (purchaseError) {
       console.error(purchaseError)

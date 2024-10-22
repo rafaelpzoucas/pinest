@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { generateSlug } from '@/lib/utils'
 import { CustomerType } from '@/models/customer'
+import { CreatePurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { getCart } from '../../cart/actions'
@@ -99,19 +100,12 @@ export async function handleCustomer(): Promise<{
   return { customer, customerError }
 }
 
-export async function createPurchase(
-  totalAmount: number,
-  storeName: string,
-  addressId: string,
-  shippingPrice: number,
-  shippingTime: number,
-  pickup: string,
-): Promise<{
+export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   purchase: { id: string } | null
   purchaseError: any | null
 }> {
   const supabase = createClient()
-  const { cart } = await getCart(generateSlug(storeName))
+  const { cart } = await getCart(generateSlug(newPurchase.storeName))
 
   const { customer, customerError } = await handleCustomer()
 
@@ -119,7 +113,7 @@ export async function createPurchase(
     console.error(customerError)
   }
 
-  const { store, storeError } = await readStoreByName(storeName)
+  const { store, storeError } = await readStoreByName(newPurchase.storeName)
 
   if (storeError) {
     console.error(storeError)
@@ -128,12 +122,14 @@ export async function createPurchase(
   const valuesToInsert = {
     customer_id: customer?.id,
     status: 'pending',
-    total_amount: totalAmount,
+    total_amount: newPurchase.totalAmount,
     updated_at: new Date().toISOString(),
-    address_id: addressId,
+    address_id: newPurchase.addressId,
     store_id: store?.id,
-    shipping_price: pickup === 'delivery' ? shippingPrice : 0,
-    delivery_time: pickup === 'delivery' ? shippingTime : null,
+    shipping_price:
+      newPurchase.pickup === 'delivery' ? newPurchase.shippingPrice : 0,
+    delivery_time:
+      newPurchase.pickup === 'delivery' ? newPurchase.shippingTime : null,
   }
 
   const { data: purchase, error: purchaseError } = await supabase
@@ -155,8 +151,9 @@ export async function createPurchase(
       })),
     )[0]
 
-  const { data: purchaseVariations, error: createPurchaseVariationsError } =
-    await supabase.from('purchase_item_variations').insert(variationsToInsert)
+  const { error: createPurchaseVariationsError } = await supabase
+    .from('purchase_item_variations')
+    .insert(variationsToInsert)
 
   if (createPurchaseVariationsError) {
     console.error(createPurchaseVariationsError)
@@ -170,7 +167,7 @@ export async function createPurchase(
           purchase_id: purchase?.id,
           product_id: item?.products.id,
           quantity: item?.quantity,
-          product_price: item?.products.price,
+          product_price: item?.product_price,
         })),
     )
     .select('*')

@@ -72,6 +72,7 @@ async function insertCartProduct(
       product_id: newItem.products.id,
       quantity: newItem.quantity,
       product_variations: newItem.product_variations,
+      product_price: newItem.product_price,
     })
     .select()
 

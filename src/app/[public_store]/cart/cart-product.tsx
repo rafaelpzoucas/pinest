@@ -116,10 +116,12 @@ export function CartProduct({
           <p
             className={cn(
               'font-bold text-primary text-sm',
-              product.price > 0 && 'font-light text-xs',
+              cartProduct.product_price > 0 && 'font-light text-xs',
             )}
           >
-            {formatCurrencyBRL(product.price * cartProduct.quantity)}
+            {formatCurrencyBRL(
+              cartProduct.product_price * cartProduct.quantity,
+            )}
           </p>
         </div>
       </footer>

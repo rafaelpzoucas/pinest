@@ -7,9 +7,11 @@ export default function SignIn({
 }) {
   return (
     <main className="flex flex-col items-center gap-12 p-6 py-8">
-      <header className="w-full">
+      <header className="w-full max-w-sm">
         <h1 className="text-2xl font-bold">Olá, visitante</h1>
-        <p className="text-muted-foreground">Para começar, faça o seu login</p>
+        <p className="text-muted-foreground">
+          Para continuar sua compra, faça o login
+        </p>
       </header>
 
       <div className="flex flex-col gap-2 w-full max-w-sm">

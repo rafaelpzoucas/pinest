@@ -17,25 +17,37 @@ function CheckoutButton({
   addressId,
   shipping,
   pickup,
+  reference,
+  priceShip,
+  transp,
 }: {
   totalAmount: number
   storeName: string
   addressId: string
   shipping: OwnShippingType | null
   pickup: string
+  reference: string
+  priceShip: number
+  transp: string
 }) {
+  const shippingPrice =
+    (priceShip && `&shippingPrice=${priceShip}`) ?? shipping?.price
+
   const qTotalAmount = `totalAmount=${totalAmount}`
   const qStoreName = `&storeName=${storeName}`
   const qAddressId = addressId ? `&addressId=${addressId}` : ''
   const qShippingPrice =
-    shipping && shipping.status ? `&shippingPrice=${shipping.price}` : ''
+    shippingPrice ??
+    (shipping && shipping.status ? `&shippingPrice=${shipping.price}` : '')
   const qShippingTime =
     shipping && shipping.status ? `&shippingTime=${shipping.delivery_time}` : ''
   const qPickup = `&pickup=${pickup}`
+  const qReference = transp ? `&reference=${reference}` : ''
+  const qTransp = transp ? `&transp=${transp}` : ''
 
   return (
     <Link
-      href={`checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup === 'delivery' ? qShippingPrice + qShippingTime : ''}${qPickup}`}
+      href={`checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup === 'delivery' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}`}
       className={cn(buttonVariants(), 'w-full')}
     >
       Continuar para o pagamento
@@ -48,9 +60,17 @@ export default async function Summary({
   searchParams,
 }: {
   params: { public_store: string }
-  searchParams: { address: string; pickup: string }
+  searchParams: {
+    address: string
+    pickup: string
+    reference: string
+    priceShip: string
+    transp: string
+  }
 }) {
   const addressId = searchParams.address
+  const priceShipping = searchParams.priceShip
+  const transp = searchParams.transp
 
   const { cart } = await getCart(params.public_store)
   const { address } = await readAddressById(addressId)
@@ -59,17 +79,15 @@ export default async function Summary({
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
-        const priceToAdd =
-          cartProduct.products.promotional_price > 0
-            ? cartProduct.products.promotional_price
-            : cartProduct.products.price
+        const priceToAdd = cartProduct.product_price
 
         return acc + priceToAdd * cartProduct.quantity
       }, 0)
     : 0
 
+  const shippingPrice = parseFloat(priceShipping) ?? shipping?.price
   const totalPrice = shipping?.price
-    ? productsPrice + shipping.price
+    ? productsPrice + shippingPrice
     : productsPrice
 
   return (
@@ -81,9 +99,12 @@ export default async function Summary({
         </div>
 
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <p>{searchParams.pickup === 'delivery' ? 'Frete' : 'Retirar'}</p>
+          <p>
+            {searchParams.pickup === 'delivery' ? 'Frete' : 'Retirar'}
+            <strong>{transp ? ` por ${transp}` : ''}</strong>
+          </p>
           {searchParams.pickup === 'delivery' && shipping && (
-            <span>{formatCurrencyBRL(shipping?.price)}</span>
+            <span>{formatCurrencyBRL(shippingPrice)}</span>
           )}
           {searchParams.pickup === 'pickup' && shipping && (
             <span className="text-emerald-600">Grátis</span>
@@ -101,6 +122,9 @@ export default async function Summary({
           addressId={searchParams.address}
           shipping={shipping}
           pickup={searchParams.pickup}
+          priceShip={shippingPrice}
+          reference={searchParams.reference}
+          transp={searchParams.transp}
         />
       </Card>
 
@@ -115,7 +139,10 @@ export default async function Summary({
             {address?.state}
           </span>
 
-          <Link href="" className={cn(buttonVariants({ variant: 'link' }))}>
+          <Link
+            href={`/${params.public_store}/checkout?step=pickup`}
+            className={cn(buttonVariants({ variant: 'link' }))}
+          >
             Editar ou escolher outro
           </Link>
         </section>
