@@ -116,17 +116,16 @@ export function AddToCard({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const newCartProduct: CartProductType = {
       product_id: product.id,
-      products: product,
+      products: { ...product, price: productPrice },
       quantity: values.quantity,
       product_variations: values.variations ?? [],
+      product_price: productPrice,
     }
 
     await addToCart(publicStore, newCartProduct)
 
     router.push(`/${publicStore}`)
   }
-
-  console.log(form.formState.errors)
 
   useEffect(() => {
     setProductPrice(maxPrice ?? product.promotional_price ?? product.price)

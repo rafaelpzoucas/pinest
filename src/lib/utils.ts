@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 import { AddressType } from '@/models/user'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 type QueryParamsGeneric = { [key: string]: string | number | null | undefined }
@@ -28,6 +28,18 @@ export function formatDistanceToNowDate(date: string) {
   return formatDistanceToNow(new Date(date), {
     locale: ptBR,
   })
+}
+
+export function formatDistanceToFuture(dataFutura: Date): string {
+  const hoje = new Date()
+
+  // Verifica se a data é futura e calcula a distância
+  const distancia = formatDistance(dataFutura, hoje, {
+    locale: ptBR, // Localização em português
+    addSuffix: false, // Não adiciona o "em" automático do date-fns
+  })
+
+  return isFuture(dataFutura) ? `em até ${distancia}` : `há ${distancia}`
 }
 
 export function copyToClipboard(text: string) {
@@ -106,4 +118,21 @@ export const dayTranslation: Record<string, string> = {
   friday: 'sexta',
   saturday: 'sábado',
   sunday: 'domingo',
+}
+
+export async function isSameCity(cep1: string, cep2: string) {
+  const fetchCep = async (cep: string) => {
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    return res.json()
+  }
+
+  const [dadosCep1, dadosCep2] = await Promise.all([
+    fetchCep(cep1),
+    fetchCep(cep2),
+  ])
+
+  return (
+    dadosCep1.localidade === dadosCep2.localidade &&
+    dadosCep1.uf === dadosCep2.uf
+  )
 }

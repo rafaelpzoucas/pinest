@@ -16,6 +16,7 @@ import {
   getCart,
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
+import { readCustomerAddress, readStoreAddress } from '../../checkout/actions'
 import { readProductById, readProductVariations } from './actions'
 import { ProductInfo } from './info'
 
@@ -27,6 +28,8 @@ export default async function ProductPage({
   const supabase = createClient()
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
+  const { storeAddress } = await readStoreAddress(params.public_store)
+  const { customerAddress } = await readCustomerAddress()
 
   const { cart } = await getCart(params.public_store)
 
@@ -98,11 +101,14 @@ export default async function ProductPage({
             )}
           </div>
 
-          <ProductInfo
-            product={product}
-            publicStore={params.public_store}
-            variations={variations}
-          />
+          {storeAddress && (
+            <ProductInfo
+              product={product}
+              publicStore={params.public_store}
+              variations={variations}
+              storeAddress={storeAddress}
+            />
+          )}
         </div>
       </div>
     </main>

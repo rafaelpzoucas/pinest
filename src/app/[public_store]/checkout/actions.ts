@@ -128,21 +128,39 @@ export async function createStripeCheckout(
     return
   }
 
+  const lineItems = purchaseItems.map((item) => ({
+    price_data: {
+      currency: 'brl',
+      unit_amount: Math.round(item.product_price * 100),
+      product_data: {
+        name: item.products.name,
+        description: item.products.description,
+      },
+    },
+    quantity: item.quantity,
+  }))
+
+  const totalProductPrice = purchaseItems.reduce((acc, item) => {
+    return acc + item.product_price * item.quantity
+  }, 0)
+
   const session = await stripe.checkout.sessions.create(
     {
       mode: 'payment',
-      line_items: purchaseItems.map((item) => ({
-        price_data: {
-          currency: 'brl',
-          unit_amount: Math.round(item.products.price * 100),
-          product_data: {
-            name: item.products.name,
-            description: item.products.description,
+      line_items: [
+        ...lineItems,
+        {
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: 'Frete',
+            },
+            unit_amount: Math.round(purchase.shipping_price * 100),
           },
+          quantity: 1,
         },
-        quantity: item.quantity,
-      })),
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}`,
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/purchases/${purchaseId}`,
     },
     {

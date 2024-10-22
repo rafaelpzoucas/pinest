@@ -22,7 +22,7 @@ import { supabaseErrors } from '@/services/supabase-errors'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { createCustomerAddress, updateCustomerAddress } from './actions'
 
@@ -53,6 +53,7 @@ export function AddressForm({ address }: { address: AddressType | null }) {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
+
   const [currentAddress, setCurrentAddress] = useState(!!address)
 
   const zipCode = searchParams.get('zip-code')
@@ -70,6 +71,8 @@ export function AddressForm({ address }: { address: AddressType | null }) {
       state: address?.state ?? '',
     },
   })
+
+  const watchZipCode = form.watch('zip_code')
 
   function verifyCEP() {
     const cep = form.watch('zip_code')
@@ -100,6 +103,10 @@ export function AddressForm({ address }: { address: AddressType | null }) {
       return router.push(`/${storeName}/checkout?step=pickup`)
     }
   }
+
+  useEffect(() => {
+    setCurrentAddress(watchZipCode === address?.zip_code)
+  }, [watchZipCode])
 
   return (
     <Form {...form}>
