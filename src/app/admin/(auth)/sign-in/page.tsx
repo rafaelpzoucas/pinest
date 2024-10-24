@@ -14,14 +14,14 @@ export default async function AdminSignIn({
   const { data: session, error } = await supabase.auth.getUser()
 
   if (!error || session?.user) {
-    const { data: user, error } = await supabase
+    const { data: user } = await supabase
       .from('users')
       .select('*')
       .eq('id', session.user?.id)
       .single()
 
-    if (error) {
-      return redirect('/admin/onboarding?step=1')
+    if (!user) {
+      return redirect('/admin/onboarding/store/basic')
     }
 
     if (user && user?.role === 'admin') redirect('/admin/dashboard')

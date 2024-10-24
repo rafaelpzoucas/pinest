@@ -30,7 +30,7 @@ export async function readCustomerAddress() {
   }
 }
 
-export async function readStore(storeName: string): Promise<{
+export async function readStore(storeURL: string): Promise<{
   store: StoreType | null
   storeError: any | null
 }> {
@@ -39,7 +39,7 @@ export async function readStore(storeName: string): Promise<{
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('*')
-    .eq('name', storeName.replaceAll('-', ' '))
+    .eq('store_url', storeURL)
     .single()
 
   return { store, storeError }
@@ -100,7 +100,7 @@ export async function readPurchaseItems(purchaseId: string): Promise<{
 }
 
 export async function createStripeCheckout(
-  storeName: string,
+  storeURL: string,
   purchaseId: string,
 ) {
   const { purchase, purchaseError } = await readPurchaseItems(purchaseId)
@@ -109,11 +109,13 @@ export async function createStripeCheckout(
     console.error(purchaseError)
   }
 
-  const { store, storeError } = await readStore(storeName)
+  const { store, storeError } = await readStore(storeURL)
 
   if (storeError) {
     console.error(storeError)
   }
+
+  console.log({ store })
 
   const { stripeAccount, stripeAccountError } =
     await readUserConnectedAccountId(store?.user_id ?? '')
@@ -144,6 +146,10 @@ export async function createStripeCheckout(
     return acc + item.product_price * item.quantity
   }, 0)
 
+  if (!stripeAccount?.stripe_account_id) {
+    return null
+  }
+
   const session = await stripe.checkout.sessions.create(
     {
       mode: 'payment',
@@ -160,15 +166,15 @@ export async function createStripeCheckout(
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/checkout/success?store-name=${storeName}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/purchases/${purchaseId}`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/checkout/success?store-name=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/purchases/${purchaseId}`,
     },
     {
       stripeAccount: stripeAccount?.stripe_account_id,
     },
   )
 
-  await clearCart(storeName)
+  await clearCart(storeURL)
 
   return redirect(session.url as string)
 }

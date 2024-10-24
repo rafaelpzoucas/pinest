@@ -22,16 +22,7 @@ export default async function ProtectedLayout({
     redirect('/admin/sign-in')
   }
 
-  const { owner, ownerError } = await readOwner()
-
-  if (ownerError) {
-    console.error(ownerError)
-    return redirect('/admin/sign-in')
-  }
-
-  if (!owner) {
-    return redirect('/admin/onboarding/store/basic')
-  }
+  const { owner } = await readOwner()
 
   if (owner && owner?.role !== 'admin') {
     return redirect('/admin/sign-in')

@@ -17,21 +17,25 @@ export async function createOwner() {
 
   const { user } = await readOwner()
 
-  if (!user) {
-    return { ownerError: null }
+  if (user) {
+    return { createOwnerError: null }
   }
 
-  const { error: ownerError } = await supabase.from('users').insert({
-    id: session.user?.id,
-    name: session.user?.user_metadata.name,
-    phone: session.user?.user_metadata.phone ?? null,
-    email: session.user?.email,
-    role: 'admin',
-  })
+  const { data: createdOwner, error: createOwnerError } = await supabase
+    .from('users')
+    .insert({
+      id: session.user?.id,
+      name: session.user?.user_metadata.name,
+      phone: session.user?.user_metadata.phone ?? null,
+      email: session.user?.email,
+      role: 'admin',
+    })
+    .select('*')
+    .single()
 
-  if (session.user) {
-    const response = await createSeller(session.user?.id, session.user?.email)
-
+  if (createdOwner) {
+    console.log({ createdOwner })
+    const response = await createSeller(createdOwner.id, createdOwner.email)
     if (response) {
       console.log('Seller account created successfully')
     } else {
@@ -39,7 +43,7 @@ export async function createOwner() {
     }
   }
 
-  return { ownerError }
+  return { createOwnerError }
 }
 
 export async function createSeller(userId: string, email?: string) {
