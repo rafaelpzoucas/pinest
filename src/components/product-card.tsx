@@ -72,7 +72,7 @@ export function ProductCard({
 
   return (
     <Link
-      href={publicStore ? `/${publicStore}/products/${data.id}` : '#'}
+      href={publicStore ? `/${publicStore}/products/${data.product_url}` : '#'}
       className={cn(
         productCardVariants({ variant }),
         'focus:outline-none focus:ring ring-offset-4 ring-offset-background rounded-xl',

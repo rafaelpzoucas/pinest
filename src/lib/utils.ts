@@ -106,8 +106,13 @@ export function convertStringToNumber(string: string) {
   return null
 }
 
-export function generateSlug(str: string) {
-  return removeAccents(str).toLowerCase().replace(' ', '-')
+export function generateSlug(str: string): string {
+  return removeAccents(str)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+    .trim() // Remove espaços no início e no final
+    .replace(/\s+/g, '-') // Substitui espaços por hífens
+    .replace(/-+/g, '-') // Garante que não haja hífens duplicados
 }
 
 export const dayTranslation: Record<string, string> = {
