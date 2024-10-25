@@ -17,13 +17,13 @@ import {
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
 import { readCustomerAddress, readStoreAddress } from '../../checkout/actions'
-import { readProductById, readProductVariations } from './actions'
+import { readProductByURL, readProductVariations } from './actions'
 import { ProductInfo } from './info'
 
 export default async function ProductPage({
   params,
 }: {
-  params: { id: string; public_store: string }
+  params: { product_url: string; public_store: string }
 }) {
   const supabase = createClient()
 
@@ -39,14 +39,29 @@ export default async function ProductPage({
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
+  if (userError) {
+    console.error({ userError })
+  }
+
   const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
   )
 
   const connectedAccount = user?.stripe_connected_account
 
-  const { product, productError } = await readProductById(params.id)
-  const { variations, variationsError } = await readProductVariations(params.id)
+  const { product, productError } = await readProductByURL(
+    params.public_store,
+    params.product_url,
+  )
+
+  if (productError) {
+    console.error({ productError })
+  }
+
+  const { variations, variationsError } = await readProductVariations(
+    params.public_store,
+    params.product_url,
+  )
 
   if (productError) {
     console.error(productError)
