@@ -24,7 +24,10 @@ export async function Footer({ storeURL }: { storeURL: string }) {
 
   return (
     <footer>
-      <Card className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-6 w-full p-6 py-6 bg-secondary/50 border-0">
+      <Card
+        className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-6 w-full p-6 py-6 bg-secondary/50
+          border-0"
+      >
         <section className="flex flex-col space-y-6">
           <div className="flex flex-col items-center lg:flex-row gap-4 w-full max-w-sm">
             <Avatar className="w-24 h-24 lg:w-16 lg:h-16">

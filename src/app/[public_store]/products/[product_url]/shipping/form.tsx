@@ -116,7 +116,7 @@ export function ShippingForm({
       <div className="flex flex-col md:flex-row gap-2 md:gap-6">
         <div className="flex flex-row items-center gap-3 text-muted-foreground">
           <Truck className="w-8 h-8" />
-          <p className="w-full max-w-48 text-sm ">Frete e prazo de entrega</p>
+          <p className="w-full max-w-48 text-sm">Frete e prazo de entrega</p>
         </div>
 
         <Form {...form}>

@@ -10,7 +10,10 @@ export default function OnboardingLayout({
   children: ReactNode
 }) {
   return (
-    <div className="flex flex-col md:grid md:grid-cols-[1fr_2fr] items-center justify-center gap-4 h-dvh">
+    <div
+      className="flex flex-col md:grid md:grid-cols-[1fr_2fr] items-center justify-center gap-4
+        h-dvh"
+    >
       <aside className="hidden md:flex items-center justify-center">
         <Image src={darkLogo} alt="Pinest" width={250} />
       </aside>

@@ -19,7 +19,10 @@ export async function Products() {
 
   if (products && products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted mx-auto">
+      <div
+        className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted
+          mx-auto"
+      >
         <Box className="w-20 h-20" />
         <p className="text-muted-foreground">Não há produtos cadastrados</p>
       </div>

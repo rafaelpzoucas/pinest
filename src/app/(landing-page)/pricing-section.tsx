@@ -55,7 +55,7 @@ export function PricingSection() {
 
       <div className="flex flex-col md:flex-row md:items-start justify-center gap-8 mt-8">
         {plans.map((plan) => (
-          <Card key={plan.name} className=" ">
+          <Card key={plan.name} className="">
             <CardHeader>
               <CardTitle>{plan.name}</CardTitle>
               <CardDescription>{plan.price}</CardDescription>

@@ -90,7 +90,10 @@ export function FileUploader({ files, setFiles }: FileUploaderProps) {
           <input {...getInputProps()} />
           <div
             data-drag-active={isDragActive}
-            className="flex flex-col items-center justify-center gap-4 aspect-square rounded-lg border border-dashed cursor-pointer text-sm text-center data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary data-[drag-active=true]:text-primary-foreground transition-all duration-200"
+            className="flex flex-col items-center justify-center gap-4 aspect-square rounded-lg border
+              border-dashed cursor-pointer text-sm text-center
+              data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary
+              data-[drag-active=true]:text-primary-foreground transition-all duration-200"
           >
             <ImagePlusIcon className="w-8 h-8 opacity-25" />
           </div>

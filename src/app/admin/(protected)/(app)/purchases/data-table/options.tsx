@@ -15,7 +15,7 @@ export function PurchaseOptions({
 }) {
   return (
     <>
-      <div className="hidden lg:flex flex-row ">
+      <div className="hidden lg:flex flex-row">
         <Link
           href={`purchases/${purchaseId}`}
           className={buttonVariants({ variant: 'ghost', size: 'icon' })}

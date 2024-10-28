@@ -26,7 +26,10 @@ export function PreSaleSection() {
 
   return (
     <section className="flex items-center justify-center p-8 py-16">
-      <div className="relative z-10 w-full md:max-w-3xl flex flex-col items-center justify-center gap-6 md:gap-16 text-center md:text-left">
+      <div
+        className="relative z-10 w-full md:max-w-3xl flex flex-col items-center justify-center
+          gap-6 md:gap-16 text-center md:text-left"
+      >
         <div>
           <h2 className="text-3xl font-bold text-center">
             Garanta seu acesso antecipado à Pinest com 50% de desconto
@@ -42,7 +45,7 @@ export function PreSaleSection() {
 
         <div className="flex flex-col md:flex-row md:items-start justify-center gap-8 mt-8">
           {plans.map((plan) => (
-            <Card key={plan.name} className=" ">
+            <Card key={plan.name} className="">
               <CardHeader>
                 <CardDescription>{plan.name}</CardDescription>
 

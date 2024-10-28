@@ -61,7 +61,11 @@ export function PublicStoreNavigation({
     : 0
 
   return (
-    <Card className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1 lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0 bg-red-700">
+    <Card
+      className="fixed lg:static z-50 bottom-3 left-1/2 -translate-x-1/2 lg:translate-x-0 p-1
+        lg:p-0 bg-background/90 lg:bg-transparent backdrop-blur-lg lg:border-0
+        bg-red-700"
+    >
       <NavigationMenu>
         <NavigationMenuList>
           {links.map((link) => (
@@ -86,7 +90,10 @@ export function PublicStoreNavigation({
                   )}
                 >
                   {cartProducts && cartProducts?.length > 0 && (
-                    <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
+                    <span
+                      className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold
+                        px-[5px] rounded-full border-2"
+                    >
                       {cartProducts?.length}
                     </span>
                   )}

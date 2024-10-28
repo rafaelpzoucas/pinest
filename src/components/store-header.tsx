@@ -48,7 +48,10 @@ export function Header({
 
   return (
     <header className="flex items-center justify-center w-full">
-      <Card className="flex flex-row items-center justify-between gap-2 w-full p-2 lg:p-4 bg-secondary/50 border-0">
+      <Card
+        className="flex flex-row items-center justify-between gap-2 w-full p-2 lg:p-4
+          bg-secondary/50 border-0"
+      >
         <div className="flex flex-col items-center lg:flex-row gap-4 lg:w-full max-w-xs">
           {pathname !== `/${storeUrl}` && (
             <Button
