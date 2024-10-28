@@ -47,7 +47,10 @@ export function SearchSheet({ publicStore }: { publicStore?: string }) {
     return (
       <>
         <div className="lg:hidden">
-          <div className="hidden lg:flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm">
+          <div
+            className="hidden lg:flex items-center h-9 w-full rounded-md border border-input
+              bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm"
+          >
             <span>{query ?? 'Buscar na loja'}</span>
           </div>
 
@@ -66,7 +69,10 @@ export function SearchSheet({ publicStore }: { publicStore?: string }) {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <div className="lg:hidden">
-            <div className="hidden lg:flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm">
+            <div
+              className="hidden lg:flex items-center h-9 w-full rounded-md border border-input
+                bg-transparent px-3 py-1 text-sm text-muted-foreground shadow-sm"
+            >
               <span>{query ?? 'Buscar na loja'}</span>
             </div>
 

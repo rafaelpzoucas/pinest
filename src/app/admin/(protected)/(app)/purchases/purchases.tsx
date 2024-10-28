@@ -67,7 +67,10 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
 
   if (purchases && purchases.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted mx-auto">
+      <div
+        className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted
+          mx-auto"
+      >
         <Scroll className="w-20 h-20" />
         <p className="text-muted-foreground">Nenhum pedido registrado</p>
       </div>
@@ -91,7 +94,8 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}
-            className={`p-2 px-4 flex flex-col text-xl ${statusFilter === filter.status ? 'border-primary' : ''}`}
+            className={`p-2 px-4 flex flex-col text-xl
+            ${statusFilter === filter.status ? 'border-primary' : ''}`}
             onClick={() => handleStatusClick(filter.status)}
           >
             <strong>{filter.status_length}</strong>

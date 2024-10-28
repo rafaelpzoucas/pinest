@@ -146,7 +146,7 @@ export function AddToCard({
         setProductPrice(
           highestPrice !== -Infinity
             ? highestPrice
-            : product.promotional_price ?? product.price,
+            : (product.promotional_price ?? product.price),
         )
       }
     })

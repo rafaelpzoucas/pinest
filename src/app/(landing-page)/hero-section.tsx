@@ -5,7 +5,10 @@ import { ArrowRight } from 'lucide-react'
 export function HeroSection() {
   return (
     <section id="cover" className="flex items-center justify-center h-dvh">
-      <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-2xl gap-4 md:gap-8 px-6">
+      <div
+        className="relative z-10 flex flex-col items-center justify-center text-center max-w-2xl
+          gap-4 md:gap-8 px-6"
+      >
         <h1 className={cn('text-4xl md:text-7xl font-bold text-primary')}>
           Construa sua Loja em Minutos!
         </h1>

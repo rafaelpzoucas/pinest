@@ -41,7 +41,10 @@ export function MobileNavigation({
         'lg:static lg:p-4 lg:w-fit',
       )}
     >
-      <Card className="flex flex-row lg:flex-col items-center justify-between gap-4 w-fit p-1 bg-background/90 backdrop-blur-sm">
+      <Card
+        className="flex flex-row lg:flex-col items-center justify-between gap-4 w-fit p-1
+          bg-background/90 backdrop-blur-sm"
+      >
         {links.map((link) => (
           <Link
             key={link.href}
@@ -84,7 +87,10 @@ export function MobileNavigation({
           )}
         >
           {cartProducts && cartProducts?.length > 0 && (
-            <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-[5px] rounded-full border-2">
+            <span
+              className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold
+                px-[5px] rounded-full border-2"
+            >
               {cartProducts?.length}
             </span>
           )}

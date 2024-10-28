@@ -6,6 +6,8 @@ import { SocialMediaType } from '@/models/social'
 import { StoreType } from '@/models/store'
 import { UserType } from '@/models/user'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
+import { appearenceFormSchema } from './appearence'
 
 export async function readUser(): Promise<{
   data: UserType | null
@@ -135,4 +137,46 @@ export async function readStoreHours(storeURL: string): Promise<{
   )
 
   return { hours: sortedHours, readHoursError: null }
+}
+
+export async function readStoreTheme(storeURL: string): Promise<{
+  themeColor: string
+  themeMode: string
+}> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('stores')
+    .select('theme_color, theme_mode')
+    .eq('store_url', storeURL)
+    .single()
+
+  if (error) {
+    console.error('Erro ao carregar tema da loja:', error)
+    return { themeColor: 'Zinc', themeMode: 'light' } // Valores padrão em caso de erro
+  }
+
+  return {
+    themeColor: data.theme_color || 'Zinc',
+    themeMode: data.theme_mode || 'light',
+  }
+}
+
+export async function updateStoreTheme(
+  storeURL: string,
+  values: z.infer<typeof appearenceFormSchema>,
+) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('stores')
+    .update({
+      theme_color: values.theme_color,
+      theme_mode: values.theme_mode,
+    })
+    .eq('store_url', storeURL)
+
+  if (error) {
+    console.error('Erro ao atualizar tema da loja:', error)
+  }
 }

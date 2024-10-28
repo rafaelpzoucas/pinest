@@ -7,7 +7,10 @@ export async function ProductsList({ storeURL }: { storeURL: string }) {
 
   if (categoriesError) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted mx-auto">
+      <div
+        className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted
+          mx-auto"
+      >
         <Boxes className="w-20 h-20" />
         <p className="text-muted-foreground">Não encontramos nenhum produto</p>
       </div>

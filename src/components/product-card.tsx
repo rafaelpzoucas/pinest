@@ -87,7 +87,10 @@ export function ProductCard({
         <Image src={thumbURL} fill alt="" className="object-cover" />
 
         {variant && data.stock === 0 && (
-          <Badge className="absolute z-20 top-2 left-2 bg-destructive/80 backdrop-blur-sm text-destructive-foreground">
+          <Badge
+            className="absolute z-20 top-2 left-2 bg-destructive/80 backdrop-blur-sm
+              text-destructive-foreground"
+          >
             Indisponível
           </Badge>
         )}

@@ -11,6 +11,8 @@ export type StoreType = {
   logo_url: string
   store_url: string
   market_niche_id: string
+  theme_color: string
+  theme_mode: string
   market_niches: MarketNicheType[]
   addresses: AddressType[]
   store_hours: HourType[]

@@ -20,7 +20,10 @@ export function MobileNav({ links }: { links: LinkType[] }) {
         'lg:hidden',
       )}
     >
-      <Card className="flex flex-row lg:flex-col items-center justify-around gap-4 w-fit p-1 px-2 bg-background">
+      <Card
+        className="flex flex-row lg:flex-col items-center justify-around gap-4 w-fit p-1 px-2
+          bg-background"
+      >
         {links.map((link) => (
           <Link href={link.route} key={link.route} className="relative p-2">
             <link.icon

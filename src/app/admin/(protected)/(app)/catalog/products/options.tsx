@@ -53,7 +53,7 @@ export function ProductOptions({ productId }: { productId: string }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="hidden lg:flex flex-row ">
+      <div className="hidden lg:flex flex-row">
         <Link
           href={`catalog/products/register?id=${productId}`}
           className={buttonVariants({ variant: 'ghost', size: 'icon' })}
