@@ -39,7 +39,7 @@ export const navLinks: LinkType[] = [
       {
         icon: User,
         title: 'Conta',
-        route: 'config/account',
+        route: '/admin/config/account',
       },
       {
         icon: LayoutList,
