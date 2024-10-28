@@ -1,9 +1,16 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { Header } from './header'
+
+export const metadata: Metadata = {
+  title: 'Pinest',
+  description:
+    'Crie sua loja virtual em minutos e alcance o sucesso no e-commerce!',
+}
 
 export default function LandingPageLayout({
   children,
