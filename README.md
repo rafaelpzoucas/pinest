@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Aqui está uma versão revisada e ampliada do README da Pinest, com informações sobre tecnologias utilizadas e orientações para rodar o projeto usando o `pnpm`:
 
-## Getting Started
+---
 
-First, run the development server:
+# Pinest
+
+Pinest é uma plataforma de marketplace desenvolvida para facilitar a criação e o gerenciamento de lojas online, focada em oferecer uma experiência de usuário simplificada e designs prontos para vender, ideal para quem quer começar a vender sem se preocupar com customizações complexas.
+
+Este projeto utiliza [Next.js](https://nextjs.org/) como framework de frontend, com suporte para renderização híbrida e otimizações de performance.
+
+## Tecnologias Utilizadas
+
+- **Next.js** - Framework para React com suporte a renderização server-side e estática.
+- **React** com **TypeScript** - Para desenvolvimento de interfaces fortemente tipadas.
+- **Supabase** - Banco de dados e autenticação baseada em PostgreSQL para back-end e gerenciamento de dados.
+- **Stripe** - Integração de pagamentos e sistema de checkout.
+- **ShadCN UI** - Biblioteca de componentes estilizados para construção de formulários e interfaces.
+- **React Hook Form** - Para gerenciamento de formulários.
+- **date-fns** - Biblioteca de manipulação de datas.
+- **pnpm** - Gerenciador de pacotes, preferido pela sua eficiência em instalações rápidas e compartilhamento de dependências.
+- **Vercel** - Hospedagem e deploy do projeto, com suporte para SSR (Server-Side Rendering) e SSG (Static Site Generation).
+
+## Iniciando o Projeto
+
+### Pré-requisitos
+
+Certifique-se de ter o Node.js e o `pnpm` instalados em seu sistema.
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/pinest.git
+   cd pinest
+   ```
+
+2. Instale as dependências:
+   ```bash
+   pnpm install
+   ```
+
+3. Configure as variáveis de ambiente:
+   Crie um arquivo `.env` na raiz do projeto com as credenciais necessárias para conectar ao Supabase e ao Stripe.
+
+### Executando o Servidor de Desenvolvimento
+
+Para rodar o projeto em modo de desenvolvimento, execute:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) em seu navegador para ver o projeto em ação.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Estrutura do Projeto
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- A página principal pode ser editada em `app/page.tsx`, e o projeto conta com hot reload para atualização automática das alterações.
+- As ações do servidor (Server Actions) estão organizadas nos arquivos `actions.ts` de cada componente.
 
-## Learn More
+## Fontes e Otimização
 
-To learn more about Next.js, take a look at the following resources:
+O projeto utiliza [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) para otimização automática de fontes, incluindo a integração com fontes customizadas como a Google Font Inter.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Recursos Adicionais
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Para saber mais sobre Next.js e explorar mais recursos, confira:
 
-## Deploy on Vercel
+- [Documentação do Next.js](https://nextjs.org/docs) - para detalhes sobre as funcionalidades e API.
+- [Learn Next.js](https://nextjs.org/learn) - um tutorial interativo sobre Next.js.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+O projeto Pinest é preparado para deploy na [Vercel](https://vercel.com/), que oferece uma integração completa com Next.js para SSR e SSG. Siga a [documentação de deploy](https://nextjs.org/docs/deployment) para mais detalhes.
+
+--- 
+
+Esse README fornece um panorama mais completo da Pinest, com informações úteis para instalação, tecnologias e configuração do ambiente de desenvolvimento com `pnpm`.
