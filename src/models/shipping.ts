@@ -1,16 +1,24 @@
-export type VolumeType = {
+type VolumeType = {
   peso: number
   altura: number
   largura: number
   comprimento: number
-  tipo: 'C' | 'E' // Caixa ou envelope
+  tipo: string
   valor: number
   quantidade: number
-  produto: string
+}
+
+type ProdutoType = {
+  peso: number
+  altura: number
+  largura: number
+  comprimento: number
+  valor: number
+  quantidade: number
 }
 
 type PedidoType = {
-  tipo: 'D' | 'N' // Declaração ou Nota fiscal
+  tipo: 'D' | 'N'
   numero?: string
   serie?: string
   chave?: string
@@ -25,11 +33,11 @@ type DestinoType = {
   nome: string
   cnpjCpf: string
   endereco: {
-    cep: string
     logradouro: string
-    complemento: string
     numero: string
+    complemento: string
     bairro: string
+    cep: string
     cidade: string
     uf: string
   }
@@ -47,7 +55,7 @@ export type RequestSimularType = {
   vlrMerc: number
   pesoMerc: number
   volumes: VolumeType[]
-  produtos: VolumeType[]
+  produtos: ProdutoType[]
   servicos: ServicosType[]
   ordernar: 'preco' | 'prazo'
 }
@@ -73,7 +81,7 @@ export type ShippingType = {
   servico: ServicosType
   tarifas: {
     descricao: string
-    faixa: string
+    faixa: any | null
     valor: number
   }[]
   transp_nome: string
@@ -83,16 +91,16 @@ export type ShippingType = {
 
 export type RequestSolicitarType = {
   gerarPdf: boolean
+  formatoPdf?: string
   pedido: PedidoType
   remetente: DestinoType
   destinatario: DestinoType
-  volumes: VolumeType[]
-  produtos: VolumeType[]
-  usarTransportadoraContrato: boolean
-  servicos: ServicosType[]
-  formatoPdf?: string
+  volumes: VolumeType
+  produtos: ProdutoType
   pontoPostagem?: string
   pontoEntrega?: string
   transportadora?: string
   referencia?: string
+  usarTransportadoraContrato: boolean
+  servicos: ServicosType[]
 }
