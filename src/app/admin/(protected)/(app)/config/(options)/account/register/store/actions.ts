@@ -21,7 +21,9 @@ export async function readStoreById(storeId: string): Promise<{
     .select(
       `
         *,
-        market_niches (*)
+        market_niches (*),
+        addresses (*),
+        users (*)
       `,
     )
     .eq('id', storeId)

@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { readProductsByStore } from '../catalog/products/actions'
 import { readUser } from '../config/(options)/account/actions'
 import { getConnectedAccount } from '../config/(options)/billing/actions'
-import { readOwnShipping } from '../config/(options)/shipping/own-shipping/actions'
+import { readOwnShipping } from '../config/(options)/shipping/actions'
 
 type StepsType = {
   name: string
@@ -38,7 +38,7 @@ export async function FirstSteps() {
     {
       name: 'Informações básicas da loja',
       href: '/admin/onboarding?step=store&info=name',
-      is_checked: user !== null ?? false,
+      is_checked: user !== null,
     },
     {
       name: 'Cadastrar produtos',

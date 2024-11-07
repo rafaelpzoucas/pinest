@@ -28,7 +28,7 @@ export async function readBenefitsByStoreId(storeId: string): Promise<{
   const { data: benefits, error: readBenefitsError } = await supabase
     .from('store_benefits')
     .select('*')
-    .eq('store_id', store.id)
+    .eq('store_id', store?.id)
 
   return { benefits, readBenefitsError }
 }

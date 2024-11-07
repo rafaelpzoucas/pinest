@@ -2,14 +2,14 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { convertStringToNumber } from '@/lib/utils'
-import { OwnShippingType } from '@/models/own-shipping'
+import { ShippingConfigType } from '@/models/shipping'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { readStoreByUserId } from '../../account/actions'
-import { ownShippingFormSchema } from './form'
+import { readStoreByUserId } from '../account/actions'
+import { ownShippingFormSchema } from './own-shipping/form'
 
 export async function readOwnShipping(): Promise<{
-  shipping: OwnShippingType | null
+  shipping: ShippingConfigType | null
   shippingError: any | null
 }> {
   const supabase = createClient()

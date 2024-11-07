@@ -19,18 +19,25 @@ import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
 import { UserType } from '@/models/user'
 import { Loader2 } from 'lucide-react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { updateProfile } from './actions'
+import { updateAccount } from './actions'
 
-export const profileSchema = z.object({
+export const accountSchema = z.object({
   name: z.string(),
   phone: z.string(),
   cpf_cnpj: z.string(),
 })
 
-export function ProfileForm({ user }: { user: UserType | null }) {
-  const form = useForm<z.infer<typeof profileSchema>>({
-    resolver: zodResolver(profileSchema),
+export function AccountForm({ user }: { user: UserType | null }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const params = useParams()
+
+  const checkout = searchParams.get('checkout')
+
+  const form = useForm<z.infer<typeof accountSchema>>({
+    resolver: zodResolver(accountSchema),
     defaultValues: {
       name: user?.name ?? '',
       phone: user?.phone ?? '',
@@ -38,12 +45,16 @@ export function ProfileForm({ user }: { user: UserType | null }) {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof profileSchema>) {
-    const { error } = await updateProfile(values)
+  async function onSubmit(values: z.infer<typeof accountSchema>) {
+    const { error } = await updateAccount(values)
 
     if (error) {
       console.error(error)
       return
+    }
+
+    if (checkout) {
+      return router.push(`/${params.public_store}/checkout?step=${checkout}`)
     }
 
     toast('Informações atualizadas com sucesso')
@@ -88,7 +99,7 @@ export function ProfileForm({ user }: { user: UserType | null }) {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone do proprietário</FormLabel>
+              <FormLabel>Telefone</FormLabel>
               <FormControl>
                 <PhoneInput {...field} />
               </FormControl>

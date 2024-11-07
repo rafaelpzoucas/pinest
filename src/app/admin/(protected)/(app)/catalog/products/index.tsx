@@ -13,7 +13,7 @@ export async function Products() {
   )
 
   if (error) {
-    console.log(error)
+    console.error(error)
     return <div>Não foi possível buscar seus produtos</div>
   }
 

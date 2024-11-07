@@ -1,6 +1,6 @@
 import { HourType } from './hour'
 import { MarketNicheType } from './market-niches'
-import { AddressType } from './user'
+import { AddressType, UserType } from './user'
 
 export type StoreType = {
   id: string
@@ -16,4 +16,5 @@ export type StoreType = {
   market_niches: MarketNicheType[]
   addresses: AddressType[]
   store_hours: HourType[]
+  users: UserType
 }

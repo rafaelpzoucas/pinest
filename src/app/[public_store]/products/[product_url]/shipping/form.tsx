@@ -23,8 +23,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatCurrencyBRL, formatDistanceToFuture } from '@/lib/utils'
+import { RequestSimularType, ShippingType } from '@/models/kangu-shipping'
 import { ProductType } from '@/models/product'
-import { RequestSimularType, ShippingType } from '@/models/shipping'
 import { AddressType } from '@/models/user'
 import { Loader2, Truck } from 'lucide-react'
 import { useState } from 'react'

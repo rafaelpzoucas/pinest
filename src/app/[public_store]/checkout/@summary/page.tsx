@@ -4,7 +4,7 @@ import { MapPin } from 'lucide-react'
 
 import { ProductCard } from '@/components/product-card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
-import { OwnShippingType } from '@/models/own-shipping'
+import { ShippingConfigType } from '@/models/shipping'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
 import { getCart } from '../../cart/actions'
@@ -24,7 +24,7 @@ function CheckoutButton({
   totalAmount: number
   storeName: string
   addressId: string
-  shipping: OwnShippingType | null
+  shipping: ShippingConfigType | null
   pickup: string
   reference: string
   priceShip: number

@@ -54,7 +54,7 @@ export default async function PublicStoreLayout({
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
   if (storeError) {
-    console.log(storeError)
+    console.error(storeError)
   }
 
   if (!store) {

@@ -17,6 +17,7 @@ export type UserType = {
   id: string
   name: string
   email: string
+  cpf_cnpj: string
   created_at: string
   updated_at: string
   role: string
