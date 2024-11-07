@@ -52,7 +52,7 @@ export function CategoryForm({ category }: { category: CategoryType | null }) {
       const { error } = await updateCategory(defaultId, values)
 
       if (error) {
-        console.log(error)
+        console.error(error)
         return null
       }
 
@@ -62,7 +62,7 @@ export function CategoryForm({ category }: { category: CategoryType | null }) {
     const { error } = await createCategory(values)
 
     if (error) {
-      console.log(error)
+      console.error(error)
       return null
     }
 

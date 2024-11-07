@@ -26,8 +26,6 @@ export async function ShippingOptions({
     storeZipCode,
   })
 
-  console.log(shipping)
-
   return (
     <Card className="p-4 w-full space-y-6">
       <header className="space-y-2 relative">

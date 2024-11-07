@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { selectCustomerUser } from '../../account/actions'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -30,6 +31,16 @@ export async function GET(request: Request) {
 
     if (usersError) {
       console.error(usersError)
+    }
+  }
+
+  if (session) {
+    const { customerUser } = await selectCustomerUser()
+
+    if (!customerUser?.cpf_cnpj) {
+      return NextResponse.redirect(
+        `${origin}/${storeName}/account?checkout=pickup`,
+      )
     }
   }
 

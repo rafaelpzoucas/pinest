@@ -39,6 +39,7 @@ export type PurchaseType = {
   updated_at: string
   customer_id: string
   status: string
+  store_id: string
   total_amount: number
   shipping_price: number
   delivery_time: number

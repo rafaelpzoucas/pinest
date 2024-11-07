@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
-import { OwnShippingType } from '@/models/own-shipping'
+import { ShippingConfigType } from '@/models/shipping'
 import { AddressType } from '@/models/user'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -10,7 +10,7 @@ import { useParams } from 'next/navigation'
 
 type DeliveryProps = {
   customerAddress: AddressType
-  shipping: OwnShippingType
+  shipping: ShippingConfigType
 }
 
 export function Delivery({ customerAddress, shipping }: DeliveryProps) {

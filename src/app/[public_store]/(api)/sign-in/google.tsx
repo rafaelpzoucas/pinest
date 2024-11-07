@@ -17,7 +17,7 @@ export function SignInWithGoogle({ storeName }: { storeName: string }) {
     })
 
     if (error) {
-      console.log(error)
+      console.error(error)
     }
   }
   return (

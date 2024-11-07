@@ -99,35 +99,55 @@ export async function readPurchaseItems(purchaseId: string): Promise<{
   return { purchase, purchaseError }
 }
 
+async function createStripeCheckoutSession(
+  lineItems: {
+    price_data: {
+      currency: string
+      unit_amount: number
+      product_data: { name: string; description: string }
+    }
+    quantity: number
+  }[],
+  successUrl: string,
+  cancelUrl: string,
+  stripeAccountId: string,
+) {
+  try {
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'payment',
+        line_items: lineItems,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      },
+      {
+        stripeAccount: stripeAccountId,
+      },
+    )
+
+    return session
+  } catch (error) {
+    console.error('Erro ao criar sessão de checkout:', error)
+    throw error
+  }
+}
+
 export async function createStripeCheckout(
   storeURL: string,
   purchaseId: string,
 ) {
   const { purchase, purchaseError } = await readPurchaseItems(purchaseId)
-
-  if (purchaseError) {
-    console.error(purchaseError)
-  }
-
   const { store, storeError } = await readStore(storeURL)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  console.log({ store })
-
   const { stripeAccount, stripeAccountError } =
     await readUserConnectedAccountId(store?.user_id ?? '')
 
-  if (stripeAccountError) {
-    console.error(stripeAccountError)
+  if (purchaseError || storeError || stripeAccountError) {
+    throw new Error('Erro ao obter dados necessários para criar o checkout')
   }
 
   const purchaseItems = purchase?.purchase_items
-
   if (!purchaseItems) {
-    return
+    return null
   }
 
   const lineItems = purchaseItems.map((item) => ({
@@ -147,31 +167,14 @@ export async function createStripeCheckout(
   }, 0)
 
   if (!stripeAccount?.stripe_account_id) {
-    return null
+    throw new Error('Lojista não está conectado ao Stripe')
   }
 
-  const session = await stripe.checkout.sessions.create(
-    {
-      mode: 'payment',
-      line_items: [
-        ...lineItems,
-        {
-          price_data: {
-            currency: 'brl',
-            product_data: {
-              name: 'Frete',
-            },
-            unit_amount: Math.round(purchase.shipping_price * 100),
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/checkout/success?store-name=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/purchases/${purchaseId}`,
-    },
-    {
-      stripeAccount: stripeAccount?.stripe_account_id,
-    },
+  const session = await createStripeCheckoutSession(
+    lineItems,
+    `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/checkout/success?store_url=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/purchases/${purchaseId}`,
+    stripeAccount?.stripe_account_id,
   )
 
   await clearCart(storeURL)

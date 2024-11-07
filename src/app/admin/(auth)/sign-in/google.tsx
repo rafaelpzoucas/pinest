@@ -17,7 +17,7 @@ export function SignInWithGoogle() {
     })
 
     if (error) {
-      console.log(error)
+      console.error(error)
     }
   }
 
