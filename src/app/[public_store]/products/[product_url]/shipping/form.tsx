@@ -26,6 +26,7 @@ import { formatCurrencyBRL, formatDistanceToFuture } from '@/lib/utils'
 import { RequestSimularType, ShippingType } from '@/models/kangu-shipping'
 import { ProductType } from '@/models/product'
 import { AddressType } from '@/models/user'
+import { useProduct } from '@/stores/productStore'
 import { Loader2, Truck } from 'lucide-react'
 import { useState } from 'react'
 
@@ -44,6 +45,8 @@ export function ShippingForm({
   publicStore,
   storeAddress,
 }: ShippingPropsType) {
+  const { amount } = useProduct()
+
   const [shipping, setShipping] = useState<ShippingType[]>([])
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -67,7 +70,7 @@ export function ShippingForm({
           comprimento: product.pkg_length,
           tipo: '',
           valor: product.price,
-          quantidade: 1,
+          quantidade: amount ?? 1,
         },
       ],
       produtos: [
@@ -77,7 +80,8 @@ export function ShippingForm({
           largura: product.pkg_width,
           comprimento: product.pkg_length,
           valor: product.price,
-          quantidade: 1,
+          quantidade: amount ?? 1,
+          produto: product.name,
         },
       ],
       servicos: ['E', 'X', 'M', 'R'],
