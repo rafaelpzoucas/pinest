@@ -13,11 +13,7 @@ export function CartProducts({
     <div className="p-1 pr-2">
       {cartProducts && cartProducts.length > 0 ? (
         cartProducts.map((product) => (
-          <CartProduct
-            key={product.id}
-            cartProduct={product}
-            publicStore={storeName}
-          />
+          <CartProduct key={product.id} cartProduct={product} />
         ))
       ) : (
         <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted py-4">

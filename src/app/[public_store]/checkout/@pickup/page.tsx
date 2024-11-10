@@ -17,7 +17,13 @@ export default async function PickupOptions({
     params.public_store,
   )
   const { customerAddress, customerAddressError } = await readCustomerAddress()
+
+  if (customerAddressError) {
+    console.error(customerAddressError)
+  }
+
   const { shipping } = await readOwnShipping(params.public_store)
+
   const { cart } = await getCart(params.public_store)
 
   if (customerAddressError) {

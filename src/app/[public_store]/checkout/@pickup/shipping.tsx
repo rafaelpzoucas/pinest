@@ -20,6 +20,28 @@ export async function ShippingOptions({
   storeZipCode,
   customerAddress,
 }: ShippingOptionsType) {
+  if (!customerAddress) {
+    return (
+      <Card className="flex flex-col gap-2 w-full">
+        <Link href={`?step=summary&pickup=pickup`} className="space-y-2 p-4">
+          <header className="flex flex-row items-center justify-between">
+            <strong className="text-sm">Entregar no meu endereço</strong>
+          </header>
+
+          <p className="text-muted-foreground line-clamp-2">
+            Você não possui nenhum endereço cadastrado.
+          </p>
+        </Link>
+
+        <Link href={`addresses/register`}>
+          <footer className="border-t p-4 text-sm">
+            <strong>Cadastrar endereço</strong>
+          </footer>
+        </Link>
+      </Card>
+    )
+  }
+
   const { data: shipping } = await simulateShipping({
     storeURL,
     customerZipCode: customerAddress.zip_code,

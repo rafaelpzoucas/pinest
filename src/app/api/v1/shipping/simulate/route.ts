@@ -10,9 +10,19 @@ export async function POST(request: Request) {
     }: { storeURL: string; simulationData: RequestSimularType } =
       await request.json()
 
-    const { store } = await readStoreByStoreURL(storeURL)
+    const { store, readStoreError } = await readStoreByStoreURL(storeURL)
+
+    if (readStoreError) {
+      console.error('Erro ao ler loja:', readStoreError)
+      return new Response('Erro ao ler loja', { status: 500 })
+    }
 
     const token = await readStoreKanguToken(store?.id)
+
+    if (!token) {
+      console.error('Token não encontrado')
+      return new Response('Token não encontrado', { status: 401 })
+    }
 
     const response = await fetch(
       'https://portal.kangu.com.br/tms/transporte/simular',

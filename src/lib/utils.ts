@@ -126,18 +126,36 @@ export const dayTranslation: Record<string, string> = {
 }
 
 export async function isSameCity(cep1: string, cep2: string) {
+  console.log({ cep1, cep2 })
   const fetchCep = async (cep: string) => {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
-    return res.json()
+
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao buscar o CEP ${cep}: ${res.status} ${res.statusText}`,
+      )
+    }
+
+    const data = await res.json()
+    if (data.erro) {
+      throw new Error(`CEP ${cep} não encontrado.`)
+    }
+
+    return data
   }
 
-  const [dadosCep1, dadosCep2] = await Promise.all([
-    fetchCep(cep1),
-    fetchCep(cep2),
-  ])
+  try {
+    const [dadosCep1, dadosCep2] = await Promise.all([
+      fetchCep(cep1),
+      fetchCep(cep2),
+    ])
 
-  return (
-    dadosCep1.localidade === dadosCep2.localidade &&
-    dadosCep1.uf === dadosCep2.uf
-  )
+    return (
+      dadosCep1.localidade === dadosCep2.localidade &&
+      dadosCep1.uf === dadosCep2.uf
+    )
+  } catch (error) {
+    console.error(error)
+    return false
+  }
 }
