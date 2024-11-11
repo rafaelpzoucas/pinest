@@ -1,71 +1,75 @@
 # Pinest
 
-Pinest é uma plataforma de marketplace desenvolvida para facilitar a criação e o gerenciamento de lojas online, focada em oferecer uma experiência de usuário simplificada e designs prontos para vender, ideal para quem quer começar a vender sem se preocupar com customizações complexas.
+Pinest é uma plataforma SaaS focada em facilitar a criação e gestão de lojas virtuais para usuários leigos, priorizando simplicidade, design atrativo e experiência otimizada. A proposta central é oferecer uma solução para lojistas que buscam agilidade e praticidade, sem a necessidade de customizações complexas, com todos os recursos essenciais para vender online prontos desde o cadastro.
 
-Este projeto utiliza [Next.js](https://nextjs.org/) como framework de frontend, com suporte para renderização híbrida e otimizações de performance.
+## Tecnologias e Ferramentas Utilizadas
 
-## Tecnologias Utilizadas
+### Frontend
+- **Next.js**: Estrutura base do projeto, utilizando Server Actions para operações no servidor.
+- **React com TypeScript**: Desenvolvimento de componentes e gerenciamento de tipagens.
+- **ShadCN UI** e **React Hook Form**: Usados para formular e validar os formulários da plataforma.
+- **date-fns**: Manipulação e formatação de datas, especialmente para o cadastro de horários de atendimento das lojas.
 
-- **Next.js** - Framework para React com suporte a renderização server-side e estática.
-- **React** com **TypeScript** - Para desenvolvimento de interfaces fortemente tipadas.
-- **Supabase** - Banco de dados e autenticação baseada em PostgreSQL para back-end e gerenciamento de dados.
-- **Stripe** - Integração de pagamentos e sistema de checkout.
-- **ShadCN UI** - Biblioteca de componentes estilizados para construção de formulários e interfaces.
-- **React Hook Form** - Para gerenciamento de formulários.
-- **date-fns** - Biblioteca de manipulação de datas.
-- **pnpm** - Gerenciador de pacotes, preferido pela sua eficiência em instalações rápidas e compartilhamento de dependências.
-- **Vercel** - Hospedagem e deploy do projeto, com suporte para SSR (Server-Side Rendering) e SSG (Static Site Generation).
+### Backend e Banco de Dados
+- **Supabase**: Gerenciamento de dados de produtos, lojas e pedidos, com suporte a autenticação.
+- **Stripe API**: Para gerenciar pagamentos e processar vendas diretamente para contas conectadas, possibilitando pagamentos com cartões aceitos.
+- **Kangu API**: Integração de opções de frete para envios por transportadoras e cálculo de prazos e custos.
 
-## Iniciando o Projeto
+### Funcionalidades
+- **Organização de Layout**: Possibilidade de organização dos elementos visuais da loja e showcases com recurso de arrastar e soltar.
+- **Opções de Frete Personalizadas**: Configuração de envios locais e integração com transportadoras através da Kangu.
+
+## Configuração e Inicialização do Projeto
+
+Para rodar o projeto Pinest em ambiente local, siga os passos abaixo.
 
 ### Pré-requisitos
 
-Certifique-se de ter o Node.js e o `pnpm` instalados em seu sistema.
+- **Node.js** (versão 18 ou superior)
+- **Supabase**: Configure uma instância no [Supabase](https://supabase.io/) e insira as credenciais no arquivo `.env.local`.
+- **Stripe**: Cadastre-se no [Stripe](https://stripe.com/) e configure uma conta conectada, inserindo as chaves de API no arquivo `.env.local`.
+- **Kangu**: Cadastre-se na [Kangu](https://www.portal.kangu.com.br/login) e configure a API.
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/seu-usuario/pinest.git
-   cd pinest
-   ```
+### Variáveis de Ambiente
 
-2. Instale as dependências:
-   ```bash
-   pnpm install
-   ```
+Crie um arquivo `.env.local` na raiz do projeto e adicione as seguintes variáveis:
 
-3. Configure as variáveis de ambiente:
-   Crie um arquivo `.env` na raiz do projeto com as credenciais necessárias para conectar ao Supabase e ao Stripe.
-
-### Executando o Servidor de Desenvolvimento
-
-Para rodar o projeto em modo de desenvolvimento, execute:
-
-```bash
-pnpm dev
+```plaintext
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+MELHOR_ENVIO_API_KEY=your_melhor_envio_key
 ```
 
-Abra [http://localhost:3000](http://localhost:3000) em seu navegador para ver o projeto em ação.
+### Instalação
 
-### Estrutura do Projeto
+Instale as dependências com o seguinte comando:
 
-- A página principal pode ser editada em `app/page.tsx`, e o projeto conta com hot reload para atualização automática das alterações.
-- As ações do servidor (Server Actions) estão organizadas nos arquivos `actions.ts` de cada componente.
+```bash
+npm install
+```
 
-## Fontes e Otimização
+### Rodando o Servidor de Desenvolvimento
 
-O projeto utiliza [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) para otimização automática de fontes, incluindo a integração com fontes customizadas como a Google Font Inter.
+Inicie o servidor de desenvolvimento com:
 
-## Recursos Adicionais
+```bash
+npm run dev
+```
 
-Para saber mais sobre Next.js e explorar mais recursos, confira:
+Abra [http://localhost:3000](http://localhost:3000) no navegador para visualizar o projeto.
 
-- [Documentação do Next.js](https://nextjs.org/docs) - para detalhes sobre as funcionalidades e API.
-- [Learn Next.js](https://nextjs.org/learn) - um tutorial interativo sobre Next.js.
+### Estrutura do Código
 
-## Deploy
+O projeto segue a estrutura padrão do Next.js com os seguintes pontos de destaque:
+- `app/page.tsx`: Página principal, onde o layout da plataforma é renderizado.
+- `components/`: Componentes reutilizáveis, organizados com suas ações no arquivo `actions.ts`.
+- `lib/`: Configurações de API, incluindo Supabase, Stripe e Melhor Envio.
 
-O projeto Pinest é preparado para deploy na [Vercel](https://vercel.com/), que oferece uma integração completa com Next.js para SSR e SSG. Siga a [documentação de deploy](https://nextjs.org/docs/deployment) para mais detalhes.
+## Deployment
 
---- 
+A forma recomendada de fazer o deploy da Pinest é pela [Vercel](https://vercel.com/) para Next.js, com instruções disponíveis na [documentação oficial](https://nextjs.org/docs/deployment).
 
-Esse README fornece um panorama mais completo da Pinest, com informações úteis para instalação, tecnologias e configuração do ambiente de desenvolvimento com `pnpm`.
+---
+
+Para contribuir ou relatar problemas, sinta-se à vontade para abrir issues e enviar pull requests!
