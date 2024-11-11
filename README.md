@@ -1,7 +1,3 @@
-Aqui está uma versão revisada e ampliada do README da Pinest, com informações sobre tecnologias utilizadas e orientações para rodar o projeto usando o `pnpm`:
-
----
-
 # Pinest
 
 Pinest é uma plataforma de marketplace desenvolvida para facilitar a criação e o gerenciamento de lojas online, focada em oferecer uma experiência de usuário simplificada e designs prontos para vender, ideal para quem quer começar a vender sem se preocupar com customizações complexas.
