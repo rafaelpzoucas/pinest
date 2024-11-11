@@ -38,7 +38,6 @@ Crie um arquivo `.env.local` na raiz do projeto e adicione as seguintes variáve
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 STRIPE_SECRET_KEY=your_stripe_secret_key
-MELHOR_ENVIO_API_KEY=your_melhor_envio_key
 ```
 
 ### Instalação
