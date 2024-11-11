@@ -141,6 +141,8 @@ export async function createStripeCheckout(
   const { stripeAccount, stripeAccountError } =
     await readUserConnectedAccountId(store?.user_id ?? '')
 
+  const shippingPrice = purchase?.shipping_price ?? 0
+
   if (purchaseError || storeError || stripeAccountError) {
     throw new Error('Erro ao obter dados necessários para criar o checkout')
   }
@@ -162,6 +164,20 @@ export async function createStripeCheckout(
     quantity: item.quantity,
   }))
 
+  if (shippingPrice > 0) {
+    lineItems.push({
+      price_data: {
+        currency: 'brl',
+        unit_amount: Math.round(shippingPrice * 100),
+        product_data: {
+          name: 'Frete',
+          description: 'Custo de frete',
+        },
+      },
+      quantity: 1,
+    })
+  }
+
   const totalProductPrice = purchaseItems.reduce((acc, item) => {
     return acc + item.product_price * item.quantity
   }, 0)
@@ -172,7 +188,7 @@ export async function createStripeCheckout(
 
   const session = await createStripeCheckoutSession(
     lineItems,
-    `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/checkout/success?store_url=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/checkout/success?store_url=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}&pickup=${purchase.type}`,
     `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/purchases/${purchaseId}`,
     stripeAccount?.stripe_account_id,
   )

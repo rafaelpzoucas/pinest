@@ -12,7 +12,7 @@ export type CreatePurchaseType = {
   addressId: string
   shippingPrice: number
   shippingTime: number
-  pickup: string
+  type: string
 }
 
 export type PurchaseItemsType = {
@@ -43,6 +43,7 @@ export type PurchaseType = {
   total_amount: number
   shipping_price: number
   delivery_time: number
+  type: string
   purchase_items: PurchaseItemsType[]
   purchase_item_variations: PurchaseItemVariations[]
   addresses: AddressType

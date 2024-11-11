@@ -126,7 +126,6 @@ export const dayTranslation: Record<string, string> = {
 }
 
 export async function isSameCity(cep1: string, cep2: string) {
-  console.log({ cep1, cep2 })
   const fetchCep = async (cep: string) => {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
 

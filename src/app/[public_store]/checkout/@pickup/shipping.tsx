@@ -23,7 +23,7 @@ export async function ShippingOptions({
   if (!customerAddress) {
     return (
       <Card className="flex flex-col gap-2 w-full">
-        <Link href={`?step=summary&pickup=pickup`} className="space-y-2 p-4">
+        <Link href={`?step=summary&pickup=delivery`} className="space-y-2 p-4">
           <header className="flex flex-row items-center justify-between">
             <strong className="text-sm">Entregar no meu endereço</strong>
           </header>
@@ -67,7 +67,7 @@ export async function ShippingOptions({
           shipping.map((ship) => (
             <Link
               key={ship.idTransp}
-              href={`?step=summary&pickup=delivery&address=${customerAddress?.id}&reference=${ship.referencia}&priceShip=${ship.vlrFrete}&transp=${ship.descricao}`}
+              href={`?step=summary&pickup=shipping&address=${customerAddress?.id}&reference=${ship.referencia}&shippingPrice=${ship.vlrFrete}&transp=${ship.descricao}`}
             >
               <Card className="relative p-4 bg-secondary/50">
                 <strong className="text-sm max-w-48 line-clamp-2">

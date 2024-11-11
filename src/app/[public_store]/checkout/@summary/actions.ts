@@ -113,6 +113,8 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     console.error(customerError)
   }
 
+  const type = newPurchase.type
+
   const { store, storeError } = await readStoreByName(newPurchase.storeName)
 
   if (storeError) {
@@ -126,10 +128,9 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     updated_at: new Date().toISOString(),
     address_id: newPurchase.addressId,
     store_id: store?.id,
-    shipping_price:
-      newPurchase.pickup === 'delivery' ? newPurchase.shippingPrice : 0,
-    delivery_time:
-      newPurchase.pickup === 'delivery' ? newPurchase.shippingTime : null,
+    shipping_price: type !== 'pickup' ? newPurchase.shippingPrice : 0,
+    delivery_time: type === 'delivery' ? newPurchase.shippingTime : null,
+    type,
   }
 
   const { data: purchase, error: purchaseError } = await supabase

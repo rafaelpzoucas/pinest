@@ -121,6 +121,7 @@ export async function GET(request: Request) {
   const purchaseId = requestUrl.searchParams.get('purchase')
   const stripeAccountId = requestUrl.searchParams.get('stripe_account')
   const amount = requestUrl.searchParams.get('amount')
+  const isShipping = requestUrl.searchParams.get('pickup') === 'shipping'
 
   const origin = requestUrl.origin
 
@@ -151,7 +152,9 @@ export async function GET(request: Request) {
     )
   }
 
-  await solicitShipping(purchaseId)
+  if (isShipping) {
+    await solicitShipping(purchaseId)
+  }
 
   revalidatePath('/purchases')
 
