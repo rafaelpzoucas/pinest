@@ -42,7 +42,7 @@ export function AddressForm({ address }: { address: AddressType | null }) {
 
   const [hasAddress, setHasAddress] = useState(!!address)
 
-  const zipCode = address?.zip_code ?? ''
+  const zipCode = address?.zip_code ?? undefined
   const number = address?.number ?? ''
   const complement = address?.complement ?? ''
 
