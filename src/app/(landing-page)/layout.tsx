@@ -52,6 +52,12 @@ export default function LandingPageLayout({
             </ul>
           </div>
         </footer>
+
+        <div className="w-full py-2 bg-secondary/50">
+          <p className="text-sm text-center text-muted-foreground">
+            &copy; 2024 Pinest. Todos os direitos reservados.
+          </p>
+        </div>
       </div>
     </ThemeProvider>
   )

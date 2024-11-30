@@ -23,6 +23,7 @@ export type UserType = {
   role: string
   phone: string
   stripe_account_id: string
+  subscription_status: string
   stores: StoreType[]
   addresses?: AddressType[]
 }

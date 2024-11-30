@@ -1,6 +1,7 @@
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 export function HeroSection() {
   return (
@@ -15,9 +16,21 @@ export function HeroSection() {
         <p className="text-muted-foreground md:text-xl">
           Design e configurações prontos para você começar a vender rápido.
         </p>
-        <Button className="w-full max-w-xs">
-          Comece agora <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+
+        <div className="flex flex-col gap-2 w-full items-center">
+          <Link
+            href="#pricing"
+            className={cn(buttonVariants(), 'w-full max-w-xs')}
+          >
+            CRIAR MINHA LOJA <ArrowRight className="w-4 h-4 ml-2" />
+          </Link>
+          <Link
+            href="/admin/sign-in"
+            className={buttonVariants({ variant: 'ghost' })}
+          >
+            Login
+          </Link>
+        </div>
       </div>
     </section>
   )

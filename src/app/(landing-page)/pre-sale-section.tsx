@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button'
+'use client'
+
+import { buttonVariants } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -7,7 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 
 export function PreSaleSection() {
   const plans = [
@@ -25,7 +29,10 @@ export function PreSaleSection() {
   ]
 
   return (
-    <section className="flex items-center justify-center p-8 py-16">
+    <section
+      id="pricing"
+      className="flex items-center justify-center p-8 py-16"
+    >
       <div
         className="relative z-10 w-full md:max-w-3xl flex flex-col items-center justify-center
           gap-6 md:gap-16 text-center md:text-left"
@@ -72,7 +79,12 @@ export function PreSaleSection() {
               </CardContent>
 
               <CardFooter>
-                <Button className="w-full">Garanta Seu Acesso Agora</Button>
+                <Link
+                  href="/admin/sign-in"
+                  className={cn(buttonVariants(), 'w-full')}
+                >
+                  CRIAR MINHA LOJA
+                </Link>
               </CardFooter>
             </Card>
           ))}
