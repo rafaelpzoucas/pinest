@@ -44,6 +44,7 @@ export type PurchaseType = {
   shipping_price: number
   delivery_time: number
   type: string
+  tracking_code: string
   purchase_items: PurchaseItemsType[]
   purchase_item_variations: PurchaseItemVariations[]
   addresses: AddressType

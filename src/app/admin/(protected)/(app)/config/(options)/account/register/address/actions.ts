@@ -1,18 +1,45 @@
 'use server'
 
+import { readStoreByUserId } from '@/app/admin/(protected)/(app)/catalog/products/register/actions'
 import { createClient } from '@/lib/supabase/server'
+import { AddressType } from '@/models/user'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { addressSchema } from './form'
 
+export async function readAddress(): Promise<{
+  address: AddressType
+  readAddressError: any
+}> {
+  const supabase = createClient()
+
+  const { store, storeError } = await readStoreByUserId()
+
+  if (storeError) {
+    console.error('Erro ao buscar a loja.', storeError)
+  }
+
+  const { data: address, error: readAddressError } = await supabase
+    .from('addresses')
+    .select('*')
+    .eq('store_id', store?.id)
+    .single()
+
+  return { address, readAddressError }
+}
+
 export async function createAddress(columns: z.infer<typeof addressSchema>) {
   const supabase = createClient()
 
-  const { data: session } = await supabase.auth.getUser()
+  const { store, storeError } = await readStoreByUserId()
+
+  if (storeError) {
+    console.error('Erro ao buscar a loja.', storeError)
+  }
 
   const { data, error } = await supabase
     .from('addresses')
-    .insert({ ...columns, user_id: session.user?.id })
+    .insert({ ...columns, store_id: store?.id })
 
   revalidatePath('account')
 

@@ -62,7 +62,12 @@ export function queryParamsLink(params: any | null) {
 }
 
 export function formatAddress(address: AddressType) {
-  return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
+  console.log(address)
+  if (address) {
+    return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
+  } else {
+    return null
+  }
 }
 
 export function formatBytes(bytes: number, decimals = 2) {

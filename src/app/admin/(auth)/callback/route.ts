@@ -38,7 +38,7 @@ export async function createSubscriptionCheckout() {
         quantity: 1,
       },
     ],
-    `${process.env.NEXT_PUBLIC_APP_URL}/subscription/success`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/webhooks/subscription/payment_succeeded`,
     `${process.env.NEXT_PUBLIC_APP_URL}/`,
   )
 
@@ -72,6 +72,17 @@ export async function GET(request: Request) {
 
     if (createOwnerError) {
       console.error(createOwnerError)
+    }
+
+    const { owner, ownerError } = await readOwner()
+
+    if (ownerError) {
+      console.error(ownerError)
+      throw new Error('Erro ao carregar dados do proprietário.')
+    }
+
+    if (owner && owner.subscription_status !== 'active') {
+      await createSubscriptionCheckout()
     }
 
     return NextResponse.redirect(`${origin}/admin/onboarding/store/basic`)

@@ -1,5 +1,5 @@
-import { readAddressById } from '@/app/[public_store]/checkout/@summary/actions'
 import { AdminHeader } from '@/components/admin-header'
+import { readAddress } from './actions'
 import { AddressForm } from './form'
 
 export default async function AddressRegister({
@@ -7,10 +7,10 @@ export default async function AddressRegister({
 }: {
   searchParams: { id: string }
 }) {
-  const { address, addressError } = await readAddressById(searchParams.id)
+  const { address, readAddressError } = await readAddress()
 
-  if (addressError) {
-    console.error(addressError)
+  if (readAddressError) {
+    console.error(readAddressError)
   }
 
   return (

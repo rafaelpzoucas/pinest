@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     // Faz a requisição GET para a API da Kangu
     const response = await fetch(
-      `https://portal.kangu.com.br/tms/transporte/rastrear/${trackingCode}`,
+      `https://portal.kangu.com.br/tms/transporte/imprimir-etiqueta/${trackingCode}`,
       {
         method: 'GET',
         headers: {
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     // Retorna a resposta para o cliente
     return new Response(JSON.stringify(data), { status: 200 })
   } catch (error) {
-    console.error('Erro ao rastrear frete:', error)
+    console.error('Erro ao solicitar etiqueta:', error)
     return new Response('Erro interno no servidor', { status: 500 })
   }
 }

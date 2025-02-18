@@ -1,9 +1,12 @@
 import { AdminHeader } from '@/components/admin-header'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
+import { Printer } from 'lucide-react'
 import { readPurchaseById } from './actions'
+import { Tracking } from './tracking'
 import { UpdateStatusButton } from './update-status-button'
 
 type StatusKey = keyof typeof statuses
@@ -27,6 +30,10 @@ export default async function OrderPage({
 
   const variations = purchase?.purchase_item_variations
 
+  if (!purchase) {
+    return null
+  }
+
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0">
       <AdminHeader title={`Detalhes: #${displayId}`} withBackButton />
@@ -47,12 +54,18 @@ export default async function OrderPage({
               <strong>{formatCurrencyBRL(purchase?.total_amount ?? 0)}</strong>
             </div>
 
-            {purchase && (
-              <UpdateStatusButton
-                currentStatus={purchase.status}
-                purchaseId={params.id}
-              />
-            )}
+            <div className="flex flex-row gap-2 items-end w-full">
+              {purchase && (
+                <UpdateStatusButton
+                  currentStatus={purchase.status}
+                  purchaseId={params.id}
+                />
+              )}
+
+              <Button variant="outline" size="icon">
+                <Printer className="w-4 h-4" />
+              </Button>
+            </div>
           </Card>
 
           <Card className="p-4">
@@ -76,6 +89,11 @@ export default async function OrderPage({
                 )}
               </div>
             </header>
+
+            <Tracking
+              code={purchase.tracking_code}
+              storeId={purchase.store_id}
+            />
           </Card>
         </div>
 
