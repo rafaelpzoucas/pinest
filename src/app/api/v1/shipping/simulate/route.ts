@@ -1,27 +1,28 @@
-import { createClient } from '@/lib/supabase/client'
-import { RequestSimularType } from '@/models/shipping'
-
-async function readStoreKanguToken(publicStore: string) {
-  const supabase = createClient()
-
-  const { data } = await supabase
-    .from('stores')
-    .select('kangu_token')
-    .eq('store_url', publicStore)
-    .single()
-
-  return data?.kangu_token || process.env.KANGU_TOKEN_GLOBAL
-}
+import { readStoreByStoreURL } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
+import { RequestSimularType } from '@/models/kangu-shipping'
+import { readStoreKanguToken } from '../actions'
 
 export async function POST(request: Request) {
   try {
     const {
-      publicStore,
+      storeURL,
       simulationData,
-    }: { publicStore: string; simulationData: RequestSimularType } =
+    }: { storeURL: string; simulationData: RequestSimularType } =
       await request.json()
 
-    const token = await readStoreKanguToken(publicStore)
+    const { store, readStoreError } = await readStoreByStoreURL(storeURL)
+
+    if (readStoreError) {
+      console.error('Erro ao ler loja:', readStoreError)
+      return new Response('Erro ao ler loja', { status: 500 })
+    }
+
+    const token = await readStoreKanguToken(store?.id)
+
+    if (!token) {
+      console.error('Token não encontrado')
+      return new Response('Token não encontrado', { status: 401 })
+    }
 
     const response = await fetch(
       'https://portal.kangu.com.br/tms/transporte/simular',

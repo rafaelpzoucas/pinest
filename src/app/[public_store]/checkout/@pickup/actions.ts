@@ -1,4 +1,4 @@
-import { RequestSimularType, ShippingType } from '@/models/shipping'
+import { RequestSimularType, ShippingType } from '@/models/kangu-shipping'
 import { getCart } from '../../cart/actions'
 
 export type SimulateShippingType = {
@@ -29,9 +29,10 @@ export async function simulateShipping(values: SimulateShippingType): Promise<{
       altura: item.products.pkg_height,
       largura: item.products.pkg_width,
       comprimento: item.products.pkg_length,
-      tipo: '',
+      tipo: 'D',
       valor: item.products.price,
       quantidade: item.quantity,
+      produto: item.products.name,
     }))
 
     const simulationData: RequestSimularType = {

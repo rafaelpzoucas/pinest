@@ -4,7 +4,7 @@ import { MapPin } from 'lucide-react'
 
 import { ProductCard } from '@/components/product-card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
-import { OwnShippingType } from '@/models/own-shipping'
+import { ShippingConfigType } from '@/models/shipping'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
 import { getCart } from '../../cart/actions'
@@ -18,26 +18,26 @@ function CheckoutButton({
   shipping,
   pickup,
   reference,
-  priceShip,
+  shippingPrice,
   transp,
 }: {
   totalAmount: number
   storeName: string
   addressId: string
-  shipping: OwnShippingType | null
+  shipping: ShippingConfigType | null
   pickup: string
   reference: string
-  priceShip: number
+  shippingPrice: number
   transp: string
 }) {
-  const shippingPrice =
-    (priceShip && `&shippingPrice=${priceShip}`) ?? shipping?.price
+  const shippingCost =
+    (shippingPrice && `&shippingPrice=${shippingPrice}`) ?? shipping?.price
 
   const qTotalAmount = `totalAmount=${totalAmount}`
   const qStoreName = `&storeName=${storeName}`
   const qAddressId = addressId ? `&addressId=${addressId}` : ''
   const qShippingPrice =
-    shippingPrice ??
+    shippingCost ??
     (shipping && shipping.status ? `&shippingPrice=${shipping.price}` : '')
   const qShippingTime =
     shipping && shipping.status ? `&shippingTime=${shipping.delivery_time}` : ''
@@ -45,11 +45,10 @@ function CheckoutButton({
   const qReference = transp ? `&reference=${reference}` : ''
   const qTransp = transp ? `&transp=${transp}` : ''
 
+  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}`
+
   return (
-    <Link
-      href={`checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup === 'delivery' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}`}
-      className={cn(buttonVariants(), 'w-full')}
-    >
+    <Link href={query} className={cn(buttonVariants(), 'w-full')}>
       Continuar para o pagamento
     </Link>
   )
@@ -64,12 +63,12 @@ export default async function Summary({
     address: string
     pickup: string
     reference: string
-    priceShip: string
+    shippingPrice: string
     transp: string
   }
 }) {
   const addressId = searchParams.address
-  const priceShipping = searchParams.priceShip
+  const shippingCost = searchParams.shippingPrice
   const transp = searchParams.transp
 
   const { cart } = await getCart(params.public_store)
@@ -85,10 +84,13 @@ export default async function Summary({
       }, 0)
     : 0
 
-  const shippingPrice = parseFloat(priceShipping) ?? shipping?.price
+  const shippingPrice = parseFloat(shippingCost) || (shipping?.price ?? 0)
+
   const totalPrice = shipping?.price
     ? productsPrice + shippingPrice
     : productsPrice
+
+  const formattedAddress = storeAddress && formatAddress(storeAddress)
 
   return (
     <div className="flex flex-col w-full">
@@ -100,10 +102,10 @@ export default async function Summary({
 
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
           <p>
-            {searchParams.pickup === 'delivery' ? 'Frete' : 'Retirar'}
+            {searchParams.pickup !== 'pickup' ? 'Frete' : 'Retirar'}
             <strong>{transp ? ` por ${transp}` : ''}</strong>
           </p>
-          {searchParams.pickup === 'delivery' && shipping && (
+          {searchParams.pickup !== 'pickup' && shipping && (
             <span>{formatCurrencyBRL(shippingPrice)}</span>
           )}
           {searchParams.pickup === 'pickup' && shipping && (
@@ -118,17 +120,17 @@ export default async function Summary({
 
         <CheckoutButton
           storeName={params.public_store}
-          totalAmount={productsPrice}
+          totalAmount={totalPrice}
           addressId={searchParams.address}
           shipping={shipping}
           pickup={searchParams.pickup}
-          priceShip={shippingPrice}
+          shippingPrice={shippingPrice}
           reference={searchParams.reference}
           transp={searchParams.transp}
         />
       </Card>
 
-      {searchParams.pickup === 'delivery' && (
+      {searchParams.pickup !== 'pickup' && (
         <section className="flex flex-col items-center gap-2 text-center border-b py-6">
           <MapPin />
           <p>
@@ -162,9 +164,9 @@ export default async function Summary({
             {storeAddress?.city}/{storeAddress?.state}
           </span>
 
-          {storeAddress && (
+          {formattedAddress && (
             <Link
-              href={`https://www.google.com/maps?q=${formatAddress(storeAddress).replaceAll(' ', '+')}`}
+              href={`https://www.google.com/maps?q=${formattedAddress.replaceAll(' ', '+')}`}
               className={cn(buttonVariants({ variant: 'link' }))}
             >
               Ver localização

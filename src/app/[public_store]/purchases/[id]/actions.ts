@@ -25,7 +25,11 @@ export async function readPurchaseById(id: string): Promise<{
         *,
         product_variations (*)
       ),
-      addresses (*)
+      addresses (*),
+      customers (
+        *,
+        users (*)
+      )
     `,
     )
     .eq('id', id)

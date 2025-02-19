@@ -34,7 +34,6 @@ export async function createOwner() {
     .single()
 
   if (createdOwner) {
-    console.log({ createdOwner })
     const response = await createSeller(createdOwner.id, createdOwner.email)
     if (response) {
       console.log('Seller account created successfully')

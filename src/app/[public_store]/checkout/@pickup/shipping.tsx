@@ -20,13 +20,33 @@ export async function ShippingOptions({
   storeZipCode,
   customerAddress,
 }: ShippingOptionsType) {
+  if (!customerAddress) {
+    return (
+      <Card className="flex flex-col gap-2 w-full">
+        <Link href={`?step=summary&pickup=delivery`} className="space-y-2 p-4">
+          <header className="flex flex-row items-center justify-between">
+            <strong className="text-sm">Entregar no meu endereço</strong>
+          </header>
+
+          <p className="text-muted-foreground line-clamp-2">
+            Você não possui nenhum endereço cadastrado.
+          </p>
+        </Link>
+
+        <Link href={`addresses/register`}>
+          <footer className="border-t p-4 text-sm">
+            <strong>Cadastrar endereço</strong>
+          </footer>
+        </Link>
+      </Card>
+    )
+  }
+
   const { data: shipping } = await simulateShipping({
     storeURL,
     customerZipCode: customerAddress.zip_code,
     storeZipCode,
   })
-
-  console.log(shipping)
 
   return (
     <Card className="p-4 w-full space-y-6">
@@ -47,7 +67,7 @@ export async function ShippingOptions({
           shipping.map((ship) => (
             <Link
               key={ship.idTransp}
-              href={`?step=summary&pickup=delivery&address=${customerAddress?.id}&reference=${ship.referencia}&priceShip=${ship.vlrFrete}&transp=${ship.descricao}`}
+              href={`?step=summary&pickup=shipping&address=${customerAddress?.id}&reference=${ship.referencia}&shippingPrice=${ship.vlrFrete}&transp=${ship.descricao}`}
             >
               <Card className="relative p-4 bg-secondary/50">
                 <strong className="text-sm max-w-48 line-clamp-2">

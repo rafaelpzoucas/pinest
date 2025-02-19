@@ -114,7 +114,7 @@ export async function readStoreHours(storeURL: string): Promise<{
   const { data: hours, error: readHoursError } = await supabase
     .from('store_hours')
     .select('*')
-    .eq('store_id', store.id)
+    .eq('store_id', store?.id)
 
   if (readHoursError) {
     return { hours: null, readHoursError }

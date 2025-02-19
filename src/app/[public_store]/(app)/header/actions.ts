@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
-import { OwnShippingType } from '@/models/own-shipping'
+import { ShippingConfigType } from '@/models/shipping'
 import { readStoreByName } from '../../checkout/@summary/actions'
 
 export async function readOwnShipping(storeName: string): Promise<{
-  shipping: OwnShippingType | null
+  shipping: ShippingConfigType | null
   shippingError: any | null
 }> {
   const supabase = createClient()

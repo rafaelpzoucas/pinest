@@ -17,7 +17,13 @@ export default async function PickupOptions({
     params.public_store,
   )
   const { customerAddress, customerAddressError } = await readCustomerAddress()
+
+  if (customerAddressError) {
+    console.error(customerAddressError)
+  }
+
   const { shipping } = await readOwnShipping(params.public_store)
+
   const { cart } = await getCart(params.public_store)
 
   if (customerAddressError) {
@@ -31,6 +37,8 @@ export default async function PickupOptions({
   const isAddressesSameCity =
     storeAddress &&
     (await isSameCity(storeAddress?.zip_code, customerAddress?.zip_code))
+
+  const formattedAddress = storeAddress && formatAddress(storeAddress)
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
@@ -63,14 +71,16 @@ export default async function PickupOptions({
             </p>
           </Link>
 
-          <Link
-            href={`https://www.google.com/maps?q=${formatAddress(storeAddress).replaceAll(' ', '+')}`}
-            target="_blank"
-          >
-            <footer className="border-t p-4 text-sm">
-              <strong>Ver localização</strong>
-            </footer>
-          </Link>
+          {formattedAddress && (
+            <Link
+              href={`https://www.google.com/maps?q=${formattedAddress.replaceAll(' ', '+')}`}
+              target="_blank"
+            >
+              <footer className="border-t p-4 text-sm">
+                <strong>Ver localização</strong>
+              </footer>
+            </Link>
+          )}
         </Card>
       )}
     </div>

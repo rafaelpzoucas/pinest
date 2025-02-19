@@ -43,7 +43,7 @@ export function PricingSection() {
   ]
 
   return (
-    <section className="p-8 py-16">
+    <section id="pricing" className="p-8 py-16">
       <h2 className="text-3xl font-bold text-center">
         Escolha o Plano Perfeito para Sua Loja
       </h2>

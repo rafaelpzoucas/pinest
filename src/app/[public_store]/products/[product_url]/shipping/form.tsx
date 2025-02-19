@@ -23,15 +23,16 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatCurrencyBRL, formatDistanceToFuture } from '@/lib/utils'
+import { RequestSimularType, ShippingType } from '@/models/kangu-shipping'
 import { ProductType } from '@/models/product'
-import { RequestSimularType, ShippingType } from '@/models/shipping'
 import { AddressType } from '@/models/user'
+import { useProduct } from '@/stores/productStore'
 import { Loader2, Truck } from 'lucide-react'
 import { useState } from 'react'
 
 type ShippingPropsType = {
   product: ProductType
-  publicStore: string
+  storeURL: string
   storeAddress: AddressType
 }
 
@@ -41,9 +42,11 @@ const formSchema = z.object({
 
 export function ShippingForm({
   product,
-  publicStore,
+  storeURL,
   storeAddress,
 }: ShippingPropsType) {
+  const { amount } = useProduct()
+
   const [shipping, setShipping] = useState<ShippingType[]>([])
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -67,7 +70,7 @@ export function ShippingForm({
           comprimento: product.pkg_length,
           tipo: '',
           valor: product.price,
-          quantidade: 1,
+          quantidade: amount ?? 1,
         },
       ],
       produtos: [
@@ -77,7 +80,8 @@ export function ShippingForm({
           largura: product.pkg_width,
           comprimento: product.pkg_length,
           valor: product.price,
-          quantidade: 1,
+          quantidade: amount ?? 1,
+          produto: product.name,
         },
       ],
       servicos: ['E', 'X', 'M', 'R'],
@@ -85,13 +89,16 @@ export function ShippingForm({
     }
 
     try {
-      const response = await fetch('/api/v1/shipping/simulate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/shipping/simulate`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ storeURL, simulationData }),
         },
-        body: JSON.stringify({ publicStore, simulationData }),
-      })
+      )
 
       if (!response.ok) {
         const errorText = await response.text()
@@ -99,6 +106,7 @@ export function ShippingForm({
       }
 
       const data = await response.json()
+
       setShipping(data)
     } catch (error) {
       console.error('Erro ao simular frete:', error)
@@ -115,7 +123,7 @@ export function ShippingForm({
     <section className="space-y-6 w-full max-w-lg">
       <div className="flex flex-col md:flex-row gap-2 md:gap-6">
         <div className="flex flex-row items-center gap-3 text-muted-foreground">
-          <Truck className="w-8 h-8" />
+          <Truck className="w-6 h-6 lg:w-8 lg:h-8" />
           <p className="w-full max-w-48 text-sm">Frete e prazo de entrega</p>
         </div>
 

@@ -16,22 +16,27 @@ import {
   getCart,
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
-import { readCustomerAddress, readStoreAddress } from '../../checkout/actions'
+import { readStoreAddress } from '../../checkout/actions'
 import { readProductByURL, readProductVariations } from './actions'
 import { ProductInfo } from './info'
 
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
+  searchParams: { cart_product_id: string }
   params: { product_url: string; public_store: string }
 }) {
+  const cartProductId = searchParams.cart_product_id
+
   const supabase = createClient()
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
   const { storeAddress } = await readStoreAddress(params.public_store)
-  const { customerAddress } = await readCustomerAddress()
 
   const { cart } = await getCart(params.public_store)
+
+  const cartProduct = cart?.find((item) => item.id === cartProductId)
 
   if (storeError) {
     console.error(storeError)
@@ -96,7 +101,7 @@ export default async function ProductPage({
               </Card>
             )}
 
-            {productImages.length > 2 && (
+            {productImages.length >= 2 && (
               <Carousel>
                 <CarouselContent>
                   {productImages.map((image) => (
@@ -119,9 +124,10 @@ export default async function ProductPage({
           {storeAddress && (
             <ProductInfo
               product={product}
-              publicStore={params.public_store}
+              storeURL={params.public_store}
               variations={variations}
               storeAddress={storeAddress}
+              cartProduct={cartProduct}
             />
           )}
         </div>

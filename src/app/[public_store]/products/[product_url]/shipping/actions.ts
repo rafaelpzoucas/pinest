@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import { RequestSimularType } from '@/models/shipping'
+import { RequestSimularType } from '@/models/kangu-shipping'
 import axios from 'axios'
 
 // Função que obtém as credenciais da loja ou a credencial global da Pinest

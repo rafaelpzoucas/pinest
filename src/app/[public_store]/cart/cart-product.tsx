@@ -1,6 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { ProductCardImage } from '@/components/product-card-image'
+import { Badge } from '@/components/ui/badge'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Drawer,
   DrawerClose,
@@ -20,21 +22,25 @@ import {
 } from '@/components/ui/select'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
-import { Trash } from 'lucide-react'
-import { useState } from 'react'
-import { removeFromCart, updateCartProductQuantity } from './actions'
+import { ProductVariationType } from '@/models/product'
+import { Edit, Loader2, Trash } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import {
+  readCartProductVariations,
+  removeFromCart,
+  updateCartProductQuantity,
+} from './actions'
 
 type CartProductPropsType = {
   cartProduct: CartProductType
-  publicStore: string
 }
 
-export function CartProduct({
-  publicStore,
-  cartProduct,
-}: CartProductPropsType) {
+export function CartProduct({ cartProduct }: CartProductPropsType) {
   const [isQttOpen, setIsQttOpen] = useState(false)
   const [amount, setAmount] = useState('')
+  const [variations, setVariations] = useState<ProductVariationType[]>([])
+  const [isDeleting, setisDeleting] = useState(false)
 
   const product = cartProduct.products
 
@@ -44,23 +50,59 @@ export function CartProduct({
     }
   }
 
-  function handleDeleteFromCart() {
+  async function handleDeleteFromCart() {
+    setisDeleting(true)
+
     if (cartProduct && cartProduct.id) {
-      removeFromCart(cartProduct.id)
+      await removeFromCart(cartProduct.id)
+    }
+
+    setisDeleting(false)
+  }
+
+  async function handleReadCartProductVariations() {
+    const cartProductVariations = await readCartProductVariations(
+      cartProduct.product_variations,
+    )
+
+    if (cartProductVariations) {
+      setVariations(cartProductVariations)
     }
   }
 
+  useEffect(() => {
+    handleReadCartProductVariations()
+  }, [])
+
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0">
-      <div className="flex flex-row gap-4">
-        <p className="line-clamp-2 max-w-56">{product.name}</p>
-      </div>
+      <Link href="">
+        <div className="flex flex-row gap-5">
+          <div className="max-w-12">
+            <ProductCardImage productImages={product.product_images} />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <p className="line-clamp-2 max-w-56">{product.name}</p>
+
+            <div>
+              {variations &&
+                variations.map((variation) => (
+                  <Badge
+                    key={variation.id}
+                    className="mr-2"
+                    variant="secondary"
+                  >
+                    {variation.name}
+                  </Badge>
+                ))}
+            </div>
+          </div>
+        </div>
+      </Link>
 
       <footer className="flex flex-row items-center justify-between">
         <div className="flex flex-row gap-2">
-          <Button variant="outline" size="icon" onClick={handleDeleteFromCart}>
-            <Trash className="w-4 h-4" />
-          </Button>
           <Select
             defaultValue={cartProduct.quantity.toString()}
             onValueChange={(value) =>
@@ -86,6 +128,19 @@ export function CartProduct({
               </SelectItem>
             </SelectContent>
           </Select>
+          <Link
+            href={`products/${product.product_url}?cart_product_id=${cartProduct.id}`}
+            className={buttonVariants({ variant: 'outline', size: 'icon' })}
+          >
+            <Edit className="w-4 h-4" />
+          </Link>
+          <Button variant="outline" size="icon" onClick={handleDeleteFromCart}>
+            {isDeleting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash className="w-4 h-4" />
+            )}
+          </Button>
         </div>
 
         <Drawer open={isQttOpen} onOpenChange={setIsQttOpen}>

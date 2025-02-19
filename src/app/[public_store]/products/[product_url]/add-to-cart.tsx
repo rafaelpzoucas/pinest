@@ -1,14 +1,13 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Minus, Plus } from 'lucide-react'
+import { Loader2, Minus, Plus } from 'lucide-react'
 
 import { Card } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductType, ProductVariationType } from '@/models/product'
-import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 import {
@@ -39,15 +38,17 @@ const formSchema = z.object({
 type AddToCardDrawerProps = {
   product: ProductType
   variations: ProductVariationType[] | null
-  publicStore: string
+  cartProduct?: CartProductType
+  storeURL: string
 }
 
 export function AddToCard({
   product,
   variations,
-  publicStore,
+  storeURL,
+  cartProduct,
 }: AddToCardDrawerProps) {
-  const router = useRouter()
+  const selectedVariations = cartProduct?.product_variations
 
   const productHasDimensions =
     product.pkg_height !== null &&
@@ -63,6 +64,8 @@ export function AddToCard({
     decrease,
     increase,
   } = useProduct()
+
+  const currentAmount = cartProduct?.quantity
 
   const groupedByAttribute =
     variations &&
@@ -98,37 +101,44 @@ export function AddToCard({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      variations: defaultVariations,
-      quantity: 1,
+      variations: selectedVariations ?? defaultVariations,
+      quantity: amount ?? 1,
     },
   })
 
-  const maxPrice =
-    variations && variations?.length > 0
+  const maxPrice = cartProduct?.product_price
+    ? cartProduct.product_price
+    : variations && variations?.length > 0
       ? variations.reduce(
           (max, variation) => Math.max(max, variation.price ?? -Infinity),
           -Infinity,
         )
-      : null // Ou 0, ou qualquer valor default que você queira
+      : null
+
+  const finalMaxPrice = maxPrice === -Infinity ? null : maxPrice
 
   const totalPrice = productPrice * amount
 
+  const formState = form.formState
+  const isFormSubmitting = formState.isSubmitting
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const newCartProduct: CartProductType = {
+      id: cartProduct?.id,
       product_id: product.id,
       products: { ...product, price: productPrice },
-      quantity: values.quantity,
+      quantity: amount,
       product_variations: values.variations ?? [],
       product_price: productPrice,
     }
 
-    await addToCart(publicStore, newCartProduct)
+    await addToCart(storeURL, newCartProduct)
 
-    router.push(`/${publicStore}`)
+    form.reset()
   }
 
   useEffect(() => {
-    setProductPrice(maxPrice ?? product.promotional_price ?? product.price)
+    setProductPrice(finalMaxPrice ?? product.promotional_price ?? product.price)
 
     const subscription = form.watch((values, { name, type }) => {
       if (type === 'change' && name?.startsWith('variations')) {
@@ -155,7 +165,7 @@ export function AddToCard({
   }, [form, variations, product])
 
   useEffect(() => {
-    setAmount(1)
+    setAmount(currentAmount ?? 1)
   }, [product]) // eslint-disable-line
 
   if (product.stock > 0) {
@@ -252,11 +262,23 @@ export function AddToCard({
               <Button
                 className="flex flex-row items-center justify-between w-full max-w-md"
                 type="submit"
-                disabled={product.stock === 0 || !productHasDimensions}
+                disabled={
+                  isFormSubmitting ||
+                  product.stock === 0 ||
+                  !productHasDimensions
+                }
               >
-                <span className="flex flex-row items-center gap-1">
-                  <Plus className="w-4 h-4" /> Adicionar{' '}
-                </span>
+                {isFormSubmitting ? (
+                  <span className="flex flex-row items-center gap-1">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {cartProduct ? 'Atualizando' : 'Adicionando'}
+                  </span>
+                ) : (
+                  <span className="flex flex-row items-center gap-1">
+                    <Plus className="w-4 h-4" />
+                    {cartProduct ? 'Atualizar' : 'Adicionar'}{' '}
+                  </span>
+                )}
                 <span>{formatCurrencyBRL(totalPrice)}</span>
               </Button>
             </div>

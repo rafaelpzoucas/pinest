@@ -103,7 +103,7 @@ export function PublicStoreNavigation({
             </PopoverTrigger>
             <PopoverContent align="end" className="w-96">
               <section className="flex flex-col gap-2">
-                <ScrollArea className="h-full max-h-[394px]">
+                <ScrollArea className="h-[394px]">
                   <CartProducts
                     cartProducts={cartProducts}
                     storeName={storeUrl}

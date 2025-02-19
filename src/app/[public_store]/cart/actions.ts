@@ -37,7 +37,7 @@ async function getCartSession(storeUrl: string) {
 
 async function getCartProduct(
   storeUrl: string,
-  productId?: string,
+  cartSessionId?: string,
 ): Promise<{
   cartProduct: CartProductType | null
   cartProductError: any | null
@@ -49,7 +49,7 @@ async function getCartProduct(
     .from('cart_sessions')
     .select('*')
     .eq('session_id', cartSession?.value)
-    .eq('product_id', productId)
+    .eq('id', cartSessionId)
     .single()
 
   if (cartProductError) {
@@ -69,7 +69,7 @@ async function insertCartProduct(
     .from('cart_sessions')
     .insert({
       session_id: cartSession,
-      product_id: newItem.products.id,
+      product_id: newItem.product_id,
       quantity: newItem.quantity,
       product_variations: newItem.product_variations,
       product_price: newItem.product_price,
@@ -83,7 +83,7 @@ async function insertCartProduct(
 
 async function updateCartProduct(
   newItem: CartProductType,
-  cartProduct: CartProductType | null,
+  cartProduct: CartProductType,
   cartSession?: string,
 ) {
   const supabase = createClient()
@@ -91,10 +91,14 @@ async function updateCartProduct(
   const { error: updatedCartProductError } = await supabase
     .from('cart_sessions')
     .update({
-      quantity: cartProduct && cartProduct?.quantity + newItem.quantity,
+      product_variations: newItem.product_variations,
+      product_price: newItem.product_price,
+      quantity: newItem?.id
+        ? newItem.quantity
+        : cartProduct?.quantity + newItem.quantity,
     })
     .eq('session_id', cartSession)
-    .eq('product_id', newItem.id)
+    .eq('product_id', newItem.product_id)
     .select()
 
   if (updatedCartProductError) {
@@ -114,7 +118,10 @@ export async function getCart(storeUrl: string): Promise<{
     .select(
       `
         *,
-        products (*)
+        products (
+         *,
+         product_images (*)
+        )
       `,
     )
     .eq('session_id', cartSession?.value)
@@ -129,6 +136,11 @@ export async function getCart(storeUrl: string): Promise<{
 export async function addToCart(storeUrl: string, newItem: CartProductType) {
   const cartSession = await getCartSession(storeUrl)
 
+  if (!newItem?.id) {
+    await insertCartProduct(newItem, cartSession?.value)
+    return revalidatePath(`/${storeUrl}/cart`)
+  }
+
   const { cartProduct, cartProductError } = await getCartProduct(
     storeUrl,
     newItem.id,
@@ -139,12 +151,12 @@ export async function addToCart(storeUrl: string, newItem: CartProductType) {
   }
 
   if (!cartProduct) {
-    await insertCartProduct(newItem, cartSession?.value)
+    return
   }
 
   await updateCartProduct(newItem, cartProduct, cartSession?.value)
 
-  revalidatePath('/')
+  revalidatePath(`/${storeUrl}/cart`)
 }
 
 export async function updateCartProductQuantity(
@@ -224,4 +236,33 @@ export async function readStripeConnectedAccountByStoreUrl(
   }
 
   return { user, userError }
+}
+
+export async function readCartProductVariations(
+  variationsIds: { variation_id: string }[],
+) {
+  const supabase = createClient()
+
+  const variations = []
+
+  for (const variation of variationsIds) {
+    const { data: productVariation, error: readProductVariationError } =
+      await supabase
+        .from('product_variations')
+        .select('*')
+        .eq('id', variation.variation_id)
+        .single()
+
+    if (readProductVariationError) {
+      console.error(readProductVariationError)
+    }
+
+    variations.push(productVariation)
+  }
+
+  if (variations.length === 0) {
+    return null
+  }
+
+  return variations
 }

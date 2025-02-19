@@ -25,17 +25,16 @@ import { updateProfile } from './actions'
 export const profileSchema = z.object({
   name: z.string(),
   phone: z.string(),
+  cpf_cnpj: z.string(),
 })
 
 export function ProfileForm({ user }: { user: UserType | null }) {
-  const name = user?.name ?? ''
-  const phone = user?.phone ?? ''
-
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name,
-      phone,
+      name: user?.name ?? '',
+      phone: user?.phone ?? '',
+      cpf_cnpj: user?.cpf_cnpj ?? '',
     },
   })
 
@@ -64,6 +63,20 @@ export function ProfileForm({ user }: { user: UserType | null }) {
               <FormLabel>Nome</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o seu nome..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="cpf_cnpj"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>CPF/CNPJ</FormLabel>
+              <FormControl>
+                <Input placeholder="Digite o seu CPF ou CNPJ..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

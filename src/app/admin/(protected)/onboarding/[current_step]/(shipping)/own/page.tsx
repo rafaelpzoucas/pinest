@@ -1,4 +1,4 @@
-import { readOwnShipping } from '@/app/admin/(protected)/(app)/config/(options)/shipping/own-shipping/actions'
+import { readOwnShipping } from '@/app/admin/(protected)/(app)/config/(options)/shipping/actions'
 import { OwnShippingForm } from '@/app/admin/(protected)/(app)/config/(options)/shipping/own-shipping/form'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -14,10 +14,10 @@ export default async function Shipping() {
       <OwnShippingForm shipping={shipping} />
 
       <Link
-        href="/admin/dashboard"
+        href="/admin/onboarding/shipping/carrier"
         className={cn(buttonVariants(), 'w-fit ml-auto')}
       >
-        Finalizar cadastro
+        Configurar transportadoras
       </Link>
     </div>
   )

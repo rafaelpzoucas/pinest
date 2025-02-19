@@ -1,6 +1,7 @@
 'use client'
 
 import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { CartProductType } from '@/models/cart'
 import { ProductType, ProductVariationType } from '@/models/product'
 import { AddressType } from '@/models/user'
 import { useProduct } from '@/stores/productStore'
@@ -10,13 +11,15 @@ import { ShippingForm } from './shipping/form'
 export function ProductInfo({
   product,
   variations,
-  publicStore,
+  storeURL,
   storeAddress,
+  cartProduct,
 }: {
   product: ProductType
   variations: ProductVariationType[] | null
-  publicStore: string
+  storeURL: string
   storeAddress: AddressType
+  cartProduct?: CartProductType
 }) {
   const isPromotional = product?.promotional_price
   const { productPrice } = useProduct()
@@ -53,14 +56,15 @@ export function ProductInfo({
       </div>
 
       <AddToCard
-        publicStore={publicStore}
+        storeURL={storeURL}
         product={product}
         variations={variations}
+        cartProduct={cartProduct}
       />
 
       {productHasDimensions && (
         <ShippingForm
-          publicStore={publicStore}
+          storeURL={storeURL}
           storeAddress={storeAddress}
           product={product}
         />

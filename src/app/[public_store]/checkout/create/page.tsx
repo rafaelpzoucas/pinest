@@ -20,12 +20,13 @@ export default async function CreatePurchase({
   async function handleCreatePurchase() {
     const newPurchase: CreatePurchaseType = {
       addressId: searchParams.addressId,
-      pickup: searchParams.pickup,
+      type: searchParams.pickup,
       storeName: searchParams.storeName,
       totalAmount: parseInt(searchParams.totalAmount),
       shippingPrice: parseFloat(searchParams.shippingPrice),
       shippingTime: parseFloat(searchParams.shippingTime),
     }
+
     const { purchase, purchaseError } = await createPurchase(newPurchase)
 
     if (purchaseError) {

@@ -9,7 +9,7 @@ export async function Categories() {
   const { data: categories, error } = await readCategoriesByStore()
 
   if (error) {
-    console.log(error)
+    console.error(error)
     return <div>Não foi possível buscar suas categorias</div>
   }
 

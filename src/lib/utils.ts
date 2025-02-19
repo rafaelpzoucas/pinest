@@ -62,7 +62,12 @@ export function queryParamsLink(params: any | null) {
 }
 
 export function formatAddress(address: AddressType) {
-  return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
+  console.log(address)
+  if (address) {
+    return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
+  } else {
+    return null
+  }
 }
 
 export function formatBytes(bytes: number, decimals = 2) {
@@ -128,16 +133,33 @@ export const dayTranslation: Record<string, string> = {
 export async function isSameCity(cep1: string, cep2: string) {
   const fetchCep = async (cep: string) => {
     const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
-    return res.json()
+
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao buscar o CEP ${cep}: ${res.status} ${res.statusText}`,
+      )
+    }
+
+    const data = await res.json()
+    if (data.erro) {
+      throw new Error(`CEP ${cep} não encontrado.`)
+    }
+
+    return data
   }
 
-  const [dadosCep1, dadosCep2] = await Promise.all([
-    fetchCep(cep1),
-    fetchCep(cep2),
-  ])
+  try {
+    const [dadosCep1, dadosCep2] = await Promise.all([
+      fetchCep(cep1),
+      fetchCep(cep2),
+    ])
 
-  return (
-    dadosCep1.localidade === dadosCep2.localidade &&
-    dadosCep1.uf === dadosCep2.uf
-  )
+    return (
+      dadosCep1.localidade === dadosCep2.localidade &&
+      dadosCep1.uf === dadosCep2.uf
+    )
+  } catch (error) {
+    console.error(error)
+    return false
+  }
 }
