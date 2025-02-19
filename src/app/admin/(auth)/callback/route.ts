@@ -30,7 +30,7 @@ async function createStripeCheckoutSession(
   }
 }
 
-export async function createSubscriptionCheckout() {
+async function createSubscriptionCheckout() {
   const session = await createStripeCheckoutSession(
     [
       {
