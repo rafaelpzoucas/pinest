@@ -90,6 +90,8 @@ export default async function Summary({
     ? productsPrice + shippingPrice
     : productsPrice
 
+  const formattedAddress = storeAddress && formatAddress(storeAddress)
+
   return (
     <div className="flex flex-col w-full">
       <Card className="flex flex-col p-4 w-full space-y-2">
@@ -162,9 +164,9 @@ export default async function Summary({
             {storeAddress?.city}/{storeAddress?.state}
           </span>
 
-          {storeAddress && (
+          {formattedAddress && (
             <Link
-              href={`https://www.google.com/maps?q=${formatAddress(storeAddress).replaceAll(' ', '+')}`}
+              href={`https://www.google.com/maps?q=${formattedAddress.replaceAll(' ', '+')}`}
               className={cn(buttonVariants({ variant: 'link' }))}
             >
               Ver localização

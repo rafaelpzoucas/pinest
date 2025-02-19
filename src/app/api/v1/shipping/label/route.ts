@@ -1,4 +1,4 @@
-import { readStoreKanguToken } from '../actions';
+import { readStoreKanguToken } from '../actions'
 
 export async function POST(request: Request) {
   try {
