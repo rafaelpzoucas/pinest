@@ -15,12 +15,23 @@ export default async function Shipping() {
 
       <CarrierShippingForm shipping={shipping} carriers={carriers} />
 
-      <Link
-        href="/admin/dashboard"
-        className={cn(buttonVariants(), 'w-fit ml-auto')}
-      >
-        Finalizar
-      </Link>
+      <div className="flex flex-row gap-2 w-fit ml-auto">
+        <Link
+          href="own"
+          className={cn(
+            buttonVariants({ variant: 'outline' }),
+            'w-fit ml-auto',
+          )}
+        >
+          Voltar
+        </Link>
+        <Link
+          href="/admin/dashboard"
+          className={cn(buttonVariants(), 'w-fit ml-auto')}
+        >
+          Finalizar
+        </Link>
+      </div>
     </div>
   )
 }

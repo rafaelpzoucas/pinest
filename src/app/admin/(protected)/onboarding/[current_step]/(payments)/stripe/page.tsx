@@ -14,6 +14,10 @@ export default async function Payments() {
   const connectedAccount = await getConnectedAccount()
   const { stripeAccount } = await getStripeAccount()
 
+  if (!stripeAccount?.stripe_account_id) {
+    throw new Error('Conta Stripe não encontrada.')
+  }
+
   const account = await stripe.accounts.retrieve(
     stripeAccount?.stripe_account_id,
   )

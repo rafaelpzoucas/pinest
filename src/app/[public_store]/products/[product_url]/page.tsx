@@ -78,6 +78,8 @@ export default async function ProductPage({
 
   const productImages = product.product_images
 
+  console.log({ product })
+
   return (
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
