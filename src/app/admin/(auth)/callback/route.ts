@@ -34,7 +34,7 @@ async function createSubscriptionCheckout() {
   const session = await createStripeCheckoutSession(
     [
       {
-        price: 'price_1QPCc3GAxPgMyeA1B2QhO3pn',
+        price: process.env.NEXT_PUBLIC_STRIPE_PLAN_PRICE_ID as string,
         quantity: 1,
       },
     ],
