@@ -1,3 +1,4 @@
+import { AppearenceForm } from '@/app/admin/(protected)/(app)/config/(options)/account/appearence'
 import { LogoAvatar } from '@/app/admin/(protected)/(app)/config/(options)/account/register/store/logo-avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -12,6 +13,8 @@ export default async function AddLogo() {
       <h1 className="text-3xl font-bold text-center">Adicione o seu logo</h1>
 
       <LogoAvatar store={store} />
+
+      <AppearenceForm store={store} />
 
       <Link
         href="/admin/onboarding/products/register"
