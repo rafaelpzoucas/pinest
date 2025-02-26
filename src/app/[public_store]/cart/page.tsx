@@ -69,8 +69,6 @@ export default async function CartPage({
       )}
 
       <section className="flex flex-col gap-2 w-full">
-        <CartProducts cartProducts={cart} storeName={params.public_store} />
-
         <Link
           href={`/${params.public_store}`}
           className={cn(buttonVariants({ variant: 'outline' }))}
@@ -78,6 +76,8 @@ export default async function CartPage({
           <Plus className="w-4 h-4 mr-2" />
           Adicionar itens
         </Link>
+
+        <CartProducts cartProducts={cart} storeName={params.public_store} />
       </section>
     </main>
   )

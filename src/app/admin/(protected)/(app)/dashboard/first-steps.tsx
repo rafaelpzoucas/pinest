@@ -79,8 +79,8 @@ export async function FirstSteps() {
             data-checked={step.is_checked}
             className={cn(
               buttonVariants({ variant: 'outline' }),
-              `flex flex-row items-center text-muted-foreground w-full
-              data-[checked=true]:text-primary data-[checked=true]:line-through`,
+              `flex flex-row items-center text-primary w-full
+              data-[checked=true]:text-muted-foreground data-[checked=true]:line-through`,
             )}
           >
             {step.name}{' '}

@@ -105,6 +105,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   purchaseError: any | null
 }> {
   const supabase = createClient()
+  console.log({ newPurchase })
   const { cart } = await getCart(generateSlug(newPurchase.storeName))
 
   const { customer, customerError } = await handleCustomer()

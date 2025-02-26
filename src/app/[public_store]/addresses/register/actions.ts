@@ -61,5 +61,7 @@ export async function updateCustomerAddress(
     console.error(updateAddressError)
   }
 
+  revalidatePath('/checkout')
+
   return { updatedAddress, updateAddressError }
 }

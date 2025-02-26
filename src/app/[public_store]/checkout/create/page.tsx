@@ -15,6 +15,7 @@ export default async function CreatePurchase({
     shippingPrice: string
     shippingTime: string
     pickup: string
+    payment: string
   }
 }) {
   async function handleCreatePurchase() {
@@ -33,8 +34,16 @@ export default async function CreatePurchase({
       console.error(purchaseError)
     }
 
-    if (purchase) {
+    if (purchase && searchParams.payment === 'stripe') {
       await createStripeCheckout(searchParams.storeName, purchase.id)
+    }
+
+    if (purchase && searchParams.payment === 'mercadopago') {
+      // Implement Mercado Pago integration here
+    }
+
+    if (purchase && searchParams.payment === 'money') {
+      // Implement Money integration here
     }
   }
 

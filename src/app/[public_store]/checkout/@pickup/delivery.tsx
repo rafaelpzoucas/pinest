@@ -6,7 +6,6 @@ import { ShippingConfigType } from '@/models/shipping'
 import { AddressType } from '@/models/user'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 
 type DeliveryProps = {
   customerAddress: AddressType
@@ -14,10 +13,6 @@ type DeliveryProps = {
 }
 
 export function Delivery({ customerAddress, shipping }: DeliveryProps) {
-  const params = useParams()
-
-  const storeURL = params.public_store
-
   return (
     <Card className="flex flex-col gap-2 w-full">
       {!customerAddress ? (
@@ -38,7 +33,7 @@ export function Delivery({ customerAddress, shipping }: DeliveryProps) {
       ) : (
         <>
           <Link
-            href={`?step=summary&pickup=delivery&address=${customerAddress?.id}`}
+            href={`?step=payment&pickup=delivery&address=${customerAddress?.id}`}
             className="space-y-2"
           >
             <div className="flex flex-col gap-2 p-4 w-full">
