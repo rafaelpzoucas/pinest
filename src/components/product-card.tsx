@@ -30,6 +30,7 @@ export interface ProductCardProps
   data?: ProductType
   variations?: PurchaseItemVariations[]
   publicStore?: string
+  observations?: string
 }
 
 export function ProductCard({
@@ -38,6 +39,7 @@ export function ProductCard({
   className,
   variant,
   publicStore,
+  observations,
 }: ProductCardProps) {
   const isPromotional = data?.promotional_price
 
@@ -121,12 +123,22 @@ export function ProductCard({
         </div>
         <p
           className={cn(
-            'line-clamp-2 text-muted-foreground text-sm',
+            'line-clamp-2 text-sm',
             variant === 'bag_items' && 'line-clamp-1',
           )}
         >
           {data.name}
         </p>
+        {variant !== 'bag_items' && (
+          <p className="line-clamp-3 text-muted-foreground text-xs">
+            {data.description}
+          </p>
+        )}
+        {observations && (
+          <p className="text-xs text-muted-foreground uppercase line-clamp-2">
+            obs: {observations}{' '}
+          </p>
+        )}
 
         <div>
           {variations &&

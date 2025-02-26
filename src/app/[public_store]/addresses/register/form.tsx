@@ -91,6 +91,8 @@ export function AddressForm({ address }: { address: AddressType | null }) {
   async function onSubmit(values: z.infer<typeof addressFormSchema>) {
     if (address) {
       await updateCustomerAddress(values, address.id)
+
+      return router.push(`/${storeName}/checkout?step=pickup`)
     } else {
       const { createAddressError } = await createCustomerAddress(values)
 

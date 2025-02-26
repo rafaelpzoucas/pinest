@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { useProduct } from '@/stores/productStore'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -33,6 +34,7 @@ const formSchema = z.object({
     )
     .optional(),
   quantity: z.number(),
+  observations: z.string().optional(),
 })
 
 type AddToCardDrawerProps = {
@@ -103,6 +105,7 @@ export function AddToCard({
     defaultValues: {
       variations: selectedVariations ?? defaultVariations,
       quantity: amount ?? 1,
+      observations: '',
     },
   })
 
@@ -130,6 +133,7 @@ export function AddToCard({
       quantity: amount,
       product_variations: values.variations ?? [],
       product_price: productPrice,
+      observations: values.observations,
     }
 
     await addToCart(storeURL, newCartProduct)
@@ -173,12 +177,11 @@ export function AddToCard({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-8 max-w-sm"
+          className="flex flex-col gap-4 max-w-sm"
         >
-          <div className="flex flex-col md:flex-row gap-2">
-            {groupedByAttribute &&
-              groupedByAttribute.length > 0 &&
-              groupedByAttribute.map((attribute, index) => (
+          {groupedByAttribute && groupedByAttribute.length > 0 && (
+            <div className="flex flex-col md:flex-row gap-2">
+              {groupedByAttribute.map((attribute, index) => (
                 <Card key={attribute.name} className="p-4 pt-3 w-fit">
                   <FormField
                     control={form.control}
@@ -213,13 +216,10 @@ export function AddToCard({
                   />
                 </Card>
               ))}
-          </div>
+            </div>
+          )}
 
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-muted-foreground">
-              Quantidade em estoque: {product.stock}
-            </p>
-
             <div className="flex flex-row gap-4 w-full">
               <div className="flex flex-row items-center gap-3">
                 <Button
@@ -262,11 +262,7 @@ export function AddToCard({
               <Button
                 className="flex flex-row items-center justify-between w-full max-w-md"
                 type="submit"
-                disabled={
-                  isFormSubmitting ||
-                  product.stock === 0 ||
-                  !productHasDimensions
-                }
+                disabled={isFormSubmitting || product.stock === 0}
               >
                 {isFormSubmitting ? (
                   <span className="flex flex-row items-center gap-1">
@@ -283,6 +279,23 @@ export function AddToCard({
               </Button>
             </div>
           </div>
+
+          <FormField
+            control={form.control}
+            name="observations"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Observações</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Sem cebola, sem picles, etc..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </form>
       </Form>
     )

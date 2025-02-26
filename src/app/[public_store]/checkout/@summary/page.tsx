@@ -1,6 +1,6 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { MapPin } from 'lucide-react'
+import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
 import { ProductCard } from '@/components/product-card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
@@ -20,6 +20,7 @@ function CheckoutButton({
   reference,
   shippingPrice,
   transp,
+  payment,
 }: {
   totalAmount: number
   storeName: string
@@ -29,6 +30,7 @@ function CheckoutButton({
   reference: string
   shippingPrice: number
   transp: string
+  payment: string
 }) {
   const shippingCost =
     (shippingPrice && `&shippingPrice=${shippingPrice}`) ?? shipping?.price
@@ -44,12 +46,13 @@ function CheckoutButton({
   const qPickup = `&pickup=${pickup}`
   const qReference = transp ? `&reference=${reference}` : ''
   const qTransp = transp ? `&transp=${transp}` : ''
+  const qPayment = payment ? `&payment=${payment}` : ''
 
-  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}`
+  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}`
 
   return (
     <Link href={query} className={cn(buttonVariants(), 'w-full')}>
-      Continuar para o pagamento
+      Finalizar pedido
     </Link>
   )
 }
@@ -65,11 +68,31 @@ export default async function Summary({
     reference: string
     shippingPrice: string
     transp: string
+    payment: string
   }
 }) {
   const addressId = searchParams.address
   const shippingCost = searchParams.shippingPrice
   const transp = searchParams.transp
+  const payment = searchParams.payment
+  const pickup = searchParams.pickup
+
+  const PAYMENT_METHODS = {
+    stripe: {
+      label: 'com cartão',
+      description: 'Você poderá pagar com um cartão de crédito ou débito.',
+    },
+    money: {
+      label: 'no momento da entrega',
+      description: `Você deverá efetuar o pagamento no momento da ${pickup === 'delivery' ? 'entrega.' : 'retirada.'}`,
+    },
+    mercadopago: {
+      label: 'com PIX',
+      description: 'Os pagamentos com PIX são aprovados na hora.',
+    },
+  }
+
+  const paymentKey = payment as keyof typeof PAYMENT_METHODS
 
   const { cart } = await getCart(params.public_store)
   const { address } = await readAddressById(addressId)
@@ -127,6 +150,7 @@ export default async function Summary({
           shippingPrice={shippingPrice}
           reference={searchParams.reference}
           transp={searchParams.transp}
+          payment={searchParams.payment}
         />
       </Card>
 
@@ -175,19 +199,27 @@ export default async function Summary({
         </section>
       )}
 
-      {/* <section className="flex flex-col items-center gap-2 text-center border-b py-6">
-        <DollarSign />
-        <p>Você pagará {formatCurrencyBRL(100)} com Pix</p>
+      <section className="flex flex-col items-center gap-2 text-center border-b py-6">
+        {payment === 'stripe' && <CreditCard />}
+        {payment === 'money' && <Banknote />}
+        {payment === 'mercadopago' && <DollarSign />}
+        <p>
+          Você pagará {formatCurrencyBRL(totalPrice)}{' '}
+          {PAYMENT_METHODS[paymentKey].label}
+        </p>
         <span className="text-xs text-muted-foreground">
-          Os pagamentos com este meio são aprovados na hora
+          {PAYMENT_METHODS[paymentKey].description}
         </span>
 
-        <Link href="" className={cn(buttonVariants({ variant: 'link' }))}>
+        <Link
+          href={`/${params.public_store}/checkout?step=payment&pickup=${searchParams.pickup}${searchParams.address ? '&address=' + searchParams.address : ''}`}
+          className={cn(buttonVariants({ variant: 'link' }))}
+        >
           Alterar meio de pagamento
         </Link>
       </section>
 
-      <section className="flex flex-col items-center gap-2 text-center border-b py-6">
+      {/* <section className="flex flex-col items-center gap-2 text-center border-b py-6">
         <ScrollText />
         <p>Dados para Nota Fiscal eletrônica</p>
         <span className="text-xs text-muted-foreground">
@@ -208,6 +240,7 @@ export default async function Summary({
               publicStore={params.public_store}
               variant={'bag_items'}
               className="w-full"
+              observations={item.observations}
             />
           ))}
       </section>

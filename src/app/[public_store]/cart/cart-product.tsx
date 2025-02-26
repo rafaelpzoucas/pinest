@@ -74,6 +74,8 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
     handleReadCartProductVariations()
   }, [])
 
+  console.log({ product })
+
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0">
       <Link href="">
@@ -84,6 +86,12 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
 
           <div className="flex flex-col gap-1">
             <p className="line-clamp-2 max-w-56">{product.name}</p>
+
+            {cartProduct.observations && (
+              <p className="text-muted-foreground text-xs uppercase line-clamp-2">
+                obs: {cartProduct.observations}{' '}
+              </p>
+            )}
 
             <div>
               {variations &&

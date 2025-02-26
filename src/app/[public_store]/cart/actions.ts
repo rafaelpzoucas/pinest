@@ -73,6 +73,7 @@ async function insertCartProduct(
       quantity: newItem.quantity,
       product_variations: newItem.product_variations,
       product_price: newItem.product_price,
+      observations: newItem.observations,
     })
     .select()
 
@@ -96,6 +97,7 @@ async function updateCartProduct(
       quantity: newItem?.id
         ? newItem.quantity
         : cartProduct?.quantity + newItem.quantity,
+      observations: newItem.observations,
     })
     .eq('session_id', cartSession)
     .eq('product_id', newItem.product_id)

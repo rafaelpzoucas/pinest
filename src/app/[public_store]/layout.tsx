@@ -31,7 +31,9 @@ export async function generateMetadata(
 
   if (store) {
     return {
-      title: store.name,
+      title: store.name
+        .toLowerCase()
+        .replace(/\b\w/g, (char) => char.toUpperCase()),
       description: store.description,
       icons: {
         icon: store.logo_url,

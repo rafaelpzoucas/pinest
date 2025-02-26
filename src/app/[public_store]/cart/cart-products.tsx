@@ -10,7 +10,7 @@ export function CartProducts({
   storeName: string
 }) {
   return (
-    <div className="h-[370px] p-1 pr-2">
+    <div className="lg:h-[370px] p-1 pr-2">
       {cartProducts && cartProducts.length > 0 ? (
         cartProducts.map((product) => (
           <CartProduct key={product.id} cartProduct={product} />

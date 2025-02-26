@@ -6,17 +6,20 @@ import { ReactNode } from 'react'
 
 const titles: Record<string, string> = {
   pickup: 'Forma de entrega',
+  payment: 'Forma de pagamento',
   summary: 'Confirme sua compra',
 }
 
 interface CheckoutLayoutProps {
   pickup: ReactNode
+  payment: ReactNode
   summary: ReactNode
   children: ReactNode
 }
 
 export default function CheckoutLayout({
   pickup,
+  payment,
   summary,
   children,
 }: CheckoutLayoutProps) {
@@ -33,6 +36,7 @@ export default function CheckoutLayout({
       <div className="w-full max-w-lg">
         {step === 'pickup' && pickup}
         {step === 'summary' && summary}
+        {step === 'payment' && payment}
         {children}
       </div>
     </section>

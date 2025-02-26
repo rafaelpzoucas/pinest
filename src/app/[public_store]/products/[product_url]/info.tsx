@@ -31,7 +31,7 @@ export function ProductInfo({
     product.pkg_weight !== null
 
   return (
-    <section className="mt-6 lg:mt-0 space-y-6 lg:space-y-12">
+    <section className="space-y-6 mt-6 lg:mt-0 lg:space-y-12">
       <div className="lg:flex flex-col-reverse gap-4">
         <div className="leading-4">
           {product.promotional_price && (
