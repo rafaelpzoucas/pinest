@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readMarketNiches, readStoreById } from './actions'
 import { StoreForm } from './form'
 import { LogoAvatar } from './logo-avatar'

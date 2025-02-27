@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readPurchases } from './actions'
 import { Purchases } from './purchases'
 

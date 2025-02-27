@@ -13,6 +13,7 @@ export type StoreType = {
   market_niche_id: string
   theme_color: string
   theme_mode: string
+  is_open: boolean
   market_niches: MarketNicheType[]
   addresses: AddressType[]
   store_hours: HourType[]

@@ -9,12 +9,14 @@ import { AddToCard } from './add-to-cart'
 import { ShippingForm } from './shipping/form'
 
 export function ProductInfo({
+  isOpen,
   product,
   variations,
   storeURL,
   storeAddress,
   cartProduct,
 }: {
+  isOpen?: boolean
   product: ProductType
   variations: ProductVariationType[] | null
   storeURL: string
@@ -56,6 +58,7 @@ export function ProductInfo({
       </div>
 
       <AddToCard
+        isOpen={isOpen}
         storeURL={storeURL}
         product={product}
         variations={variations}

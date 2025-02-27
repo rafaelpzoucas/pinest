@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readStoreByUserId, readStoreHours } from '../../actions'
 import { BusinessHoursForm } from './form'
 

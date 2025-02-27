@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 
 import { readOwnShipping } from './actions'
 import { selectCarriers } from './carrier/actions'

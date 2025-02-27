@@ -27,7 +27,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Cliente',
     cell: ({ row }) => {
       const customer = row.getValue('customers') as CustomersType
-      console.log({ customer })
+
       return (
         <div>
           <p className="text-muted-foreground">{customer.users.name}</p>

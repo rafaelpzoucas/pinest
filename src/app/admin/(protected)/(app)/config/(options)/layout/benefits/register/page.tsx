@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readBenefitById } from './actions'
 import { BenefitForm } from './form'
 
