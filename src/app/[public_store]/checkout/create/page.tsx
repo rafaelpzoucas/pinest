@@ -20,6 +20,7 @@ export default async function CreatePurchase({
     changeValue: string
   }
 }) {
+  console.log({ searchParams })
   async function handleCreatePurchase() {
     const newPurchase: CreatePurchaseType = {
       addressId: searchParams.addressId,
