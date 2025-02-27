@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readStoreByUserId, readUser } from './actions'
 import { Address } from './address'
 import { AppearenceForm } from './appearence'

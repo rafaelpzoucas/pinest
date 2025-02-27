@@ -22,10 +22,7 @@ export async function Showcases({ storeURL }: { storeURL: string }) {
 
   return (
     <>
-      <section
-        key={firstShowcase.id}
-        className="space-y-4 p-4 px-5 bg-secondary/50 rounded-xl"
-      >
+      <section key={firstShowcase.id} className="space-y-4">
         <h1 className="text-xl font-bold uppercase">{firstShowcase.name}</h1>
 
         <Carousel

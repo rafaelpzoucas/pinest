@@ -74,8 +74,6 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
     handleReadCartProductVariations()
   }, [])
 
-  console.log({ product })
-
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0">
       <Link href="">

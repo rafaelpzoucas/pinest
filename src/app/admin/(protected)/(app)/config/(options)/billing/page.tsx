@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { stripe } from '@/lib/stripe'

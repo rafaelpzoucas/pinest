@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readUser } from '../../../config/(options)/account/actions'
 import { readCategoriesByStore } from '../../categories/actions'
 import { readProductById } from './actions'

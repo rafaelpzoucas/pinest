@@ -60,6 +60,15 @@ export async function Header({ storeURL }: { storeURL: string }) {
               </p>
             )}
           </div>
+
+          <strong className="flex flex-row items-center text-xs">
+            <div
+              className="w-3 h-3 rounded-full mr-2 data-[isopen=true]:bg-emerald-600
+                data-[isopen=false]:bg-red-600"
+              data-isopen={store?.is_open}
+            ></div>
+            Loja {store?.is_open ? 'aberta' : 'fechada'}
+          </strong>
         </div>
 
         <div className="hidden lg:block">

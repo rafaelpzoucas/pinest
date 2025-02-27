@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { readStoreByUserId, readStoreSocials } from '../../actions'
 import { SocialsForm } from './form'
 

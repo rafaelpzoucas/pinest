@@ -13,6 +13,7 @@ export type CreatePurchaseType = {
   shippingPrice: number
   shippingTime: number
   type: string
+  changeValue: number | null
 }
 
 export type PurchaseItemsType = {
@@ -23,6 +24,7 @@ export type PurchaseItemsType = {
   quantity: number
   product_price: number
   products: ProductType
+  observations: string
 }
 
 export type PurchaseItemVariations = {
@@ -45,6 +47,8 @@ export type PurchaseType = {
   delivery_time: number
   type: string
   tracking_code: string
+  accepted: boolean
+  change_value: number
   purchase_items: PurchaseItemsType[]
   purchase_item_variations: PurchaseItemVariations[]
   addresses: AddressType

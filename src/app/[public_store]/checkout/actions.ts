@@ -1,8 +1,10 @@
+import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/[id]/actions'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { clearCart } from '../cart/actions'
 import { readStoreByName } from './@summary/actions'
@@ -130,6 +132,22 @@ async function createStripeCheckoutSession(
     console.error('Erro ao criar sessão de checkout:', error)
     throw error
   }
+}
+
+export async function handleMoneyPayment(purchaseId: string, storeURL: string) {
+  const { purchase } = await readPurchaseItems(purchaseId)
+
+  if (!purchase) {
+    return
+  }
+
+  await updatePurchaseStatus('approved', purchase.id)
+
+  await clearCart(storeURL)
+
+  revalidatePath(`/`)
+
+  return redirect(`/${storeURL}/purchases/${purchase.id}`)
 }
 
 export async function createStripeCheckout(

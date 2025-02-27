@@ -8,12 +8,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { statuses } from '@/models/statuses'
-import { CircleCheckBig, FastForward } from 'lucide-react'
-import { acceptPurchase, updatePurchaseStatus } from '../[id]/actions'
+import { XCircle } from 'lucide-react'
+import { cancelPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
 
-export function UpdateStatusButton({
+export function CancelPurchaseButton({
   accepted,
   currentStatus,
   purchaseId,
@@ -24,7 +24,7 @@ export function UpdateStatusButton({
 }) {
   async function handleUpdateStatus(newStatus: string) {
     if (!accepted) {
-      await acceptPurchase(purchaseId)
+      await cancelPurchase(purchaseId)
 
       return
     }
@@ -32,16 +32,7 @@ export function UpdateStatusButton({
     await updatePurchaseStatus(newStatus, purchaseId)
   }
 
-  if (
-    currentStatus === 'processing' ||
-    currentStatus === 'delivered' ||
-    currentStatus === 'cancelled' ||
-    currentStatus === 'returned' ||
-    currentStatus === 'refunded' ||
-    currentStatus === 'payment_failed' ||
-    currentStatus === 'awaiting_payment' ||
-    currentStatus === 'under_review'
-  ) {
+  if (accepted) {
     return null
   }
 
@@ -58,19 +49,11 @@ export function UpdateStatusButton({
               )
             }
           >
-            {!accepted ? (
-              <CircleCheckBig className="w-4 h-4" />
-            ) : (
-              <FastForward className="w-4 h-4" />
-            )}
+            <XCircle className="w-4 h-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>
-            {!accepted
-              ? 'Aceitar pedido'
-              : (statuses[currentStatus as StatusKey].action_text as string)}
-          </p>
+          <p>Recusar/cancelar pedido</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

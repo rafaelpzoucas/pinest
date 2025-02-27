@@ -105,7 +105,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   purchaseError: any | null
 }> {
   const supabase = createClient()
-  console.log({ newPurchase })
+
   const { cart } = await getCart(generateSlug(newPurchase.storeName))
 
   const { customer, customerError } = await handleCustomer()
@@ -132,6 +132,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     shipping_price: type !== 'pickup' ? newPurchase.shippingPrice : 0,
     delivery_time: type === 'delivery' ? newPurchase.shippingTime : null,
     type,
+    change_value: newPurchase.changeValue,
   }
 
   const { data: purchase, error: purchaseError } = await supabase
@@ -170,6 +171,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
           product_id: item?.products.id,
           quantity: item?.quantity,
           product_price: item?.product_price,
+          observations: item?.observations,
         })),
     )
     .select('*')

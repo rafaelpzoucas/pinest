@@ -1,4 +1,4 @@
-import { AdminHeader } from '@/components/admin-header'
+import { AdminHeader } from '@/app/admin-header'
 import { redirect } from 'next/navigation'
 import { readStore } from './actions'
 import { FirstSteps } from './first-steps'

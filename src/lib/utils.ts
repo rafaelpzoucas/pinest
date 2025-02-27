@@ -62,7 +62,6 @@ export function queryParamsLink(params: any | null) {
 }
 
 export function formatAddress(address: AddressType) {
-  console.log(address)
   if (address) {
     return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
   } else {

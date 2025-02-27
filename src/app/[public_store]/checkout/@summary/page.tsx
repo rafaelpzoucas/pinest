@@ -21,6 +21,7 @@ function CheckoutButton({
   shippingPrice,
   transp,
   payment,
+  changeValue,
 }: {
   totalAmount: number
   storeName: string
@@ -31,6 +32,7 @@ function CheckoutButton({
   shippingPrice: number
   transp: string
   payment: string
+  changeValue: string
 }) {
   const shippingCost =
     (shippingPrice && `&shippingPrice=${shippingPrice}`) ?? shipping?.price
@@ -47,8 +49,9 @@ function CheckoutButton({
   const qReference = transp ? `&reference=${reference}` : ''
   const qTransp = transp ? `&transp=${transp}` : ''
   const qPayment = payment ? `&payment=${payment}` : ''
+  const qChange = changeValue ? `&changeValue=${changeValue}` : ''
 
-  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}`
+  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}${qChange}`
 
   return (
     <Link href={query} className={cn(buttonVariants(), 'w-full')}>
@@ -69,6 +72,8 @@ export default async function Summary({
     shippingPrice: string
     transp: string
     payment: string
+    change: string
+    changeValue: string
   }
 }) {
   const addressId = searchParams.address
@@ -76,6 +81,7 @@ export default async function Summary({
   const transp = searchParams.transp
   const payment = searchParams.payment
   const pickup = searchParams.pickup
+  const changeValue = searchParams.changeValue
 
   const PAYMENT_METHODS = {
     stripe: {
@@ -107,7 +113,10 @@ export default async function Summary({
       }, 0)
     : 0
 
-  const shippingPrice = parseFloat(shippingCost) || (shipping?.price ?? 0)
+  const shippingPrice =
+    pickup === 'delivery'
+      ? parseFloat(shippingCost) || (shipping?.price ?? 0)
+      : 0
 
   const totalPrice = shipping?.price
     ? productsPrice + shippingPrice
@@ -151,6 +160,7 @@ export default async function Summary({
           reference={searchParams.reference}
           transp={searchParams.transp}
           payment={searchParams.payment}
+          changeValue={changeValue}
         />
       </Card>
 

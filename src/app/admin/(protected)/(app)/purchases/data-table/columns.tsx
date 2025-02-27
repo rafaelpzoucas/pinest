@@ -2,7 +2,7 @@
 
 import { StatusKey } from '@/app/[public_store]/purchases/[id]/status'
 import { Badge } from '@/components/ui/badge'
-import { cn, formatCurrencyBRL, formatDate } from '@/lib/utils'
+import { cn, formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import {
   CustomersType,
   PurchaseItemsType,
@@ -28,7 +28,17 @@ export const columns: ColumnDef<PurchaseType>[] = [
     cell: ({ row }) => {
       const customer = row.getValue('customers') as CustomersType
 
-      return customer.users.name
+      return (
+        <div>
+          <p className="text-muted-foreground">{customer.users.name}</p>
+          <p className="text-xs">
+            {customer &&
+              customer.users &&
+              customer.users.addresses &&
+              formatAddress(customer.users.addresses[0])}
+          </p>
+        </div>
+      )
     },
   },
   {
@@ -75,12 +85,29 @@ export const columns: ColumnDef<PurchaseType>[] = [
     },
   },
   {
+    accessorKey: 'change_value',
+    header: 'Troco',
+    cell: ({ row }) => {
+      const changeValue = row.getValue('change_value') as number
+      const totalAmount = row.getValue('total_amount') as number
+
+      return changeValue ? (
+        formatCurrencyBRL(changeValue - totalAmount)
+      ) : (
+        <p>-</p>
+      )
+    },
+  },
+  {
     accessorKey: 'id',
     header: 'Ações',
     cell: ({ row }) => {
       const currentStatus = row.original.status as string
+      const accepted = row.original.accepted
+
       return (
         <PurchaseOptions
+          accepted={accepted}
           purchaseId={row.getValue('id')}
           currentStatus={currentStatus}
         />
