@@ -85,8 +85,10 @@ export default async function PurchasePage({
               <ProductCard
                 key={item.id}
                 data={item.products}
+                variant="bag_items"
                 variations={purchase.purchase_item_variations}
                 publicStore={params.public_store}
+                observations={item.observations}
               />
             ))}
           </Card>

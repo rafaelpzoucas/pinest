@@ -6,6 +6,7 @@ import { cn, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getStoreByStoreURL } from '../actions'
 import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { readPurchases } from './actions'
@@ -38,6 +39,10 @@ export default async function PurchasesPage({
   )
 
   const connectedAccount = user?.stripe_connected_account
+
+  if (!userData || userError) {
+    return redirect(`/${params.public_store}/sign-in`)
+  }
 
   return (
     <div className="space-y-4">

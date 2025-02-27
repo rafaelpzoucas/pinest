@@ -2,14 +2,20 @@
 
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { createClient } from '@/lib/supabase/client'
 import { PurchaseType } from '@/models/purchase'
-import { Scroll, Search } from 'lucide-react'
-import { useState } from 'react'
+import { Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
 
 export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
+  const supabase = createClient()
+
+  const router = useRouter()
+
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
@@ -65,17 +71,38 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
     setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
   }
 
-  if (purchases && purchases.length === 0) {
-    return (
-      <div
-        className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted
-          mx-auto"
-      >
-        <Scroll className="w-20 h-20" />
-        <p className="text-muted-foreground">Nenhum pedido registrado</p>
-      </div>
-    )
-  }
+  // if (purchases && purchases.length === 0) {
+  //   return (
+  //     <div
+  //       className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted
+  //         mx-auto"
+  //     >
+  //       <Scroll className="w-20 h-20" />
+  //       <p className="text-muted-foreground">Nenhum pedido registrado</p>
+  //     </div>
+  //   )
+  // }
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime-purchases')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'purchases',
+        },
+        () => {
+          router.refresh()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [supabase, router])
 
   return (
     <section className="flex flex-col gap-4 text-sm">

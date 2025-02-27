@@ -51,7 +51,7 @@ export default async function CartPage({
 
             {!userData.user ? (
               <Link
-                href={`/${params.public_store}/sign-in`}
+                href={`/${params.public_store}/sign-in?checkout=true`}
                 className={cn(buttonVariants(), 'w-full')}
               >
                 Finalizar compra

@@ -39,11 +39,15 @@ export async function readPurchases(): Promise<{
       purchase_items (*),
       customers (
         *,
-        users (*)
+        users (
+          *,
+          addresses (*)
+        )
       )
     `,
     )
     .eq('store_id', store?.id)
+    .order('created_at', { ascending: false })
 
   return { purchases, purchasesError }
 }
