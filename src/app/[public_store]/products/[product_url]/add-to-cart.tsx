@@ -9,6 +9,7 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductType, ProductVariationType } from '@/models/product'
 import { useEffect } from 'react'
+import { toast } from 'sonner'
 
 import {
   Form,
@@ -137,6 +138,8 @@ export function AddToCard({
     }
 
     await addToCart(storeURL, newCartProduct)
+
+    toast(`Produto(s) adicionado(s) ao carrinho.`)
 
     form.reset()
   }

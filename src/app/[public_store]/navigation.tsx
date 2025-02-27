@@ -49,7 +49,7 @@ export function PublicStoreNavigation({
   ]
 
   const finishPurchaseLink = !userData.user
-    ? `/${params.public_store}/sign-in`
+    ? `/${params.public_store}/sign-in?checkout=true`
     : `/${params.public_store}/checkout?step=pickup`
 
   const productsPrice = cartProducts

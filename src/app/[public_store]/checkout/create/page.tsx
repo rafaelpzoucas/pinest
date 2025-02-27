@@ -3,7 +3,7 @@ import { CreatePurchaseType } from '@/models/purchase'
 import { CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { createPurchase } from '../@summary/actions'
-import { createStripeCheckout } from '../actions'
+import { createStripeCheckout, handleMoneyPayment } from '../actions'
 
 export default async function CreatePurchase({
   searchParams,
@@ -16,8 +16,11 @@ export default async function CreatePurchase({
     shippingTime: string
     pickup: string
     payment: string
+    change: string
+    changeValue: string
   }
 }) {
+  console.log({ searchParams })
   async function handleCreatePurchase() {
     const newPurchase: CreatePurchaseType = {
       addressId: searchParams.addressId,
@@ -26,6 +29,7 @@ export default async function CreatePurchase({
       totalAmount: parseInt(searchParams.totalAmount),
       shippingPrice: parseFloat(searchParams.shippingPrice),
       shippingTime: parseFloat(searchParams.shippingTime),
+      changeValue: parseFloat(searchParams.changeValue),
     }
 
     const { purchase, purchaseError } = await createPurchase(newPurchase)
@@ -43,7 +47,7 @@ export default async function CreatePurchase({
     }
 
     if (purchase && searchParams.payment === 'money') {
-      // Implement Money integration here
+      await handleMoneyPayment(purchase.id, searchParams.storeName)
     }
   }
 

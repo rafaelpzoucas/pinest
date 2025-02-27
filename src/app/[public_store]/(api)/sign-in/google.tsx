@@ -2,12 +2,16 @@
 
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { useSearchParams } from 'next/navigation'
 import { FaGoogle } from 'react-icons/fa'
 
 export function SignInWithGoogle({ storeName }: { storeName: string }) {
+  const searchParams = useSearchParams()
+  const isCheckout = searchParams.get('checkout')
+
   async function signInWithGoogle() {
     const supabase = createClient()
-    const redirectURL = `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/callback?store-name=${storeName}`
+    const redirectURL = `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/callback?store-name=${storeName}${isCheckout ? '&checkout=true' : ''}`
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

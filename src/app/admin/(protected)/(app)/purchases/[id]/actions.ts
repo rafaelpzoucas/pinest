@@ -53,3 +53,33 @@ export async function updatePurchaseStatus(
 
   revalidatePath('/purchases')
 }
+
+export async function acceptPurchase(purchaseId: string) {
+  const supabase = createClient()
+
+  const { error: updateStatusError } = await supabase
+    .from('purchases')
+    .update({ accepted: true, status: 'preparing' })
+    .eq('id', purchaseId)
+
+  if (updateStatusError) {
+    console.error(updateStatusError)
+  }
+
+  revalidatePath('/purchases')
+}
+
+export async function cancelPurchase(purchaseId: string) {
+  const supabase = createClient()
+
+  const { error: updateStatusError } = await supabase
+    .from('purchases')
+    .update({ accepted: true, status: 'cancelled' })
+    .eq('id', purchaseId)
+
+  if (updateStatusError) {
+    console.error(updateStatusError)
+  }
+
+  revalidatePath('/purchases')
+}
