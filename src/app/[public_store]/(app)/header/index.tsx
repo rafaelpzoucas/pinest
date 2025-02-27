@@ -45,30 +45,32 @@ export async function Header({ storeURL }: { storeURL: string }) {
             </AvatarFallback>
           </Avatar>
 
-          <div className="text-center lg:text-left w-full max-w-72">
-            <h1 className="text-xl capitalize font-bold">{store?.name}</h1>
-            {storeNiche && (
-              <p className="text-xs text-muted-foreground line-clamp-2">
-                {storeNiche.name}
-              </p>
-            )}
+          <div>
+            <div className="text-center lg:text-left w-full max-w-72">
+              <h1 className="text-xl capitalize font-bold">{store?.name}</h1>
+              {storeNiche && (
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {storeNiche.name}
+                </p>
+              )}
 
-            {shipping && shipping.status && (
-              <p className="text-xs mt-2 text-muted-foreground">
-                Entrega: {shipping.delivery_time}min &bull;{' '}
-                {formatCurrencyBRL(shipping.price)}
-              </p>
-            )}
+              {shipping && shipping.status && (
+                <p className="text-xs mt-2 text-muted-foreground">
+                  Entrega: {shipping.delivery_time}min &bull;{' '}
+                  {formatCurrencyBRL(shipping.price)}
+                </p>
+              )}
+            </div>
+
+            <strong className="flex flex-row items-center text-xs">
+              <div
+                className="w-3 h-3 rounded-full mr-2 data-[isopen=true]:bg-emerald-600
+                  data-[isopen=false]:bg-red-600"
+                data-isopen={store?.is_open}
+              ></div>
+              Loja {store?.is_open ? 'aberta' : 'fechada'}
+            </strong>
           </div>
-
-          <strong className="flex flex-row items-center text-xs">
-            <div
-              className="w-3 h-3 rounded-full mr-2 data-[isopen=true]:bg-emerald-600
-                data-[isopen=false]:bg-red-600"
-              data-isopen={store?.is_open}
-            ></div>
-            Loja {store?.is_open ? 'aberta' : 'fechada'}
-          </strong>
         </div>
 
         <div className="hidden lg:block">
