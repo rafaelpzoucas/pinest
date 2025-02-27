@@ -1,6 +1,6 @@
+import { selectCustomerUser } from '@/app/[public_store]/account/actions'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { selectCustomerUser } from '../../account/actions'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
