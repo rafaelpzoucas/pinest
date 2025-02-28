@@ -16,7 +16,7 @@ export function SignInForm() {
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/admin/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/admin/auth/callback`,
       },
     })
 

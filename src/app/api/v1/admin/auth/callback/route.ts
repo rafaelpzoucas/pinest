@@ -4,8 +4,8 @@ import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
-import { readOwner } from '../../(protected)/(app)/actions'
-import { createOwner } from '../../(protected)/onboarding/actions'
+import { readOwner } from '../../../../../admin/(protected)/(app)/actions'
+import { createOwner } from '../../../../../admin/(protected)/onboarding/actions'
 
 async function createStripeCheckoutSession(
   lineItems: {

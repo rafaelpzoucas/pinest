@@ -206,7 +206,7 @@ export async function createStripeCheckout(
 
   const session = await createStripeCheckoutSession(
     lineItems,
-    `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/checkout/success?store_url=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}&pickup=${purchase.type}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/customer/checkout/success?store_url=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}&pickup=${purchase.type}`,
     `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/purchases/${purchaseId}`,
     stripeAccount?.stripe_account_id,
   )

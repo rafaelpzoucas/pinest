@@ -11,7 +11,7 @@ export function SignInWithGoogle({ storeName }: { storeName: string }) {
 
   async function signInWithGoogle() {
     const supabase = createClient()
-    const redirectURL = `${process.env.NEXT_PUBLIC_APP_URL}/${storeName}/callback?store-name=${storeName}${isCheckout ? '&checkout=true' : ''}`
+    const redirectURL = `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/customer/auth/callback?store-name=${storeName}${isCheckout ? '&checkout=true' : ''}`
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

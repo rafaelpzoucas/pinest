@@ -45,7 +45,7 @@ export async function Header({ storeURL }: { storeURL: string }) {
             </AvatarFallback>
           </Avatar>
 
-          <div>
+          <div className="space-y-2">
             <div className="text-center lg:text-left w-full max-w-72">
               <h1 className="text-xl capitalize font-bold">{store?.name}</h1>
               {storeNiche && (
@@ -62,7 +62,7 @@ export async function Header({ storeURL }: { storeURL: string }) {
               )}
             </div>
 
-            <strong className="flex flex-row items-center text-xs">
+            <strong className="flex flex-row items-center text-xs w-fit mx-auto lg:mx-0">
               <div
                 className="w-3 h-3 rounded-full mr-2 data-[isopen=true]:bg-emerald-600
                   data-[isopen=false]:bg-red-600"
