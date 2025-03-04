@@ -30,6 +30,11 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
       status_length: getStatusLengths('pending'),
     },
     {
+      status: 'preparing',
+      title: 'em preparo',
+      status_length: getStatusLengths('preparing'),
+    },
+    {
       status: 'shipped',
       title: 'enviado(s)',
       status_length: getStatusLengths('shipped'),
@@ -117,7 +122,7 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
         />
       </div>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}
@@ -148,7 +153,9 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
       </div>
 
       <div className="hidden lg:flex w-full">
-        {purchases && <DataTable columns={columns} data={purchases} />}
+        {filteredPurchases && (
+          <DataTable columns={columns} data={filteredPurchases} />
+        )}
       </div>
     </section>
   )
