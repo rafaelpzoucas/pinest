@@ -2,7 +2,7 @@
 
 import { Button, buttonVariants } from '@/components/ui/button'
 
-import { Printer, SquareArrowOutUpRight } from 'lucide-react'
+import { Eye, Printer, SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
@@ -19,12 +19,14 @@ export function PurchaseOptions({
   return (
     <>
       <div className="hidden lg:flex flex-row justify-end">
-        <Link
-          href={`purchases/${purchaseId}`}
-          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-        >
-          <SquareArrowOutUpRight className="w-4 h-4" />
-        </Link>
+        {accepted && (
+          <Link
+            href={`purchases/${purchaseId}`}
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+          >
+            <Eye className="w-5 h-5" />
+          </Link>
+        )}
 
         <UpdateStatusButton
           accepted={accepted}
@@ -38,13 +40,15 @@ export function PurchaseOptions({
           purchaseId={purchaseId}
         />
 
-        <Link
-          href={`purchases/${purchaseId}/print`}
-          target="_blank"
-          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-        >
-          <Printer className="w-4 h-4" />
-        </Link>
+        {accepted && (
+          <Link
+            href={`purchases/${purchaseId}/print`}
+            target="_blank"
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+          >
+            <Printer className="w-5 h-5" />
+          </Link>
+        )}
       </div>
     </>
   )

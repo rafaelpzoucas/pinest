@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { statuses } from '@/models/statuses'
-import { CircleCheckBig, FastForward } from 'lucide-react'
+import { Check, CircleCheckBig, FastForward } from 'lucide-react'
 import { acceptPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
@@ -59,9 +59,9 @@ export function UpdateStatusButton({
             }
           >
             {!accepted ? (
-              <CircleCheckBig className="w-4 h-4" />
+              <Check className="w-5 h-5" />
             ) : (
-              <FastForward className="w-4 h-4" />
+              <FastForward className="w-5 h-5" />
             )}
           </Button>
         </TooltipTrigger>
