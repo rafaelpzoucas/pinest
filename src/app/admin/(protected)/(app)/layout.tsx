@@ -1,6 +1,7 @@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { Metadata } from 'next'
 import { Navigation } from './navigation/index'
+import { SoundNotification } from './sound-notification'
 
 export const metadata: Metadata = {
   title: 'Pinest | Admin',
@@ -16,6 +17,8 @@ export default async function ProtectedLayout({
   return (
     <main className="md:flex flex-row">
       <Navigation />
+
+      <SoundNotification />
 
       <ScrollArea className="w-full h-[calc(100vh_-_73px)] lg:px-5">
         <main className="flex flex-col items-center w-full">

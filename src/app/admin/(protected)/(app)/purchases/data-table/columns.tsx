@@ -27,15 +27,18 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Cliente',
     cell: ({ row }) => {
       const customer = row.getValue('customers') as CustomersType
+      const type = row.original.type
 
       return (
         <div>
           <p className="text-muted-foreground">{customer.users.name}</p>
           <p className="text-xs">
             {customer &&
-              customer.users &&
-              customer.users.addresses &&
-              formatAddress(customer.users.addresses[0])}
+            customer.users &&
+            customer.users.addresses &&
+            type === 'delivery'
+              ? formatAddress(customer.users.addresses[0])
+              : 'Retirada na loja'}
           </p>
         </div>
       )
