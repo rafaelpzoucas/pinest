@@ -32,21 +32,15 @@ const paymentOptions = [
   {
     id: 1,
     title: 'Cartão',
-    provider: 'stripe',
+    provider: 'card',
     icon: CreditCard,
   },
-  // {
-  //   id: 2,
-  //   title: 'PIX',
-  //   provider: 'mercadopago',
-  //   icon: CreditCard,
-  // },
-  // {
-  //   id: 3,
-  //   title: 'Dinheiro',
-  //   provider: 'money',
-  //   icon: Banknote,
-  // },
+  {
+    id: 2,
+    title: 'PIX',
+    provider: 'pix',
+    icon: CreditCard,
+  },
 ]
 
 const FormSchema = z.object({

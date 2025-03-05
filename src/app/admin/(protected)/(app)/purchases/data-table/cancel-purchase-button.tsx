@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { statuses } from '@/models/statuses'
-import { XCircle } from 'lucide-react'
+import { X, XCircle } from 'lucide-react'
 import { cancelPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
@@ -49,7 +49,7 @@ export function CancelPurchaseButton({
               )
             }
           >
-            <XCircle className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>

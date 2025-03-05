@@ -62,12 +62,6 @@ export function RealtimeStatus({
           ? 'Aguardando a confirmação da loja.'
           : currentStatus.next_step}
       </strong>
-
-      {purchase.status === 'pending' && (
-        <form action={createStripeCheckout} className="flex w-full">
-          <Button className="w-full">Continuar para pagamento</Button>
-        </form>
-      )}
     </Card>
   )
 }

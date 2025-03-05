@@ -17,7 +17,7 @@ export function MobileNav({ links }: { links: LinkType[] }) {
         !hide && 'translate-y-0 duration-200',
         hide && 'translate-y-16 duration-200',
         'fixed z-50 bottom-0 left-0 flex items-center justify-center p-2 w-full',
-        'lg:hidden',
+        'lg:hidden print:hidden',
       )}
     >
       <Card

@@ -90,10 +90,10 @@ export default async function OrderPage({
               </div>
             </header>
 
-            <Tracking
+            {/* <Tracking
               code={purchase.tracking_code}
               storeId={purchase.store_id}
-            />
+            /> */}
           </Card>
         </div>
 

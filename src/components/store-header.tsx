@@ -34,13 +34,18 @@ export function Header({
   const params = useParams()
   const pathname = usePathname()
 
-  const callback = searchParams.get('callback')
+  const callback = searchParams.get('callback') as string
 
   const storeUrl = params.public_store as unknown as string
 
+  const CALLBACK_URLS = {
+    home: `${storeUrl}`,
+    purchases: `${storeUrl}/purchases?callback=home`,
+  }
+
   function redirect() {
     if (callback) {
-      router.push(`/${storeUrl}`)
+      router.push(`/${CALLBACK_URLS[callback as keyof typeof CALLBACK_URLS]}`)
     } else {
       router.back()
     }

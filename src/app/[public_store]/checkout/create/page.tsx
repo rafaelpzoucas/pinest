@@ -3,7 +3,7 @@ import { CreatePurchaseType } from '@/models/purchase'
 import { CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { createPurchase } from '../@summary/actions'
-import { createStripeCheckout, handleMoneyPayment } from '../actions'
+import { handlePayment } from '../actions'
 
 export default async function CreatePurchase({
   searchParams,
@@ -25,6 +25,7 @@ export default async function CreatePurchase({
     const newPurchase: CreatePurchaseType = {
       addressId: searchParams.addressId,
       type: searchParams.pickup,
+      payment_type: searchParams.payment,
       storeName: searchParams.storeName,
       totalAmount: parseInt(searchParams.totalAmount),
       shippingPrice: parseFloat(searchParams.shippingPrice),
@@ -38,16 +39,8 @@ export default async function CreatePurchase({
       console.error(purchaseError)
     }
 
-    if (purchase && searchParams.payment === 'stripe') {
-      await createStripeCheckout(searchParams.storeName, purchase.id)
-    }
-
-    if (purchase && searchParams.payment === 'mercadopago') {
-      // Implement Mercado Pago integration here
-    }
-
-    if (purchase && searchParams.payment === 'money') {
-      await handleMoneyPayment(purchase.id, searchParams.storeName)
+    if (purchase) {
+      await handlePayment(purchase.id, searchParams.storeName)
     }
   }
 

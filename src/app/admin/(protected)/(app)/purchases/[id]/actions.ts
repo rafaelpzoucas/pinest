@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function readPurchaseById(purchaseId: string): Promise<{
   purchase: PurchaseType | null

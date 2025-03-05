@@ -134,20 +134,20 @@ async function createStripeCheckoutSession(
   }
 }
 
-export async function handleMoneyPayment(purchaseId: string, storeURL: string) {
+export async function handlePayment(purchaseId: string, storeURL: string) {
   const { purchase } = await readPurchaseItems(purchaseId)
 
   if (!purchase) {
     return
   }
 
-  await updatePurchaseStatus('approved', purchase.id)
+  await updatePurchaseStatus('pending', purchase.id)
 
   await clearCart(storeURL)
 
   revalidatePath(`/`)
 
-  return redirect(`/${storeURL}/purchases/${purchase.id}`)
+  return redirect(`/${storeURL}/purchases/${purchase.id}?callback=purchases`)
 }
 
 export async function createStripeCheckout(

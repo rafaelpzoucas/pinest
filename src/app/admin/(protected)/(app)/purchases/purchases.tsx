@@ -1,6 +1,13 @@
 'use client'
 
-import { Card } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { PurchaseType } from '@/models/purchase'
@@ -10,6 +17,7 @@ import { useEffect, useState } from 'react'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
+import { Button } from '@/components/ui/button'
 
 export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
   const supabase = createClient()
@@ -28,6 +36,11 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
       status: 'pending',
       title: 'pendente(s)',
       status_length: getStatusLengths('pending'),
+    },
+    {
+      status: 'preparing',
+      title: 'em preparo',
+      status_length: getStatusLengths('preparing'),
     },
     {
       status: 'shipped',
@@ -106,6 +119,29 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
 
   return (
     <section className="flex flex-col gap-4 text-sm">
+      {/* <section className="space-y-4">
+        <h1 className="text-lg font-bold">Pendentes</h1>
+
+        <div className="grid grid-cols-4 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Rafael</CardTitle>
+              <CardDescription>Rua Angelo Faganhole, 132</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>1 un. X-Bacon</p>
+              <p>1 un. X-Alcatra</p>
+            </CardContent>
+            <CardFooter className="space-x-4">
+              <Button className="w-full">Aceitar</Button>
+              <Button variant="outline" className="w-full">
+                Recusar
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </section> */}
+
       <div className="relative">
         <Search className="absolute top-2 left-3 w-5 h-5 text-muted-foreground" />
 
@@ -117,7 +153,7 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
         />
       </div>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}
@@ -148,7 +184,9 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
       </div>
 
       <div className="hidden lg:flex w-full">
-        {purchases && <DataTable columns={columns} data={purchases} />}
+        {filteredPurchases && (
+          <DataTable columns={columns} data={filteredPurchases} />
+        )}
       </div>
     </section>
   )

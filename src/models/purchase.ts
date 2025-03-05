@@ -13,6 +13,7 @@ export type CreatePurchaseType = {
   shippingPrice: number
   shippingTime: number
   type: string
+  payment_type: string
   changeValue: number | null
 }
 
@@ -46,6 +47,7 @@ export type PurchaseType = {
   shipping_price: number
   delivery_time: number
   type: string
+  payment_type: string
   tracking_code: string
   accepted: boolean
   change_value: number

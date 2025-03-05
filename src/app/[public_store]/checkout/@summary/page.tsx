@@ -84,7 +84,7 @@ export default async function Summary({
   const changeValue = searchParams.changeValue
 
   const PAYMENT_METHODS = {
-    stripe: {
+    card: {
       label: 'com cartão',
       description: 'Você poderá pagar com um cartão de crédito ou débito.',
     },
@@ -92,9 +92,9 @@ export default async function Summary({
       label: 'no momento da entrega',
       description: `Você deverá efetuar o pagamento no momento da ${pickup === 'delivery' ? 'entrega.' : 'retirada.'}`,
     },
-    mercadopago: {
+    pix: {
       label: 'com PIX',
-      description: 'Os pagamentos com PIX são aprovados na hora.',
+      description: 'A chave PIX da loja é: 456789123456',
     },
   }
 
