@@ -69,4 +69,14 @@
   body {
     @apply bg-background text-foreground tracking-wider;
   }
+  
+  @page {
+    margin: 0;
+  }
+
+  @media print {
+    body {
+      @apply m-0 p-0 text-black font-semibold;
+    }
+  }
 }

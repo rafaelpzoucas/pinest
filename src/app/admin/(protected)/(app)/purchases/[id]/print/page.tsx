@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
-import { readPurchaseById } from '../actions'
-import { Printer } from './printer'
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { format } from 'date-fns'
+import { CornerDownRight } from 'lucide-react'
+import { readPurchaseById } from '../actions'
+import { Printer } from './printer'
 
 export default async function PrintPurchase({
   params,
@@ -23,9 +23,9 @@ export default async function PrintPurchase({
   }
 
   const PAYMENT_TYPES = {
-    card: 'Máquina de cartão',
+    card: 'Cartão',
     pix: 'PIX',
-    cash: `Pagamento em dinheiro ${purchase?.change_value ? ', levar ' + purchase.change_value + ' de troco' : ''}` as string,
+    cash: 'Dinheiro',
   }
 
   const purchaseItemsPrice =
@@ -40,8 +40,8 @@ export default async function PrintPurchase({
 
   return (
     <div
-      className="hidden print:flex flex-col items-center justify-center text-base text-black
-        print-container"
+      className="hidden print:flex flex-col items-center justify-center text-[0.625rem]
+        text-black print-container m-4"
     >
       <h1 className="uppercase">Pedido #{displayId}</h1>
 
@@ -74,13 +74,24 @@ export default async function PrintPurchase({
           {purchase.purchase_items.map((item) => (
             <li
               key={item.id}
-              className="flex flex-row items-start justify-between border-b border-dotted last:border-0
-                py-2 print-section"
+              className="border-b border-dotted last:border-0 py-2 print-section"
             >
-              <span>
-                {item.quantity} un. {item.products.name}
-              </span>
-              <span>{formatCurrencyBRL(item.product_price)}</span>
+              <div className="flex flex-row items-start justify-between">
+                <span>
+                  {item.quantity} un. {item.products.name}
+                </span>
+                <span>{formatCurrencyBRL(item.product_price)}</span>
+              </div>
+              <div className="flex flex-row">
+                <CornerDownRight className="w-5 h-5 mr-2" />
+
+                <div className="flex flex-row items-center justify-between w-full">
+                  <span>Mussarela</span>
+                  <span>{formatCurrencyBRL(5)}</span>
+                </div>
+              </div>
+
+              {item.observations && <strong>** {item.observations}</strong>}
             </li>
           ))}
         </ul>
@@ -110,7 +121,14 @@ export default async function PrintPurchase({
         className="w-full border-b border-dashed last:border-0 py-4 space-y-1 print-section
           break-inside-avoid"
       >
-        <h3 className="mx-auto uppercase">Forma de pagamento</h3>
+        <div className="flex flex-row items-center justify-between">
+          <h3 className="uppercase">Pagamento</h3>
+
+          <strong className="uppercase border px-2 py-1">
+            {PAYMENT_TYPES[purchase.payment_type as keyof typeof PAYMENT_TYPES]}{' '}
+            Dinheiro
+          </strong>
+        </div>
 
         <p className="flex flex-row items-center justify-between">
           <span>
@@ -120,16 +138,13 @@ export default async function PrintPurchase({
           <span>{formatCurrencyBRL(purchase.total_amount)}</span>
         </p>
         {purchase.change_value > 0 && (
-          <p className="flex flex-row items-center justify-between">
+          <p className="flex flex-row items-center justify-between font-bold">
             <span>Troco:</span>{' '}
             <span>
               {formatCurrencyBRL(purchase.change_value - purchase.total_amount)}
             </span>
           </p>
         )}
-        <strong className="uppercase">
-          {PAYMENT_TYPES[purchase.payment_type as keyof typeof PAYMENT_TYPES]}
-        </strong>
       </div>
 
       <Printer />

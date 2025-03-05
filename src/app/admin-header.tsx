@@ -20,7 +20,7 @@ export async function AdminHeader({ title, withBackButton }: HeaderPropsType) {
     .single()
 
   return (
-    <header className="flex items-center w-full">
+    <header className="flex items-center w-full print:hidden">
       <Card
         className="flex flex-row items-center justify-between gap-2 w-full h-[68px] p-2 lg:p-4
           bg-secondary/50"
