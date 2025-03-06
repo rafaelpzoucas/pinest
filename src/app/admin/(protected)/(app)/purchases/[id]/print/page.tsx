@@ -1,6 +1,6 @@
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { format } from 'date-fns'
-import { CornerDownRight } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../actions'
 import { Printer } from './printer'
 
@@ -29,10 +29,18 @@ export default async function PrintPurchase({
   }
 
   const purchaseItemsPrice =
-    purchase?.purchase_items.reduce(
-      (acc, item) => acc + item.product_price * item.quantity,
-      0,
-    ) ?? 0
+    purchase?.purchase_items.reduce((acc, item) => {
+      // Calculando o total do item (produto base)
+      const itemTotal = item.product_price
+
+      // Calculando o total dos extras
+      const extrasTotal = item.extras.reduce((accExtra, extra) => {
+        return accExtra + extra.price * extra.quantity
+      }, 0)
+
+      // Somando o total do item com o total dos extras
+      return (acc + itemTotal + extrasTotal) * item.quantity
+    }, 0) ?? 0
 
   if (!purchase) {
     return null
@@ -71,29 +79,56 @@ export default async function PrintPurchase({
         <h3 className="mx-auto uppercase">Itens do pedido</h3>
 
         <ul>
-          {purchase.purchase_items.map((item) => (
-            <li
-              key={item.id}
-              className="border-b border-dotted last:border-0 py-2 print-section"
-            >
-              <div className="flex flex-row items-start justify-between">
-                <span>
-                  {item.quantity} un. {item.products.name}
-                </span>
-                <span>{formatCurrencyBRL(item.product_price)}</span>
-              </div>
-              <div className="flex flex-row">
-                <CornerDownRight className="w-5 h-5 mr-2" />
+          {purchase.purchase_items.map((item) => {
+            // Calculando o total do item (produto base)
+            const itemTotal = item.product_price
 
-                <div className="flex flex-row items-center justify-between w-full">
-                  <span>Mussarela</span>
-                  <span>{formatCurrencyBRL(5)}</span>
+            // Calculando o total dos extras
+            const extrasTotal = item.extras.reduce((acc, extra) => {
+              return acc + extra.price * extra.quantity
+            }, 0)
+
+            // Somando o total do item com o total dos extras
+            const total = (itemTotal + extrasTotal) * item.quantity
+
+            return (
+              <li
+                key={item.id}
+                className="border-b border-dotted last:border-0 py-2 print-section"
+              >
+                <div className="flex flex-row items-start justify-between">
+                  <span>
+                    {item.quantity} un. {item.products.name}
+                  </span>
+                  <span>{formatCurrencyBRL(item.product_price)}</span>
                 </div>
-              </div>
+                {item.extras.length > 0 &&
+                  item.extras.map((extra) => (
+                    <p className="flex flex-row items-center justify-between line-clamp-2 w-full">
+                      <span className="flex flex-row items-center">
+                        <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
+                        {extra.name}
+                      </span>
+                      <span>
+                        {formatCurrencyBRL(extra.price * extra.quantity)}
+                      </span>
+                    </p>
+                  ))}
 
-              {item.observations && <strong>** {item.observations}</strong>}
-            </li>
-          ))}
+                {item.observations && (
+                  <strong className="uppercase">
+                    obs: {item.observations}
+                  </strong>
+                )}
+
+                <footer className="flex flex-row items-center justify-between">
+                  <p>Total:</p>
+                  <span>{formatCurrencyBRL(total)}</span>{' '}
+                  {/* Exibindo o total calculado */}
+                </footer>
+              </li>
+            )
+          })}
         </ul>
       </div>
 
@@ -111,7 +146,7 @@ export default async function PrintPurchase({
           <span>Taxa de entrega:</span>{' '}
           <span>{formatCurrencyBRL(purchase.shipping_price)}</span>
         </p>
-        <strong className="flex flex-row items-center justify-between">
+        <strong className="flex flex-row items-center justify-between uppercase">
           <span>Total do pedido:</span>{' '}
           <span>{formatCurrencyBRL(purchase.total_amount)}</span>
         </strong>
@@ -125,18 +160,10 @@ export default async function PrintPurchase({
           <h3 className="uppercase">Pagamento</h3>
 
           <strong className="uppercase border px-2 py-1">
-            {PAYMENT_TYPES[purchase.payment_type as keyof typeof PAYMENT_TYPES]}{' '}
-            Dinheiro
+            {PAYMENT_TYPES[purchase.payment_type as keyof typeof PAYMENT_TYPES]}
           </strong>
         </div>
 
-        <p className="flex flex-row items-center justify-between">
-          <span>
-            Cobrar do cliente na{' '}
-            {purchase.type === 'delivery' ? 'entrega' : 'retirada'}:
-          </span>{' '}
-          <span>{formatCurrencyBRL(purchase.total_amount)}</span>
-        </p>
         {purchase.change_value > 0 && (
           <p className="flex flex-row items-center justify-between font-bold">
             <span>Troco:</span>{' '}

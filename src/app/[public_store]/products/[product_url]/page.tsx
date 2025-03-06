@@ -17,7 +17,7 @@ import {
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
 import { readStoreAddress } from '../../checkout/actions'
-import { readProductByURL, readProductVariations } from './actions'
+import { readExtras, readProductByURL, readProductVariations } from './actions'
 import { ProductInfo } from './info'
 
 export default async function ProductPage({
@@ -33,6 +33,7 @@ export default async function ProductPage({
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
   const { storeAddress } = await readStoreAddress(params.public_store)
+  const { data: extras } = await readExtras(params.public_store)
 
   const { cart } = await getCart(params.public_store)
 
@@ -129,6 +130,7 @@ export default async function ProductPage({
               variations={variations}
               storeAddress={storeAddress}
               cartProduct={cartProduct}
+              extras={extras}
             />
           )}
         </div>

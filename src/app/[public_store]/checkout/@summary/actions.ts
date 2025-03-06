@@ -173,6 +173,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
           quantity: item?.quantity,
           product_price: item?.product_price,
           observations: item?.observations,
+          extras: item.extras,
         })),
     )
     .select('*')

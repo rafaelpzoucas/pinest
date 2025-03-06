@@ -26,9 +26,15 @@ export default async function CartPage({
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
-        const priceToAdd = cartProduct.product_price
+        const productTotal = cartProduct.product_price
 
-        return acc + priceToAdd * cartProduct.quantity
+        const extrasTotal =
+          cartProduct.extras?.reduce(
+            (sum, extra) => sum + extra.price * extra.quantity,
+            0,
+          ) || 0
+
+        return (acc + productTotal + extrasTotal) * cartProduct.quantity
       }, 0)
     : 0
 

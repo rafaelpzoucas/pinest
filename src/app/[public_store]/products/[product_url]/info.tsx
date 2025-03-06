@@ -2,6 +2,7 @@
 
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
+import { ExtraType } from '@/models/extras'
 import { ProductType, ProductVariationType } from '@/models/product'
 import { AddressType } from '@/models/user'
 import { useProduct } from '@/stores/productStore'
@@ -15,6 +16,7 @@ export function ProductInfo({
   storeURL,
   storeAddress,
   cartProduct,
+  extras,
 }: {
   isOpen?: boolean
   product: ProductType
@@ -22,6 +24,7 @@ export function ProductInfo({
   storeURL: string
   storeAddress: AddressType
   cartProduct?: CartProductType
+  extras: ExtraType[] | null
 }) {
   const isPromotional = product?.promotional_price
   const { productPrice } = useProduct()
@@ -55,6 +58,7 @@ export function ProductInfo({
         <h1 className="text-lg lg:text-xl capitalize font-bold">
           {product.name}
         </h1>
+        <p className="text-sm text-muted-foreground">{product.description}</p>
       </div>
 
       <AddToCard
@@ -63,6 +67,7 @@ export function ProductInfo({
         product={product}
         variations={variations}
         cartProduct={cartProduct}
+        extras={extras}
       />
 
       {productHasDimensions && (
@@ -72,8 +77,6 @@ export function ProductInfo({
           product={product}
         />
       )}
-
-      <p className="text-sm text-muted-foreground">{product.description}</p>
     </section>
   )
 }

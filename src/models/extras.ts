@@ -3,5 +3,6 @@ export type ExtraType = {
   id: string
   name: string
   price: number
+  quantity: number
   store_id: string
 }
