@@ -217,7 +217,7 @@ export function AddToCard({
 
   useEffect(() => {
     setSelectedExtras(getMergedExtras())
-  }, [extras, currentExtras])
+  }, [cartProduct])
 
   if (product.stock > 0) {
     return (

@@ -25,6 +25,7 @@ import { CartProductType } from '@/models/cart'
 import { ProductVariationType } from '@/models/product'
 import { Edit, Loader2, Plus, Trash } from 'lucide-react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   readCartProductVariations,
@@ -37,6 +38,8 @@ type CartProductPropsType = {
 }
 
 export function CartProduct({ cartProduct }: CartProductPropsType) {
+  const params = useParams()
+
   const [isQttOpen, setIsQttOpen] = useState(false)
   const [amount, setAmount] = useState('')
   const [variations, setVariations] = useState<ProductVariationType[]>([])
@@ -164,7 +167,7 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
             </SelectContent>
           </Select>
           <Link
-            href={`products/${product.product_url}?cart_product_id=${cartProduct.id}`}
+            href={`/${params.public_store}/products/${product.product_url}?cart_product_id=${cartProduct.id}`}
             className={buttonVariants({ variant: 'outline', size: 'icon' })}
           >
             <Edit className="w-4 h-4" />
