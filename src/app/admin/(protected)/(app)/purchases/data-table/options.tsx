@@ -1,8 +1,8 @@
 'use client'
 
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 
-import { Eye, Printer, SquareArrowOutUpRight } from 'lucide-react'
+import { Eye, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'

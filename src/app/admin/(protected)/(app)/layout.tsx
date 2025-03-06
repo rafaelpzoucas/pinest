@@ -20,7 +20,7 @@ export default async function ProtectedLayout({
 
       <SoundNotification />
 
-      <ScrollArea className="w-full h-[calc(100vh_-_73px)] lg:px-5">
+      <ScrollArea className="w-full h-[calc(100vh_-_73px)] lg:px-5 print:p-0">
         <main className="flex flex-col items-center w-full">
           <div className="w-full max-w-7xl pb-16">{children}</div>
         </main>

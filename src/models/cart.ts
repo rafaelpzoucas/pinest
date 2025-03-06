@@ -1,3 +1,4 @@
+import { SelectedExtraType } from '@/app/[public_store]/products/[product_url]/add-to-cart'
 import { ProductType } from './product'
 
 export type CartProductType = {
@@ -11,4 +12,5 @@ export type CartProductType = {
   }[]
   product_price: number
   observations?: string
+  extras?: SelectedExtraType[]
 }

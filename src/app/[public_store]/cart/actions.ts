@@ -74,6 +74,7 @@ async function insertCartProduct(
       product_variations: newItem.product_variations,
       product_price: newItem.product_price,
       observations: newItem.observations,
+      extras: newItem.extras,
     })
     .select()
 
@@ -98,6 +99,7 @@ async function updateCartProduct(
         ? newItem.quantity
         : cartProduct?.quantity + newItem.quantity,
       observations: newItem.observations,
+      extras: newItem.extras,
     })
     .eq('session_id', cartSession)
     .eq('product_id', newItem.product_id)
@@ -106,6 +108,8 @@ async function updateCartProduct(
   if (updatedCartProductError) {
     console.error(updatedCartProductError)
   }
+
+  revalidatePath('/')
 }
 
 export async function getCart(storeUrl: string): Promise<{
@@ -136,6 +140,8 @@ export async function getCart(storeUrl: string): Promise<{
 }
 
 export async function addToCart(storeUrl: string, newItem: CartProductType) {
+  console.log({ newItem })
+
   const cartSession = await getCartSession(storeUrl)
 
   if (!newItem?.id) {

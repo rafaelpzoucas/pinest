@@ -1,5 +1,6 @@
 'use server'
 
+import { readStoreByStoreURL } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
 import { createClient } from '@/lib/supabase/server'
 import { ProductType, ProductVariationType } from '@/models/product'
 import { readStoreByName } from '../../checkout/@summary/actions'
@@ -61,4 +62,27 @@ export async function readProductVariations(
     .eq('product_id', product.id)
 
   return { variations, variationsError }
+}
+
+export async function readExtras(storeURL: string) {
+  const supabase = createClient()
+
+  const { store, readStoreError } = await readStoreByStoreURL(storeURL)
+
+  if (readStoreError) {
+    console.error(readStoreError)
+    throw new Error('Não foi possível encontrar a loja', readStoreError)
+  }
+
+  const { data, error } = await supabase
+    .from('extras')
+    .select('*')
+    .eq('store_id', store?.id)
+
+  if (error) {
+    console.error(error)
+    throw new Error('Não foi possível ler os adicionais.', error)
+  }
+
+  return { data, error }
 }

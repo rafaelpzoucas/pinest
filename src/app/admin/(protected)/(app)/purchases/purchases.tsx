@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { PurchaseType } from '@/models/purchase'
@@ -17,7 +10,6 @@ import { useEffect, useState } from 'react'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
-import { Button } from '@/components/ui/button'
 
 export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
   const supabase = createClient()

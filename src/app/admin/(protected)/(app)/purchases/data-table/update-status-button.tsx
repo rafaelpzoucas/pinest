@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { statuses } from '@/models/statuses'
-import { Check, CircleCheckBig, FastForward } from 'lucide-react'
+import { Check, FastForward } from 'lucide-react'
 import { acceptPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses

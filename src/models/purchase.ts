@@ -1,4 +1,5 @@
 import { CustomerType } from './customer'
+import { ExtraType } from './extras'
 import { ProductType, ProductVariationType } from './product'
 import { AddressType, UserType } from './user'
 
@@ -26,6 +27,7 @@ export type PurchaseItemsType = {
   product_price: number
   products: ProductType
   observations: string
+  extras: ExtraType[]
 }
 
 export type PurchaseItemVariations = {

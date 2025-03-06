@@ -23,7 +23,7 @@ import {
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductVariationType } from '@/models/product'
-import { Edit, Loader2, Trash } from 'lucide-react'
+import { Edit, Loader2, Plus, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import {
@@ -43,6 +43,13 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
   const [isDeleting, setisDeleting] = useState(false)
 
   const product = cartProduct.products
+
+  const totalPrice =
+    cartProduct.product_price +
+    (cartProduct.extras?.reduce(
+      (acc, extra) => acc + extra.price * extra.quantity,
+      0,
+    ) || 0)
 
   function handleUpdateQuantity(quantity: string) {
     if (cartProduct && cartProduct.id) {
@@ -75,15 +82,37 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
   }, [])
 
   return (
-    <div className="flex flex-col gap-2 py-2 border-b last:border-0">
+    <div className="flex flex-col gap-2 py-2 border-b last:border-0 w-full">
       <Link href="">
         <div className="flex flex-row gap-5">
           <div className="max-w-12">
             <ProductCardImage productImages={product.product_images} />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <p className="line-clamp-2 max-w-56">{product.name}</p>
+          <div className="flex flex-col gap-1 w-full">
+            <div className="flex flex-row items-center justify-between">
+              <p className="line-clamp-2 max-w-56">{product.name}</p>
+
+              <span className="text-sm">
+                {formatCurrencyBRL(product.price)}
+              </span>
+            </div>
+
+            {cartProduct.extras &&
+              cartProduct.extras.length > 0 &&
+              cartProduct.extras.map((extra) => (
+                <p
+                  className="flex flex-row items-center justify-between text-xs text-muted-foreground
+                    line-clamp-2 w-full"
+                >
+                  <span className="flex flex-row items-center">
+                    <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{' '}
+                    {extra.name}
+                  </span>
+
+                  <span>{formatCurrencyBRL(extra.price * extra.quantity)}</span>
+                </p>
+              ))}
 
             {cartProduct.observations && (
               <p className="text-muted-foreground text-xs uppercase line-clamp-2">
@@ -180,9 +209,7 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
               cartProduct.product_price > 0 && 'font-light text-xs',
             )}
           >
-            {formatCurrencyBRL(
-              cartProduct.product_price * cartProduct.quantity,
-            )}
+            {formatCurrencyBRL(totalPrice * cartProduct.quantity)}
           </p>
         </div>
       </footer>

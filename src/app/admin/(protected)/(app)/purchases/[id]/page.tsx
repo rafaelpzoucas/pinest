@@ -6,7 +6,6 @@ import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
 import { Printer } from 'lucide-react'
 import { readPurchaseById } from './actions'
-import { Tracking } from './tracking'
 import { UpdateStatusButton } from './update-status-button'
 
 type StatusKey = keyof typeof statuses

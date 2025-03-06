@@ -2,12 +2,12 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
-import { ProductCard } from '@/components/product-card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { ShippingConfigType } from '@/models/shipping'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
 import { getCart } from '../../cart/actions'
+import { CartProduct } from '../../cart/cart-product'
 import { readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
 
@@ -107,9 +107,15 @@ export default async function Summary({
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
-        const priceToAdd = cartProduct.product_price
+        const productTotal = cartProduct.product_price
 
-        return acc + priceToAdd * cartProduct.quantity
+        const extrasTotal =
+          cartProduct.extras?.reduce(
+            (sum, extra) => sum + extra.price * extra.quantity,
+            0,
+          ) || 0
+
+        return (acc + productTotal + extrasTotal) * cartProduct.quantity
       }, 0)
     : 0
 
@@ -242,17 +248,7 @@ export default async function Summary({
       </section> */}
 
       <section className="flex flex-col items-start gap-2 py-6">
-        {cart &&
-          cart.map((item) => (
-            <ProductCard
-              key={item.id}
-              data={item.products}
-              publicStore={params.public_store}
-              variant={'bag_items'}
-              className="w-full"
-              observations={item.observations}
-            />
-          ))}
+        {cart && cart.map((item) => <CartProduct cartProduct={item} />)}
       </section>
     </div>
   )

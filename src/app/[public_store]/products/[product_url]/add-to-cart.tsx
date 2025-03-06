@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductType, ProductVariationType } from '@/models/product'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -20,11 +20,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { ExtraType } from '@/models/extras'
 import { useProduct } from '@/stores/productStore'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { addToCart } from '../../cart/actions'
+import { ExtrasSection } from './extras'
 
 const formSchema = z.object({
   variations: z
@@ -38,12 +40,20 @@ const formSchema = z.object({
   observations: z.string().optional(),
 })
 
+export type SelectedExtraType = {
+  extra_id: string
+  name: string
+  price: number
+  quantity: number
+}
+
 type AddToCardDrawerProps = {
   isOpen?: boolean
   product: ProductType
   variations: ProductVariationType[] | null
   cartProduct?: CartProductType
   storeURL: string
+  extras: ExtraType[] | null
 }
 
 export function AddToCard({
@@ -52,6 +62,7 @@ export function AddToCard({
   variations,
   storeURL,
   cartProduct,
+  extras,
 }: AddToCardDrawerProps) {
   const selectedVariations = cartProduct?.product_variations
 
@@ -71,6 +82,27 @@ export function AddToCard({
   } = useProduct()
 
   const currentAmount = cartProduct?.quantity
+  const currentExtras = cartProduct?.extras || []
+
+  const getMergedExtras = () => {
+    return extras
+      ? extras.map((extra) => {
+          const currentExtra = currentExtras?.find(
+            (e) => e.extra_id === extra.id,
+          )
+
+          return {
+            extra_id: extra.id,
+            name: extra.name,
+            price: extra.price,
+            quantity: currentExtra ? currentExtra.quantity : 0,
+          }
+        })
+      : []
+  }
+
+  const [selectedExtras, setSelectedExtras] =
+    useState<SelectedExtraType[]>(getMergedExtras())
 
   const groupedByAttribute =
     variations &&
@@ -123,7 +155,11 @@ export function AddToCard({
 
   const finalMaxPrice = maxPrice === -Infinity ? null : maxPrice
 
-  const totalPrice = productPrice * amount
+  const totalPrice =
+    productPrice +
+    selectedExtras.reduce((total, extra) => {
+      return total + extra.price * extra.quantity // Corrige a multiplicação de preço e quantidade do extra
+    }, 0)
 
   const formState = form.formState
   const isFormSubmitting = formState.isSubmitting
@@ -137,6 +173,7 @@ export function AddToCard({
       product_variations: values.variations ?? [],
       product_price: productPrice,
       observations: values.observations,
+      extras: selectedExtras.filter((item) => item.quantity > 0),
     }
 
     await addToCart(storeURL, newCartProduct)
@@ -144,6 +181,7 @@ export function AddToCard({
     toast(`Produto(s) adicionado(s) ao carrinho.`)
 
     form.reset()
+    setSelectedExtras(getMergedExtras())
   }
 
   useEffect(() => {
@@ -176,6 +214,10 @@ export function AddToCard({
   useEffect(() => {
     setAmount(currentAmount ?? 1)
   }, [product]) // eslint-disable-line
+
+  useEffect(() => {
+    setSelectedExtras(getMergedExtras())
+  }, [extras, currentExtras])
 
   if (product.stock > 0) {
     return (
@@ -281,7 +323,7 @@ export function AddToCard({
                       {cartProduct ? 'Atualizar' : 'Adicionar'}{' '}
                     </span>
                   )}
-                  <span>{formatCurrencyBRL(totalPrice)}</span>
+                  <span>{formatCurrencyBRL(totalPrice * amount)}</span>
                 </Button>
               </div>
             </div>
@@ -302,6 +344,13 @@ export function AddToCard({
                 </FormItem>
               )}
             />
+
+            {extras && extras.length > 0 && (
+              <ExtrasSection
+                extras={extras}
+                selectedExtrasState={[selectedExtras, setSelectedExtras]}
+              />
+            )}
           </form>
         ) : (
           <Card className="flex items-center justify-center p-2 bg-destructive text-destructive-foreground">

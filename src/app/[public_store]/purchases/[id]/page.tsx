@@ -89,6 +89,8 @@ export default async function PurchasePage({
                 variations={purchase.purchase_item_variations}
                 publicStore={params.public_store}
                 observations={item.observations}
+                extras={item.extras}
+                quantity={item.quantity}
               />
             ))}
           </Card>

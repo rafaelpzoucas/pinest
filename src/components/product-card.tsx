@@ -4,9 +4,11 @@ import defaultThumbUrl from '@/../public/default_thumb_url.png'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { PurchaseItemVariations } from '@/models/purchase'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Badge } from './ui/badge'
@@ -31,6 +33,8 @@ export interface ProductCardProps
   variations?: PurchaseItemVariations[]
   publicStore?: string
   observations?: string
+  extras?: ExtraType[]
+  quantity?: number
 }
 
 export function ProductCard({
@@ -40,6 +44,8 @@ export function ProductCard({
   variant,
   publicStore,
   observations,
+  extras,
+  quantity,
 }: ProductCardProps) {
   const isPromotional = data?.promotional_price
 
@@ -81,59 +87,83 @@ export function ProductCard({
         className,
       )}
     >
-      <Card
-        className={cn(
-          'relative min-w-14 w-full aspect-square overflow-hidden border-0',
-        )}
-      >
-        <Image src={thumbURL} fill alt="" className="object-cover" />
-
-        {variant && data.stock === 0 && (
-          <Badge
-            className="absolute z-20 top-2 left-2 bg-destructive/80 backdrop-blur-sm
-              text-destructive-foreground"
-          >
-            Indisponível
-          </Badge>
-        )}
-      </Card>
-
-      <div className={cn('flex flex-col gap-1')}>
-        <div className="leading-4">
-          <p
-            className={cn(
-              'font-bold text-primary',
-              isPromotional &&
-                'font-light text-xs text-muted-foreground line-through',
-            )}
-          >
-            {formatCurrencyBRL(data.price)}
-          </p>
-
-          {data.promotional_price && (
-            <p
-              className={cn(
-                'hidden font-bold text-primary',
-                isPromotional && 'block',
-              )}
-            >
-              {formatCurrencyBRL(data.promotional_price)}
-            </p>
-          )}
-        </div>
-        <p
+      {variant === 'bag_items' ? (
+        <h3 className="text-2xl font-bold">x{quantity}</h3>
+      ) : (
+        <Card
           className={cn(
-            'line-clamp-2 text-sm',
-            variant === 'bag_items' && 'line-clamp-1',
+            'relative min-w-14 w-full aspect-square overflow-hidden border-0',
           )}
         >
-          {data.name}
-        </p>
+          <Image src={thumbURL} fill alt="" className="object-cover" />
+
+          {variant && data.stock === 0 && (
+            <Badge
+              className="absolute z-20 top-2 left-2 bg-destructive/80 backdrop-blur-sm
+                text-destructive-foreground"
+            >
+              Indisponível
+            </Badge>
+          )}
+        </Card>
+      )}
+
+      <div className={cn('flex flex-col gap-1')}>
+        <div className="flex flex-row items-center justify-between">
+          <p
+            className={cn(
+              'line-clamp-2 text-sm',
+              variant === 'bag_items' && 'line-clamp-1',
+            )}
+          >
+            {data.name}
+          </p>
+          <div className="leading-4">
+            <p
+              className={cn(
+                'font-bold text-primary',
+                isPromotional &&
+                  'font-light text-xs text-muted-foreground line-through',
+              )}
+            >
+              {formatCurrencyBRL(data.price)}
+            </p>
+
+            {data.promotional_price && (
+              <p
+                className={cn(
+                  'hidden font-bold text-primary',
+                  isPromotional && 'block',
+                )}
+              >
+                {formatCurrencyBRL(data.promotional_price)}
+              </p>
+            )}
+          </div>
+        </div>
+
         {variant !== 'bag_items' && (
           <p className="line-clamp-3 text-muted-foreground text-xs">
             {data.description}
           </p>
         )}
+
+        {extras &&
+          extras.length > 0 &&
+          extras.map((extra) => (
+            <p
+              className="flex flex-row items-center justify-between text-xs text-muted-foreground
+                line-clamp-2 w-full"
+            >
+              <span className="flex flex-row items-center">
+                <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{' '}
+                {extra.name}
+              </span>
+
+              <span>{formatCurrencyBRL(extra.price * extra.quantity)}</span>
+            </p>
+          ))}
+
         {observations && (
           <p className="text-xs text-muted-foreground uppercase line-clamp-2">
             obs: {observations}{' '}

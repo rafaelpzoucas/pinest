@@ -132,6 +132,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     shipping_price: type !== 'pickup' ? newPurchase.shippingPrice : 0,
     delivery_time: type === 'delivery' ? newPurchase.shippingTime : null,
     type,
+    payment_type: newPurchase.payment_type,
     change_value: newPurchase.changeValue,
   }
 
@@ -172,6 +173,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
           quantity: item?.quantity,
           product_price: item?.product_price,
           observations: item?.observations,
+          extras: item.extras,
         })),
     )
     .select('*')
