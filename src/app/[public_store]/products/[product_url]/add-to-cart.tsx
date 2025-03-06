@@ -345,7 +345,7 @@ export function AddToCard({
               )}
             />
 
-            {extras && extras.length > 0 && (
+            {product.allows_extras && extras && extras.length > 0 && (
               <ExtrasSection
                 extras={extras}
                 selectedExtrasState={[selectedExtras, setSelectedExtras]}

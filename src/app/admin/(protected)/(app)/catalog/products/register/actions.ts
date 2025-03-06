@@ -56,6 +56,7 @@ export async function createProduct(
       pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
       store_id: store?.id,
       product_url: values.name && generateSlug(values.name.trim()),
+      allows_extras: values.allows_extras,
     })
     .select()
     .single()
@@ -106,6 +107,7 @@ export async function updateProduct(
         convertStringToNumber(values.promotional_price),
       pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
       product_url: values.name && generateSlug(values.name.trim()),
+      allows_extras: values.allows_extras,
     })
     .eq('id', id)
     .select()
