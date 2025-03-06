@@ -109,7 +109,13 @@ export function ProductCard({
       )}
 
       <div className={cn('flex flex-col gap-1')}>
-        <div className="flex flex-row items-center justify-between">
+        <div
+          className={cn(
+            variant === 'bag_items'
+              ? 'flex flex-row items-center justify-between'
+              : 'flex flex-col-reverse gap-1',
+          )}
+        >
           <p
             className={cn(
               'line-clamp-2 text-sm',
