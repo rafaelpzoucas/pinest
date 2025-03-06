@@ -40,6 +40,7 @@ export type ProductType = {
   category_id: string
   amount_sold: number
   sku: string
+  allows_extras: boolean
   pkg_weight: number
   pkg_length: number
   pkg_width: number

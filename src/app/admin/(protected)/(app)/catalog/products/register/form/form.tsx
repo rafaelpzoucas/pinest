@@ -5,7 +5,15 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form'
+import { Switch } from '@/components/ui/switch'
 import { CategoryType } from '@/models/category'
 import {
   ProductImageType,
@@ -20,11 +28,9 @@ import { toast } from 'sonner'
 import { createProduct, deleteProductImage, updateProduct } from '../actions'
 import { readProductImages, uploadImages } from '../client-actions'
 import { createProductVariations } from './actions'
-import { Dimensions } from './dimensions'
 import { FileType } from './file-uploader'
 import { ProductImages } from './product-images'
 import { ProductInfo } from './product-info'
-import { Variations } from './variations'
 
 export const newProductFormSchema = z.object({
   category_id: z.string().min(1),
@@ -34,6 +40,7 @@ export const newProductFormSchema = z.object({
   promotional_price: z.string().optional(),
   stock: z.string().optional(),
   sku: z.string().optional(),
+  allows_extras: z.boolean().optional(),
   pkg_weight: z.string().optional(),
   pkg_length: z.string().optional(),
   pkg_width: z.string().optional(),
@@ -91,6 +98,7 @@ export function ProductForm({
       stock: product?.stock?.toString() ?? undefined,
       category_id: product?.category_id ?? undefined,
       sku: product?.sku ?? undefined,
+      allows_extras: product?.allows_extras ?? false,
       pkg_weight: product?.pkg_weight?.toString() ?? undefined,
       pkg_length: product?.pkg_length?.toString() ?? undefined,
       pkg_width: product?.pkg_width?.toString() ?? undefined,
@@ -220,12 +228,33 @@ export function ProductForm({
 
           <ProductInfo form={form} categories={categories} />
 
-          <Variations
-            variations={variationsForm}
-            setVariations={setVariationsForm}
+          <FormField
+            control={form.control}
+            name="allows_extras"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Permitir adicionais</FormLabel>
+                  <FormDescription>
+                    Permite que o cliente possa escolher produtos adicionais.
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
 
-          <Dimensions form={form} />
+          {/* <Variations
+            variations={variationsForm}
+            setVariations={setVariationsForm}
+          /> */}
+
+          {/* <Dimensions form={form} /> */}
 
           <footer className="fixed bottom-0 left-0 right-0 flex p-4">
             <Button
