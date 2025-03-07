@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { convertStringToNumber } from '@/lib/utils'
+import { stringToNumber } from '@/lib/utils'
 import { ShippingConfigType } from '@/models/shipping'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -44,7 +44,7 @@ export async function createOwnShipping(
       .insert({
         ...values,
         delivery_time: parseInt(values.delivery_time),
-        price: values.price ? convertStringToNumber(values.price) : 0,
+        price: values.price ? stringToNumber(values.price) : 0,
         store_id: store?.id,
       })
       .select()
@@ -70,7 +70,7 @@ export async function updateOwnShipping(
       .update({
         ...values,
         delivery_time: parseInt(values.delivery_time),
-        price: values.price ? convertStringToNumber(values.price) : 0,
+        price: values.price ? stringToNumber(values.price) : 0,
       })
       .eq('store_id', store?.id)
       .select()

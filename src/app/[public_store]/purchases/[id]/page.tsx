@@ -60,16 +60,20 @@ export default async function PurchasePage({
             </p>
           </Card>
 
-          {shippingPrice && address ? (
+          {purchase.type === 'delivery' && (
             <Card className="p-4">
               <p>
                 <span className="text-muted-foreground">
                   {currentStatus.delivery_address} na
                 </span>{' '}
-                <strong>{formatAddress(address)}</strong>
+                <strong>
+                  {formatAddress(address ?? purchase.guest_data.address)}
+                </strong>
               </p>
             </Card>
-          ) : (
+          )}
+
+          {purchase.type === 'pickup' && (
             <Card className="p-4">
               <p>
                 <span className="text-muted-foreground">

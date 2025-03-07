@@ -10,6 +10,7 @@ import { getCart } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
 import { readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
+import { Delivery } from './delivery'
 
 function CheckoutButton({
   totalAmount,
@@ -88,7 +89,7 @@ export default async function Summary({
       label: 'com cartão',
       description: 'Você poderá pagar com um cartão de crédito ou débito.',
     },
-    money: {
+    cash: {
       label: 'no momento da entrega',
       description: `Você deverá efetuar o pagamento no momento da ${pickup === 'delivery' ? 'entrega.' : 'retirada.'}`,
     },
@@ -171,23 +172,7 @@ export default async function Summary({
       </Card>
 
       {searchParams.pickup !== 'pickup' && (
-        <section className="flex flex-col items-center gap-2 text-center border-b py-6">
-          <MapPin />
-          <p>
-            {address?.street}, {address?.number}
-          </p>
-          <span className="text-xs text-muted-foreground">
-            CEP {address?.zip_code} - {address?.neighborhood} - {address?.city}/
-            {address?.state}
-          </span>
-
-          <Link
-            href={`/${params.public_store}/checkout?step=pickup`}
-            className={cn(buttonVariants({ variant: 'link' }))}
-          >
-            Editar ou escolher outro
-          </Link>
-        </section>
+        <Delivery customerAddress={address} />
       )}
 
       {searchParams.pickup === 'pickup' && (
@@ -216,9 +201,9 @@ export default async function Summary({
       )}
 
       <section className="flex flex-col items-center gap-2 text-center border-b py-6">
-        {payment === 'stripe' && <CreditCard />}
-        {payment === 'money' && <Banknote />}
-        {payment === 'mercadopago' && <DollarSign />}
+        {payment === 'card' && <CreditCard />}
+        {payment === 'cash' && <Banknote />}
+        {payment === 'pix' && <DollarSign />}
         <p>
           Você pagará {formatCurrencyBRL(totalPrice)}{' '}
           {PAYMENT_METHODS[paymentKey].label}

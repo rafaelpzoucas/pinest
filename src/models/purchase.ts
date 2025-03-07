@@ -1,7 +1,7 @@
 import { CustomerType } from './customer'
 import { ExtraType } from './extras'
 import { ProductType, ProductVariationType } from './product'
-import { AddressType, UserType } from './user'
+import { AddressType, GuestType, UserType } from './user'
 
 export interface CustomersType extends CustomerType {
   users: UserType
@@ -10,7 +10,7 @@ export interface CustomersType extends CustomerType {
 export type CreatePurchaseType = {
   totalAmount: number
   storeName: string
-  addressId: string
+  addressId?: string | null
   shippingPrice: number
   shippingTime: number
   type: string
@@ -57,4 +57,6 @@ export type PurchaseType = {
   purchase_item_variations: PurchaseItemVariations[]
   addresses: AddressType
   customers: CustomersType
+  guest_data: GuestType
+  discount: number
 }

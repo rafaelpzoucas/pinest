@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 
 export async function readPurchaseById(purchaseId: string): Promise<{
   purchase: PurchaseType | null
@@ -83,4 +82,19 @@ export async function cancelPurchase(purchaseId: string) {
   }
 
   revalidatePath('/purchases')
+}
+
+export async function updateDiscount(purchaseId: string, discount: number) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('purchases')
+    .update({ discount })
+    .eq('id', purchaseId)
+
+  if (error) {
+    console.error('Erro ao atualizar o desconto: ', error)
+  }
+
+  revalidatePath('/admin/purchases')
 }

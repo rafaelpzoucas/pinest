@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { convertStringToNumber, generateSlug } from '@/lib/utils'
+import { generateSlug, stringToNumber } from '@/lib/utils'
 import { ProductType } from '@/models/product'
 import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
@@ -49,11 +49,10 @@ export async function createProduct(
       ...values,
       name: values.name?.trim(),
       description: values.description?.trim(),
-      price: values.price && convertStringToNumber(values.price),
+      price: values.price && stringToNumber(values.price),
       promotional_price:
-        values.promotional_price &&
-        convertStringToNumber(values.promotional_price),
-      pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
+        values.promotional_price && stringToNumber(values.promotional_price),
+      pkg_weight: values.pkg_weight && stringToNumber(values.pkg_weight),
       store_id: store?.id,
       product_url: values.name && generateSlug(values.name.trim()),
       allows_extras: values.allows_extras,
@@ -101,11 +100,10 @@ export async function updateProduct(
       ...values,
       name: values.name?.trim(),
       description: values.description?.trim(),
-      price: values.price && convertStringToNumber(values.price),
+      price: values.price && stringToNumber(values.price),
       promotional_price:
-        values.promotional_price &&
-        convertStringToNumber(values.promotional_price),
-      pkg_weight: values.pkg_weight && convertStringToNumber(values.pkg_weight),
+        values.promotional_price && stringToNumber(values.promotional_price),
+      pkg_weight: values.pkg_weight && stringToNumber(values.pkg_weight),
       product_url: values.name && generateSlug(values.name.trim()),
       allows_extras: values.allows_extras,
     })

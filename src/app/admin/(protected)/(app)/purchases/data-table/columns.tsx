@@ -9,6 +9,7 @@ import {
   PurchaseType,
 } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
+import { GuestType } from '@/models/user'
 import { ColumnDef } from '@tanstack/react-table'
 import { PurchaseOptions } from './options'
 
@@ -27,17 +28,22 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Cliente',
     cell: ({ row }) => {
       const customer = row.getValue('customers') as CustomersType
+      const guest = row.original.guest_data as GuestType
       const type = row.original.type
+      const customerAddress =
+        customer &&
+        customer.users &&
+        customer.users.addresses &&
+        customer.users.addresses[0]
 
       return (
-        <div>
-          <p className="text-muted-foreground">{customer.users.name}</p>
-          <p className="text-xs">
-            {customer &&
-            customer.users &&
-            customer.users.addresses &&
-            type === 'delivery'
-              ? formatAddress(customer.users.addresses[0])
+        <div className="max-w-[280px]">
+          <p className="capitalize">
+            {(customer?.users.name ?? guest.name).toLowerCase()}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {type === 'delivery'
+              ? formatAddress(customerAddress ?? guest.address)
               : 'Retirada na loja'}
           </p>
         </div>
@@ -66,28 +72,6 @@ export const columns: ColumnDef<PurchaseType>[] = [
     },
   },
   {
-    accessorKey: 'total_amount',
-    header: 'Valor',
-    cell: ({ row }) => {
-      const totalAmount = row.getValue('total_amount') as number
-
-      return formatCurrencyBRL(totalAmount)
-    },
-  },
-  {
-    accessorKey: 'shipping_price',
-    header: 'Frete',
-    cell: ({ row }) => {
-      const shippingPrice = row.getValue('shipping_price') as number
-
-      return shippingPrice > 0 ? (
-        formatCurrencyBRL(shippingPrice)
-      ) : (
-        <p>Grátis</p>
-      )
-    },
-  },
-  {
     accessorKey: 'change_value',
     header: 'Troco',
     cell: ({ row }) => {
@@ -102,17 +86,47 @@ export const columns: ColumnDef<PurchaseType>[] = [
     },
   },
   {
+    accessorKey: 'discount',
+    header: 'Desconto',
+    cell: ({ row }) => {
+      const discount = row.getValue('discount') as number
+
+      return discount ? formatCurrencyBRL(discount) : <p>-</p>
+    },
+  },
+  {
+    accessorKey: 'total_amount',
+    header: 'Total',
+    cell: ({ row }) => {
+      const totalAmount = row.getValue('total_amount') as number
+      const discount = row.original.discount ?? 0
+
+      return (
+        <div>
+          {discount > 0 && (
+            <span className="line-through text-xs text-muted-foreground">
+              {formatCurrencyBRL(totalAmount)}
+            </span>
+          )}
+          <p>{formatCurrencyBRL(totalAmount - discount)}</p>
+        </div>
+      )
+    },
+  },
+  {
     accessorKey: 'id',
     header: 'Ações',
     cell: ({ row }) => {
       const currentStatus = row.original.status as string
       const accepted = row.original.accepted
+      const discount = row.original.discount
 
       return (
         <PurchaseOptions
           accepted={accepted}
           purchaseId={row.getValue('id')}
           currentStatus={currentStatus}
+          discount={discount}
         />
       )
     },

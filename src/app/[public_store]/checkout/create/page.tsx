@@ -20,10 +20,10 @@ export default async function CreatePurchase({
     changeValue: string
   }
 }) {
-  console.log({ searchParams })
   async function handleCreatePurchase() {
     const newPurchase: CreatePurchaseType = {
-      addressId: searchParams.addressId,
+      addressId:
+        searchParams.addressId === 'guest' ? null : searchParams.addressId,
       type: searchParams.pickup,
       payment_type: searchParams.payment,
       storeName: searchParams.storeName,

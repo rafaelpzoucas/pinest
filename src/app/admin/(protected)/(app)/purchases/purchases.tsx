@@ -62,10 +62,10 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
   const filteredPurchases =
     purchases &&
     purchases.filter((purchase) => {
-      const { customers, status, id } = purchase
+      const { customers, status, id, guest_data: guestData } = purchase
 
       const matchesSearch =
-        normalizeString(customers.users.name).includes(searchStr) ||
+        normalizeString(customers?.users.name).includes(searchStr) ||
         id.includes(searchStr)
       const matchesStatus = statusFilter ? status === statusFilter : true
 

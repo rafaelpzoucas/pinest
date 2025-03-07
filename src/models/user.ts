@@ -27,3 +27,9 @@ export type UserType = {
   stores: StoreType[]
   addresses?: AddressType[]
 }
+
+export type GuestType = {
+  name: string
+  phone: string
+  address: AddressType
+}
