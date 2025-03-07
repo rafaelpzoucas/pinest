@@ -26,7 +26,7 @@ export function UpdateStatusButton({
     if (!accepted) {
       await acceptPurchase(purchaseId)
 
-      window.open(`/admin/purchases/${purchaseId}/print`, '_blank')
+      window.open(`/admin/purchases/${purchaseId}/receipt`, '_blank')
     }
 
     await updatePurchaseStatus(newStatus, purchaseId)

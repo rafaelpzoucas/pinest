@@ -1,10 +1,5 @@
 'use client'
 
-import { z } from 'zod'
-
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -19,11 +14,15 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { AddressType } from '@/models/user'
 import { supabaseErrors } from '@/services/supabase-errors'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { parseCookies, setCookie } from 'nookies'
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { createCustomerAddress, updateCustomerAddress } from './actions'
 
 type ViacepType = {
@@ -49,7 +48,13 @@ export const addressFormSchema = z.object({
   complement: z.string().optional(),
 })
 
-export function AddressForm({ address }: { address: AddressType | null }) {
+export function AddressForm({
+  address,
+  user,
+}: {
+  address: AddressType | null
+  user: any | null
+}) {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
@@ -72,8 +77,6 @@ export function AddressForm({ address }: { address: AddressType | null }) {
     },
   })
 
-  const watchZipCode = form.watch('zip_code')
-
   function verifyCEP() {
     const cep = form.watch('zip_code')
 
@@ -89,26 +92,50 @@ export function AddressForm({ address }: { address: AddressType | null }) {
   }
 
   async function onSubmit(values: z.infer<typeof addressFormSchema>) {
-    if (address) {
-      await updateCustomerAddress(values, address.id)
-
-      return router.push(`/${storeName}/checkout?step=pickup`)
-    } else {
-      const { createAddressError } = await createCustomerAddress(values)
-
-      if (createAddressError) {
-        toast(supabaseErrors[createAddressError.code] ?? 'Erro desconhecido')
-        console.error(createAddressError)
-        return null
+    if (user) {
+      if (address) {
+        await updateCustomerAddress(values, address.id)
+      } else {
+        const { createAddressError } = await createCustomerAddress(values)
+        if (createAddressError) {
+          toast(supabaseErrors[createAddressError.code] ?? 'Erro desconhecido')
+          console.error(createAddressError)
+          return null
+        }
       }
-
-      return router.push(`/${storeName}/checkout?step=pickup`)
+    } else {
+      const guestInfo = parseCookies().guest_data
+      const updatedGuestInfo = {
+        ...(guestInfo ? JSON.parse(guestInfo) : {}),
+        address: values,
+      }
+      setCookie(null, 'guest_data', JSON.stringify(updatedGuestInfo), {
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60,
+      })
     }
+    return router.push(`/${storeName}/checkout?step=pickup`)
   }
 
   useEffect(() => {
-    setCurrentAddress(watchZipCode === address?.zip_code)
-  }, [watchZipCode])
+    if (!address) {
+      const guestInfo = parseCookies().guest_data
+
+      if (guestInfo) {
+        const parsedGuestInfo = JSON.parse(guestInfo)
+        if (parsedGuestInfo.address) {
+          setCurrentAddress(parsedGuestInfo.address)
+          form.setValue('zip_code', parsedGuestInfo.address.zip_code)
+          form.setValue('number', parsedGuestInfo.address.number)
+          form.setValue('complement', parsedGuestInfo.address.complement)
+          form.setValue('street', parsedGuestInfo.address.street)
+          form.setValue('neighborhood', parsedGuestInfo.address.neighborhood)
+          form.setValue('city', parsedGuestInfo.address.city)
+          form.setValue('state', parsedGuestInfo.address.state)
+        }
+      }
+    }
+  }, [address])
 
   return (
     <Form {...form}>

@@ -4,6 +4,7 @@ import { CustomerType } from '@/models/customer'
 import { CreatePurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
+import { cookies } from 'next/headers'
 import { getCart } from '../../cart/actions'
 
 export async function readAddressById(id: string): Promise<{
@@ -105,13 +106,14 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   purchaseError: any | null
 }> {
   const supabase = createClient()
+  const cookieStore = cookies()
 
   const { cart } = await getCart(generateSlug(newPurchase.storeName))
 
   const { customer, customerError } = await handleCustomer()
 
   if (customerError) {
-    console.error(customerError)
+    console.error('Erro ao buscar o cliente: ', customerError)
   }
 
   const type = newPurchase.type
@@ -119,11 +121,13 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   const { store, storeError } = await readStoreByName(newPurchase.storeName)
 
   if (storeError) {
-    console.error(storeError)
+    console.error('Erro ao buscar a loja: ', storeError)
   }
 
+  const guestData = cookieStore.get('guest_data')
+
   const valuesToInsert = {
-    customer_id: customer?.id,
+    customer_id: customer?.id ?? null,
     status: 'pending',
     total_amount: newPurchase.totalAmount,
     updated_at: new Date().toISOString(),
@@ -134,6 +138,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     type,
     payment_type: newPurchase.payment_type,
     change_value: newPurchase.changeValue,
+    guest_data: guestData ? JSON.parse(guestData.value) : null,
   }
 
   const { data: purchase, error: purchaseError } = await supabase
@@ -143,7 +148,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     .single()
 
   if (purchaseError) {
-    console.error(purchaseError)
+    console.error('Erro ao criar compra: ', purchaseError)
   }
 
   const variationsToInsert =
@@ -160,7 +165,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     .insert(variationsToInsert)
 
   if (createPurchaseVariationsError) {
-    console.error(createPurchaseVariationsError)
+    console.error('Erro ao criar variações: ', createPurchaseVariationsError)
   }
 
   const { data: purchaseItems, error: purchaseItemsError } = await supabase
@@ -179,7 +184,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     .select('*')
 
   if (purchaseItemsError) {
-    console.error(purchaseItemsError)
+    console.error('Erro ao adicionar itens da compra: ', purchaseItemsError)
   }
 
   if (purchaseItems) {

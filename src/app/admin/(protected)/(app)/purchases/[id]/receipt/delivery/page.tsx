@@ -1,10 +1,10 @@
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
-import { readPurchaseById } from '../actions'
+import { readPurchaseById } from '../../actions'
 import { Printer } from './printer'
 
-export default async function PrintPurchase({
+export default async function PrintDeliveryReceipt({
   params,
 }: {
   params: { id: string }
@@ -61,12 +61,19 @@ export default async function PrintPurchase({
         className="w-full border-b border-dashed last:border-0 py-4 break-inside-avoid
           print-section"
       >
+        <p>Data: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
         <p>
-          Data do pedido: {format(purchase.created_at, 'dd/MM/yyyy - HH:mm:ss')}
+          Cliente:{' '}
+          {purchase?.customers?.users?.name ?? purchase.guest_data.name}
         </p>
-        <p>Cliente: {purchase.customers.users.name}</p>
-        <p>Telefone: {purchase.customers.users.phone}</p>
-        <p>Endereço: {formatAddress(purchase.addresses)}</p>
+        <p>
+          Telefone:{' '}
+          {purchase?.customers?.users?.phone ?? purchase.guest_data.phone}
+        </p>
+        <p>
+          Endereço:{' '}
+          {formatAddress(purchase.addresses ?? purchase.guest_data.address)}
+        </p>
       </div>
 
       {/* Forçando uma nova página antes dos itens */}
@@ -104,7 +111,7 @@ export default async function PrintPurchase({
                 </div>
                 {item.extras.length > 0 &&
                   item.extras.map((extra) => (
-                    <p className="flex flex-row items-center justify-between line-clamp-2 w-full">
+                    <p className="flex flex-row items-center justify-between w-full">
                       <span className="flex flex-row items-center">
                         <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
                         {extra.name}

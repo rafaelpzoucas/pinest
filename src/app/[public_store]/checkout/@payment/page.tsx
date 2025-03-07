@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { convertStringToNumber } from '@/lib/utils'
+import { stringToNumber } from '@/lib/utils'
 
 const paymentOptions = [
   {
@@ -65,7 +65,7 @@ export default function Payment() {
     const { type, change_value: changeValue } = data
 
     return router.push(
-      `?step=summary&pickup=${selectedPickup}${selectedAddress ? `&address=${selectedAddress}` : ''}&payment=money${type === 'with_change' ? `&changeValue=${convertStringToNumber(changeValue as string)}` : ''}`,
+      `?step=summary&pickup=${selectedPickup}${selectedAddress ? `&address=${selectedAddress}` : ''}&payment=cash${type === 'with_change' ? `&changeValue=${stringToNumber(changeValue as string)}` : ''}`,
     )
   }
 

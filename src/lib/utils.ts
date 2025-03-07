@@ -85,7 +85,7 @@ export function removeAccents(str: string) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
 
-export function convertStringToNumber(string: string) {
+export function stringToNumber(string: string) {
   if (string === '') {
     return
   }

@@ -1,9 +1,10 @@
 'use client'
 
-import { z } from 'zod'
-
 import { zodResolver } from '@hookform/resolvers/zod'
+import { parseCookies, setCookie } from 'nookies'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -24,9 +25,8 @@ import { toast } from 'sonner'
 import { updateAccount } from './actions'
 
 export const accountSchema = z.object({
-  name: z.string(),
-  phone: z.string(),
-  cpf_cnpj: z.string(),
+  name: z.string().min(1, 'Nome é obrigatório'),
+  phone: z.string().min(1, 'Telefone é obrigatório'),
 })
 
 export function AccountForm({ user }: { user: UserType | null }) {
@@ -39,25 +39,48 @@ export function AccountForm({ user }: { user: UserType | null }) {
   const form = useForm<z.infer<typeof accountSchema>>({
     resolver: zodResolver(accountSchema),
     defaultValues: {
-      name: user?.name ?? '',
-      phone: user?.phone ?? '',
-      cpf_cnpj: user?.cpf_cnpj ?? '',
+      name: '',
+      phone: '',
     },
   })
 
-  async function onSubmit(values: z.infer<typeof accountSchema>) {
-    const { error } = await updateAccount(values)
+  useEffect(() => {
+    if (!user) {
+      const cookies = parseCookies()
+      const savedGuest = cookies.guest_data
+      if (savedGuest) {
+        const guestData = JSON.parse(savedGuest)
+        form.reset(guestData)
+      }
+    } else {
+      form.reset({
+        name: user.name ?? '',
+        phone: user.phone ?? '',
+      })
+    }
+  }, [user, form])
 
-    if (error) {
-      console.error(error)
-      return
+  async function onSubmit(values: z.infer<typeof accountSchema>) {
+    if (user) {
+      const { error } = await updateAccount(values)
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      toast('Informações atualizadas com sucesso')
+    } else {
+      setCookie(null, 'guest_data', JSON.stringify(values), {
+        maxAge: 30 * 24 * 60 * 60,
+        path: '/',
+      })
+      toast('Dados salvos para futuras compras')
     }
 
     if (checkout) {
       return router.push(`/${params.public_store}/checkout?step=${checkout}`)
     }
-
-    toast('Informações atualizadas com sucesso')
   }
 
   return (
@@ -74,20 +97,6 @@ export function AccountForm({ user }: { user: UserType | null }) {
               <FormLabel>Nome</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o seu nome..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="cpf_cnpj"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>CPF/CNPJ</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite o seu CPF ou CNPJ..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -42,7 +42,7 @@ export default async function PickupOptions({
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
-      {storeAddress && cart && !isAddressesSameCity && (
+      {storeAddress && customerAddress && cart && !isAddressesSameCity && (
         <ShippingOptions
           storeZipCode={storeAddress.zip_code}
           customerAddress={customerAddress}
@@ -50,7 +50,7 @@ export default async function PickupOptions({
         />
       )}
 
-      {shipping && shipping.status && isAddressesSameCity && (
+      {shipping && shipping.status && (
         <Delivery customerAddress={customerAddress} shipping={shipping} />
       )}
 
@@ -66,7 +66,7 @@ export default async function PickupOptions({
               </div>
             </header>
 
-            <p className="text-muted-foreground line-clamp-2">
+            <p className="text-muted-foreground line-clamp-3">
               {formatAddress(storeAddress)}
             </p>
           </Link>
