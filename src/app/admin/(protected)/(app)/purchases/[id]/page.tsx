@@ -1,10 +1,11 @@
 import { AdminHeader } from '@/app/admin-header'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
-import { Printer } from 'lucide-react'
+import { Plus, Printer } from 'lucide-react'
+import Link from 'next/link'
 import { readPurchaseById } from './actions'
 import { UpdateStatusButton } from './update-status-button'
 
@@ -24,8 +25,8 @@ export default async function OrderPage({
   const displayId = params.id.substring(0, 4)
 
   const purchaseItems = purchase?.purchase_items
-  const customer = purchase?.customers.users
-  const address = purchase?.addresses
+  const customer = purchase?.customers?.users ?? purchase?.guest_data
+  const address = purchase?.addresses ?? purchase?.guest_data.address
 
   const variations = purchase?.purchase_item_variations
 
@@ -61,9 +62,16 @@ export default async function OrderPage({
                 />
               )}
 
-              <Button variant="outline" size="icon">
+              <Link
+                href={`${purchase.id}/receipt`}
+                target="_blank"
+                className={cn(
+                  buttonVariants({ variant: 'ghost', size: 'icon' }),
+                  'min-w-9',
+                )}
+              >
                 <Printer className="w-4 h-4" />
-              </Button>
+              </Link>
             </div>
           </Card>
 
@@ -102,25 +110,63 @@ export default async function OrderPage({
           <div className="flex flex-col gap-2">
             {purchaseItems &&
               purchaseItems.length > 0 &&
-              purchaseItems.map((item) => (
-                <Card key={item.id} className="p-4 space-y-2">
-                  <header className="flex flex-row items-start justify-between gap-4 text-sm">
-                    <strong className="line-clamp-2">
-                      x{item.quantity} {item?.products?.name}
-                    </strong>
-                    <span>{formatCurrencyBRL(item?.products?.price)}</span>
-                  </header>
+              purchaseItems.map((item) => {
+                // Calculando o total do item (produto base)
+                const itemTotal = item.product_price
 
-                  <div>
-                    {variations &&
-                      variations.map((variation) => (
-                        <Badge key={variation.id} className="mr-2">
-                          {variation.product_variations.name}
-                        </Badge>
+                // Calculando o total dos extras
+                const extrasTotal = item.extras.reduce((acc, extra) => {
+                  return acc + extra.price * extra.quantity
+                }, 0)
+
+                // Somando o total do item com o total dos extras
+                const total = (itemTotal + extrasTotal) * item.quantity
+
+                return (
+                  <Card key={item.id} className="p-4 space-y-2">
+                    <header className="flex flex-row items-start justify-between gap-4 text-sm">
+                      <strong className="line-clamp-2 uppercase">
+                        {item.quantity} {item?.products?.name}
+                      </strong>
+                      <span>{formatCurrencyBRL(item?.products?.price)}</span>
+                    </header>
+
+                    {item.extras.length > 0 &&
+                      item.extras.map((extra) => (
+                        <p className="flex flex-row items-center justify-between w-full text-muted-foreground">
+                          <span className="flex flex-row items-center">
+                            <Plus className="w-3 h-3 mr-1" /> {extra.quantity}{' '}
+                            ad. {extra.name}
+                          </span>
+                          <span>
+                            {formatCurrencyBRL(extra.price * extra.quantity)}
+                          </span>
+                        </p>
                       ))}
-                  </div>
-                </Card>
-              ))}
+
+                    {item.observations && (
+                      <strong className="uppercase text-muted-foreground">
+                        obs: {item.observations}
+                      </strong>
+                    )}
+
+                    <div>
+                      {variations &&
+                        variations.map((variation) => (
+                          <Badge key={variation.id} className="mr-2">
+                            {variation.product_variations.name}
+                          </Badge>
+                        ))}
+                    </div>
+
+                    <footer className="flex flex-row items-center justify-between">
+                      <p>Total:</p>
+                      <span>{formatCurrencyBRL(total)}</span>{' '}
+                      {/* Exibindo o total calculado */}
+                    </footer>
+                  </Card>
+                )
+              })}
           </div>
         </section>
       </div>

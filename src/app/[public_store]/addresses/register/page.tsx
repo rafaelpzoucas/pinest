@@ -1,4 +1,5 @@
 import { Header } from '@/components/store-header'
+import { createClient } from '@/lib/supabase/server'
 import { readAddressById } from '../../checkout/@summary/actions'
 import { AddressForm } from './form'
 
@@ -7,13 +8,18 @@ export default async function CustomerAddressRegister({
 }: {
   searchParams: { id: string }
 }) {
+  const supabase = createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   const { address } = await readAddressById(searchParams.id)
 
   return (
     <section className="space-y-6">
       <Header />
 
-      <AddressForm address={address} />
+      <AddressForm address={address} user={user} />
     </section>
   )
 }

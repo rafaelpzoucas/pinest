@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { convertStringToNumber } from '@/lib/utils'
+import { stringToNumber } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { readStoreByUserId } from '../../../products/register/actions'
@@ -19,7 +19,7 @@ export async function createExtra(values: z.infer<typeof newExtraFormSchema>) {
   const { data, error } = await supabase.from('extras').insert({
     ...values,
     name: values.name?.trim(),
-    price: values.price && convertStringToNumber(values.price),
+    price: values.price && stringToNumber(values.price),
     store_id: store?.id,
   })
 
@@ -44,7 +44,7 @@ export async function updateExtra(
     .update({
       ...values,
       name: values.name?.trim(),
-      price: values.price && convertStringToNumber(values.price),
+      price: values.price && stringToNumber(values.price),
     })
     .eq('id', id)
     .select()
