@@ -1,9 +1,5 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
 import {
   Form,
   FormControl,
@@ -12,13 +8,28 @@ import {
   FormLabel,
 } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
+import { createClient } from '@/lib/supabase/client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { updateStoreStatus } from './admin/(protected)/(app)/actions'
 
 const FormSchema = z.object({
   is_open: z.boolean(),
 })
 
-export function SwitchStoreStatus({ isOpen }: { isOpen: boolean }) {
+export function SwitchStoreStatus({
+  isOpen,
+  storeId,
+}: {
+  isOpen: boolean
+  storeId: string
+}) {
+  const supabase = createClient()
+  const router = useRouter()
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -30,6 +41,31 @@ export function SwitchStoreStatus({ isOpen }: { isOpen: boolean }) {
     await updateStoreStatus(data.is_open)
   }
 
+  const isSwitchOpen = form.watch('is_open')
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`store-status-${storeId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'stores',
+          filter: `id=eq.${storeId}`,
+        },
+        () => {
+          form.setValue('is_open', isOpen)
+          router.refresh()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [storeId])
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -39,14 +75,16 @@ export function SwitchStoreStatus({ isOpen }: { isOpen: boolean }) {
           render={({ field }) => (
             <FormItem className="flex flex-row items-center gap-2">
               <div className="space-y-0.5">
-                <FormLabel>{isOpen ? 'Loja aberta' : 'Loja fechada'}</FormLabel>
+                <FormLabel>
+                  {isSwitchOpen ? 'Loja aberta' : 'Loja fechada'}
+                </FormLabel>
               </div>
               <FormControl>
                 <Switch
                   checked={field.value}
                   onCheckedChange={(value) => {
-                    field.onChange(value) // Atualiza o estado do formulário
-                    form.handleSubmit(onSubmit)() // Executa o submit automaticamente
+                    field.onChange(value)
+                    form.handleSubmit(onSubmit)()
                   }}
                   className="data-[state=unchecked]:bg-destructive data-[state=checked]:bg-emerald-600"
                 />

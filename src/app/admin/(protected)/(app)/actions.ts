@@ -32,7 +32,7 @@ export async function updateStoreStatus(isOpen: boolean) {
 
   const { data, error } = await supabase
     .from('stores')
-    .update({ is_open: isOpen })
+    .update({ is_open_override: isOpen, is_open: isOpen })
     .eq('user_id', userData.user?.id)
 
   revalidatePath('/')
