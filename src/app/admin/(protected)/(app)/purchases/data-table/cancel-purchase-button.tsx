@@ -8,8 +8,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { statuses } from '@/models/statuses'
-import { X, XCircle } from 'lucide-react'
-import { cancelPurchase, updatePurchaseStatus } from '../[id]/actions'
+import { X } from 'lucide-react'
+import { cancelPurchase } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
 
@@ -22,17 +22,11 @@ export function CancelPurchaseButton({
   currentStatus: string
   purchaseId: string
 }) {
-  async function handleUpdateStatus(newStatus: string) {
-    if (!accepted) {
-      await cancelPurchase(purchaseId)
-
-      return
-    }
-
-    await updatePurchaseStatus(newStatus, purchaseId)
+  async function handleUpdateStatus() {
+    await cancelPurchase(purchaseId)
   }
 
-  if (accepted) {
+  if (currentStatus === 'cancelled') {
     return null
   }
 
@@ -43,17 +37,13 @@ export function CancelPurchaseButton({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() =>
-              handleUpdateStatus(
-                statuses[currentStatus as StatusKey].next_status as string,
-              )
-            }
+            onClick={() => handleUpdateStatus()}
           >
             <X className="w-5 h-5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Recusar/cancelar pedido</p>
+          <p>{accepted ? 'Cancelar' : 'Recusar'} pedido</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
