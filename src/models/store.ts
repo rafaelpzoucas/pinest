@@ -14,6 +14,7 @@ export type StoreType = {
   theme_color: string
   theme_mode: string
   is_open: boolean
+  is_open_override: boolean
   market_niches: MarketNicheType[]
   addresses: AddressType[]
   store_hours: HourType[]

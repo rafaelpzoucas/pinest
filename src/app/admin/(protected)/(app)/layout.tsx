@@ -1,3 +1,4 @@
+import { StoreStatus } from '@/app/store-status'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { Metadata } from 'next'
 import { Navigation } from './navigation/index'
@@ -11,8 +12,12 @@ export const metadata: Metadata = {
 
 export default async function ProtectedLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode
+  params: {
+    public_store: string
+  }
 }>) {
   return (
     <main className="md:flex flex-row">
@@ -25,6 +30,8 @@ export default async function ProtectedLayout({
           <div className="w-full max-w-7xl pb-16">{children}</div>
         </main>
       </ScrollArea>
+
+      <StoreStatus storeUrl={params.public_store} />
     </main>
   )
 }

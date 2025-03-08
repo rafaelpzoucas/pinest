@@ -15,7 +15,7 @@ export async function AdminHeader({ title, withBackButton }: HeaderPropsType) {
 
   const { data } = await supabase
     .from('stores')
-    .select('is_open')
+    .select('is_open, id')
     .eq('user_id', userData.user?.id)
     .single()
 
@@ -29,7 +29,7 @@ export async function AdminHeader({ title, withBackButton }: HeaderPropsType) {
 
         <h1 className="font-bold ml-3">{title}</h1>
 
-        {data && <SwitchStoreStatus isOpen={data.is_open} />}
+        {data && <SwitchStoreStatus isOpen={data.is_open} storeId={data.id} />}
       </Card>
     </header>
   )

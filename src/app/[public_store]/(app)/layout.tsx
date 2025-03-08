@@ -1,7 +1,16 @@
-export default function StoreLayout({
+import { StoreStatus } from '@/app/store-status'
+
+export default async function StoreLayout({
   children,
+  params,
 }: {
   children: React.ReactNode
+  params: { public_store: string }
 }) {
-  return <>{children}</>
+  return (
+    <>
+      <StoreStatus storeUrl={params.public_store} />
+      {children}
+    </>
+  )
 }

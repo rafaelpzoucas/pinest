@@ -11,6 +11,7 @@ import {
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../search/search-sheet'
 import { readOwnShipping } from './actions'
+import { Status } from './status'
 
 export async function Header({ storeURL }: { storeURL: string }) {
   const supabase = createClient()
@@ -62,14 +63,7 @@ export async function Header({ storeURL }: { storeURL: string }) {
               )}
             </div>
 
-            <strong className="flex flex-row items-center text-xs w-fit mx-auto lg:mx-0">
-              <div
-                className="w-3 h-3 rounded-full mr-2 data-[isopen=true]:bg-emerald-600
-                  data-[isopen=false]:bg-red-600"
-                data-isopen={store?.is_open}
-              ></div>
-              Loja {store?.is_open ? 'aberta' : 'fechada'}
-            </strong>
+            {store && <Status store={store} />}
           </div>
         </div>
 
