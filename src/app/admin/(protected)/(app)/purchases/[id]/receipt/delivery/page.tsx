@@ -1,4 +1,5 @@
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import { PAYMENT_TYPES } from '@/models/purchase'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../../actions'
@@ -20,12 +21,6 @@ export default async function PrintDeliveryReceipt({
   const DELIVERY_TYPES = {
     pickup: 'Retirar na loja',
     delivery: 'Entregar',
-  }
-
-  const PAYMENT_TYPES = {
-    card: 'Cartão',
-    pix: 'PIX',
-    cash: 'Dinheiro',
   }
 
   const purchaseItemsPrice =

@@ -35,7 +35,7 @@
     "@radix-ui/react-scroll-area": "^1.0.5",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-separator": "^1.1.0",
-    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.2.1",
@@ -61,6 +61,7 @@
     "nookies": "^2.5.2",
     "papaparse": "^5.4.1",
     "react": "^18",
+    "react-day-picker": "^8.10.1",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.51.0",
@@ -83,6 +84,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/react": "^18",
@@ -92,13 +94,13 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
-    "jest": "^29.7.0",
     "postcss": "^8",
     "prettier": "^3.3.3",
     "prettier-plugin-classnames": "^0.7.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "supabase": "^1.178.2",
     "tailwindcss": "^3.3.0",
+    "ts-jest": "^29.2.6",
     "typescript": "^5"
   }
 }
