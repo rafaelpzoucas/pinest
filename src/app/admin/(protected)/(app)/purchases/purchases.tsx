@@ -111,28 +111,7 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
 
   return (
     <section className="flex flex-col gap-4 text-sm">
-      {/* <section className="space-y-4">
-        <h1 className="text-lg font-bold">Pendentes</h1>
-
-        <div className="grid grid-cols-4 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Rafael</CardTitle>
-              <CardDescription>Rua Angelo Faganhole, 132</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>1 un. X-Bacon</p>
-              <p>1 un. X-Alcatra</p>
-            </CardContent>
-            <CardFooter className="space-x-4">
-              <Button className="w-full">Aceitar</Button>
-              <Button variant="outline" className="w-full">
-                Recusar
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      </section> */}
+      {/* <CreatePurchaseSheet /> */}
 
       <div className="relative">
         <Search className="absolute top-2 left-3 w-5 h-5 text-muted-foreground" />
