@@ -58,7 +58,7 @@ export function SalesReport({ data }: { data: SalesReportType }) {
             </div>
           </>
         ) : (
-          <p className="text-center text-sm">
+          <p className="text-center text-sm text-muted-foreground">
             Nenhum resultado encontrado para o período selecionado.
           </p>
         )}

@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils'
 import { ShippingConfigType } from '@/models/shipping'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -56,6 +57,11 @@ export function OwnShippingForm({
 }: {
   shipping: ShippingConfigType | null
 }) {
+  const params = useParams()
+  const router = useRouter()
+
+  const currentStep = params.current_step
+
   const form = useForm<z.infer<typeof ownShippingFormSchema>>({
     resolver: zodResolver(ownShippingFormSchema),
     defaultValues: {
@@ -86,15 +92,25 @@ export function OwnShippingForm({
         toast('Forma de envio configurada com sucesso!')
       }
     }
+
+    if (currentStep) {
+      router.push(`/admin/dashboard`)
+    }
   }
 
   async function updateStatus() {
-    const { updatedStatus } = await updateOwnShippingStatus(status)
+    if (status) {
+      const { updatedStatus } = await updateOwnShippingStatus(status)
 
-    if (updatedStatus) {
-      toast(`Entrega própria ${status ? 'ativada' : 'desativada'} com sucesso!`)
+      if (updatedStatus) {
+        toast(
+          `Entrega própria ${status ? 'ativada' : 'desativada'} com sucesso!`,
+        )
+      }
     }
   }
+
+  console.log(shipping, status)
 
   useEffect(() => {
     if (status !== shipping?.status) {
@@ -249,7 +265,7 @@ export function OwnShippingForm({
               {formState.isSubmitting && (
                 <Loader className="w-4 h-4 mr-2 animate-spin" />
               )}
-              Salvar alterações
+              Salvar alterações {currentStep ? 'e finalizar cadastro' : ''}
             </Button>
           </form>
         </Form>

@@ -73,9 +73,9 @@ export function SwitchStoreStatus({
           control={form.control}
           name="is_open"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center gap-2">
+            <FormItem className="flex flex-col-reverse lg:flex-row items-end lg:items-center gap-0 lg:gap-2">
               <div className="space-y-0.5">
-                <FormLabel>
+                <FormLabel className="text-[0.625rem] lg:text-xs">
                   {isSwitchOpen ? 'Loja aberta' : 'Loja fechada'}
                 </FormLabel>
               </div>

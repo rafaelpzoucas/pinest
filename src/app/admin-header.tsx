@@ -25,9 +25,11 @@ export async function AdminHeader({ title, withBackButton }: HeaderPropsType) {
         className="flex flex-row items-center justify-between gap-2 w-full h-[68px] p-2 lg:p-4
           bg-secondary/50"
       >
-        {withBackButton && <BackButton />}
+        <div className="flex flex-row items-center">
+          {withBackButton && <BackButton />}
 
-        <h1 className="font-bold ml-3">{title}</h1>
+          <h1 className="font-bold ml-3">{title}</h1>
+        </div>
 
         {data && <SwitchStoreStatus isOpen={data.is_open} storeId={data.id} />}
       </Card>

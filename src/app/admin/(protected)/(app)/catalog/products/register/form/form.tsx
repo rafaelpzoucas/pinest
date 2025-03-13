@@ -22,7 +22,7 @@ import {
 } from '@/models/product'
 import { Loader, Plus } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { createProduct, deleteProductImage, updateProduct } from '../actions'
@@ -56,6 +56,9 @@ export function ProductForm({
 }) {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const categoryId = searchParams.get('category_id')
 
   const defaultVariations =
     product?.product_variations?.map((variation) => ({
@@ -96,7 +99,7 @@ export function ProductForm({
       price: product?.price?.toString() ?? undefined,
       promotional_price: product?.promotional_price?.toString() ?? undefined,
       stock: product?.stock?.toString() ?? undefined,
-      category_id: product?.category_id ?? undefined,
+      category_id: product?.category_id ?? categoryId ?? undefined,
       sku: product?.sku ?? undefined,
       allows_extras: product?.allows_extras ?? false,
       pkg_weight: product?.pkg_weight?.toString() ?? undefined,

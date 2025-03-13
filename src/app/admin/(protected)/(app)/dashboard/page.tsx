@@ -1,13 +1,18 @@
 import { AdminHeader } from '@/app/admin-header'
 import { redirect } from 'next/navigation'
+import { getSalesReport } from '../reports/actions'
+import { SalesReport } from '../reports/sales-report'
 import { readStore } from './actions'
 import { FirstSteps } from './first-steps'
 import { ProfileCard } from './profile'
 import { TodaySummary } from './today-summary'
-import { TotalSales } from './total-sales'
 
 export default async function DashboardPage() {
   const { store, storeError } = await readStore()
+  const [reports] = await getSalesReport({
+    start_date: new Date().toISOString(),
+    end_date: new Date().toISOString(),
+  })
 
   if (storeError) {
     console.error(storeError)
@@ -21,7 +26,7 @@ export default async function DashboardPage() {
     <div className="p-4 lg:px-0 space-y-6">
       <AdminHeader title="Dashboard" />
 
-      <section className="flex flex-row gap-4">
+      <section className="flex flex-col lg:flex-row gap-4">
         <ProfileCard store={store} />
 
         <FirstSteps />
@@ -29,7 +34,8 @@ export default async function DashboardPage() {
 
       <section className="flex flex-col lg:flex-row items-start justify-start gap-6 w-full max-w-7xl">
         <TodaySummary />
-        <TotalSales />
+        <SalesReport data={reports?.salesReport} />
+        {/* <TotalSales /> */}
       </section>
     </div>
   )

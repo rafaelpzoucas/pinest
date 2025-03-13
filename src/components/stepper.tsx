@@ -45,7 +45,7 @@ export function Stepper({ currentStep, steps }: StepperPropsType) {
               <span
                 className={cn(
                   currentStep < index + 1 && 'text-muted-foreground',
-                  'absolute text-center top-12 md:w-24 text-xs md:text-sm',
+                  'absolute text-center top-12 md:w-24 text-[0.625rem] md:text-sm',
                 )}
               >
                 {step.label}

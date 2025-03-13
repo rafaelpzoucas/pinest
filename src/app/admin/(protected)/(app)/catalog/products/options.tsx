@@ -21,11 +21,18 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
 import { ProductType } from '@/models/product'
-import { Edit, MoreVertical, Trash } from 'lucide-react'
+import { Edit, Layers2, MoreVertical, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { deleteProduct } from './actions'
+import { deleteProduct, duplicateProduct } from './actions'
 
 type ProductOptions = Omit<ProductType, 'product_images'>
 
@@ -47,6 +54,10 @@ export function ProductOptions({ productId }: { productId: string }) {
             <DropdownMenuItem>Editar</DropdownMenuItem>
           </Link>
 
+          <DropdownMenuItem onClick={() => duplicateProduct(productId)}>
+            Duplicar
+          </DropdownMenuItem>
+
           <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
             Excluir
           </DropdownMenuItem>
@@ -54,19 +65,53 @@ export function ProductOptions({ productId }: { productId: string }) {
       </DropdownMenu>
 
       <div className="hidden lg:flex flex-row">
-        <Link
-          href={`catalog/products/register?id=${productId}`}
-          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-        >
-          <Edit className="w-4 h-4" />
-        </Link>
-        <Button
-          onClick={() => setIsAlertOpen(true)}
-          variant="ghost"
-          size="icon"
-        >
-          <Trash className="w-4 h-4" />
-        </Button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={`catalog/products/register?id=${productId}`}
+                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              >
+                <Edit className="w-4 h-4" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Editar</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => duplicateProduct(productId)}
+                variant="ghost"
+                size="icon"
+              >
+                <Layers2 className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Duplicar</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => setIsAlertOpen(true)}
+                variant="ghost"
+                size="icon"
+              >
+                <Trash className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Excluir</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>

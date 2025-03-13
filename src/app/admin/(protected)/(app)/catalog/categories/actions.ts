@@ -55,7 +55,10 @@ export async function readCategoriesByStore(): Promise<{
     .select(
       `
         *,
-        products (*)
+        products (
+          *,
+          product_images (*)
+        )
       `,
     )
     .eq('store_id', user?.stores[0].id)

@@ -11,9 +11,8 @@ export default function StepsLayout({
   const STEPS = {
     store: 1,
     appearence: 2,
-    products: 3,
-    payments: 4,
-    shipping: 5,
+    // payments: 3,
+    shipping: 3,
   }
 
   return (
@@ -21,15 +20,14 @@ export default function StepsLayout({
       <Stepper
         currentStep={STEPS[params.current_step as keyof typeof STEPS]}
         steps={[
-          { label: 'Informações da loja' },
-          { label: 'Aparência da loja' },
-          { label: 'Cadastro de produtos' },
-          { label: 'Configurar pagamentos' },
-          { label: 'Configurar envios' },
+          { label: 'Loja' },
+          { label: 'Aparência' },
+          // { label: 'Pagamentos' },
+          { label: 'Entrega' },
         ]}
       />
 
-      <div className="w-full md:max-w-2xl h-full mt-20 md:mt-32 px-4">
+      <div className="w-full md:max-w-2xl h-full mt-20 md:mt-32">
         {children}
       </div>
     </main>
