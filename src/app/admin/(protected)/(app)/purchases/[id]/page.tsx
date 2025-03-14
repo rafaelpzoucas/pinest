@@ -4,7 +4,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
-import { Plus, Printer } from 'lucide-react'
+import { Plus, Printer as PrinterIcon } from 'lucide-react'
 import Link from 'next/link'
 import { readPurchaseById } from './actions'
 import { UpdateStatusButton } from './update-status-button'
@@ -14,7 +14,7 @@ type StatusKey = keyof typeof statuses
 export default async function OrderPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: string; print: string }
 }) {
   const { purchase, purchaseError } = await readPurchaseById(params.id)
 
@@ -33,8 +33,6 @@ export default async function OrderPage({
   if (!purchase) {
     return null
   }
-
-  console.log({ customer })
 
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0">
@@ -72,7 +70,7 @@ export default async function OrderPage({
                   'min-w-9',
                 )}
               >
-                <Printer className="w-4 h-4" />
+                <PrinterIcon className="w-4 h-4" />
               </Link>
             </div>
           </Card>

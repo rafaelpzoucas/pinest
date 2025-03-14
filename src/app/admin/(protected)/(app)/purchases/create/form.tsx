@@ -23,7 +23,7 @@ import { CustomerType } from '@/models/customer'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { Loader2 } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { createPurchase } from './actions'
@@ -43,7 +43,7 @@ export function CreatePurchaseForm({
   categories: CategoryType[]
   extras: ExtraType[]
 }) {
-  const searchParams = useSearchParams()
+  const router = useRouter()
 
   const customerFormSheetState = useState(false)
 
@@ -80,11 +80,18 @@ export function CreatePurchaseForm({
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createPurchaseFormSchema>) {
-    const [err] = await execute(values)
+    const [data, err] = await execute(values)
 
-    if (err) {
+    if (err && !data) {
       console.error({ err })
+      return null
     }
+
+    const createdPurchase = data?.createdPurchase[0]
+
+    window.open(`/admin/purchases/${createdPurchase.id}/receipt`, '_blank')
+
+    router.push('/admin/purchases')
   }
 
   return (

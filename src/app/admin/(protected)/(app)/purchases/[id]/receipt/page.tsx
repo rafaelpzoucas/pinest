@@ -25,6 +25,15 @@ export default async function PrintKitchenReceipt({
     return null
   }
 
+  const customerName =
+    purchase?.customers?.users?.name ??
+    purchase.guest_data?.name ??
+    purchase.customers.name
+  const customerPhone =
+    purchase?.customers?.users?.phone ??
+    purchase.guest_data?.phone ??
+    purchase.customers.phone
+
   return (
     <div
       className="hidden print:flex flex-col items-center justify-center text-[0.625rem]
@@ -43,14 +52,8 @@ export default async function PrintKitchenReceipt({
           print-section"
       >
         <p>Data: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
-        <p>
-          Cliente:{' '}
-          {purchase?.customers?.users?.name ?? purchase.guest_data.name}
-        </p>
-        <p>
-          Telefone:{' '}
-          {purchase?.customers?.users?.phone ?? purchase.guest_data.phone}
-        </p>
+        <p>Cliente: {customerName}</p>
+        <p>Telefone: {customerPhone}</p>
       </div>
 
       {/* Forçando uma nova página antes dos itens */}
