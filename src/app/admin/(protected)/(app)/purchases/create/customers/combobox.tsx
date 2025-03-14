@@ -27,24 +27,19 @@ import { Check, ChevronsUpDown } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import { TZSAError } from 'zsa'
-import { createPurchaseFormSchema } from '../form'
+import { createPurchaseFormSchema } from '../schemas'
 import { CustomersForm } from './form'
 
 type CustomersComboboxProps = {
   customers: CustomerType[]
   form: UseFormReturn<z.infer<typeof createPurchaseFormSchema>>
   customerFormSheetState: [boolean, Dispatch<SetStateAction<boolean>>]
-  updateCustomers: () => Promise<
-    [{ customers: CustomerType[] }, null] | [null, TZSAError<undefined>]
-  >
 }
 
 export function CustomersCombobox({
   customers,
   form,
   customerFormSheetState,
-  updateCustomers,
 }: CustomersComboboxProps) {
   return (
     <FormField
@@ -100,10 +95,7 @@ export function CustomersCombobox({
                 />
 
                 <div className="p-2 w-full">
-                  <CustomersForm
-                    sheetState={customerFormSheetState}
-                    updateCustomers={updateCustomers}
-                  />
+                  <CustomersForm sheetState={customerFormSheetState} />
                 </div>
 
                 <CommandList>

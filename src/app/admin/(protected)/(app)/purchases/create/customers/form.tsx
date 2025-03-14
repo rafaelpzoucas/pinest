@@ -28,21 +28,14 @@ import { CustomerType } from '@/models/customer'
 import { Loader2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction } from 'react'
-import { TZSAError } from 'zsa'
 import { useServerAction } from 'zsa-react'
 import { createCustomer } from './actions'
 import { createCustomerFormSchema } from './schemas'
 
 type CustomersFormProps = {
   sheetState: [boolean, Dispatch<SetStateAction<boolean>>]
-  updateCustomers: () => Promise<
-    [{ customers: CustomerType[] }, null] | [null, TZSAError<undefined>]
-  >
 }
-export function CustomersForm({
-  sheetState,
-  updateCustomers,
-}: CustomersFormProps) {
+export function CustomersForm({ sheetState }: CustomersFormProps) {
   const router = useRouter()
 
   const [isSheetOpen, setIsSheetOpen] = sheetState
@@ -66,7 +59,6 @@ export function CustomersForm({
 
       router.push(`?created_customer=${customer?.id}`)
       form.reset()
-      updateCustomers()
       setIsSheetOpen(false)
     },
   })
