@@ -17,7 +17,7 @@ export default async function AddLogo() {
       <AppearenceForm store={store} />
 
       <Link
-        href="/admin/onboarding/products/register"
+        href="/admin/onboarding/shipping/own"
         className={cn(buttonVariants(), 'w-fit')}
       >
         Próximo

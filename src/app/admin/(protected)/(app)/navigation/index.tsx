@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  ChartPie,
   CircleDollarSign,
   Layers,
   LayoutDashboard,
@@ -30,6 +31,11 @@ export const navLinks: LinkType[] = [
     route: '/admin/catalog',
     title: 'Catálogo',
     icon: LayoutList,
+  },
+  {
+    route: '/admin/reports',
+    title: 'Relatórios',
+    icon: ChartPie,
   },
   {
     route: '/admin/config',

@@ -6,7 +6,6 @@ import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Categories } from './categories'
 import { Extras } from './extras'
-import { Products } from './products'
 
 export default function CatalogPage({
   searchParams,
@@ -22,28 +21,11 @@ export default function CatalogPage({
           <TabsTrigger value="products" asChild>
             <Link href="?tab=products">Produtos</Link>
           </TabsTrigger>
-          <TabsTrigger value="categories" asChild>
-            <Link href="?tab=categories">Categorias</Link>
-          </TabsTrigger>
           <TabsTrigger value="extras" asChild>
             <Link href="?tab=extras">Adicionais</Link>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="products">
-          <div className="flex flex-col gap-6">
-            <Link
-              href="catalog/products/register"
-              className={cn(buttonVariants(), 'max-w-md')}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Criar produto
-            </Link>
-            <section>
-              <Products />
-            </section>
-          </div>
-        </TabsContent>
-        <TabsContent value="categories">
           <div className="flex flex-col gap-6">
             <Link
               href="catalog/categories/register"

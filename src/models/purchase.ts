@@ -3,6 +3,12 @@ import { ExtraType } from './extras'
 import { ProductType, ProductVariationType } from './product'
 import { AddressType, GuestType, UserType } from './user'
 
+export const PAYMENT_TYPES = {
+  card: 'Cartão',
+  pix: 'PIX',
+  cash: 'Dinheiro',
+}
+
 export interface CustomersType extends CustomerType {
   users: UserType
 }

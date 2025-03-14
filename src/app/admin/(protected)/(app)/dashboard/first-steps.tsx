@@ -45,16 +45,16 @@ export async function FirstSteps() {
       href: 'catalog',
       is_checked: (products && products.length > 0) ?? false,
     },
-    {
-      name: 'Formas de pagamento',
-      href: 'config/billing',
-      is_checked:
-        (connectedAccount && connectedAccount === 'connected') ?? false,
-    },
+    // {
+    //   name: 'Formas de pagamento',
+    //   href: 'config/billing',
+    //   is_checked:
+    //     (connectedAccount && connectedAccount === 'connected') ?? false,
+    // },
     {
       name: 'Formas de envio',
       href: 'config/shipping',
-      is_checked: shipping ?? false,
+      is_checked: !!shipping,
     },
   ]
   const progress = calculateCompletionPercentage(steps)

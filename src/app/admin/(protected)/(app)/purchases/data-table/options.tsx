@@ -52,12 +52,6 @@ export function PurchaseOptions({
           purchaseId={purchaseId}
         />
 
-        <CancelPurchaseButton
-          accepted={accepted}
-          currentStatus={currentStatus}
-          purchaseId={purchaseId}
-        />
-
         {accepted && <Discount purchaseId={purchaseId} discount={discount} />}
 
         {accepted && (
@@ -81,6 +75,12 @@ export function PurchaseOptions({
             </Tooltip>
           </TooltipProvider>
         )}
+
+        <CancelPurchaseButton
+          accepted={accepted}
+          currentStatus={currentStatus}
+          purchaseId={purchaseId}
+        />
       </div>
     </>
   )

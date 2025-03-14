@@ -26,13 +26,15 @@ export default async function OrderPage({
 
   const purchaseItems = purchase?.purchase_items
   const customer = purchase?.customers?.users ?? purchase?.guest_data
-  const address = purchase?.addresses ?? purchase?.guest_data.address
+  const address = purchase?.addresses ?? purchase?.guest_data?.address
 
   const variations = purchase?.purchase_item_variations
 
   if (!purchase) {
     return null
   }
+
+  console.log({ customer })
 
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0">
@@ -78,11 +80,11 @@ export default async function OrderPage({
           <Card className="p-4">
             <header className="flex flex-row gap-4">
               <div className="flex flex-col gap-1">
-                <strong>{customer?.name}</strong>
+                <strong>{customer?.name ?? purchase.customers.name}</strong>
 
                 {customer?.phone && (
                   <p className="text-xs text-muted-foreground">
-                    Telefone: {customer?.phone}
+                    Telefone: {customer?.phone ?? purchase.customers.phone}
                   </p>
                 )}
 
@@ -92,6 +94,15 @@ export default async function OrderPage({
                       Endereço de entrega:
                     </span>
                     <p>{formatAddress(address)}</p>
+                  </>
+                )}
+
+                {purchase.customers?.address && (
+                  <>
+                    <span className="text-sm text-muted-foreground">
+                      Endereço de entrega:
+                    </span>
+                    <p>{purchase.customers?.address}</p>
                   </>
                 )}
               </div>

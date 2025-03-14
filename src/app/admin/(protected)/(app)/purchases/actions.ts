@@ -1,3 +1,5 @@
+'use server'
+
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
