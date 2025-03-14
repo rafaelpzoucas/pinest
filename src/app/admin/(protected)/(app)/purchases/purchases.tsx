@@ -1,10 +1,13 @@
 'use client'
 
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
-import { Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { columns } from './data-table/columns'
@@ -64,8 +67,11 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
     purchases.filter((purchase) => {
       const { customers, status, id, guest_data: guestData } = purchase
 
+      console.log(customers)
+
       const matchesSearch =
-        normalizeString(customers?.users.name).includes(searchStr) ||
+        normalizeString(customers?.users?.name).includes(searchStr) ||
+        normalizeString(customers?.name).includes(searchStr) ||
         id.includes(searchStr)
       const matchesStatus = statusFilter ? status === statusFilter : true
 
@@ -111,7 +117,13 @@ export function Purchases({ purchases }: { purchases: PurchaseType[] | null }) {
 
   return (
     <section className="flex flex-col gap-4 text-sm">
-      {/* <CreatePurchaseSheet /> */}
+      <Link
+        href="purchases/create"
+        className={cn(buttonVariants(), 'max-w-sm')}
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Criar pedido
+      </Link>
 
       <div className="relative">
         <Search className="absolute top-2 left-3 w-5 h-5 text-muted-foreground" />

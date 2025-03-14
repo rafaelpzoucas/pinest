@@ -39,11 +39,16 @@ export const columns: ColumnDef<PurchaseType>[] = [
       return (
         <div className="max-w-[280px]">
           <p className="capitalize">
-            {(customer?.users.name ?? guest.name).toLowerCase()}
+            {(
+              customer?.users?.name ??
+              customer?.name ??
+              guest?.name
+            ).toLowerCase()}
           </p>
           <p className="text-xs text-muted-foreground">
             {type === 'delivery'
-              ? formatAddress(customerAddress ?? guest.address)
+              ? (formatAddress(customerAddress ?? guest?.address) ??
+                customer.address)
               : 'Retirada na loja'}
           </p>
         </div>
