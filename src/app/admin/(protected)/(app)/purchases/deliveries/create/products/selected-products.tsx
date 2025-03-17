@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
@@ -58,6 +59,7 @@ export function SelectedProducts({
 
   return (
     <div className="space-y-2">
+      <Label>Produtos</Label>
       {selectedProducts.length > 0 ? (
         selectedProducts.map((item, index) => {
           const product = products.find((p) => p.id === item.product_id)

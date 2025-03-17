@@ -25,7 +25,6 @@ export function RealtimeNotifications({
       const playAudio = () => {
         const sound = new Audio('/new-order-notification.mp3')
         sound.play()
-        console.log('Sound notification triggered')
       }
 
       interval = setInterval(playAudio, 5000)

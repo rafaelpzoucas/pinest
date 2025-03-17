@@ -53,7 +53,7 @@ export function CreatePurchaseForm({
     defaultValues: {
       customer_id: '',
       purchase_items: [],
-      type: 'delivery',
+      // type: 'delivery',
       payment_type: 'card',
       change_value: '',
       discount: '',
@@ -89,9 +89,12 @@ export function CreatePurchaseForm({
 
     const createdPurchase = data?.createdPurchase[0]
 
-    window.open(`/admin/purchases/${createdPurchase.id}/receipt`, '_blank')
+    window.open(
+      `/admin/purchases/deliveries/${createdPurchase.id}/receipt`,
+      '_blank',
+    )
 
-    router.push('/admin/purchases')
+    router.push('/admin/purchases?tab=deliveries')
   }
 
   return (
@@ -112,82 +115,107 @@ export function CreatePurchaseForm({
         </aside>
         <Card className="space-y-6 p-4">
           <h1 className="text-lg font-bold">Resumo do pedido</h1>
-
-          <CustomersCombobox
-            customers={customers}
-            form={form}
-            customerFormSheetState={customerFormSheetState}
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Tipo de pedido</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="delivery" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Entrega</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="pickup" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Retirada</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
-          <div className="grid grid-cols-2">
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Tipo de pedido</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="delivery" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Entrega</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="pickup" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Retirada</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          {(purchaseType === 'delivery' || purchaseType === 'pickup') && (
+            <CustomersCombobox
+              customers={customers}
+              form={form}
+              customerFormSheetState={customerFormSheetState}
             />
+          )}
 
-            <FormField
-              control={form.control}
-              name="payment_type"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Forma de pagamento</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="card" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Cartão</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="pix" />
-                        </FormControl>
-                        <FormLabel className="font-normal">PIX</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="cash" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Dinheiro</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+
+          <FormField
+            control={form.control}
+            name="shipping_price"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+
+          <FormField
+            control={form.control}
+            name="accepted"
+            render={({ field }) => (
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                className="hidden"
+              />
+            )}
+          />
+
+          <SelectedProducts form={form} products={products} extras={extras} />
+
+          <FormField
+            control={form.control}
+            name="payment_type"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Forma de pagamento</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="card" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Cartão</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="pix" />
+                      </FormControl>
+                      <FormLabel className="font-normal">PIX</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="cash" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Dinheiro</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {form.watch('payment_type') === 'cash' && (
             <FormField
@@ -222,32 +250,6 @@ export function CreatePurchaseForm({
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => <input type="hidden" {...field} />}
-          />
-
-          <FormField
-            control={form.control}
-            name="shipping_price"
-            render={({ field }) => <input type="hidden" {...field} />}
-          />
-
-          <FormField
-            control={form.control}
-            name="accepted"
-            render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                className="hidden"
-              />
-            )}
-          />
-
-          <SelectedProducts form={form} products={products} extras={extras} />
 
           <div className="flex flex-col w-full">
             <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">

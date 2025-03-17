@@ -1,5 +1,5 @@
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
-import { PAYMENT_TYPES } from '@/models/purchase'
+import { PAYMENT_TYPES, PurchaseType } from '@/models/purchase'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../../actions'
@@ -10,11 +10,9 @@ export default async function PrintDeliveryReceipt({
 }: {
   params: { id: string }
 }) {
-  const { purchase, purchaseError } = await readPurchaseById(params.id)
+  const [purchaseData] = await readPurchaseById({ id: params.id })
 
-  if (purchaseError) {
-    throw new Error(purchaseError)
-  }
+  const purchase: PurchaseType = purchaseData?.purchase
 
   const displayId = purchase?.id.substring(0, 4)
 

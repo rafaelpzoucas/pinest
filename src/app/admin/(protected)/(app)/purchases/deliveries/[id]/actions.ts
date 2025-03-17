@@ -1,19 +1,19 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { PurchaseType } from '@/models/purchase'
+import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
-export async function readPurchaseById(purchaseId: string): Promise<{
-  purchase: PurchaseType | null
-  purchaseError: any | null
-}> {
-  const supabase = createClient()
-
-  const { data: purchase, error: purchaseError } = await supabase
-    .from('purchases')
-    .select(
-      `
+export const readPurchaseById = adminProcedure
+  .createServerAction()
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+    const { data: purchase, error: readPurchaseError } = await supabase
+      .from('purchases')
+      .select(
+        `
       *,
       purchase_items (
         *,
@@ -29,30 +29,17 @@ export async function readPurchaseById(purchaseId: string): Promise<{
       ),
       addresses (*)
       `,
-    )
-    .eq('id', purchaseId)
-    .single()
+      )
+      .eq('id', input.id)
+      .single()
 
-  return { purchase, purchaseError }
-}
+    if (readPurchaseError || !purchase) {
+      console.error('Error reading purchase.', readPurchaseError)
+      return
+    }
 
-export async function updatePurchaseStatus(
-  newStatus: string,
-  purchaseId: string,
-) {
-  const supabase = createClient()
-
-  const { error: updateStatusError } = await supabase
-    .from('purchases')
-    .update({ status: newStatus })
-    .eq('id', purchaseId)
-
-  if (updateStatusError) {
-    console.error(updateStatusError)
-  }
-
-  revalidatePath('/purchases')
-}
+    return { purchase }
+  })
 
 export async function acceptPurchase(purchaseId: string) {
   const supabase = createClient()
@@ -97,4 +84,22 @@ export async function updateDiscount(purchaseId: string, discount: number) {
   }
 
   revalidatePath('/admin/purchases')
+}
+
+export async function updatePurchaseStatus(
+  newStatus: string,
+  purchaseId: string,
+) {
+  const supabase = createClient()
+
+  const { error: updateStatusError } = await supabase
+    .from('purchases')
+    .update({ status: newStatus })
+    .eq('id', purchaseId)
+
+  if (updateStatusError) {
+    console.error(updateStatusError)
+  }
+
+  revalidatePath('/purchases')
 }

@@ -1,17 +1,26 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readPurchases } from './actions'
+import { readPurchases, readTables } from './actions'
 import { Purchases } from './purchases'
 
 export default async function WorkspacePage() {
   const { purchases, purchasesError } = await readPurchases()
+  const [data] = await readTables()
 
-  if (purchasesError) console.error(purchasesError)
+  if (purchasesError) {
+    console.error(purchasesError)
+    return null
+  }
+
+  if (!data) {
+    console.error('Error fetching tables')
+    return null
+  }
 
   return (
     <main className="space-y-6 p-4 lg:px-0">
       <AdminHeader title="Pedidos" />
 
-      <Purchases purchases={purchases} />
+      <Purchases purchases={purchases} tables={data.tables} />
     </main>
   )
 }

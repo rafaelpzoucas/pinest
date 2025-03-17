@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { Plus, Printer as PrinterIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -16,11 +17,9 @@ export default async function OrderPage({
 }: {
   params: { id: string; print: string }
 }) {
-  const { purchase, purchaseError } = await readPurchaseById(params.id)
+  const [purchaseData] = await readPurchaseById({ id: params.id })
 
-  if (purchaseError) {
-    return null
-  }
+  const purchase: PurchaseType = purchaseData?.purchase
 
   const displayId = params.id.substring(0, 4)
 

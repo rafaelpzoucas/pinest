@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { adminProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 
@@ -53,3 +54,24 @@ export async function readPurchases(): Promise<{
 
   return { purchases, purchasesError }
 }
+
+export const readTables = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: tables, error: readTablesError } = await supabase
+      .from('tables')
+      .select(
+        `
+          *,
+          purchase_items (
+            *,
+            products (*)
+          )
+        `,
+      )
+      .eq('store_id', store.id)
+
+    return { tables }
+  })

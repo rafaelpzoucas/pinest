@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 
-export function Printer({ purchaseId }: { purchaseId: string }) {
+export function Printer({ tableId }: { tableId: string }) {
   useEffect(() => {
     window.onafterprint = () => {
-      window.location.href = `/admin/purchases/${purchaseId}/receipt/delivery`
+      window.close()
     }
 
     window.print()
@@ -13,7 +13,7 @@ export function Printer({ purchaseId }: { purchaseId: string }) {
     return () => {
       window.onafterprint = null
     }
-  }, [purchaseId])
+  }, [tableId])
 
   return null
 }
