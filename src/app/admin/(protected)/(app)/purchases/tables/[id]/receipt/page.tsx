@@ -1,38 +1,30 @@
-import { format } from 'date-fns'
+import { TableType } from '@/models/table'
 import { Plus } from 'lucide-react'
-import { readPurchaseById } from '../actions'
+import { readTableById } from '../actions'
 import { Printer } from './printer'
 
 export default async function PrintKitchenReceipt({
   params,
+  searchParams,
 }: {
   params: { id: string }
+  searchParams: { reprint: string }
 }) {
-  const { purchase, purchaseError } = await readPurchaseById(params.id)
+  const [tableData] = await readTableById({ id: params.id })
 
-  if (purchaseError) {
-    throw new Error(purchaseError)
+  if (!tableData) {
+    console.error('Erro ao buscar as informações da mesa.')
+    return
   }
 
-  const displayId = purchase?.id.substring(0, 4)
+  const reprint = searchParams.reprint
 
-  const DELIVERY_TYPES = {
-    pickup: 'Retirar na loja',
-    delivery: 'Entregar',
-  }
+  const table: TableType = tableData.table
+  const unprintedItems = table.purchase_items.filter((item) => !item.printed)
 
-  if (!purchase) {
-    return null
-  }
+  const itemsList = reprint ? table.purchase_items : unprintedItems
 
-  const customerName =
-    purchase?.customers?.users?.name ??
-    purchase.guest_data?.name ??
-    purchase.customers.name
-  const customerPhone =
-    purchase?.customers?.users?.phone ??
-    purchase.guest_data?.phone ??
-    purchase.customers.phone
+  const displayId = table.number
 
   return (
     <div
@@ -41,23 +33,7 @@ export default async function PrintKitchenReceipt({
     >
       <h1 className="uppercase text-base">cozinha</h1>
 
-      <h2 className="uppercase">Pedido #{displayId}</h2>
-
-      <h2 className="font-bold uppercase">
-        {DELIVERY_TYPES[purchase.type as keyof typeof DELIVERY_TYPES]}
-      </h2>
-
-      <div
-        className="w-full border-b border-dashed last:border-0 py-4 break-inside-avoid
-          print-section"
-      >
-        <p>Data: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
-        <p>Cliente: {customerName}</p>
-        <p>Telefone: {customerPhone}</p>
-      </div>
-
-      {/* Forçando uma nova página antes dos itens */}
-      <div className="force-page-break"></div>
+      <h2 className="uppercase">Mesa #{displayId}</h2>
 
       <div
         className="w-full border-b border-dashed last:border-0 py-4 space-y-1 print-section
@@ -66,7 +42,7 @@ export default async function PrintKitchenReceipt({
         <h3 className="mx-auto text-xs uppercase">Itens do pedido</h3>
 
         <ul>
-          {purchase.purchase_items.map((item) => (
+          {itemsList.map((item) => (
             <li
               key={item.id}
               className="border-b border-dotted last:border-0 py-2 print-section uppercase"
@@ -89,7 +65,7 @@ export default async function PrintKitchenReceipt({
         </ul>
       </div>
 
-      <Printer purchaseId={purchase.id} />
+      <Printer tableId={table.id} />
     </div>
   )
 }

@@ -8,10 +8,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Eye, Printer } from 'lucide-react'
+import { BadgeDollarSign, Eye, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { CancelPurchaseButton } from './cancel-purchase-button'
-import { Discount } from './discount'
 import { UpdateStatusButton } from './update-status-button'
 
 export function PurchaseOptions({
@@ -52,7 +51,25 @@ export function PurchaseOptions({
           purchaseId={purchaseId}
         />
 
-        {accepted && <Discount purchaseId={purchaseId} discount={discount} />}
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Link
+                href={`purchases/close?purchase_id=${purchaseId}`}
+                className={buttonVariants({
+                  variant: 'ghost',
+                  size: 'icon',
+                })}
+              >
+                <BadgeDollarSign className="w-5 h-5" />
+              </Link>
+            </TooltipTrigger>
+
+            <TooltipContent>
+              <p>Fechar venda</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         {accepted && (
           <TooltipProvider>

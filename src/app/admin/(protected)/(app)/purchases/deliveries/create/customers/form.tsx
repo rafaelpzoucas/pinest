@@ -54,7 +54,6 @@ export function CustomersForm({ sheetState }: CustomersFormProps) {
       console.error('Error creating customer:', err)
     },
     onSuccess: () => {
-      console.log(data?.createdCustomer)
       const customer = data?.createdCustomer[0] as unknown as CustomerType
 
       router.push(`?created_customer=${customer?.id}`)

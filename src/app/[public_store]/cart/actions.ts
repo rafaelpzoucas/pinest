@@ -140,8 +140,6 @@ export async function getCart(storeUrl: string): Promise<{
 }
 
 export async function addToCart(storeUrl: string, newItem: CartProductType) {
-  console.log({ newItem })
-
   const cartSession = await getCartSession(storeUrl)
 
   if (!newItem?.id) {

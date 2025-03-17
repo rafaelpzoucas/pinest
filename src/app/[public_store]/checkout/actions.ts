@@ -1,4 +1,4 @@
-import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/[id]/actions'
+import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'

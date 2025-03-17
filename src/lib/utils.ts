@@ -87,7 +87,7 @@ export function removeAccents(str: string) {
 
 export function stringToNumber(string: string) {
   if (string === '') {
-    return
+    return 0
   }
 
   if (typeof string === 'string') {
@@ -107,7 +107,7 @@ export function stringToNumber(string: string) {
     return number
   }
 
-  return null
+  return 0
 }
 
 export function generateSlug(str: string): string {

@@ -33,6 +33,8 @@ export type PurchaseItemsType = {
   product_price: number
   products: ProductType
   observations: string
+  is_paid: boolean
+  printed: boolean
   extras: ExtraType[]
 }
 
