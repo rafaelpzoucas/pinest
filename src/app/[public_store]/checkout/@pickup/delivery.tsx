@@ -50,7 +50,7 @@ export function Delivery({ customerAddress, shipping }: DeliveryProps) {
       ) : (
         <>
           <Link
-            href={`?step=payment&pickup=delivery&address=${customerAddress ? address?.id : 'guest'}`}
+            href={`?step=payment&pickup=DELIVERY&address=${customerAddress ? address?.id : 'guest'}`}
             className="space-y-2"
           >
             <div className="flex flex-col gap-2 p-4 w-full">

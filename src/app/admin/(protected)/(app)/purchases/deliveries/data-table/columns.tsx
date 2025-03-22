@@ -12,6 +12,10 @@ import { statuses } from '@/models/statuses'
 import { GuestType } from '@/models/user'
 import { ColumnDef } from '@tanstack/react-table'
 import { PurchaseOptions } from './options'
+import Image from 'next/image'
+import { IfoodOrder } from '@/models/ifood'
+import { addHours, addMinutes, format, parseISO } from 'date-fns'
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz'
 
 export const columns: ColumnDef<PurchaseType>[] = [
   {
@@ -20,21 +24,68 @@ export const columns: ColumnDef<PurchaseType>[] = [
     cell: ({ row }) => {
       const date = row.getValue('created_at') as string
 
-      return formatDate(date, 'dd/MM/yyyy - HH:mm')
+      return formatDate(date, 'dd/MM - HH:mm:ss')
+    },
+  },
+  {
+    accessorKey: 'type',
+    header: 'Tipo',
+    cell: ({ row }) => {
+      const isIfood = row.original.is_ifood
+      const ifoodOrderData: IfoodOrder =
+        isIfood && row.original.ifood_order_data
+      const deliveryDateTime = addHours(
+        ifoodOrderData?.delivery?.deliveryDateTime,
+        3,
+      )
+      const preparationStartDateTime = addHours(
+        ifoodOrderData?.preparationStartDateTime,
+        3,
+      )
+
+      return (
+        <div className="flex flex-col gap-3 items-center justify-center">
+          <div className="flex flex-row items-center gap-2">
+            <span>
+              {isIfood && (
+                <Image src="/ifood.png" alt="" width={30} height={15} />
+              )}
+            </span>
+
+            <span>
+              {row.original.type === 'DELIVERY' ? 'Entrega' : 'Retirada'}
+            </span>
+          </div>
+
+          {ifoodOrderData &&
+            preparationStartDateTime &&
+            ifoodOrderData.orderTiming === 'SCHEDULED' && (
+              <div className="flex flex-row gap-2">
+                <Badge className="flex flex-col w-fit">
+                  <span>AGENDADO</span>
+                  <span>{format(deliveryDateTime, 'dd/MM HH:mm')}</span>
+                </Badge>
+                <Badge className="flex flex-col w-fit bg-secondary text-secondary-foreground">
+                  <span>INICIAR PREPARO</span>
+                  <span>{format(preparationStartDateTime, 'dd/MM HH:mm')}</span>
+                </Badge>
+              </div>
+            )}
+        </div>
+      )
     },
   },
   {
     accessorKey: 'customers',
     header: 'Cliente',
     cell: ({ row }) => {
+      const purchase = row.original
       const customer = row.getValue('customers') as CustomersType
-      const guest = row.original.guest_data as GuestType
-      const type = row.original.type
-      const customerAddress =
-        customer &&
-        customer.users &&
-        customer.users.addresses &&
-        customer.users.addresses[0]
+      const guest = purchase.guest_data as GuestType
+      const type = purchase.type
+      const customerAddress = ((purchase.addresses
+        ? formatAddress(purchase.addresses)
+        : purchase.guest_data?.address) ?? purchase.customers.address) as string
 
       return (
         <div className="max-w-[280px]">
@@ -46,24 +97,13 @@ export const columns: ColumnDef<PurchaseType>[] = [
             ).toLowerCase()}
           </p>
           <p className="text-xs text-muted-foreground">
-            {type === 'delivery'
-              ? (formatAddress(customerAddress ?? guest?.address) ??
-                customer.address)
-              : 'Retirada na loja'}
+            {type === 'DELIVERY' ? customerAddress : 'Retirada na loja'}
           </p>
         </div>
       )
     },
   },
-  {
-    accessorKey: 'purchase_items',
-    header: 'Produtos',
-    cell: ({ row }) => {
-      const items = row.getValue('purchase_items') as PurchaseItemsType[]
 
-      return items.length
-    },
-  },
   {
     accessorKey: 'status',
     header: 'Status',
@@ -82,9 +122,14 @@ export const columns: ColumnDef<PurchaseType>[] = [
     cell: ({ row }) => {
       const changeValue = row.getValue('change_value') as number
       const totalAmount = row.getValue('total_amount') as number
+      const ifoodOrderData: IfoodOrder =
+        row.original.is_ifood && row.original?.ifood_order_data
+      const ifoodCashChangeAmount = ifoodOrderData?.payments.methods[0].cash
+        ? ifoodOrderData.payments.methods[0].cash.changeFor
+        : 0
 
       return changeValue ? (
-        formatCurrencyBRL(changeValue - totalAmount)
+        formatCurrencyBRL((ifoodCashChangeAmount || changeValue) - totalAmount)
       ) : (
         <p>-</p>
       )
@@ -124,14 +169,14 @@ export const columns: ColumnDef<PurchaseType>[] = [
     cell: ({ row }) => {
       const currentStatus = row.original.status as string
       const accepted = row.original.accepted
-      const discount = row.original.discount
+      const type = row.original.type
 
       return (
         <PurchaseOptions
           accepted={accepted}
           purchaseId={row.getValue('id')}
           currentStatus={currentStatus}
-          discount={discount}
+          type={type}
         />
       )
     },

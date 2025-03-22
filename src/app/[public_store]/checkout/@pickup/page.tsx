@@ -56,7 +56,7 @@ export default async function PickupOptions({
 
       {storeAddress && (
         <Card className="flex flex-col gap-2 w-full">
-          <Link href={`?step=payment&pickup=pickup`} className="space-y-2 p-4">
+          <Link href={`?step=payment&pickup=TAKEOUT`} className="space-y-2 p-4">
             <header className="flex flex-row items-center justify-between">
               <strong className="text-sm">Retirar na loja</strong>
 

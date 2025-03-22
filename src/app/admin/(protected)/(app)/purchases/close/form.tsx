@@ -137,7 +137,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                 <FormControl>
                   <Input
                     maskType="currency"
-                    placeholder="Insira o valor a ser pago..."
+                    placeholder="Insira o valor do desconto..."
                     {...field}
                   />
                 </FormControl>
@@ -155,7 +155,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                 <FormControl>
                   <Input
                     maskType="currency"
-                    placeholder="Insira o valor a ser pago..."
+                    placeholder="Insira o valor a receber..."
                     {...field}
                   />
                 </FormControl>

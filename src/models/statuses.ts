@@ -1,11 +1,19 @@
 export const statuses = {
-  pending: {
-    status: 'Pendente',
+  accept: {
+    status: 'Aprovar',
     next_step: 'Aguardando confirmação do pedido.',
     delivery_address: 'O seu pedido será entregue',
     color: 'bg-blue-500',
-    next_status: 'preparing',
+    next_status: 'pending',
     action_text: 'Aprovar pedido',
+  },
+  pending: {
+    status: 'Pendente',
+    next_step: 'Aguardando iniciar o preparo.',
+    delivery_address: 'O seu pedido será entregue',
+    color: 'bg-blue-500',
+    next_status: 'preparing',
+    action_text: 'Iniciar preparo',
   },
   preparing: {
     status: 'Em preparo',
@@ -14,6 +22,14 @@ export const statuses = {
     color: 'bg-yellow-500',
     next_status: 'shipped',
     action_text: 'Despachar pedido',
+  },
+  readyToPickup: {
+    status: 'Pronto para retirada',
+    next_step: 'O pedido está pronto para retirada.',
+    delivery_address: 'O pedido está pronto para retirada.',
+    color: 'bg-yellow-500',
+    next_status: 'delivered',
+    action_text: 'Marcar como Entregue',
   },
   shipped: {
     status: 'Despachado',

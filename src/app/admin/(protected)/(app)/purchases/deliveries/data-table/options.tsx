@@ -17,22 +17,24 @@ export function PurchaseOptions({
   accepted,
   purchaseId,
   currentStatus,
-  discount,
+  type,
+  isDetailsPage,
 }: {
   accepted: boolean
   purchaseId: string
   currentStatus: string
-  discount: number
+  type: string
+  isDetailsPage?: boolean
 }) {
   return (
     <>
       <div className="hidden lg:flex flex-row justify-end">
-        {accepted && (
+        {accepted && !isDetailsPage && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`purchases/${purchaseId}`}
+                  href={`purchases/deliveries/${purchaseId}`}
                   className={buttonVariants({ variant: 'ghost', size: 'icon' })}
                 >
                   <Eye className="w-5 h-5" />
@@ -49,34 +51,37 @@ export function PurchaseOptions({
           accepted={accepted}
           currentStatus={currentStatus}
           purchaseId={purchaseId}
+          type={type}
         />
-
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Link
-                href={`purchases/close?purchase_id=${purchaseId}`}
-                className={buttonVariants({
-                  variant: 'ghost',
-                  size: 'icon',
-                })}
-              >
-                <BadgeDollarSign className="w-5 h-5" />
-              </Link>
-            </TooltipTrigger>
-
-            <TooltipContent>
-              <p>Fechar venda</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
 
         {accepted && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`purchases/${purchaseId}/receipt`}
+                  href={`purchases/close?purchase_id=${purchaseId}`}
+                  className={buttonVariants({
+                    variant: 'ghost',
+                    size: 'icon',
+                  })}
+                >
+                  <BadgeDollarSign className="w-5 h-5" />
+                </Link>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p>Fechar venda</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {accepted && (
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={`/admin/purchases/deliveries/${purchaseId}/receipt`}
                   target="_blank"
                   className={buttonVariants({
                     variant: 'ghost',

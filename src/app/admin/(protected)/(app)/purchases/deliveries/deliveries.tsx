@@ -32,6 +32,11 @@ export function Deliveries({
 
   const statusFilters = [
     {
+      status: 'accept',
+      title: 'aguardando',
+      status_length: getStatusLengths('accept'),
+    },
+    {
       status: 'pending',
       title: 'pendente(s)',
       status_length: getStatusLengths('pending'),
@@ -128,7 +133,7 @@ export function Deliveries({
         </div>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}

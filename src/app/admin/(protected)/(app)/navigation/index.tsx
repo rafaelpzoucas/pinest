@@ -1,11 +1,12 @@
 'use client'
 
 import {
+  Blocks,
   ChartPie,
   CircleDollarSign,
+  HomeIcon,
   Layers,
   LayoutDashboard,
-  LayoutGrid,
   LayoutList,
   Settings,
   Truck,
@@ -20,7 +21,7 @@ export const navLinks: LinkType[] = [
   {
     route: '/admin/dashboard',
     title: 'Dashboard',
-    icon: LayoutGrid,
+    icon: HomeIcon,
   },
   {
     route: '/admin/purchases',
@@ -36,6 +37,11 @@ export const navLinks: LinkType[] = [
     route: '/admin/reports',
     title: 'Relatórios',
     icon: ChartPie,
+  },
+  {
+    route: '/admin/integrations',
+    title: 'Integrações',
+    icon: Blocks,
   },
   {
     route: '/admin/config',

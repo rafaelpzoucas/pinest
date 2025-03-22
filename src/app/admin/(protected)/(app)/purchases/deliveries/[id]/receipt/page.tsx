@@ -1,8 +1,14 @@
+import { IfoodItem } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../actions'
 import { Printer } from './printer'
+
+export const DELIVERY_TYPES = {
+  TAKEOUT: 'Retirar na loja',
+  DELIVERY: 'Entregar',
+}
 
 export default async function PrintKitchenReceipt({
   params,
@@ -14,11 +20,6 @@ export default async function PrintKitchenReceipt({
   const purchase: PurchaseType = purchaseData?.purchase
 
   const displayId = purchase?.id.substring(0, 4)
-
-  const DELIVERY_TYPES = {
-    pickup: 'Retirar na loja',
-    delivery: 'Entregar',
-  }
 
   if (!purchase) {
     return null
@@ -32,6 +33,9 @@ export default async function PrintKitchenReceipt({
     purchase?.customers?.users?.phone ??
     purchase.guest_data?.phone ??
     purchase.customers.phone
+
+  const isIfood = purchase.is_ifood
+  const ifoodItems: IfoodItem[] = isIfood && purchase.ifood_order_data.items
 
   return (
     <div
@@ -65,26 +69,47 @@ export default async function PrintKitchenReceipt({
         <h3 className="mx-auto text-xs uppercase">Itens do pedido</h3>
 
         <ul>
-          {purchase.purchase_items.map((item) => (
-            <li
-              key={item.id}
-              className="border-b border-dotted last:border-0 py-2 print-section uppercase"
-            >
-              <span>
-                {item.quantity} {item.products.name}
-              </span>
+          {!isIfood
+            ? purchase.purchase_items.map((item) => (
+                <li
+                  key={item.id}
+                  className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                >
+                  <span>
+                    {item.quantity} {item.products.name}
+                  </span>
 
-              {item.extras.length > 0 &&
-                item.extras.map((extra) => (
-                  <p className="flex flex-row items-center w-full text-xs">
-                    <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
-                    {extra.name}
-                  </p>
-                ))}
+                  {item.extras.length > 0 &&
+                    item.extras.map((extra) => (
+                      <p className="flex flex-row items-center w-full text-xs">
+                        <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
+                        {extra.name}
+                      </p>
+                    ))}
 
-              {item.observations && <strong>**{item.observations}</strong>}
-            </li>
-          ))}
+                  {item.observations && <strong>**{item.observations}</strong>}
+                </li>
+              ))
+            : ifoodItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                >
+                  <span>
+                    {item.quantity} {item.name}
+                  </span>
+
+                  {item.options.length > 0 &&
+                    item.options.map((option) => (
+                      <p className="flex flex-row items-center w-full text-xs">
+                        <Plus className="w-3 h-3 mr-1" /> {option.quantity} ad.{' '}
+                        {option.name}
+                      </p>
+                    ))}
+
+                  {item.observations && <strong>**{item.observations}</strong>}
+                </li>
+              ))}
         </ul>
       </div>
 

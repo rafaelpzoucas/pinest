@@ -61,6 +61,8 @@ export type PurchaseType = {
   tracking_code: string
   accepted: boolean
   change_value: number
+  is_ifood: boolean
+  ifood_order_data: any
   purchase_items: PurchaseItemsType[]
   purchase_item_variations: PurchaseItemVariations[]
   addresses: AddressType

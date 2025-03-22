@@ -128,7 +128,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
 
   const valuesToInsert = {
     customer_id: customer?.id ?? null,
-    status: 'pending',
+    status: 'accept',
     total_amount: newPurchase.totalAmount,
     updated_at: new Date().toISOString(),
     address_id: newPurchase.addressId,

@@ -73,7 +73,7 @@ export function CreatePurchaseForm({
 
   const totalPurchasePrice =
     totalAmount +
-    (purchaseType === 'delivery' ? shippingPrice : 0) -
+    (purchaseType === 'DELIVERY' ? shippingPrice : 0) -
     (discount || 0)
 
   const { execute, isPending } = useServerAction(createPurchase)
@@ -129,13 +129,13 @@ export function CreatePurchaseForm({
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="delivery" />
+                        <RadioGroupItem value="DELIVERY" />
                       </FormControl>
                       <FormLabel className="font-normal">Entrega</FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="pickup" />
+                        <RadioGroupItem value="TAKEOUT" />
                       </FormControl>
                       <FormLabel className="font-normal">Retirada</FormLabel>
                     </FormItem>
@@ -146,7 +146,7 @@ export function CreatePurchaseForm({
             )}
           />
 
-          {(purchaseType === 'delivery' || purchaseType === 'pickup') && (
+          {(purchaseType === 'DELIVERY' || purchaseType === 'TAKEOUT') && (
             <CustomersCombobox
               customers={customers}
               form={form}
@@ -257,7 +257,7 @@ export function CreatePurchaseForm({
               <strong>{formatCurrencyBRL(totalAmount)}</strong>
             </div>
 
-            {form.watch('type') === 'delivery' && (
+            {form.watch('type') === 'DELIVERY' && (
               <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">
                 <span>Entrega</span>
                 <strong>
