@@ -23,11 +23,9 @@ export const createPurchaseFormSchema = z.object({
   type: z.enum(['DELIVERY', 'TAKEOUT'], {
     message: 'Escolha o tipo do pedido.',
   }),
-  payment_type: z.enum(['card', 'pix', 'cash'], {
+  payment_type: z.enum(['CREDIT', 'DEBIT', 'PIX', 'CASH'], {
     message: 'Escolha a forma de pagamento.',
   }),
-  change_value: z.string().optional(),
-  discount: z.string().optional(),
   status: z.enum([
     'accept',
     'pending',
@@ -37,7 +35,12 @@ export const createPurchaseFormSchema = z.object({
     'delivered',
     'cancelled',
   ]),
-  accepted: z.boolean(),
-  total_amount: z.number(),
-  shipping_price: z.number(),
+  observations: z.string().optional(),
+  total: z.object({
+    subtotal: z.number(),
+    shipping_price: z.number(),
+    discount: z.string(),
+    change_value: z.string(),
+    total_amount: z.number(),
+  }),
 })

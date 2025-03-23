@@ -4,9 +4,10 @@ import { ProductType, ProductVariationType } from './product'
 import { AddressType, GuestType, UserType } from './user'
 
 export const PAYMENT_TYPES = {
-  card: 'Cartão',
-  pix: 'PIX',
-  cash: 'Dinheiro',
+  CREDIT: 'Cartão de crédito',
+  DEBIT: 'Cartão de débito',
+  PIX: 'PIX',
+  CASH: 'Dinheiro',
 }
 
 export interface CustomersType extends CustomerType {
@@ -53,14 +54,10 @@ export type PurchaseType = {
   customer_id: string
   status: string
   store_id: string
-  total_amount: number
-  shipping_price: number
   delivery_time: number
   type: string
   payment_type: string
   tracking_code: string
-  accepted: boolean
-  change_value: number
   is_ifood: boolean
   ifood_order_data: any
   purchase_items: PurchaseItemsType[]
@@ -68,5 +65,12 @@ export type PurchaseType = {
   addresses: AddressType
   customers: CustomersType
   guest_data: GuestType
-  discount: number
+  observations?: string
+  total: {
+    shipping_price: number
+    change_value: number
+    discount: number
+    total_amount: number
+    subtotal: number
+  }
 }

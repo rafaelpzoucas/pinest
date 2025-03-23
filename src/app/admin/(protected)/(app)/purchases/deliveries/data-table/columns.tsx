@@ -3,19 +3,14 @@
 import { StatusKey } from '@/app/[public_store]/purchases/[id]/status'
 import { Badge } from '@/components/ui/badge'
 import { cn, formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
-import {
-  CustomersType,
-  PurchaseItemsType,
-  PurchaseType,
-} from '@/models/purchase'
+import { IfoodOrder } from '@/models/ifood'
+import { CustomersType, PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { GuestType } from '@/models/user'
 import { ColumnDef } from '@tanstack/react-table'
-import { PurchaseOptions } from './options'
+import { addHours, format } from 'date-fns'
 import Image from 'next/image'
-import { IfoodOrder } from '@/models/ifood'
-import { addHours, addMinutes, format, parseISO } from 'date-fns'
-import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz'
+import { PurchaseOptions } from './options'
 
 export const columns: ColumnDef<PurchaseType>[] = [
   {
@@ -120,8 +115,8 @@ export const columns: ColumnDef<PurchaseType>[] = [
     accessorKey: 'change_value',
     header: 'Troco',
     cell: ({ row }) => {
-      const changeValue = row.getValue('change_value') as number
-      const totalAmount = row.getValue('total_amount') as number
+      const changeValue = row.original?.total?.change_value ?? 0
+      const totalAmount = row.original?.total?.total_amount ?? 0
       const ifoodOrderData: IfoodOrder =
         row.original.is_ifood && row.original?.ifood_order_data
       const ifoodCashChangeAmount = ifoodOrderData?.payments.methods[0].cash
@@ -139,7 +134,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
     accessorKey: 'discount',
     header: 'Desconto',
     cell: ({ row }) => {
-      const discount = row.getValue('discount') as number
+      const discount = row.original?.total?.discount
 
       return discount ? formatCurrencyBRL(discount) : <p>-</p>
     },
@@ -148,17 +143,11 @@ export const columns: ColumnDef<PurchaseType>[] = [
     accessorKey: 'total_amount',
     header: 'Total',
     cell: ({ row }) => {
-      const totalAmount = row.getValue('total_amount') as number
-      const discount = row.original.discount ?? 0
+      const totalAmount = row.original?.total?.total_amount
 
       return (
         <div>
-          {discount > 0 && (
-            <span className="line-through text-xs text-muted-foreground">
-              {formatCurrencyBRL(totalAmount)}
-            </span>
-          )}
-          <p>{formatCurrencyBRL(totalAmount - discount)}</p>
+          <p>{formatCurrencyBRL(totalAmount)}</p>
         </div>
       )
     },
@@ -168,7 +157,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Ações',
     cell: ({ row }) => {
       const currentStatus = row.original.status as string
-      const accepted = row.original.accepted
+      const accepted = row.original.status !== 'accept'
       const type = row.original.type
 
       return (

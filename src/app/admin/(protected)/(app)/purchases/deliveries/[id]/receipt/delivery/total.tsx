@@ -42,7 +42,7 @@ export function Total({ purchase }: { purchase: PurchaseType }) {
       </p>
       <p className="flex flex-row items-center justify-between">
         <span>Taxa de entrega:</span>{' '}
-        <span>{formatCurrencyBRL(purchase.shipping_price)}</span>
+        <span>{formatCurrencyBRL(purchase?.total?.shipping_price)}</span>
       </p>
       {isIfood && (
         <p className="flex flex-row items-center justify-between">
@@ -60,9 +60,13 @@ export function Total({ purchase }: { purchase: PurchaseType }) {
         </p>
       )}
 
+      <p className="flex flex-row items-center justify-between">
+        <span>Desconto:</span> <span>{formatCurrencyBRL(0)}</span>
+      </p>
+
       <strong className="flex flex-row items-center justify-between uppercase">
         <span>Total do pedido:</span>{' '}
-        <span>{formatCurrencyBRL(purchase.total_amount)}</span>
+        <span>{formatCurrencyBRL(purchase?.total?.total_amount)}</span>
       </strong>
     </section>
   )

@@ -17,19 +17,25 @@ export const createPurchase = adminProcedure
         .insert({
           customer_id: input.customer_id,
           status: input.status,
-          total_amount: input.total_amount,
           updated_at: new Date().toISOString(),
           store_id: store?.id,
-          shipping_price: input.type !== 'pickup' ? input.shipping_price : 0,
           delivery_time:
-            input.type === 'delivery' ? store?.delivery_time : null,
+            input.type === 'DELIVERY' ? store?.delivery_time : null,
           type: input.type,
           payment_type: input.payment_type,
-          change_value: input.change_value
-            ? stringToNumber(input.change_value)
-            : null,
-          discount: input.discount ? stringToNumber(input.discount) : null,
-          accepted: input.accepted,
+          observations: input.observations,
+          total: {
+            subtotal: input.total.subtotal,
+            total_amount: input.total.total_amount,
+            shipping_price:
+              input.type !== 'TAKEOUT' ? input.total.shipping_price : 0,
+            change_value: input.total.change_value
+              ? stringToNumber(input.total.change_value)
+              : null,
+            discount: input.total.discount
+              ? stringToNumber(input.total.discount)
+              : null,
+          },
         })
         .select()
 

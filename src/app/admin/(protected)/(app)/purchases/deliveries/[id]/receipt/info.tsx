@@ -25,7 +25,7 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
     : purchase?.id.substring(0, 4)
 
   return (
-    <section>
+    <section className="w-full">
       <header className="flex flex-col items-center justify-center">
         <h1 className="uppercase">Pedido #{displayId}</h1>
 
@@ -52,7 +52,14 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
         </p>
         <p>Telefone: {customerPhone}</p>
         <p>Endereço: {customerAddress}</p>
-        <p>Observações: {ifoodOrder.delivery.observations}</p>
+
+        {((isIfood && ifoodOrder.delivery.observations) ||
+          purchase.observations) && (
+          <p>
+            Observações:{' '}
+            {ifoodOrder.delivery.observations ?? purchase.observations}
+          </p>
+        )}
       </div>
     </section>
   )
