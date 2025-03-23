@@ -16,18 +16,19 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Switch } from '@/components/ui/switch'
 import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
 import { CustomerType } from '@/models/customer'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
+import { ShippingConfigType } from '@/models/shipping'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { createPurchase } from './actions'
 import { CustomersCombobox } from './customers/combobox'
+import { LastPurchases } from './customers/last-purchases'
 import { ProductsList } from './products/list'
 import { SelectedProducts } from './products/selected-products'
 import { createPurchaseFormSchema } from './schemas'
@@ -37,11 +38,13 @@ export function CreatePurchaseForm({
   products,
   categories,
   extras,
+  shipping,
 }: {
   customers: CustomerType[]
   products: ProductType[]
   categories: CategoryType[]
   extras: ExtraType[]
+  shipping: ShippingConfigType
 }) {
   const router = useRouter()
 
@@ -53,26 +56,26 @@ export function CreatePurchaseForm({
     defaultValues: {
       customer_id: '',
       purchase_items: [],
-      // type: 'delivery',
-      payment_type: 'card',
-      change_value: '',
-      discount: '',
       status: 'preparing',
-      accepted: true,
-      total_amount: 0,
-      shipping_price: 6,
+      total: {
+        change_value: '',
+        discount: '',
+        total_amount: 0,
+        shipping_price: shipping.price ?? 0,
+      },
     },
   })
 
+  const customerId = form.watch('customer_id')
   const purchaseType = form.watch('type')
-  const discountValue = form.watch('discount') ?? 'R$ 0,00'
+  const discountValue = form.watch('total.discount') ?? 'R$ 0,00'
   const discount = stringToNumber(discountValue)
-  const shippingPrice = form.watch('shipping_price') ?? 0
+  const shippingPrice = form.watch('total.shipping_price') ?? 0
 
-  const totalAmount = form.watch('total_amount') ?? 0
+  const subtotal = form.watch('total.subtotal') ?? 0
 
-  const totalPurchasePrice =
-    totalAmount +
+  const totalAmount =
+    subtotal +
     (purchaseType === 'DELIVERY' ? shippingPrice : 0) -
     (discount || 0)
 
@@ -97,6 +100,33 @@ export function CreatePurchaseForm({
     router.push('/admin/purchases?tab=deliveries')
   }
 
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const purchaseItems = values.purchase_items ?? []
+
+      const subtotal = purchaseItems.reduce((acc, item) => {
+        const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 1)
+        const extrasTotal = (item?.extras ?? []).reduce(
+          (extraAcc, extra) =>
+            extraAcc + (extra?.price ?? 0) * (extra?.quantity ?? 1),
+          0,
+        )
+
+        return acc + itemTotal + extrasTotal
+      }, 0)
+
+      if (subtotal !== values.total?.subtotal) {
+        form.setValue('total.subtotal', subtotal, { shouldValidate: true })
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form.watch])
+
+  useEffect(() => {
+    form.setValue('total.total_amount', totalAmount)
+  }, [subtotal, shippingPrice])
+
   return (
     <Form {...form}>
       <form
@@ -115,6 +145,36 @@ export function CreatePurchaseForm({
         </aside>
         <Card className="space-y-6 p-4">
           <h1 className="text-lg font-bold">Resumo do pedido</h1>
+          <CustomersCombobox
+            customers={customers}
+            form={form}
+            customerFormSheetState={customerFormSheetState}
+          />
+
+          {customerId && <LastPurchases customerId={customerId} form={form} />}
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+
+          <FormField
+            control={form.control}
+            name="total.shipping_price"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+
+          <FormField
+            control={form.control}
+            name="total.subtotal"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+
+          <div>
+            <SelectedProducts form={form} products={products} extras={extras} />
+          </div>
+
           <FormField
             control={form.control}
             name="type"
@@ -146,40 +206,6 @@ export function CreatePurchaseForm({
             )}
           />
 
-          {(purchaseType === 'DELIVERY' || purchaseType === 'TAKEOUT') && (
-            <CustomersCombobox
-              customers={customers}
-              form={form}
-              customerFormSheetState={customerFormSheetState}
-            />
-          )}
-
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => <input type="hidden" {...field} />}
-          />
-
-          <FormField
-            control={form.control}
-            name="shipping_price"
-            render={({ field }) => <input type="hidden" {...field} />}
-          />
-
-          <FormField
-            control={form.control}
-            name="accepted"
-            render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                className="hidden"
-              />
-            )}
-          />
-
-          <SelectedProducts form={form} products={products} extras={extras} />
-
           <FormField
             control={form.control}
             name="payment_type"
@@ -189,26 +215,36 @@ export function CreatePurchaseForm({
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex flex-col space-y-1"
+                    value={field.value}
+                    className="grid grid-cols-2 space-y-1"
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="card" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Cartão</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="pix" />
+                        <RadioGroupItem value="PIX" />
                       </FormControl>
                       <FormLabel className="font-normal">PIX</FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="cash" />
+                        <RadioGroupItem value="CREDIT" />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Cartão de crédito
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="CASH" />
                       </FormControl>
                       <FormLabel className="font-normal">Dinheiro</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="DEBIT" />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Cartão de débito
+                      </FormLabel>
                     </FormItem>
                   </RadioGroup>
                 </FormControl>
@@ -217,10 +253,10 @@ export function CreatePurchaseForm({
             )}
           />
 
-          {form.watch('payment_type') === 'cash' && (
+          {form.watch('payment_type') === 'CASH' && (
             <FormField
               control={form.control}
-              name="change_value"
+              name="total.change_value"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Troco (opcional)</FormLabel>
@@ -235,7 +271,7 @@ export function CreatePurchaseForm({
 
           <FormField
             control={form.control}
-            name="discount"
+            name="total.discount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Desconto (opcional)</FormLabel>
@@ -251,24 +287,38 @@ export function CreatePurchaseForm({
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="observations"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Obserações (opcional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Insira observações..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="flex flex-col w-full">
             <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">
               <span>Subtotal</span>
-              <strong>{formatCurrencyBRL(totalAmount)}</strong>
+              <strong>{formatCurrencyBRL(subtotal)}</strong>
             </div>
 
             {form.watch('type') === 'DELIVERY' && (
               <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">
                 <span>Entrega</span>
                 <strong>
-                  {formatCurrencyBRL(form.watch('shipping_price') ?? 0)}
+                  {formatCurrencyBRL(form.watch('total.shipping_price') ?? 0)}
                 </strong>
               </div>
             )}
 
             <div className="flex flex-row items-center justify-between w-full">
               <span>Total da venda</span>
-              <strong>{formatCurrencyBRL(totalPurchasePrice ?? 0)}</strong>
+              <strong>{formatCurrencyBRL(totalAmount ?? 0)}</strong>
             </div>
           </div>
 

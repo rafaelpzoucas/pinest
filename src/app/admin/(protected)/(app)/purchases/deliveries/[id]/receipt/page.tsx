@@ -3,12 +3,8 @@ import { PurchaseType } from '@/models/purchase'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../actions'
+import { DELIVERY_TYPES } from './info'
 import { Printer } from './printer'
-
-export const DELIVERY_TYPES = {
-  TAKEOUT: 'Retirar na loja',
-  DELIVERY: 'Entregar',
-}
 
 export default async function PrintKitchenReceipt({
   params,
@@ -29,10 +25,6 @@ export default async function PrintKitchenReceipt({
     purchase?.customers?.users?.name ??
     purchase.guest_data?.name ??
     purchase.customers.name
-  const customerPhone =
-    purchase?.customers?.users?.phone ??
-    purchase.guest_data?.phone ??
-    purchase.customers.phone
 
   const isIfood = purchase.is_ifood
   const ifoodItems: IfoodItem[] = isIfood && purchase.ifood_order_data.items
@@ -56,11 +48,10 @@ export default async function PrintKitchenReceipt({
       >
         <p>Data: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
         <p>Cliente: {customerName}</p>
-        <p>Telefone: {customerPhone}</p>
+        {purchase.observations && (
+          <p className="text-base"> OBS: {purchase.observations}</p>
+        )}
       </div>
-
-      {/* Forçando uma nova página antes dos itens */}
-      <div className="force-page-break"></div>
 
       <div
         className="w-full border-b border-dashed last:border-0 py-4 space-y-1 print-section
@@ -81,7 +72,7 @@ export default async function PrintKitchenReceipt({
 
                   {item.extras.length > 0 &&
                     item.extras.map((extra) => (
-                      <p className="flex flex-row items-center w-full text-xs">
+                      <p className="flex flex-row items-center w-full">
                         <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
                         {extra.name}
                       </p>

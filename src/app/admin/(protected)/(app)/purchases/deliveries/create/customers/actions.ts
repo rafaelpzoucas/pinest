@@ -2,6 +2,7 @@
 
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { createCustomerFormSchema } from './schemas'
 
 export const readCustomers = adminProcedure
@@ -42,4 +43,37 @@ export const createCustomer = adminProcedure
     revalidatePath('/admin/purchases')
 
     return { createdCustomer }
+  })
+
+export const readCustomerLastPurchases = adminProcedure
+  .createServerAction()
+  .input(z.object({ customerId: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase, store } = ctx
+
+    const { data: lastPurchases, error: readLastPurchasesError } =
+      await supabase
+        .from('purchases')
+        .select(
+          `
+          *,
+          purchase_items (
+            *,
+            products (
+              *
+            )
+          )  
+        `,
+        )
+        .eq('store_id', store.id)
+        .eq('customer_id', input.customerId)
+        .order('created_at', { ascending: false })
+
+    if (readLastPurchasesError || !lastPurchases) {
+      throw new Error('Error creating customer', readLastPurchasesError)
+    }
+
+    revalidatePath('/admin/purchases')
+
+    return { lastPurchases }
   })

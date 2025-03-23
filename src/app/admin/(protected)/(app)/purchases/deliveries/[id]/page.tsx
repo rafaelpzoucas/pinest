@@ -28,6 +28,7 @@ export default async function OrderPage({
 
   const displayId = params.id.substring(0, 4)
 
+  const accepted = purchase.status !== 'accept'
   const purchaseItems = purchase?.purchase_items
   const customer = purchase?.customers?.users ?? purchase?.guest_data
   const customerAddress = ((purchase?.addresses
@@ -41,20 +42,21 @@ export default async function OrderPage({
   const ifoodItems: IfoodItem[] = ifoodOrderData?.items
   const ifoodItemsTotal = ifoodOrderData?.total.subTotal
   const ifoodAdditionalFees = isIfood && ifoodOrderData?.total.additionalFees
-  const ifoodPaymentTypeMap = {
+  const PAYMENT_TYPES = {
     CREDIT: 'Cartão de crédito',
     DEBIT: 'Cartão de débito',
     CASH: 'Dinheiro',
     ONLINE: 'Pago online',
   } as const
 
-  type PaymentTypes = keyof typeof ifoodPaymentTypeMap
+  type PaymentTypes = keyof typeof PAYMENT_TYPES
 
   const ifoodPaymentType: PaymentTypes = ifoodOrderData?.payments.methods[0]
     .type as PaymentTypes
   const ifoodCashChangeAmount =
     ifoodOrderData?.payments.methods[0].cash?.changeFor &&
-    ifoodOrderData?.payments.methods[0].cash?.changeFor - purchase?.total_amount
+    ifoodOrderData?.payments.methods[0].cash?.changeFor -
+      purchase?.total?.total_amount
 
   const deliveryDateTime = addHours(
     ifoodOrderData?.delivery?.deliveryDateTime,
@@ -70,6 +72,9 @@ export default async function OrderPage({
     0,
   )
   const subTotal = isIfood ? ifoodItemsTotal : purchaseItemsTotal
+  const change = purchase?.total?.change_value - purchase?.total?.total_amount
+
+  console.log({ purchase })
 
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0">
@@ -88,7 +93,7 @@ export default async function OrderPage({
               <PurchaseOptions
                 currentStatus={purchase?.status}
                 purchaseId={params.id}
-                accepted={purchase.accepted}
+                accepted={accepted}
                 type={purchase.type}
                 isDetailsPage
               />
@@ -127,14 +132,11 @@ export default async function OrderPage({
               <strong>Forma de pagamento</strong>
 
               <p>
-                {isIfood ? (
-                  <span>
-                    {ifoodPaymentTypeMap[ifoodPaymentType]}
-                    {` - ${ifoodOrderData.payments.methods[0].card?.brand}`}
-                  </span>
-                ) : (
-                  purchase?.payment_type
-                )}
+                <span>
+                  {PAYMENT_TYPES[ifoodPaymentType ?? purchase?.payment_type]}
+                  {isIfood &&
+                    ` - ${ifoodOrderData.payments.methods[0].card?.brand}`}
+                </span>
               </p>
             </div>
 
@@ -151,7 +153,7 @@ export default async function OrderPage({
                 </div>
               )}
 
-              {ifoodOrderData.benefits && (
+              {isIfood && ifoodOrderData.benefits && (
                 <p className="flex flex-row items-center justify-between">
                   <span>
                     Desconto: (
@@ -167,12 +169,12 @@ export default async function OrderPage({
                 <div className="flex flex-row items-center justify-between text-sm w-full">
                   <strong>Entrega</strong>
                   <strong>
-                    {formatCurrencyBRL(purchase?.shipping_price ?? 0)}
+                    {formatCurrencyBRL(purchase?.total.shipping_price ?? 0)}
                   </strong>
                 </div>
               )}
 
-              {ifoodOrderData.payments.methods[0].cash && (
+              {isIfood && ifoodOrderData.payments.methods[0].cash && (
                 <div className="flex flex-row items-center justify-between text-sm w-full">
                   <strong>Troco</strong>
                   <strong>
@@ -181,10 +183,19 @@ export default async function OrderPage({
                 </div>
               )}
 
+              {!isIfood &&
+                purchase.payment_type === 'CASH' &&
+                purchase.total.change_value && (
+                  <div className="flex flex-row items-center justify-between text-sm w-full">
+                    <strong>Troco</strong>
+                    <strong>{formatCurrencyBRL(change ?? 0)}</strong>
+                  </div>
+                )}
+
               <div className="flex flex-row items-center justify-between text-sm w-full">
                 <strong>Total da venda</strong>
                 <strong>
-                  {formatCurrencyBRL(purchase?.total_amount ?? 0)}
+                  {formatCurrencyBRL(purchase?.total.total_amount ?? 0)}
                 </strong>
               </div>
             </footer>

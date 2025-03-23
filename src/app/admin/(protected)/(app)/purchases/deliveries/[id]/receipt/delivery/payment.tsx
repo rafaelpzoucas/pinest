@@ -22,11 +22,13 @@ export function Payment({ purchase }: { purchase: PurchaseType }) {
         </strong>
       </div>
 
-      {purchase.change_value > 0 && (
+      {purchase.total.change_value > 0 && (
         <p className="flex flex-row items-center justify-between font-bold">
           <span>Troco:</span>{' '}
           <span>
-            {formatCurrencyBRL(purchase.change_value - purchase.total_amount)}
+            {formatCurrencyBRL(
+              purchase.total.change_value - purchase.total.total_amount,
+            )}
           </span>
         </p>
       )}
