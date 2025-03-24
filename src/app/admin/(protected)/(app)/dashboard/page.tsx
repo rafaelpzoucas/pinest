@@ -4,6 +4,7 @@ import { getSalesReport } from '../reports/actions'
 import { SalesReport } from '../reports/sales-report'
 import { readStore } from './actions'
 import { FirstSteps } from './first-steps'
+import { PendingBalances } from './panding-balances'
 import { ProfileCard } from './profile'
 import { TodaySummary } from './today-summary'
 
@@ -32,9 +33,13 @@ export default async function DashboardPage() {
         <FirstSteps />
       </section>
 
-      <section className="flex flex-col lg:flex-row items-start justify-start gap-6 w-full max-w-7xl">
+      <section
+        className="flex flex-col lg:grid grid-cols-2 items-start justify-start gap-6 w-full
+          max-w-7xl"
+      >
         <TodaySummary />
         <SalesReport data={reports?.salesReport} />
+        <PendingBalances />
         {/* <TotalSales /> */}
       </section>
     </div>

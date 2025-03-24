@@ -43,18 +43,45 @@ export const createPayment = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
+    const customerId = input.customer_id
+    const amount = stringToNumber(input.amount)
+    const discount = stringToNumber(input.discount)
+
     const { data: createdPayment, error } = await supabase
       .from('purchase_payments')
       .insert({
         ...input,
-        amount: stringToNumber(input.amount),
-        discount: stringToNumber(input.discount),
+        amount,
+        discount,
       })
       .select()
 
     if (error || !createdPayment) {
       console.error('Error creating payment transaction.', error)
       return
+    }
+
+    const { data: customerToUpdate, error: customerToUpdateError } =
+      await supabase.from('customers').select('*').eq('id', customerId).single()
+
+    if (customerToUpdateError || !customerToUpdate) {
+      console.error(
+        'Error fetching customer for balance update.',
+        customerToUpdateError,
+      )
+      return
+    }
+
+    if (customerId) {
+      const { error: updateCustomerBalance } = await supabase
+        .from('customers')
+        .update({ balance: customerToUpdate?.balance - amount })
+        .eq('id', input.customer_id)
+
+      if (updateCustomerBalance) {
+        console.error('Error updating customer balance.', updateCustomerBalance)
+        return
+      }
     }
 
     if (input.items) {

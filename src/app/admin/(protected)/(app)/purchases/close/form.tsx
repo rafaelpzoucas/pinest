@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
+import { CustomerType } from '@/models/customer'
 import { PaymentType } from '@/models/payment'
 import { useCloseBillStore } from '@/stores/closeBillStore'
 import { Loader2 } from 'lucide-react'
@@ -26,9 +27,16 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { closeBills, createPayment } from './actions'
+import { CustomersCombobox } from './customers/combobox'
 import { closeBillFormSchema } from './schemas'
 
-export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
+export function CloseBillForm({
+  payments,
+  customers,
+}: {
+  payments: PaymentType[]
+  customers: CustomerType[]
+}) {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -36,6 +44,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
     useCloseBillStore()
 
   const [enterAmount, setEnterAmount] = useState('')
+  const customerFormSheetState = useState(false)
 
   const selectedItems = items.filter((_, index) => rowSelection[index])
 
@@ -45,7 +54,6 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
     defaultValues: {
       amount: '',
       discount: '',
-      payment_type: 'pix',
       status: 'confirmed',
       table_id: searchParams.get('table_id') ?? undefined,
       purchase_id: searchParams.get('purchase_id') ?? undefined,
@@ -64,7 +72,8 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
     0,
   )
 
-  const isCashPayment = form.watch('payment_type') === 'cash'
+  const isCashPayment = form.watch('payment_type') === 'CASH'
+  const isDeferredPayment = form.watch('payment_type') === 'DEFERRED'
 
   const discount = stringToNumber(form.watch('discount'))
   const amountToPay = stringToNumber(form.watch('amount')) ?? 0
@@ -121,6 +130,8 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
   useEffect(() => {
     form.setValue('amount', (totalSelectedAmount - discount).toString())
   }, [discount])
+
+  console.log(form.formState.errors)
 
   return (
     <Form {...form}>
@@ -184,13 +195,13 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="pix" />
+                        <RadioGroupItem value="PIX" />
                       </FormControl>
                       <FormLabel className="font-normal">PIX</FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="credit-card" />
+                        <RadioGroupItem value="CREDIT" />
                       </FormControl>
                       <FormLabel className="font-normal">
                         Cartão de crédito
@@ -198,17 +209,23 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="cash" />
+                        <RadioGroupItem value="CASH" />
                       </FormControl>
                       <FormLabel className="font-normal">Dinheiro</FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="debit-card" />
+                        <RadioGroupItem value="DEBIT" />
                       </FormControl>
                       <FormLabel className="font-normal">
                         Cartão de débito
                       </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="DEFERRED" />
+                      </FormControl>
+                      <FormLabel className="font-normal">A Prazo</FormLabel>
                     </FormItem>
                   </RadioGroup>
                 </FormControl>
@@ -240,6 +257,14 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
             </div>
           )}
 
+          {isDeferredPayment && (
+            <CustomersCombobox
+              customers={customers}
+              form={form}
+              customerFormSheetState={customerFormSheetState}
+            />
+          )}
+
           <header className="flex-1 text-sm text-muted-foreground border-t pt-2">
             <div>
               <div className="flex flex-row items-center justify-between w-full">
@@ -261,10 +286,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
             type="submit"
             className="w-full"
             disabled={
-              isCreatePending ||
-              isCloseBillPending ||
-              amountToPay === 0 ||
-              !form.formState.isValid
+              isCreatePending || isCloseBillPending || amountToPay === 0
             }
           >
             {isCreatePending || isCloseBillPending ? (

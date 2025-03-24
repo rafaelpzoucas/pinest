@@ -27,8 +27,8 @@ import { ChevronsUpDown, Edit2 } from 'lucide-react'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import { closeBillFormSchema } from '../../../close/schemas'
-import { CustomersForm } from './form'
+import { CustomersForm } from '../../deliveries/create/customers/form'
+import { closeBillFormSchema } from '../schemas'
 
 type CustomersComboboxProps = {
   customers: CustomerType[]
@@ -45,6 +45,7 @@ export function CustomersCombobox({
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(
     null,
   )
+
   return (
     <FormField
       control={form.control}

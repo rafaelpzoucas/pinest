@@ -23,19 +23,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CustomerType } from '@/models/customer'
 import { Loader2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useServerAction } from 'zsa-react'
 import { createCustomer } from './actions'
 import { createCustomerFormSchema } from './schemas'
 
 type CustomersFormProps = {
   sheetState: [boolean, Dispatch<SetStateAction<boolean>>]
+  selectedCustomer?: CustomerType | null
 }
-export function CustomersForm({ sheetState }: CustomersFormProps) {
+export function CustomersForm({
+  sheetState,
+  selectedCustomer,
+}: CustomersFormProps) {
   const router = useRouter()
 
   const [isSheetOpen, setIsSheetOpen] = sheetState
@@ -66,6 +70,14 @@ export function CustomersForm({ sheetState }: CustomersFormProps) {
     execute(values)
   }
 
+  useEffect(() => {
+    if (selectedCustomer) {
+      form.setValue('name', selectedCustomer.name)
+      form.setValue('phone', selectedCustomer.phone)
+      form.setValue('address', selectedCustomer.address)
+    }
+  }, [selectedCustomer])
+
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger
@@ -80,7 +92,9 @@ export function CustomersForm({ sheetState }: CustomersFormProps) {
 
       <SheetContent className="space-y-6">
         <SheetHeader>
-          <SheetTitle>Novo cliente</SheetTitle>
+          <SheetTitle>
+            {selectedCustomer ? 'Editando' : 'Novo'} cliente
+          </SheetTitle>
         </SheetHeader>
 
         <Form {...form}>
@@ -138,10 +152,21 @@ export function CustomersForm({ sheetState }: CustomersFormProps) {
             />
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Cadastrar cliente
+              {selectedCustomer ? 'Atualizar' : 'Cadastrar'} cliente
             </Button>
           </form>
         </Form>
+
+        {selectedCustomer && (
+          <section>
+            <h1 className="text-lg font-bold">Saldo do cliente</h1>
+
+            <div className="flex flex-row items-center justify-between text-muted-foreground">
+              <p>Saldo atual:</p>
+              <strong>{formatCurrencyBRL(selectedCustomer.balance)}</strong>
+            </div>
+          </section>
+        )}
       </SheetContent>
     </Sheet>
   )

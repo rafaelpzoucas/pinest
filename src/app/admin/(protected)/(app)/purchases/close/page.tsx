@@ -1,10 +1,12 @@
 import { AdminHeader } from '@/app/admin-header'
 import { Card } from '@/components/ui/card'
+import { CustomerType } from '@/models/customer'
 import { PaymentType } from '@/models/payment'
 import { PurchaseItemsType } from '@/models/purchase'
 import { readPurchaseById } from '../deliveries/[id]/actions'
 import { readTableById } from '../tables/[id]/actions'
 import { readPayments } from './actions'
+import { readCustomers } from './customers/actions'
 import { DataTableStored } from './data-table/data-table-stored'
 import { CloseBillForm } from './form'
 
@@ -13,6 +15,7 @@ export default async function CloseBill({
 }: {
   searchParams: { table_id: string; purchase_id: string }
 }) {
+  const [customersData] = await readCustomers()
   const [tableData] = await readTableById({ id: searchParams.table_id })
   const [purchaseData] = await readPurchaseById({
     id: searchParams.purchase_id,
@@ -36,7 +39,7 @@ export default async function CloseBill({
     <main className="space-y-6 p-4 lg:px-0">
       <AdminHeader title="Fechar venda" />
 
-      <div className="grid grid-cols-[3fr_2fr] gap-4">
+      <div className="grid grid-cols-[3fr_2fr] gap-4 items-start">
         <section>
           <Card className="p-4">
             <section className="flex flex-col gap-2">
@@ -46,8 +49,11 @@ export default async function CloseBill({
             </section>
           </Card>
         </section>
-        <aside>
-          <CloseBillForm payments={purchasePayments} />
+        <aside className="sticky top-4">
+          <CloseBillForm
+            payments={purchasePayments}
+            customers={customersData?.customers as unknown as CustomerType[]}
+          />
         </aside>
       </div>
     </main>
