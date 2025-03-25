@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import {
+  createHandshakeEvent,
   handleCancelOrder,
   handleOrderNewStatus,
   handleOrderPlaced,
@@ -75,6 +76,16 @@ const webhookAction = createServerAction()
             merchantId: body.merchantId,
           })
 
+          break
+        }
+
+        case 'HSD': {
+          await createHandshakeEvent(body)
+          break
+        }
+
+        case 'HANDSHAKE_SETTLEMENT': {
+          console.log('✅ Acordo detectado!', body)
           break
         }
 

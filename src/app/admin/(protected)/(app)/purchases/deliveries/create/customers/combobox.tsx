@@ -27,12 +27,12 @@ import { ChevronsUpDown, Edit2 } from 'lucide-react'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import { closeBillFormSchema } from '../../../close/schemas'
+import { createPurchaseFormSchema } from '../schemas'
 import { CustomersForm } from './form'
 
 type CustomersComboboxProps = {
   customers: CustomerType[]
-  form: UseFormReturn<z.infer<typeof closeBillFormSchema>>
+  form: UseFormReturn<z.infer<typeof createPurchaseFormSchema>>
   customerFormSheetState: [boolean, Dispatch<SetStateAction<boolean>>]
 }
 

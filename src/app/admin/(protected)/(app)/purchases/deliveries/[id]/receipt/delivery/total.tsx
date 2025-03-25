@@ -60,9 +60,12 @@ export function Total({ purchase }: { purchase: PurchaseType }) {
         </p>
       )}
 
-      <p className="flex flex-row items-center justify-between">
-        <span>Desconto:</span> <span>{formatCurrencyBRL(0)}</span>
-      </p>
+      {purchase?.total?.total_amount && (
+        <p className="flex flex-row items-center justify-between">
+          <span>Desconto:</span>{' '}
+          <span>{formatCurrencyBRL(purchase?.total?.discount)}</span>
+        </p>
+      )}
 
       <strong className="flex flex-row items-center justify-between uppercase">
         <span>Total do pedido:</span>{' '}

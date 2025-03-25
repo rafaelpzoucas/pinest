@@ -80,7 +80,8 @@ export const columns: ColumnDef<PurchaseType>[] = [
       const type = purchase.type
       const customerAddress = ((purchase.addresses
         ? formatAddress(purchase.addresses)
-        : purchase.guest_data?.address) ?? purchase.customers.address) as string
+        : formatAddress(purchase.guest_data?.address)) ??
+        purchase.customers.address) as string
 
       return (
         <div className="max-w-[280px]">

@@ -4,7 +4,9 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import { webhookProcedure } from './procedures'
-import { createIfoodPurchaseSchema } from './schemas'
+import IfoodHandshakeDisputeSchema, {
+  createIfoodPurchaseSchema,
+} from './schemas'
 
 export const readIntegration = webhookProcedure
   .createServerAction()
@@ -293,3 +295,22 @@ export const keepAlive = createServerAction().handler(async () => {
 
   return NextResponse.json({ message: 'Webhook está ativo.' })
 })
+
+export const createHandshakeEvent = webhookProcedure
+  .createServerAction()
+  .input(IfoodHandshakeDisputeSchema)
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const { data, error } = await supabase
+      .from('ifood_events')
+      .upsert({ ...input })
+      .select()
+
+    if (error || !data) {
+      console.error('Erro ao salvar evento de handshake:', error)
+    }
+    return NextResponse.json({
+      message: 'Evento de handshake tratado com sucesso!',
+    })
+  })

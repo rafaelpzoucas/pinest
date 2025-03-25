@@ -52,7 +52,7 @@ function CheckoutButton({
   const qPayment = payment ? `&payment=${payment}` : ''
   const qChange = changeValue ? `&changeValue=${changeValue}` : ''
 
-  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}${qChange}`
+  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'TAKEOUT' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}${qChange}`
 
   return (
     <Link href={query} className={cn(buttonVariants(), 'w-full')}>
@@ -91,7 +91,7 @@ export default async function Summary({
     },
     cash: {
       label: 'no momento da entrega',
-      description: `Você deverá efetuar o pagamento no momento da ${pickup === 'delivery' ? 'entrega.' : 'retirada.'}`,
+      description: `Você deverá efetuar o pagamento no momento da ${pickup === 'DELIVERY' ? 'entrega.' : 'retirada.'}`,
     },
     pix: {
       label: 'com PIX',
@@ -121,7 +121,7 @@ export default async function Summary({
     : 0
 
   const shippingPrice =
-    pickup === 'delivery'
+    pickup === 'DELIVERY'
       ? parseFloat(shippingCost) || (shipping?.price ?? 0)
       : 0
 
@@ -141,13 +141,13 @@ export default async function Summary({
 
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
           <p>
-            {searchParams.pickup !== 'pickup' ? 'Frete' : 'Retirar'}
+            {searchParams.pickup !== 'TAKEOUT' ? 'Frete' : 'Retirar'}
             <strong>{transp ? ` por ${transp}` : ''}</strong>
           </p>
-          {searchParams.pickup !== 'pickup' && shipping && (
+          {searchParams.pickup !== 'TAKEOUT' && shipping && (
             <span>{formatCurrencyBRL(shippingPrice)}</span>
           )}
-          {searchParams.pickup === 'pickup' && shipping && (
+          {searchParams.pickup === 'TAKEOUT' && shipping && (
             <span className="text-emerald-600">Grátis</span>
           )}
         </div>

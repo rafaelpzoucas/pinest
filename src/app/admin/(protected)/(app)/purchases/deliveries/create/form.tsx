@@ -83,7 +83,16 @@ export function CreatePurchaseForm({
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createPurchaseFormSchema>) {
-    const [data, err] = await execute(values)
+    const [data, err] = await execute({
+      ...values,
+      total: {
+        ...values.total,
+        total_amount:
+          subtotal +
+          (purchaseType === 'DELIVERY' ? shippingPrice : 0) -
+          (discount || 0),
+      },
+    })
 
     if (err && !data) {
       console.error({ err })
@@ -122,10 +131,6 @@ export function CreatePurchaseForm({
 
     return () => subscription.unsubscribe()
   }, [form.watch])
-
-  useEffect(() => {
-    form.setValue('total.total_amount', totalAmount)
-  }, [subtotal, shippingPrice])
 
   return (
     <Form {...form}>

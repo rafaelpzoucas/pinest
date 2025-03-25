@@ -100,7 +100,7 @@ export function ProductsList({
   }, 0)
 
   useEffect(() => {
-    setValue('total_amount', totalAmount)
+    setValue('total.total_amount', totalAmount)
   }, [totalAmount])
 
   return (
@@ -174,7 +174,7 @@ export function ProductsList({
 
       <FormField
         control={form.control}
-        name="total_amount"
+        name="total.total_amount"
         render={({ field }) => <input type="hidden" {...field} />}
       />
     </div>

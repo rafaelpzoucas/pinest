@@ -1,6 +1,10 @@
+import IfoodHandshakeDisputeSchema from '@/app/api/v1/integrations/ifood/webhook/schemas'
 import { StoreStatus } from '@/app/store-status'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { Metadata } from 'next'
+import { z } from 'zod'
+import { readLastEvents } from './actions'
+import { IfoodHandshakePlatform } from './ifood-handshake-platform'
 import { Navigation } from './navigation/index'
 import { SoundNotification } from './sound-notification'
 
@@ -19,6 +23,11 @@ export default async function ProtectedLayout({
     public_store: string
   }
 }>) {
+  const [data] = await readLastEvents()
+
+  const events: z.infer<typeof IfoodHandshakeDisputeSchema>[] =
+    (data && data.events && data.events) ?? []
+
   return (
     <main className="md:flex flex-row">
       <Navigation />
@@ -31,6 +40,8 @@ export default async function ProtectedLayout({
         </main>
       </ScrollArea>
 
+      {events.length > 0 &&
+        events.map((event) => <IfoodHandshakePlatform event={event} />)}
       <StoreStatus storeUrl={params.public_store} />
     </main>
   )

@@ -20,7 +20,7 @@ export default async function PurchasePage({
   const address = purchase?.addresses
 
   const currentStatus = statuses[purchase?.status as StatusKey]
-  const shippingPrice = purchase?.shipping_price ?? 0
+  const shippingPrice = purchase?.total?.shipping_price ?? 0
 
   return (
     <section className="flex flex-col items-center justify-center gap-4">
@@ -38,7 +38,7 @@ export default async function PurchasePage({
               <span className="text-muted-foreground">
                 Produtos({purchase.purchase_items.length})
               </span>
-              <span>{formatCurrencyBRL(purchase.total_amount)}</span>
+              <span>{formatCurrencyBRL(purchase?.total?.total_amount)}</span>
             </p>
             {shippingPrice ? (
               <p className="flex flex-row items-center justify-between">
@@ -55,12 +55,14 @@ export default async function PurchasePage({
             <p className="flex flex-row items-center justify-between">
               <span className="text-muted-foreground">Total</span>
               <span>
-                {formatCurrencyBRL(purchase.total_amount + shippingPrice)}
+                {formatCurrencyBRL(
+                  purchase?.total?.total_amount + shippingPrice,
+                )}
               </span>
             </p>
           </Card>
 
-          {purchase.type === 'delivery' && (
+          {purchase.type === 'DELIVERY' && (
             <Card className="p-4">
               <p>
                 <span className="text-muted-foreground">
@@ -73,7 +75,7 @@ export default async function PurchasePage({
             </Card>
           )}
 
-          {purchase.type === 'pickup' && (
+          {purchase.type === 'TAKEOUT' && (
             <Card className="p-4">
               <p>
                 <span className="text-muted-foreground">
