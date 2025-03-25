@@ -53,7 +53,9 @@ export default async function OrderPage({
                       <strong className="line-clamp-2 uppercase">
                         {item.quantity} {item?.products?.name}
                       </strong>
-                      <span>{formatCurrencyBRL(item?.products?.price)}</span>
+                      <span>
+                        {formatCurrencyBRL(item?.products?.price ?? 0)}
+                      </span>
                     </header>
 
                     {item.extras.length > 0 &&

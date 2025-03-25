@@ -120,7 +120,9 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                                     {item.quantity} {item?.products?.name}
                                   </strong>
                                   <span>
-                                    {formatCurrencyBRL(item?.products?.price)}
+                                    {formatCurrencyBRL(
+                                      item?.products?.price ?? 0,
+                                    )}
                                   </span>
                                 </header>
 

@@ -32,7 +32,7 @@ export type PurchaseItemsType = {
   product_id: string
   quantity: number
   product_price: number
-  products?: ProductType
+  products: ProductType
   observations: string
   is_paid: boolean
   printed: boolean

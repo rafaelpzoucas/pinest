@@ -141,7 +141,7 @@ export async function handlePayment(purchaseId: string, storeURL: string) {
     return
   }
 
-  await updatePurchaseStatus('accept', purchase.id)
+  await updatePurchaseStatus('accept', purchase.id, false)
 
   await clearCart(storeURL)
 
@@ -175,8 +175,8 @@ export async function createStripeCheckout(
       currency: 'brl',
       unit_amount: Math.round(item.product_price * 100),
       product_data: {
-        name: item.products.name,
-        description: item.products.description,
+        name: item?.products?.name ?? '',
+        description: item?.products?.description ?? '',
       },
     },
     quantity: item.quantity,
