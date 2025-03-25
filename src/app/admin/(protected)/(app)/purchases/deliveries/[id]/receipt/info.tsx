@@ -61,7 +61,7 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
           purchase.observations) && (
           <p>
             Observações:{' '}
-            {ifoodOrder.delivery.observations ?? purchase.observations}
+            {ifoodOrder?.delivery?.observations ?? purchase.observations}
           </p>
         )}
       </div>
