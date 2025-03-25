@@ -22,7 +22,8 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
     purchase.customers.phone
   const customerAddress = ((purchase.addresses
     ? formatAddress(purchase.addresses)
-    : purchase.guest_data?.address) ?? purchase.customers.address) as string
+    : formatAddress(purchase.guest_data?.address)) ??
+    purchase.customers.address) as string
 
   const displayId = isIfood
     ? ifoodOrder.displayId

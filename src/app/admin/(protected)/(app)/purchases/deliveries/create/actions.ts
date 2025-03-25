@@ -66,8 +66,6 @@ export const createPurchase = adminProcedure
       deliveryFee,
     ]
 
-    console.log({ purchaseItemsArray })
-
     const { data: purchaseItems, error: purchaseItemsError } = await supabase
       .from('purchase_items')
       .insert(purchaseItemsArray)

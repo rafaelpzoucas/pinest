@@ -146,7 +146,7 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   const { data: purchase, error: purchaseError } = await supabase
     .from('purchases')
     .insert(valuesToInsert)
-    .select('id')
+    .select()
     .single()
 
   if (purchaseError) {
@@ -170,19 +170,35 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     console.error('Erro ao criar variações: ', createPurchaseVariationsError)
   }
 
+  const deliveryFee = newPurchase.type === 'DELIVERY' && {
+    purchase_id: purchase?.id,
+    is_paid: false,
+    description: 'Taxa de entrega',
+    product_price: purchase?.total?.shipping_price,
+    quantity: 1,
+    observations: '',
+    extras: [],
+  }
+
+  const cartItems =
+    (cart &&
+      cart.map((item) => ({
+        purchase_id: purchase.id,
+        product_id: item?.product_id,
+        quantity: item?.quantity,
+        product_price: item?.product_price,
+        observations: item?.observations,
+        extras: item.extras,
+      }))) ??
+    []
+
+  const purchaseItemsArray = [...cartItems, deliveryFee]
+
+  console.log({ purchaseItemsArray })
+
   const { data: purchaseItems, error: purchaseItemsError } = await supabase
     .from('purchase_items')
-    .insert(
-      cart &&
-        cart.map((item) => ({
-          purchase_id: purchase?.id,
-          product_id: item?.products.id,
-          quantity: item?.quantity,
-          product_price: item?.product_price,
-          observations: item?.observations,
-          extras: item.extras,
-        })),
-    )
+    .insert(purchaseItemsArray)
     .select('*')
 
   if (purchaseItemsError) {
