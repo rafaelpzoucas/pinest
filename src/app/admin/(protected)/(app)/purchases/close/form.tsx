@@ -84,7 +84,14 @@ export function CloseBillForm({
   const changeAmount = stringToNumber(enterAmount) - amountToPay
 
   const { execute: executeCreatePayment, isPending: isCreatePending } =
-    useServerAction(createPayment)
+    useServerAction(createPayment, {
+      onSuccess: () => {
+        router.refresh()
+      },
+      onError: (error) => {
+        console.error('Error ao salvar pagamento:', error)
+      },
+    })
   const { execute: executeCloseBill, isPending: isCloseBillPending } =
     useServerAction(closeBills)
 
