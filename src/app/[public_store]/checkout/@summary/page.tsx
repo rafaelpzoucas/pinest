@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
 import { getCart } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
-import { readStoreAddress } from '../actions'
+import { readStore, readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
 import { Delivery } from './delivery'
 
@@ -83,19 +83,26 @@ export default async function Summary({
   const payment = searchParams.payment
   const pickup = searchParams.pickup
   const changeValue = searchParams.changeValue
+  const { store } = await readStore(params.public_store)
 
   const PAYMENT_METHODS = {
-    card: {
-      label: 'com cartão',
-      description: 'Você poderá pagar com um cartão de crédito ou débito.',
+    CREDIT: {
+      label: 'com cartão de crédito',
+      description: 'Você poderá pagar com um cartão de crédito.',
     },
-    cash: {
-      label: 'no momento da entrega',
+    DEBIT: {
+      label: 'com cartão de débito',
+      description: 'Você poderá pagar com um cartão de débito.',
+    },
+    CASH: {
+      label: 'em dinheiro',
       description: `Você deverá efetuar o pagamento no momento da ${pickup === 'DELIVERY' ? 'entrega.' : 'retirada.'}`,
     },
-    pix: {
+    PIX: {
       label: 'com PIX',
-      description: 'A chave PIX da loja é: 456789123456',
+      description: store?.pix_key
+        ? `A chave PIX da loja é: ${store?.pix_key}`
+        : 'Solicite a chave PIX para a loja.',
     },
   }
 

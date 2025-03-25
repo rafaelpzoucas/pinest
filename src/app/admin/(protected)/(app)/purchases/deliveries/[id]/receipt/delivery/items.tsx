@@ -26,6 +26,10 @@ export function Items({ purchase }: { purchase: PurchaseType }) {
               // Somando o total do item com o total dos extras
               const total = (itemTotal + extrasTotal) * item.quantity
 
+              if (!item?.products) {
+                return null
+              }
+
               return (
                 <li
                   key={item.id}

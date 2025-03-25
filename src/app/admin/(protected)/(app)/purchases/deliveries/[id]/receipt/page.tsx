@@ -61,26 +61,34 @@ export default async function PrintKitchenReceipt({
 
         <ul>
           {!isIfood
-            ? purchase.purchase_items.map((item) => (
-                <li
-                  key={item.id}
-                  className="border-b border-dotted last:border-0 py-2 print-section uppercase"
-                >
-                  <span>
-                    {item.quantity} {item.products.name}
-                  </span>
+            ? purchase.purchase_items.map((item) => {
+                if (!item.products) {
+                  return null
+                }
 
-                  {item.extras.length > 0 &&
-                    item.extras.map((extra) => (
-                      <p className="flex flex-row items-center w-full">
-                        <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
-                        {extra.name}
-                      </p>
-                    ))}
+                return (
+                  <li
+                    key={item.id}
+                    className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                  >
+                    <span>
+                      {item.quantity} {item.products.name}
+                    </span>
 
-                  {item.observations && <strong>**{item.observations}</strong>}
-                </li>
-              ))
+                    {item.extras.length > 0 &&
+                      item.extras.map((extra) => (
+                        <p className="flex flex-row items-center w-full">
+                          <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
+                          {extra.name}
+                        </p>
+                      ))}
+
+                    {item.observations && (
+                      <strong>**{item.observations}</strong>
+                    )}
+                  </li>
+                )
+              })
             : ifoodItems.map((item) => (
                 <li
                   key={item.id}

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/tooltip'
 import { BadgeDollarSign, Eye, Printer } from 'lucide-react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
@@ -19,13 +20,19 @@ export function PurchaseOptions({
   currentStatus,
   type,
   isDetailsPage,
+  isIfood,
 }: {
   accepted: boolean
   purchaseId: string
   currentStatus: string
   type: string
   isDetailsPage?: boolean
+  isIfood: boolean
 }) {
+  const searchParams = useSearchParams()
+
+  const tab = searchParams.get('tab')
+
   return (
     <>
       <div className="hidden lg:flex flex-row justify-end">
@@ -52,6 +59,7 @@ export function PurchaseOptions({
           currentStatus={currentStatus}
           purchaseId={purchaseId}
           type={type}
+          isIfood={isIfood}
         />
 
         {accepted && (
@@ -59,7 +67,7 @@ export function PurchaseOptions({
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`purchases/close?purchase_id=${purchaseId}`}
+                  href={`/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`}
                   className={buttonVariants({
                     variant: 'ghost',
                     size: 'icon',
@@ -102,6 +110,7 @@ export function PurchaseOptions({
           accepted={accepted}
           currentStatus={currentStatus}
           purchaseId={purchaseId}
+          isIfood={isIfood}
         />
       </div>
     </>

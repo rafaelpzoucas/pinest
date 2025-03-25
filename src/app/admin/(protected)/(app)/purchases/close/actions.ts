@@ -53,6 +53,7 @@ export const createPayment = adminProcedure
         ...input,
         amount,
         discount,
+        status: input.payment_type === 'DEFERRED' ? 'pending' : input.status,
       })
       .select()
 
@@ -122,14 +123,17 @@ export const closeBills = adminProcedure
 
     if (input.purchase_id) {
       const { data: createdPayment, error } = await supabase
-        .from('purchase_payments')
+        .from('purchases')
         .update({
           is_paid: true,
         })
+        .eq('id', input.purchase_id)
         .select()
 
       if (error || !createdPayment) {
         console.error('Error closing purchase bills.', error)
       }
     }
+
+    revalidatePath('/admin/purchases')
   })

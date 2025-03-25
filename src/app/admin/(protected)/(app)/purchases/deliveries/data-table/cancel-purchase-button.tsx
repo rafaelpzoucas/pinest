@@ -51,10 +51,12 @@ export function CancelPurchaseButton({
   accepted,
   currentStatus,
   purchaseId,
+  isIfood,
 }: {
   accepted: boolean
   currentStatus: string
   purchaseId: string
+  isIfood: boolean
 }) {
   const [cancellationReasons, setCancellationReasons] = useState<
     CancellationReasonsType[]
@@ -117,47 +119,60 @@ export function CancelPurchaseButton({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Motivo do cancelamento</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um motivo..." />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {cancellationReasons &&
-                        cancellationReasons.length > 0 &&
-                        cancellationReasons.map((reason) => (
-                          <SelectItem
-                            key={reason.cancelCodeId}
-                            value={reason.cancelCodeId}
-                          >
-                            {reason.description}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {isIfood && (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Motivo do cancelamento</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um motivo..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {cancellationReasons &&
+                          cancellationReasons.length > 0 &&
+                          cancellationReasons.map((reason) => (
+                            <SelectItem
+                              key={reason.cancelCodeId}
+                              value={reason.cancelCodeId}
+                            >
+                              {reason.description}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <AlertDialogFooter>
-              <AlertDialogCancel>Não, manter pedido</AlertDialogCancel>
-              <AlertDialogAction type="submit">Sim, cancelar</AlertDialogAction>
-            </AlertDialogFooter>
-          </form>
-        </Form>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Não, manter pedido</AlertDialogCancel>
+                <AlertDialogAction type="submit">
+                  Sim, cancelar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </form>
+          </Form>
+        )}
+
+        {!isIfood && (
+          <AlertDialogFooter>
+            <AlertDialogCancel>Não, manter pedido</AlertDialogCancel>
+            <AlertDialogAction onClick={() => cancelPurchase({ purchaseId })}>
+              Sim, cancelar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        )}
       </AlertDialogContent>
     </AlertDialog>
   )

@@ -95,6 +95,7 @@ export default async function OrderPage({
                 purchaseId={params.id}
                 accepted={accepted}
                 type={purchase.type}
+                isIfood={purchase.is_ifood}
                 isDetailsPage
               />
             </header>
@@ -220,6 +221,10 @@ export default async function OrderPage({
 
                     // Somando o total do item com o total dos extras
                     const total = (itemTotal + extrasTotal) * item.quantity
+
+                    if (!item?.products) {
+                      return null
+                    }
 
                     return (
                       <Card key={item.id} className="p-4 space-y-2">

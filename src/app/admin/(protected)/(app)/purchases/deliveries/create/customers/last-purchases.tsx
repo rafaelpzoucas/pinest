@@ -102,18 +102,20 @@ export function LastPurchases({
                     </Button>
                   </header>
 
-                  {purchase.purchase_items.map((item) => (
-                    <div>
-                      <p>
-                        {item.quantity} un. {item.products.name}
-                      </p>
-                      {item.extras.map((extra) => (
+                  {purchase.purchase_items
+                    .filter((item) => item?.products)
+                    .map((item) => (
+                      <div>
                         <p>
-                          + {extra.quantity} ad. {extra.name}
+                          {item.quantity} un. {item?.products?.name}
                         </p>
-                      ))}
-                    </div>
-                  ))}
+                        {item.extras.map((extra) => (
+                          <p>
+                            + {extra.quantity} ad. {extra.name}
+                          </p>
+                        ))}
+                      </div>
+                    ))}
                 </Card>
               ))}
             </div>

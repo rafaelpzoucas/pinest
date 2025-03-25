@@ -9,8 +9,6 @@ import { readPayments } from './actions'
 import { readCustomers } from './customers/actions'
 import { DataTableStored } from './data-table/data-table-stored'
 import { CloseBillForm } from './form'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { IfoodItem } from '@/models/ifood'
 
 export default async function CloseBill({
   searchParams,
@@ -29,8 +27,8 @@ export default async function CloseBill({
 
   const sale = tableData?.table ?? purchaseData?.purchase
 
-  const isIfood = sale.is_ifood
-  const ifoodItems = sale.ifood_order_data.items as IfoodItem[]
+  // const isIfood = sale.is_ifood
+  // const ifoodItems = sale.ifood_order_data.items as IfoodItem[]
 
   const purchaseItems: PurchaseItemsType[] = sale.purchase_items
   const purchasePayments = paymentsData?.payments as unknown as PaymentType[]

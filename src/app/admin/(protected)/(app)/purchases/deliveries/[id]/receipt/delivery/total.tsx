@@ -31,7 +31,7 @@ export function Total({ purchase }: { purchase: PurchaseType }) {
       <h3 className="mx-auto uppercase">Total</h3>
 
       <p className="flex flex-row items-center justify-between">
-        <span>Total dos itens:</span>{' '}
+        <span>Subtotal:</span>{' '}
         <span>
           {formatCurrencyBRL(
             !isIfood
@@ -60,10 +60,10 @@ export function Total({ purchase }: { purchase: PurchaseType }) {
         </p>
       )}
 
-      {purchase?.total?.total_amount && (
+      {purchase?.total?.discount && (
         <p className="flex flex-row items-center justify-between">
           <span>Desconto:</span>{' '}
-          <span>{formatCurrencyBRL(purchase?.total?.discount)}</span>
+          <span>{formatCurrencyBRL(purchase?.total?.discount * -1)}</span>
         </p>
       )}
 

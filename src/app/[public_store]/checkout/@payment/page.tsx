@@ -31,14 +31,20 @@ import { stringToNumber } from '@/lib/utils'
 const paymentOptions = [
   {
     id: 1,
-    title: 'Cartão',
-    provider: 'card',
+    title: 'Cartão de crédito',
+    provider: 'CREDIT',
+    icon: CreditCard,
+  },
+  {
+    id: 2,
+    title: 'Cartão de débito',
+    provider: 'DEBIT',
     icon: CreditCard,
   },
   {
     id: 2,
     title: 'PIX',
-    provider: 'pix',
+    provider: 'PIX',
     icon: CreditCard,
   },
 ]
@@ -65,7 +71,7 @@ export default function Payment() {
     const { type, change_value: changeValue } = data
 
     return router.push(
-      `?step=summary&pickup=${selectedPickup}${selectedAddress ? `&address=${selectedAddress}` : ''}&payment=cash${type === 'with_change' ? `&changeValue=${stringToNumber(changeValue as string)}` : ''}`,
+      `?step=summary&pickup=${selectedPickup}${selectedAddress ? `&address=${selectedAddress}` : ''}&payment=CASH${type === 'with_change' ? `&changeValue=${stringToNumber(changeValue as string)}` : ''}`,
     )
   }
 

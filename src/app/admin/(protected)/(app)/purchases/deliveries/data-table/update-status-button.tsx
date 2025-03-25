@@ -18,11 +18,13 @@ export function UpdateStatusButton({
   currentStatus,
   purchaseId,
   type,
+  isIfood,
 }: {
   accepted: boolean
   currentStatus: string
   purchaseId: string
   type: string
+  isIfood: boolean
 }) {
   async function handleUpdateStatus(status: string) {
     if (!accepted) {
@@ -34,7 +36,7 @@ export function UpdateStatusButton({
     const newStatus =
       status === 'shipped' && type === 'TAKEOUT' ? 'readyToPickup' : status
 
-    await updatePurchaseStatus(newStatus, purchaseId)
+    await updatePurchaseStatus(newStatus, purchaseId, isIfood)
   }
 
   if (

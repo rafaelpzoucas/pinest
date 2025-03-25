@@ -62,7 +62,8 @@ export const columns: ColumnDef<PurchaseItemsType>[] = [
     accessorKey: 'name',
     header: 'Produto',
     cell: ({ row }) => {
-      const productName = row.original.products.name
+      const productName =
+        row.original?.products?.name ?? row.original.description
 
       return productName
     },

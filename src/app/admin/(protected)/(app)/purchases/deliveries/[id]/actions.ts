@@ -92,7 +92,7 @@ export const cancelPurchase = adminProcedure
 
     const { error: updateStatusError } = await supabase
       .from('purchases')
-      .update({ accepted: true, status: 'cancelled' })
+      .update({ status: 'cancelled' })
       .eq('id', input.purchaseId)
 
     if (updateStatusError) {
@@ -120,6 +120,7 @@ export async function updateDiscount(purchaseId: string, discount: number) {
 export async function updatePurchaseStatus(
   newStatus: string,
   purchaseId: string,
+  isIfood: boolean,
 ) {
   const supabase = createClient()
 
@@ -128,13 +129,14 @@ export async function updatePurchaseStatus(
     .update({ status: newStatus })
     .eq('id', purchaseId)
 
-  await updateIfoodOrderStatus({ purchaseId, newStatus })
-
   if (updateStatusError) {
     console.error(updateStatusError)
   }
 
   revalidatePath('/purchases')
+
+  if (!isIfood) return null
+  await updateIfoodOrderStatus({ purchaseId, newStatus })
 }
 
 export const updateIfoodOrderStatus = adminProcedure

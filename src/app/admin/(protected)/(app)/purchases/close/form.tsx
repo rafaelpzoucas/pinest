@@ -40,6 +40,8 @@ export function CloseBillForm({
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  const tab = searchParams.get('tab')
+
   const { rowSelection, setRowSelection, items, updateItemPayment } =
     useCloseBillStore()
 
@@ -107,7 +109,7 @@ export function CloseBillForm({
         return null
       }
 
-      router.push('/admin/purchases?tab=tables')
+      router.push(`/admin/purchases?tab=${tab}`)
     }
 
     form.reset()

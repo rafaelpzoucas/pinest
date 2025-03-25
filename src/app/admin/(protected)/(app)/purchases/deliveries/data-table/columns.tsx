@@ -160,6 +160,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
       const currentStatus = row.original.status as string
       const accepted = row.original.status !== 'accept'
       const type = row.original.type
+      const isIfood = row.original.is_ifood
 
       return (
         <PurchaseOptions
@@ -167,6 +168,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
           purchaseId={row.getValue('id')}
           currentStatus={currentStatus}
           type={type}
+          isIfood={isIfood}
         />
       )
     },
