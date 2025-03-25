@@ -41,7 +41,7 @@ export const getSalesReport = adminProcedure
     )
 
     const deliveriesCount = purchases.filter(
-      (purchase) => purchase.type === 'delivery',
+      (purchase) => purchase.type === 'DELIVERY',
     ).length
 
     const productsSold = purchases.reduce<

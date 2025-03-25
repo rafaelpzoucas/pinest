@@ -47,7 +47,7 @@ export function MerchantIdForm({ merchantId }: { merchantId: string }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 hidden">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {!merchantId ? (
           <>
             <FormField

@@ -1,7 +1,6 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { cn, formatDistanceToNowDate } from '@/lib/utils'
@@ -20,8 +19,6 @@ export function RealtimeStatus({
 }) {
   const supabase = createClient()
   const router = useRouter()
-
-  const accepted = purchase.accepted
 
   const currentStatus = statuses[purchase.status as StatusKey]
 
@@ -50,18 +47,14 @@ export function RealtimeStatus({
     <Card className="flex flex-col items-start gap-2 p-4">
       <header className="w-full flex flex-col items-start justify-between gap-2">
         <Badge className={cn(currentStatus.color)}>
-          {!accepted ? 'Aguardando confirmação' : currentStatus.status}
+          {currentStatus.status}
         </Badge>
         <span className="text-xs text-muted-foreground">
           Atualizado há {formatDistanceToNowDate(purchase.updated_at)}
         </span>
       </header>
 
-      <strong>
-        {!accepted
-          ? 'Aguardando a confirmação da loja.'
-          : currentStatus.next_step}
-      </strong>
+      <strong>{currentStatus.next_step}</strong>
     </Card>
   )
 }

@@ -50,6 +50,8 @@ export async function readPurchases(): Promise<{
     `,
     )
     .eq('store_id', store?.id)
+    .neq('is_paid', true)
+    .neq('status', 'cancelled')
     .order('created_at', { ascending: false })
 
   return { purchases, purchasesError }
@@ -72,6 +74,10 @@ export const readTables = adminProcedure
         `,
       )
       .eq('store_id', store.id)
+
+    if (readTablesError || !tables) {
+      console.error('Não foi possível buscar as mesas.', readTablesError)
+    }
 
     return { tables }
   })

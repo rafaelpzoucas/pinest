@@ -129,16 +129,18 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
   const valuesToInsert = {
     customer_id: customer?.id ?? null,
     status: 'accept',
-    total_amount: newPurchase.totalAmount,
     updated_at: new Date().toISOString(),
     address_id: newPurchase.addressId,
     store_id: store?.id,
-    shipping_price: type !== 'pickup' ? newPurchase.shippingPrice : 0,
-    delivery_time: type === 'delivery' ? newPurchase.shippingTime : null,
+    delivery_time: type === 'DELIVERY' ? newPurchase.shippingTime : null,
     type,
     payment_type: newPurchase.payment_type,
-    change_value: newPurchase.changeValue,
     guest_data: guestData ? JSON.parse(guestData.value) : null,
+    total: {
+      total_amount: newPurchase.totalAmount,
+      shipping_price: type !== 'TAKEOUT' ? newPurchase.shippingPrice : 0,
+      change_value: newPurchase.changeValue,
+    },
   }
 
   const { data: purchase, error: purchaseError } = await supabase

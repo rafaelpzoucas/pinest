@@ -18,12 +18,11 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
     purchase.customers?.users ?? purchase.guest_data ?? purchase?.customers
   const customerNames = customer.name.split(' ')
   const firstName = customerNames[0]
-  const lastName = customerNames[customerNames.length - 1]
 
   const displayId = purchase.id.substring(0, 4)
 
   return (
-    <Link href={`purchases/${purchase.id}`}>
+    <Link href={`purchases/deliveries/${purchase.id}`}>
       <Card key={purchase.id} className={cn('flex flex-col gap-2 p-4')}>
         <header className="flex flex-row">
           <Badge className={cn(statuses[purchase.status as StatusKey].color)}>
@@ -44,7 +43,7 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
           <ChevronRight className="w-4 h-4 ml-2" />
         </header>
 
-        <strong>{`${firstName} ${lastName}`}</strong>
+        <strong>{`${firstName}`}</strong>
 
         <section
           className={cn(
@@ -59,7 +58,7 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
               {new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
-              }).format(purchase.total_amount)}
+              }).format(purchase?.total?.total_amount ?? 0)}
             </strong>
           </div>
         </section>
