@@ -234,7 +234,8 @@ export async function updateAmountSoldAndStock(
     .from('products')
     .update({
       amount_sold: product?.amount_sold + quantity,
-      stock: product?.stock - quantity,
+      stock:
+        product?.stock !== null ? product?.stock - quantity : product.stock,
     })
     .eq('id', productId)
 

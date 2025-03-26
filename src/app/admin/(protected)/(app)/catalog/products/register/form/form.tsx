@@ -98,7 +98,7 @@ export function ProductForm({
       description: product?.description ?? undefined,
       price: product?.price?.toString() ?? undefined,
       promotional_price: product?.promotional_price?.toString() ?? undefined,
-      stock: product?.stock?.toString() ?? undefined,
+      stock: product?.stock?.toString() ?? '',
       category_id: product?.category_id ?? categoryId ?? undefined,
       sku: product?.sku ?? undefined,
       allows_extras: product?.allows_extras ?? false,
