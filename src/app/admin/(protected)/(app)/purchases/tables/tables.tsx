@@ -72,7 +72,7 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                       </div>
 
                       <Link
-                        href={`purchases/close?table_id=${table.id}`}
+                        href={`purchases/close?table_id=${table.id}?tab=tables`}
                         className={cn(buttonVariants())}
                       >
                         Fechar mesa
