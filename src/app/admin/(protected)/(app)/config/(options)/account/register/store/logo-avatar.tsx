@@ -14,10 +14,10 @@ export function LogoAvatar({ store }: { store: StoreType | null }) {
 
   async function handleDeleteLogo() {
     if (store) {
-      const { error } = await removeStoreLogo(store?.id)
+      const [data] = await removeStoreLogo()
 
-      if (error) {
-        console.error(error)
+      if (data?.error) {
+        console.error(data.error)
       }
     }
   }
