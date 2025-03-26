@@ -90,6 +90,33 @@ export function Deliveries({
     setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
   }
 
+  function showNotification() {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        const notification = new Notification('Novo Pedido Recebido', {
+          body: 'Clique aqui para visualizar o pedido.',
+          icon: '/icon-dark.svg',
+        })
+
+        notification.onclick = () => {
+          const myWindow = window.open(
+            `${process.env.NEXT_PUBLIC_APP_URL}/admin/purchases?tab=deliveries`,
+            'pinest',
+          )
+          if (myWindow) {
+            myWindow.focus()
+          }
+        }
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            showNotification()
+          }
+        })
+      }
+    }
+  }
+
   useEffect(() => {
     const channel = supabase
       .channel('realtime-purchases')
@@ -102,6 +129,7 @@ export function Deliveries({
         },
         () => {
           router.refresh()
+          showNotification()
         },
       )
       .subscribe()
@@ -110,6 +138,7 @@ export function Deliveries({
       supabase.removeChannel(channel)
     }
   }, [supabase, router])
+
   return (
     <section className="flex flex-col gap-4 text-sm">
       <header className="flex flex-row gap-4">
