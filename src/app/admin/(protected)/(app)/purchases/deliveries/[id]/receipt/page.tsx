@@ -8,8 +8,10 @@ import { Printer } from './printer'
 
 export default async function PrintKitchenReceipt({
   params,
+  searchParams,
 }: {
   params: { id: string }
+  searchParams: { reprint: string }
 }) {
   const [purchaseData] = await readPurchaseById({ id: params.id })
 
@@ -20,6 +22,11 @@ export default async function PrintKitchenReceipt({
   if (!purchase) {
     return null
   }
+
+  const reprint = searchParams.reprint
+  const unprintedItems = purchase.purchase_items.filter((item) => !item.printed)
+
+  const itemsList = reprint ? purchase.purchase_items : unprintedItems
 
   const customerName =
     purchase?.customers?.users?.name ??
@@ -61,7 +68,7 @@ export default async function PrintKitchenReceipt({
 
         <ul>
           {!isIfood
-            ? purchase.purchase_items.map((item) => {
+            ? itemsList.map((item) => {
                 if (!item.products) {
                   return null
                 }

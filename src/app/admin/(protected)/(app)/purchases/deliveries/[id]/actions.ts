@@ -102,6 +102,36 @@ export const cancelPurchase = adminProcedure
     revalidatePath('/purchases')
   })
 
+export const updatePurchasePrintedItems = adminProcedure
+  .createServerAction()
+  .input(z.object({ purchaseId: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const { data: purchaseItems, error: purchaseItemsError } = await supabase
+      .from('purchase_items')
+      .select('*')
+      .eq('purchase_id', input.purchaseId)
+
+    if (purchaseItemsError || !purchaseItems) {
+      console.error('Error reading purchase items', purchaseItemsError)
+      return
+    }
+
+    for (const item of purchaseItems) {
+      const { error } = await supabase
+        .from('purchase_items')
+        .update({ printed: true })
+        .eq('id', item.id)
+
+      if (error) {
+        console.error('Error updating printed status of purchase item.', error)
+      }
+    }
+
+    revalidatePath('/')
+  })
+
 export async function updateDiscount(purchaseId: string, discount: number) {
   const supabase = createClient()
 

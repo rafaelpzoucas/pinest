@@ -89,7 +89,7 @@ export function PurchaseOptions({
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`/admin/purchases/deliveries/${purchaseId}/receipt`}
+                  href={`/admin/purchases/deliveries/${purchaseId}/receipt?reprint=true`}
                   target="_blank"
                   className={buttonVariants({
                     variant: 'ghost',
