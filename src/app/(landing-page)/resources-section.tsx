@@ -1,42 +1,42 @@
 import {
-  CircleDollarSign,
-  Lightbulb,
-  Paintbrush,
-  Sparkle,
+  LayoutDashboard,
+  Printer,
+  RefreshCcw,
   Truck,
+  Utensils,
 } from 'lucide-react'
 
 export function ResourcesSection() {
   const resources = [
     {
-      icon: Sparkle,
-      title: 'Crie sua loja virtual em minutos',
+      icon: LayoutDashboard,
+      title: 'Gerencie seu restaurante em um só lugar',
       description:
-        'Construa sua loja virtual de forma rápida e intuitiva, sem precisar de habilidades técnicas ou complicações. O processo é simples e direto, permitindo que você comece a vender rapidamente.',
+        'Controle pedidos, mesas, entregas e comandas de forma centralizada. Tenha total controle das operações do seu restaurante com um painel intuitivo e fácil de usar.',
     },
     {
-      icon: Paintbrush,
-      title: 'Design pronto e otimizado para vendas',
+      icon: Utensils,
+      title: 'Cardápio digital e pedidos online',
       description:
-        'Aproveite um visual profissional e moderno, projetado para maximizar a conversão de visitantes em clientes. Não precisa se preocupar com o design - tudo já vem perfeito para impulsionar suas vendas.',
+        'Crie um cardápio digital completo e receba pedidos diretamente pelo WhatsApp ou iFood. Personalize seu menu e facilite a escolha dos clientes.',
     },
     {
-      icon: CircleDollarSign,
-      title: 'Receba pagamentos de forma fácil e segura',
+      icon: Printer,
+      title: 'Impressão de comandas',
       description:
-        'Integre sua loja diretamente com o Stripe e ofereça diversas formas de pagamento aos seus clientes, sem complicações técnicas.',
+        'Automatize a impressão de comandas para cozinha e delivery. Assim, sua equipe trabalha com mais agilidade e eficiência no atendimento.',
     },
     {
       icon: Truck,
-      title: 'Ofereça opções de envio integradas',
+      title: 'Gerencie entregas e retiradas',
       description:
-        'Facilite o envio de seus produtos com integrações diretas a transportadoras confiáveis. Ofereça aos clientes diferentes opções de frete sem complicações, melhorando sua experiência de compra.',
+        'Organize pedidos para retirada e delivery, garantindo uma experiência fluida tanto para seus clientes quanto para sua equipe de entrega.',
     },
     {
-      icon: Lightbulb,
-      title: 'Venda produtos físicos ou digitais',
+      icon: RefreshCcw,
+      title: 'Integração com iFood e outras plataformas',
       description:
-        'Com a Pinest, você pode vender tanto produtos físicos quanto digitais, ampliando suas oportunidades de negócio de forma fácil e eficiente.',
+        'Sincronize pedidos do iFood automaticamente e gerencie tudo em um único sistema, sem precisar alternar entre diferentes plataformas.',
     },
   ]
 

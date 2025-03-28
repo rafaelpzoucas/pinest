@@ -1,0 +1,125 @@
+'use server'
+
+import { stripe } from '@/lib/stripe'
+import Stripe from 'stripe'
+import { z } from 'zod'
+import { createServerAction } from 'zsa'
+import { createRouteHandlersForAction } from 'zsa-openapi'
+import { cancelSubscription, createSubscription } from './actions'
+
+const webhookLogger = createServerAction()
+  .input(z.object({ payload: z.unknown() }))
+  .handler(async ({ request }) => {
+    // A chave secreta do seu webhook do Stripe
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET ?? ''
+
+    const body = (await request?.text()) as string
+    const sig = request?.headers.get('Stripe-Signature') || ''
+
+    let event: Stripe.Event
+
+    try {
+      // Usa constructEventAsync para a verificação assíncrona
+      event = await stripe.webhooks.constructEventAsync(
+        body,
+        sig,
+        endpointSecret,
+      )
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err)
+      return { status: 'signature verification failed' }
+    }
+
+    const eventObject = event.data.object
+
+    switch (event.type) {
+      // Pagamento bem-sucedido da fatura
+      case 'invoice.payment_succeeded': {
+        if (isInvoice(eventObject)) {
+          const subscriptionId =
+            typeof eventObject.subscription === 'string'
+              ? eventObject.subscription
+              : null
+          if (!subscriptionId) {
+            console.error('Invoice recebida sem subscription ID.')
+            break
+          }
+
+          const subscription =
+            await stripe.subscriptions.retrieve(subscriptionId)
+          if (isSubscription(subscription)) {
+            const metadata = subscription.metadata
+            await createSubscription({
+              subscriptionId: subscription.id,
+              planId: metadata.plan_id,
+              storeId: metadata.store_id,
+              endDate: subscription.current_period_end,
+            })
+          } else {
+            console.error('Assinatura recuperada não é válida.')
+          }
+        } else {
+          console.error('Objeto do evento não é uma invoice válida.')
+        }
+        break
+      }
+
+      // Cancelamento da assinatura
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription
+        const metadata = subscription.metadata
+        console.log('Subscription canceled:', subscription)
+        // Lógica para quando o cliente cancelar a assinatura
+        cancelSubscription({
+          subscriptionId: subscription.id,
+          storeId: metadata.store_id,
+        })
+        break
+      }
+
+      // Falha no pagamento da fatura (problema de pagamento)
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        const metadata = invoice.metadata
+        console.log('Payment failed for invoice:', invoice)
+        // Lógica para quando o pagamento da fatura falhar
+        cancelSubscription({
+          subscriptionId: invoice.id,
+          storeId: metadata?.store_id,
+        })
+        break
+      }
+
+      // Se houver outros eventos que você deseja tratar, adicione mais cases
+      default:
+        console.log(`Unhandled event type: ${event.type}`)
+    }
+
+    return { status: 'ok' }
+  })
+
+function isInvoice(obj: unknown): obj is Stripe.Invoice {
+  if (typeof obj === 'object' && obj !== null) {
+    const candidate = obj as Record<string, unknown>
+    return candidate.object === 'invoice'
+  }
+  return false
+}
+
+function isSubscription(obj: unknown): obj is Stripe.Subscription {
+  if (typeof obj === 'object' && obj !== null) {
+    const candidate = obj as Record<string, unknown>
+    return candidate.object === 'subscription'
+  }
+  return false
+}
+
+function isRefund(obj: unknown): obj is Stripe.Refund {
+  if (typeof obj === 'object' && obj !== null) {
+    const candidate = obj as Record<string, unknown>
+    return candidate.object === 'refund'
+  }
+  return false
+}
+
+export const { POST } = createRouteHandlersForAction(webhookLogger)

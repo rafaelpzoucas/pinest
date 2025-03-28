@@ -33,9 +33,11 @@ import { closeBillFormSchema } from './schemas'
 export function CloseBillForm({
   payments,
   customers,
+  isPermissionGranted,
 }: {
   payments: PaymentType[]
   customers: CustomerType[]
+  isPermissionGranted: boolean
 }) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -230,12 +232,15 @@ export function CloseBillForm({
                         Cartão de débito
                       </FormLabel>
                     </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="DEFERRED" />
-                      </FormControl>
-                      <FormLabel className="font-normal">A Prazo</FormLabel>
-                    </FormItem>
+
+                    {isPermissionGranted && (
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="DEFERRED" />
+                        </FormControl>
+                        <FormLabel className="font-normal">A Prazo</FormLabel>
+                      </FormItem>
+                    )}
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />

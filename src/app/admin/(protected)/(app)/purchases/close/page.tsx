@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card'
 import { CustomerType } from '@/models/customer'
 import { PaymentType } from '@/models/payment'
 import { PurchaseItemsType } from '@/models/purchase'
+import { isPermissionGranted } from '../../actions'
 import { readPurchaseById } from '../deliveries/[id]/actions'
 import { readTableById } from '../tables/[id]/actions'
 import { readPayments } from './actions'
@@ -23,6 +24,9 @@ export default async function CloseBill({
   const [paymentsData] = await readPayments({
     table_id: searchParams.table_id,
     purchase_id: searchParams.purchase_id,
+  })
+  const [permission] = await isPermissionGranted({
+    feature: 'integration_ifood',
   })
 
   const sale = tableData?.table ?? purchaseData?.purchase
@@ -56,6 +60,7 @@ export default async function CloseBill({
           <CloseBillForm
             payments={purchasePayments}
             customers={customersData?.customers as unknown as CustomerType[]}
+            isPermissionGranted={permission?.granted}
           />
         </aside>
       </div>

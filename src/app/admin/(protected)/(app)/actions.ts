@@ -138,3 +138,68 @@ export const handleDisputeAction = adminProcedure
       console.error('Erro ao solicitar cancelamento do pedido', responseData)
     }
   })
+
+export const readStoreSubscriptionStatus = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: subscription, error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('store_id', store.id)
+      .eq('status', 'active')
+      .single()
+
+    if (subscriptionError) {
+      console.error('Erro ao buscar dados da assinatura.', subscriptionError)
+      return null
+    }
+
+    return { subscriptionStatus: subscription.status }
+  })
+
+export const readStorePlan = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: subscription, error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('store_id', store.id)
+      .eq('status', 'active')
+      .single()
+
+    if (subscriptionError || !subscription) {
+      console.error('Erro ao buscar dados da assinatura.', subscriptionError)
+      return null
+    }
+
+    if (subscription.status !== 'active') {
+      console.error('Plano inativo.')
+      return null
+    }
+
+    const { data: plan, error: planError } = await supabase
+      .from('plans')
+      .select('*')
+      .eq('id', subscription?.plan_id)
+      .single()
+
+    if (planError || !plan) {
+      console.error('Erro ao buscar dados do plano.', planError)
+      return null
+    }
+
+    return { plan }
+  })
+
+export const isPermissionGranted = adminProcedure
+  .createServerAction()
+  .input(z.object({ feature: z.string() }))
+  .handler(async ({ input }) => {
+    const [planData] = await readStorePlan()
+
+    return { granted: planData?.plan.features[input.feature] ?? false }
+  })

@@ -1,24 +1,24 @@
-import { Rocket, TrendingUp, Wand } from 'lucide-react'
+import { CheckCircle, Rocket, Timer } from 'lucide-react'
 
 export function BenefitsSection() {
   const benefits = [
     {
-      icon: TrendingUp,
-      title: 'Poupe tempo valioso',
+      icon: Timer,
+      title: 'Atenda pedidos mais rápido',
       description:
-        'Com a Pinest, você não perde tempo escolhendo temas ou ajustando a aparência da loja. Tudo já vem pronto, permitindo que você se concentre 100% em vender e impulsionar seus negócios.',
+        'Comanda impressa, pedidos organizados e integração com iFood garantem que seu restaurante funcione com mais eficiência e menos erros.',
     },
     {
-      icon: Wand,
-      title: 'Gerenciamento simples e eficiente',
+      icon: CheckCircle,
+      title: 'Facilidade na gestão do seu restaurante',
       description:
-        'Controle seus produtos e pedidos com facilidade usando um painel intuitivo, sem complicações técnicas. Foque em crescer sua loja, e deixe a Pinest cuidar dos detalhes.',
+        'Gerencie mesas, pedidos, entregas e pagamentos em um único lugar. O painel intuitivo da Pinest permite que você foque no que realmente importa: oferecer um ótimo serviço aos seus clientes.',
     },
     {
       icon: Rocket,
-      title: 'Inicie suas vendas rapidamente',
+      title: 'Comece a vender no mesmo dia',
       description:
-        'Lance sua loja em minutos e comece a vender de imediato, aproveitando uma plataforma pronta para gerar vendas e impulsionar seu negócio.',
+        'Configure seu cardápio digital em minutos e comece a receber pedidos rapidamente, seja para salão, retirada ou delivery.',
     },
   ]
 
