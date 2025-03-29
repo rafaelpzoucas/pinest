@@ -1,5 +1,5 @@
 import { readStoreHours } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
-import { HoursList } from '@/app/admin/(protected)/(app)/config/(options)/layout/hours/hours-list'
+import { HoursList } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/hours/hours-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

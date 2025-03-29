@@ -1,6 +1,7 @@
 import { AdminHeader } from '@/app/admin-header'
 import { SubscriptionPlans } from '@/components/subscription-plans'
-import { isPermissionGranted } from '../actions'
+
+import { isPermissionGranted } from '../../actions'
 import { Ifood } from './ifood'
 
 export default async function IntegrationsPage() {

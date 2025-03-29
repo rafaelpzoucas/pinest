@@ -1,4 +1,4 @@
-import { BusinessHoursForm } from '@/app/admin/(protected)/(app)/config/(options)/layout/hours/form'
+import { BusinessHoursForm } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/hours/form'
 
 export default function BusinessHours() {
   return (
