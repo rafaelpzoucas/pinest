@@ -1,4 +1,4 @@
-import { SocialsForm } from '@/app/admin/(protected)/(app)/config/(options)/account/register/socials/form'
+import { SocialsForm } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/socials/form'
 
 export default function StoreBasicInformations() {
   return (

@@ -27,7 +27,7 @@ import { ChevronsUpDown, Edit2 } from 'lucide-react'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import { CustomersForm } from '../../deliveries/create/customers/form'
+import { CustomersForm } from '../../deliveries/register/customers/form'
 import { closeBillFormSchema } from '../schemas'
 
 type CustomersComboboxProps = {

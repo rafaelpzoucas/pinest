@@ -141,9 +141,9 @@ export function Deliveries({
 
   return (
     <section className="flex flex-col gap-4 text-sm">
-      <header className="flex flex-row gap-4">
+      <header className="flex flex-col lg:flex-row gap-4">
         <Link
-          href="purchases/deliveries/create"
+          href="purchases/deliveries/register"
           className={cn(buttonVariants(), 'w-full max-w-sm')}
         >
           <Plus className="w-4 h-4 mr-2" />

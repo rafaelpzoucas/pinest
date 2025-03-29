@@ -1,5 +1,5 @@
 import { readStoreSocials } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
-import { SOCIAL_MEDIAS } from '@/app/admin/(protected)/(app)/config/(options)/account/register/socials/socials'
+import { SOCIAL_MEDIAS } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/socials/socials'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'

@@ -8,8 +8,6 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
 export async function Store({ store }: { store: StoreType | null }) {
-  const storeNiche = store && store.market_niches[0]
-
   return (
     <Card className="relative flex flex-col gap-4 p-4">
       <div className="flex flex-row items-center gap-3">
@@ -21,14 +19,11 @@ export async function Store({ store }: { store: StoreType | null }) {
         </Avatar>
         <div>
           <strong className="capitalize">{store?.name}</strong>
-          <p className="text-sm text-muted-foreground capitalize">
-            {storeNiche?.name}
-          </p>
         </div>
       </div>
 
       <Link
-        href={`account/register/store?id=${store?.id}`}
+        href={`layout/register/store?id=${store?.id}`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
           'absolute top-2 right-2',

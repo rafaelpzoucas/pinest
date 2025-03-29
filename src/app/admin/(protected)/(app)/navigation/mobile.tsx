@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { LinkType } from '@/models/nav-links'
 import Link from 'next/link'
@@ -6,8 +7,6 @@ import { usePathname } from 'next/navigation'
 
 export function MobileNav({ links }: { links: LinkType[] }) {
   const pathname = usePathname()
-
-  const iconsClassNames = 'w-5 h-5'
 
   const hide = pathname.includes('/register')
 
@@ -28,7 +27,7 @@ export function MobileNav({ links }: { links: LinkType[] }) {
           <Link href={link.route} key={link.route} className="relative p-2">
             <link.icon
               className={cn(
-                iconsClassNames,
+                'w-5 h-5',
                 'opacity-50',
                 pathname.startsWith(link.route) && 'opacity-100',
               )}
@@ -38,6 +37,8 @@ export function MobileNav({ links }: { links: LinkType[] }) {
             )}
           </Link>
         ))}
+
+        <SidebarTrigger />
       </Card>
     </nav>
   )

@@ -19,11 +19,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { updateStoreTheme } from './actions'
-
-export const appearenceFormSchema = z.object({
-  theme_color: z.string().optional(),
-  theme_mode: z.string().optional(),
-})
+import { appearenceFormSchema } from './schemas'
 
 const availableThemeColors = [
   { name: 'Zinc', light: 'bg-zinc-900', dark: 'bg-zinc-700' },
@@ -76,7 +72,7 @@ export function AppearenceForm({ store }: { store: StoreType | null }) {
     }
 
     if (store) {
-      await updateStoreTheme(store?.store_url, values)
+      await updateStoreTheme(values)
     }
   }
 

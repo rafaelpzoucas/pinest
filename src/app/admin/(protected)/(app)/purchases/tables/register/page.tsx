@@ -20,7 +20,7 @@ export default async function CreateTablePage({
 
   return (
     <main className="space-y-6 p-4 lg:px-0">
-      <AdminHeader title="Novo pedido" />
+      <AdminHeader title="Nova mesa" withBackButton />
 
       {store && (
         <CreateSaleForm

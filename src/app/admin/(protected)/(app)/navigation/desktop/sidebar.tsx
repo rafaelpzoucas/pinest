@@ -14,7 +14,7 @@ import { useState } from 'react'
 import { Nav } from './nav'
 
 export function DesktopNav({ links }: { links: LinkType[] }) {
-  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
     <div className="p-4 hidden lg:block">

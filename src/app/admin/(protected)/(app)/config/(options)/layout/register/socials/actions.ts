@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { SocialMediaType } from '@/models/social'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { readStoreByUserId } from '../../actions'
+import { readStoreByUserId } from '../../../account/actions'
 import { socialFormSchema } from './form'
 
 export async function readSocials(): Promise<{

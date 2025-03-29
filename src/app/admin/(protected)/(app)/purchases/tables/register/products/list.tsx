@@ -1,23 +1,22 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
 import { ProductType } from '@/models/product'
 import { Plus, Search } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { UseFormReturn, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
-import { createPurchaseFormSchema } from '../schemas'
+import { createTableSchema } from '../schemas'
 
 export function ProductsList({
   form,
   products,
   categories,
 }: {
-  form: UseFormReturn<z.infer<typeof createPurchaseFormSchema>>
+  form: UseFormReturn<z.infer<typeof createTableSchema>>
   products: ProductType[]
   categories: CategoryType[]
 }) {
@@ -93,16 +92,6 @@ export function ProductsList({
     setCategoryFilter((prevStatus) => (prevStatus === status ? '' : status))
   }
 
-  // Calcula o valor total da compra
-  const totalAmount = selectedProducts.reduce((total, item) => {
-    const product = products.find((p) => p.id === item.product_id)
-    return total + (product ? item.product_price * item.quantity : 0)
-  }, 0)
-
-  useEffect(() => {
-    setValue('total.total_amount', totalAmount)
-  }, [totalAmount])
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
@@ -117,7 +106,7 @@ export function ProductsList({
           />
         </div>
 
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row flex-wrap gap-4">
           {categories.map((category) => (
             <Card
               key={category.id}
@@ -134,8 +123,8 @@ export function ProductsList({
           ))}
         </div>
 
-        <ScrollArea className="h-[calc(100vh_-_1rem_-_68px_-_24px_-_12rem_-_1rem)]">
-          <div className="grid grid-cols-3 gap-2 w-full">
+        <ScrollArea className="lg:h-[calc(100vh_-_1rem_-_68px_-_24px_-_12rem_-_1rem)]">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
             {filteredProducts.length > 0 &&
               filteredProducts.map((product) => (
                 <Card
@@ -171,12 +160,6 @@ export function ProductsList({
           </div>
         )}
       </div>
-
-      <FormField
-        control={form.control}
-        name="total.total_amount"
-        render={({ field }) => <input type="hidden" {...field} />}
-      />
     </div>
   )
 }

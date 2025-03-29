@@ -20,21 +20,9 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 import { createStoreHours, updateStoreHours } from './actions'
-
-const hoursFormSchema = z.object({
-  week_days: z.array(
-    z.object({
-      id: z.string().optional(),
-      created_at: z.string().optional(),
-      store_id: z.string().optional(),
-      day_of_week: z.string(),
-      is_open: z.boolean(),
-      open_time: z.string().optional(),
-      close_time: z.string().optional(),
-    }),
-  ),
-})
+import { hoursFormSchema } from './schemas'
 
 export type HoursFormValues = z.infer<typeof hoursFormSchema>
 
@@ -137,16 +125,21 @@ export function BusinessHoursForm({ hours }: { hours?: HourType[] | null }) {
     form.setValue(`week_days.${index}.close_time`, newTime)
   }
 
+  const { execute } = useServerAction(createStoreHours, {
+    onSuccess: (hours) => {
+      console.log('Hours created:', hours)
+    },
+    onError: (error) => {
+      console.error('Error creating hours:', error)
+    },
+  })
+
   async function onSubmit(values: HoursFormValues) {
     if (hours) {
       await updateStoreHours(values)
     }
 
-    const { createHoursError } = await createStoreHours(values)
-
-    if (createHoursError) {
-      console.error(createHoursError)
-    }
+    execute(values)
 
     if (isOnboarding) {
       router.push('/admin/onboarding/store/socials')

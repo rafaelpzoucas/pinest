@@ -10,10 +10,12 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { createClient } from '@/lib/supabase/client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 import { updateStoreStatus } from './admin/(protected)/(app)/actions'
 
 const FormSchema = z.object({
@@ -37,8 +39,17 @@ export function SwitchStoreStatus({
     },
   })
 
+  const { execute, isPending } = useServerAction(updateStoreStatus, {
+    onSuccess: () => {
+      console.log('Store status updated successfully')
+    },
+    onError: (error) => {
+      console.error('Error updating store status:', error)
+    },
+  })
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    await updateStoreStatus(data.is_open)
+    await execute({ isOpen: data.is_open })
   }
 
   const isSwitchOpen = form.watch('is_open')
@@ -54,8 +65,16 @@ export function SwitchStoreStatus({
           table: 'stores',
           filter: `id=eq.${storeId}`,
         },
-        () => {
-          form.setValue('is_open', isOpen)
+        async () => {
+          const { data, error } = await supabase
+            .from('stores')
+            .select('is_open')
+            .eq('id', storeId)
+            .single()
+
+          if (!error && data) {
+            form.setValue('is_open', data.is_open)
+          }
           router.refresh()
         },
       )
@@ -73,20 +92,31 @@ export function SwitchStoreStatus({
           control={form.control}
           name="is_open"
           render={({ field }) => (
-            <FormItem className="flex flex-col-reverse lg:flex-row items-end lg:items-center gap-0 lg:gap-2">
+            <FormItem className="flex flex-row items-end lg:items-center gap-0 lg:gap-2 w-full">
               <div className="space-y-0.5">
-                <FormLabel className="text-[0.625rem] lg:text-xs">
-                  {isSwitchOpen ? 'Loja aberta' : 'Loja fechada'}
+                <FormLabel className="text-sm">
+                  {isPending ? (
+                    <span className="flex flex-row items-center">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Atualizando...
+                    </span>
+                  ) : isSwitchOpen ? (
+                    'Loja aberta'
+                  ) : (
+                    'Loja fechada'
+                  )}
                 </FormLabel>
               </div>
               <FormControl>
                 <Switch
+                  disabled={isPending}
                   checked={field.value}
                   onCheckedChange={(value) => {
                     field.onChange(value)
                     form.handleSubmit(onSubmit)()
                   }}
-                  className="data-[state=unchecked]:bg-destructive data-[state=checked]:bg-emerald-600"
+                  className="ml-auto data-[state=unchecked]:bg-destructive
+                    data-[state=checked]:bg-emerald-600"
                 />
               </FormControl>
             </FormItem>

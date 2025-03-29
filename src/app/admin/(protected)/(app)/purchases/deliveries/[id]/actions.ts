@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { getValidIfoodAccessToken } from '../../../integrations/ifood/actions'
+import { getValidIfoodAccessToken } from '../../../config/integrations/ifood/actions'
 
 export const verifyIsIfood = adminProcedure
   .createServerAction()

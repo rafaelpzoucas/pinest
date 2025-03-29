@@ -1,5 +1,5 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readStoreByUserId, readStoreSocials } from '../../actions'
+import { readStoreByUserId, readStoreSocials } from '../../../account/actions'
 import { SocialsForm } from './form'
 
 export default async function ProfileRegister() {

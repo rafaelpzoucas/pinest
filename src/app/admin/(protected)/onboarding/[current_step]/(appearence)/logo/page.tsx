@@ -1,5 +1,5 @@
 import { AppearenceForm } from '@/app/admin/(protected)/(app)/config/(options)/account/appearence'
-import { LogoAvatar } from '@/app/admin/(protected)/(app)/config/(options)/account/register/store/logo-avatar'
+import { LogoAvatar } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/logo-avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'

@@ -14,7 +14,7 @@ export default async function CreatePurchasePage() {
 
   return (
     <main className="space-y-6 p-4 lg:px-0">
-      <AdminHeader title="Novo pedido" />
+      <AdminHeader title="Novo pedido" withBackButton />
 
       {customersData && data && (
         <CreatePurchaseForm

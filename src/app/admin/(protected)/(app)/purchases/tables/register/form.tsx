@@ -4,29 +4,28 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Form } from '@/components/ui/form'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { formatCurrencyBRL } from '@/lib/utils'
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
-import { Loader2 } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
 import { checkTableExists, createTable, updateTable } from './actions'
 import { ProductsList } from './products/list'
-import { SelectedProducts } from './products/selected-products'
 import { createTableSchema } from './schemas'
+import { Summary } from './summary'
 
 export function CreateSaleForm({
   products,
@@ -50,17 +49,12 @@ export function CreateSaleForm({
     },
   })
 
+  const purchaseItems = form.watch('purchase_items')
+
   const { execute: executeCreateTable, isPending: isCreatePending } =
     useServerAction(createTable)
   const { execute: executeUpdateTable, isPending: isUpdatePending } =
     useServerAction(updateTable)
-
-  const purchaseItems = form.watch('purchase_items')
-
-  const totalAmount = purchaseItems.reduce(
-    (sum, item) => sum + item.product_price * item.quantity,
-    0,
-  )
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createTableSchema>) {
@@ -110,10 +104,10 @@ export function CreateSaleForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-[2fr_1fr] items-start gap-8"
+        className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] items-start gap-8"
       >
         <aside className="sticky top-4">
-          <Card className="space-y-6 p-4 h-[calc(100vh_-_1rem_-_5rem)]">
+          <Card className="space-y-6 p-4 lg:h-[calc(100vh_-_1rem_-_5rem)]">
             <h1 className="text-lg font-bold">Produtos</h1>
             <ProductsList
               form={form}
@@ -122,54 +116,48 @@ export function CreateSaleForm({
             />
           </Card>
         </aside>
-        <Card className="space-y-6 p-4">
-          <h1 className="text-lg font-bold">Resumo da mesa</h1>
 
-          {table?.id ? (
-            <div className="flex flex-row items-center justify-between w-full">
-              <strong className="text-xl">Mesa #{table.number}</strong>
-            </div>
-          ) : (
-            <FormField
-              control={form.control}
-              name="number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mesa</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Insira o número da mesa" {...field} />
-                  </FormControl>
+        <Card className="flex lg:hidden flex-col gap-4 p-4 fixed bottom-2 left-2 right-2">
+          <p>{purchaseItems.length} Produto(s) selecionado(s)</p>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          <Sheet>
+            <SheetTrigger
+              className={buttonVariants()}
+              disabled={purchaseItems.length === 0}
+            >
+              Continuar
+            </SheetTrigger>
+            <SheetContent className="p-0">
+              <ScrollArea className="h-dvh p-4">
+                <SheetTitle>
+                  <SheetClose>
+                    <X />
+                  </SheetClose>
+                </SheetTitle>
 
-          <SelectedProducts form={form} products={products} extras={extras} />
-
-          <div className="flex flex-col w-full">
-            <div className="flex flex-row items-center justify-between w-full">
-              <span>Total da venda</span>
-              <strong>{formatCurrencyBRL(totalAmount ?? 0)}</strong>
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isCreatePending || isUpdatePending}
-          >
-            {isCreatePending || isUpdatePending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                <span>{table?.id ? 'Atualizando' : 'Criando'} mesa</span>
-              </>
-            ) : (
-              <span>{table?.id ? 'Atualizar' : 'Criar'} mesa</span>
-            )}
-          </Button>
+                <Summary
+                  extras={extras}
+                  form={form}
+                  isCreatePending={isCreatePending}
+                  isUpdatePending={isUpdatePending}
+                  products={products}
+                  table={table}
+                />
+              </ScrollArea>
+            </SheetContent>
+          </Sheet>
         </Card>
+
+        <div className="hidden lg:block">
+          <Summary
+            extras={extras}
+            form={form}
+            isCreatePending={isCreatePending}
+            isUpdatePending={isUpdatePending}
+            products={products}
+            table={table}
+          />
+        </div>
       </form>
     </Form>
   )

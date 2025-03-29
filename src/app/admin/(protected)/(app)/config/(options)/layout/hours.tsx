@@ -12,7 +12,9 @@ export async function Hours({ store }: { store: StoreType | null }) {
     return null
   }
 
-  const { hours } = await readStoreHours(store?.store_url)
+  const [hoursData] = await readStoreHours()
+
+  const hours = hoursData?.hours
 
   if (!hours) {
     return null
@@ -25,7 +27,7 @@ export async function Hours({ store }: { store: StoreType | null }) {
       <HoursList hours={hours} />
 
       <Link
-        href={`account/register/hours`}
+        href={`layout/register/hours`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
           'absolute top-2 right-2',

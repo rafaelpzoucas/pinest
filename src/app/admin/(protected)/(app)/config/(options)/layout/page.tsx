@@ -1,16 +1,30 @@
 import { AdminHeader } from '@/app/admin-header'
+import { readStore } from './actions'
+import { AppearenceForm } from './appearence'
 import { BenefitsSection } from './benefits/section'
+import { Hours } from './hours'
 import { ShowcasesSection } from './showcases/section'
+import { Socials } from './socials'
+import { Store } from './store'
 
-export default function Layout() {
+export default async function Layout() {
+  const [storeData] = await readStore()
+
+  const store = storeData?.store
+
   return (
     <div className="space-y-4 lg:px-0">
       <AdminHeader title="Organização da loja" />
 
       <section className="space-y-6">
-        <ShowcasesSection />
+        <Store store={store} />
+        <AppearenceForm store={store} />
 
+        <ShowcasesSection />
         <BenefitsSection />
+
+        <Socials store={store} />
+        <Hours store={store} />
       </section>
     </div>
   )
