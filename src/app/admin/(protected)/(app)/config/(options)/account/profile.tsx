@@ -1,15 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { UserType } from '@/models/user'
 import { AtSign, Edit } from 'lucide-react'
 import Link from 'next/link'
-import { SignOutButton } from './sign-out'
 
-export async function Profile({ user }: { user: UserType | null }) {
+export async function Profile({ user }: { user?: UserType }) {
   const supabase = createClient()
   const { data: userData, error: userDataError } = await supabase.auth.getUser()
 
@@ -47,10 +45,6 @@ export async function Profile({ user }: { user: UserType | null }) {
       >
         <Edit className="w-4 h-4" />
       </Link>
-
-      <Separator />
-
-      <SignOutButton />
     </Card>
   )
 }

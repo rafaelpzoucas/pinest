@@ -1,11 +1,15 @@
 'use server'
 
+import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
+import { adminProcedure } from '@/lib/zsa-procedures'
 import { HourType } from '@/models/hour'
 import { SocialMediaType } from '@/models/social'
 import { StoreType } from '@/models/store'
 import { UserType } from '@/models/user'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 
 export async function readUser(): Promise<{
   data: UserType | null
@@ -159,3 +163,60 @@ export async function readStoreTheme(storeURL: string): Promise<{
     themeMode: data.theme_mode || 'light',
   }
 }
+
+export const readAccountData = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { user, store, supabase } = ctx
+
+    const [
+      { data: userData, error: userDataError },
+      { data: storeAddress, error: storeAddressError },
+      { data: subscription, error: subscriptionError },
+    ] = await Promise.all([
+      supabase.from('users').select('*').eq('id', user.id).single(),
+      supabase.from('addresses').select('*').eq('store_id', store?.id).single(),
+      supabase
+        .from('subscriptions')
+        .select(
+          `
+          *,
+          plans (*)
+        `,
+        )
+        .eq('store_id', store.id)
+        .eq('status', 'active')
+        .single(),
+    ])
+
+    if (userDataError || subscriptionError || storeAddressError) {
+      console.error('Erro ao carregar assinatura:', {
+        cause: { userDataError, subscriptionError, storeAddressError },
+      })
+      throw new Error('Erro ao carregar assinatura')
+    }
+
+    return { userData, storeAddress, subscription }
+  })
+
+export const cancelSubscription = adminProcedure
+  .createServerAction()
+  .input(z.object({ subscriptionId: z.string() }))
+  .handler(async ({ input }) => {
+    const { subscriptionId } = input
+
+    if (subscriptionId) {
+      const canceledSubscription = await stripe.subscriptions.update(
+        subscriptionId,
+        {
+          cancel_at_period_end: true,
+        },
+      )
+
+      if (canceledSubscription) {
+        console.log('Assinatura cancelada:', canceledSubscription)
+      }
+    }
+
+    revalidatePath('/')
+  })
