@@ -11,7 +11,10 @@ export async function SignOutButton() {
 
   return (
     <form action={handleSignOut} className="flex">
-      <Button variant="ghost" className="mx-auto">
+      <Button
+        variant="ghost"
+        className="flex flex-row items-center justify-between mx-auto w-full max-w-xs"
+      >
         Sair
         <LogOut className="ml-2 w-4 h-4" />
       </Button>

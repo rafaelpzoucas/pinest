@@ -14,7 +14,7 @@ export function Socials({ store }: { store: StoreType | null }) {
       {store && <StoreSocials storeURL={store.store_url} />}
 
       <Link
-        href={`account/register/socials`}
+        href={`layout/register/socials`}
         className={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
           'absolute top-2 right-2',

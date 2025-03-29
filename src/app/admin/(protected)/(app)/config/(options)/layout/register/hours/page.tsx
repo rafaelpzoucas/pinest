@@ -1,14 +1,11 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readStoreByUserId, readStoreHours } from '../../actions'
+import { readStoreHours } from '../../actions'
 import { BusinessHoursForm } from './form'
 
 export default async function BusinessHoursRegister() {
-  const { store } = await readStoreByUserId()
+  const [hoursData] = await readStoreHours()
 
-  if (!store) {
-    return null
-  }
-  const { hours } = await readStoreHours(store?.store_url)
+  const hours = hoursData?.hours
 
   return (
     <section className="flex flex-col gap-4">

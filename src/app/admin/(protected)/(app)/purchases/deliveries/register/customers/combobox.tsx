@@ -118,7 +118,7 @@ export function CustomersCombobox({
                       >
                         <div className="flex flex-col w-full">
                           <div className="flex flex-row items-start">
-                            <span className="max-w-[225px] line-clamp-1">
+                            <span className="max-w-[335px] line-clamp-1">
                               {customer.name}
                             </span>
                             <div className="ml-auto flex flex-row gap-1">

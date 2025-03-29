@@ -1,0 +1,58 @@
+import {
+  Bike,
+  Blocks,
+  ChartPie,
+  LayoutList,
+  ReceiptText,
+  Store,
+  User,
+} from 'lucide-react'
+
+export const main = [
+  {
+    title: 'Pedidos',
+    url: '/admin/purchases',
+    icon: ReceiptText,
+  },
+  // {
+  //   title: 'Financeiro',
+  //   url: '/admin/finance',
+  //   icon: CircleDollarSign,
+  // },
+  {
+    title: 'Cardápio',
+    url: '/admin/catalog',
+    icon: LayoutList,
+  },
+]
+
+export const settings = [
+  {
+    title: 'Conta',
+    url: '/admin/config/account',
+    icon: User,
+  },
+  {
+    title: 'Loja virtual',
+    url: '/admin/config/layout',
+    icon: Store,
+  },
+  {
+    title: 'Entrega',
+    url: '/admin/config/shipping',
+    icon: Bike,
+  },
+  {
+    title: 'Integrações',
+    url: '/admin/config/integrations',
+    icon: Blocks,
+  },
+]
+
+export const reports = [
+  {
+    title: 'Relatórios',
+    url: '/admin/reports',
+    icon: ChartPie,
+  },
+]

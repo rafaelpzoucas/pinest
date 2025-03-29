@@ -1,30 +1,28 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
-import { readStoreByUserId } from '../../actions'
 import { HoursFormValues } from './form'
+import { hoursFormSchema } from './schemas'
 
-export async function createStoreHours(values: HoursFormValues) {
-  const supabase = createClient()
+export const createStoreHours = adminProcedure
+  .createServerAction()
+  .input(hoursFormSchema)
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase } = ctx
 
-  const { store, storeError } = await readStoreByUserId()
+    const storeHours = input.week_days.map((hour) => ({
+      ...hour,
+      store_id: store?.id,
+    }))
 
-  if (storeError) {
-    console.error(storeError)
-  }
+    const { data: createdHours, error: createHoursError } = await supabase
+      .from('store_hours')
+      .insert(storeHours)
 
-  const storeHours = values.week_days.map((hour) => ({
-    ...hour,
-    store_id: store?.id,
-  }))
-
-  const { data: createdHours, error: createHoursError } = await supabase
-    .from('store_hours')
-    .insert(storeHours)
-
-  return { createdHours, createHoursError }
-}
+    return { createdHours, createHoursError }
+  })
 
 export async function updateStoreHours(values: HoursFormValues) {
   const supabase = createClient()

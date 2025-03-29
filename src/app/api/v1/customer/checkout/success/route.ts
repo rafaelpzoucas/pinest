@@ -1,5 +1,5 @@
 import { readPurchaseById } from '@/app/[public_store]/purchases/[id]/actions'
-import { readStoreById } from '@/app/admin/(protected)/(app)/config/(options)/account/register/store/actions'
+import { readStoreById } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/actions'
 import { createClient } from '@/lib/supabase/server'
 import { ProdutoType, RequestSolicitarType } from '@/models/kangu-shipping'
 import { revalidatePath } from 'next/cache'

@@ -28,20 +28,26 @@ export async function readOwner(): Promise<{
   return { owner, ownerError }
 }
 
-export async function updateStoreStatus(isOpen: boolean) {
-  const supabase = createClient()
+export const updateStoreStatus = adminProcedure
+  .createServerAction()
+  .input(z.object({ isOpen: z.boolean() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase, store } = ctx
 
-  const { data: userData } = await supabase.auth.getUser()
+    const { data, error } = await supabase
+      .from('stores')
+      .update({ is_open_override: input.isOpen, is_open: input.isOpen })
+      .eq('id', store.id)
 
-  const { data, error } = await supabase
-    .from('stores')
-    .update({ is_open_override: isOpen, is_open: isOpen })
-    .eq('user_id', userData.user?.id)
+    if (error || !data) {
+      console.error('Erro ao atualizar status da loja.', error)
+      return null
+    }
 
-  revalidatePath('/')
+    revalidatePath('/')
 
-  return { data, error }
-}
+    return { data }
+  })
 
 export const readLastEvents = adminProcedure
   .createServerAction()
