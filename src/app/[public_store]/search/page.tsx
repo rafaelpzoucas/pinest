@@ -15,11 +15,8 @@ export default async function SearchPage({
 }) {
   const supabase = createClient()
 
-  const { products, searchError } = await getSearchedProducts(searchParams.q)
-
-  if (searchError) {
-    console.error(searchError)
-  }
+  const [searchData] = await getSearchedProducts({ query: searchParams.q })
+  const products = searchData?.products
 
   const { store, storeError } = await getStoreByStoreURL(params.public_store)
 
