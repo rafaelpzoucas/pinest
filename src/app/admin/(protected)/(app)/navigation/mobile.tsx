@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { LinkType } from '@/models/nav-links'
+import { Menu } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -38,7 +39,9 @@ export function MobileNav({ links }: { links: LinkType[] }) {
           </Link>
         ))}
 
-        <SidebarTrigger />
+        <SidebarTrigger>
+          <Menu className="opacity-50" />
+        </SidebarTrigger>
       </Card>
     </nav>
   )

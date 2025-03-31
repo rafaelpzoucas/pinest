@@ -45,10 +45,6 @@ export default async function ProtectedLayout({
       <main className="md:flex flex-row w-full">
         <SoundNotification />
 
-        {/* <div className="p-1 hidden lg:flex">
-          <SidebarTrigger className="w-9 h-9" />
-        </div> */}
-
         <ScrollArea className="w-full h-dvh lg:px-5 print:p-0">
           <main className="flex flex-col items-center w-full">
             <div className="w-full max-w-7xl pb-16">

@@ -8,8 +8,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { Home } from 'lucide-react'
+import { GitCommitVertical, Home } from 'lucide-react'
 import { Footer } from './footer'
 import { Header } from './header'
 import { main, reports, settings } from './items'
@@ -33,7 +34,11 @@ export async function AppSidebar() {
   const store = storeData?.store
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="relative">
+      <SidebarTrigger className="absolute top-1/2 -translate-y-1/2 -right-6">
+        <GitCommitVertical className="opacity-50" />
+      </SidebarTrigger>
+
       <SidebarContent>
         <Header store={store} />
 
