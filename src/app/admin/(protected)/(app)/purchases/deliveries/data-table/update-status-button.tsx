@@ -17,19 +17,26 @@ export function UpdateStatusButton({
   accepted,
   currentStatus,
   purchaseId,
+  type,
+  isIfood,
 }: {
   accepted: boolean
   currentStatus: string
   purchaseId: string
+  type: string
+  isIfood: boolean
 }) {
-  async function handleUpdateStatus(newStatus: string) {
+  async function handleUpdateStatus(status: string) {
     if (!accepted) {
-      await acceptPurchase(purchaseId)
+      await acceptPurchase({ purchaseId })
 
-      window.open(`/admin/purchases/${purchaseId}/receipt`, '_blank')
+      window.open(`/admin/purchases/deliveries/${purchaseId}/receipt`, '_blank')
     }
 
-    await updatePurchaseStatus(newStatus, purchaseId)
+    const newStatus =
+      status === 'shipped' && type === 'TAKEOUT' ? 'readyToPickup' : status
+
+    await updatePurchaseStatus(newStatus, purchaseId, isIfood)
   }
 
   if (

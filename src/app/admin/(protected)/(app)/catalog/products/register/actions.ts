@@ -106,6 +106,7 @@ export async function updateProduct(
       pkg_weight: values.pkg_weight && stringToNumber(values.pkg_weight),
       product_url: values.name && generateSlug(values.name.trim()),
       allows_extras: values.allows_extras,
+      stock: values.stock === '' ? null : values.stock,
     })
     .eq('id', id)
     .select()

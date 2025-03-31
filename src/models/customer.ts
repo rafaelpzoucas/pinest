@@ -7,4 +7,5 @@ export type CustomerType = {
   store_id: string
   phone: string
   address: string
+  balance: number
 }

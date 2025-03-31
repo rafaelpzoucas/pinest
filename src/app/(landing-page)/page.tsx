@@ -1,6 +1,6 @@
+import { SubscriptionPlans } from '@/components/subscription-plans'
 import { BenefitsSection } from './benefits-section'
 import { HeroSection } from './hero-section'
-import { PreSaleSection } from './pre-sale-section'
 import { ResourcesSection } from './resources-section'
 import { USPSection } from './usp-section'
 
@@ -11,8 +11,7 @@ export default function LandingPage() {
       <USPSection />
       <ResourcesSection />
       <BenefitsSection />
-      {/* <PricingSection /> */}
-      <PreSaleSection />
+      <SubscriptionPlans />
       {/* Social proof - números, logotipos e historias de clientes */}
       {/* FAQ */}
     </main>

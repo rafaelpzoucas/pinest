@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/sheet'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { TableType } from '@/models/table'
-import { Plus, Search } from 'lucide-react'
+import { ArrowLeft, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { MdTableBar } from 'react-icons/md'
@@ -21,9 +22,9 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
 
   return (
     <section className="flex flex-col gap-4 text-sm">
-      <header className="flex flex-row gap-4">
+      <header className="flex flex-col lg:flex-row gap-4">
         <Link
-          href="purchases/tables/create"
+          href="purchases/tables/register"
           className={cn(buttonVariants(), 'w-full max-w-sm')}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -42,7 +43,7 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
         </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-4 lg:grid-cols-12 gap-4">
         {tables &&
           tables.length > 0 &&
           tables.map((table) => {
@@ -61,8 +62,13 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                 </SheetTrigger>
                 <SheetContent className="px-0">
                   <ScrollArea className="h-dvh pb-16 px-6">
-                    <SheetHeader>
-                      <SheetTitle>Mesa #{table.number}</SheetTitle>
+                    <SheetHeader className="flex flex-row items-center">
+                      <SheetClose>
+                        <ArrowLeft className="mr-4" />
+                      </SheetClose>
+                      <SheetTitle className="!mt-0">
+                        Mesa #{table.number}
+                      </SheetTitle>
                     </SheetHeader>
 
                     <section className="py-4 w-full flex flex-col gap-4">
@@ -72,7 +78,7 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                       </div>
 
                       <Link
-                        href={`purchases/close?table_id=${table.id}`}
+                        href={`purchases/close?table_id=${table.id}&tab=tables`}
                         className={cn(buttonVariants())}
                       >
                         Fechar mesa
@@ -84,7 +90,7 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
 
                       <div className="flex flex-col gap-2">
                         <Link
-                          href={`purchases/tables/create?id=${table.id}`}
+                          href={`purchases/tables/register?id=${table.id}`}
                           className={cn(
                             buttonVariants({ variant: 'outline' }),
                             'w-full max-w-sm',
@@ -120,7 +126,9 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                                     {item.quantity} {item?.products?.name}
                                   </strong>
                                   <span>
-                                    {formatCurrencyBRL(item?.products?.price)}
+                                    {formatCurrencyBRL(
+                                      item?.products?.price ?? 0,
+                                    )}
                                   </span>
                                 </header>
 

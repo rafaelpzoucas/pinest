@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { adminProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import {
@@ -122,3 +123,22 @@ export async function readStore(): Promise<{
     .single()
   return { store, storeError }
 }
+
+export const readPendingBalances = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: pendingBalances, error } = await supabase
+      .from('customers')
+      .select('*')
+      .lt('balance', 0)
+      .eq('store_id', store?.id)
+
+    if (error) {
+      console.error('Error reading pending balances', error)
+      return
+    }
+
+    return { pendingBalances }
+  })

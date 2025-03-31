@@ -87,7 +87,7 @@ export function ProductCard({ product }: { product?: ProductType }) {
 
       <footer className="flex flex-row justify-between border-t pt-2 mt-3">
         <p className="text-xs text-muted-foreground">
-          Estoque: {product.stock}
+          Estoque: {product.stock ?? 'Infinito'}
         </p>
         <p className="text-xs text-muted-foreground">
           Vendidos: {product.amount_sold}

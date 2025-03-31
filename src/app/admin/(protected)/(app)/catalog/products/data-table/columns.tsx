@@ -41,6 +41,7 @@ export const columns: ColumnDef<ProductType>[] = [
   {
     accessorKey: 'stock',
     header: 'Estoque',
+    cell: ({ row }) => row.getValue('stock') ?? 'Infinito',
   },
   {
     accessorKey: 'amount_sold',

@@ -141,7 +141,7 @@ export async function handlePayment(purchaseId: string, storeURL: string) {
     return
   }
 
-  await updatePurchaseStatus('pending', purchase.id)
+  await updatePurchaseStatus('accept', purchase.id, false)
 
   await clearCart(storeURL)
 
@@ -159,7 +159,7 @@ export async function createStripeCheckout(
   const { stripeAccount, stripeAccountError } =
     await readUserConnectedAccountId(store?.user_id ?? '')
 
-  const shippingPrice = purchase?.shipping_price ?? 0
+  const shippingPrice = purchase?.total?.shipping_price ?? 0
 
   if (purchaseError || storeError || stripeAccountError) {
     throw new Error('Erro ao obter dados necessários para criar o checkout')
@@ -175,8 +175,8 @@ export async function createStripeCheckout(
       currency: 'brl',
       unit_amount: Math.round(item.product_price * 100),
       product_data: {
-        name: item.products.name,
-        description: item.products.description,
+        name: item?.products?.name ?? '',
+        description: item?.products?.description ?? '',
       },
     },
     quantity: item.quantity,

@@ -1,7 +1,7 @@
 'use server'
 
 import { stringToNumber } from '@/lib/utils'
-import { adminProcedure } from '@/lib/zsa-procedures'
+import { adminProcedure, cashProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { closeBillFormSchema } from './schemas'
@@ -17,7 +17,7 @@ export const readPayments = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
-    let query = supabase.from('purchase_payments').select('*')
+    let query = supabase.from('payments').select('*')
 
     if (input.table_id) {
       query = query.eq('table_id', input.table_id)
@@ -37,24 +37,55 @@ export const readPayments = adminProcedure
     return { payments }
   })
 
-export const createPayment = adminProcedure
+export const createPayment = cashProcedure
   .createServerAction()
   .input(closeBillFormSchema)
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase, store, cashSession } = ctx
+
+    const customerId = input.customer_id
+    const amount = stringToNumber(input.amount)
+    const discount = stringToNumber(input.discount)
 
     const { data: createdPayment, error } = await supabase
-      .from('purchase_payments')
+      .from('payments')
       .insert({
         ...input,
-        amount: stringToNumber(input.amount),
-        discount: stringToNumber(input.discount),
+        amount,
+        discount,
+        status: input.payment_type === 'DEFERRED' ? 'pending' : input.status,
+        store_id: store.id,
+        cash_session_id: cashSession.id,
+        description: 'Venda',
       })
       .select()
 
     if (error || !createdPayment) {
       console.error('Error creating payment transaction.', error)
       return
+    }
+
+    const { data: customerToUpdate, error: customerToUpdateError } =
+      await supabase.from('customers').select('*').eq('id', customerId).single()
+
+    if (customerToUpdateError || !customerToUpdate) {
+      console.error(
+        'Error fetching customer for balance update.',
+        customerToUpdateError,
+      )
+      return
+    }
+
+    if (customerId) {
+      const { error: updateCustomerBalance } = await supabase
+        .from('customers')
+        .update({ balance: customerToUpdate?.balance - amount })
+        .eq('id', input.customer_id)
+
+      if (updateCustomerBalance) {
+        console.error('Error updating customer balance.', updateCustomerBalance)
+        return
+      }
     }
 
     if (input.items) {
@@ -95,14 +126,17 @@ export const closeBills = adminProcedure
 
     if (input.purchase_id) {
       const { data: createdPayment, error } = await supabase
-        .from('purchase_payments')
+        .from('purchases')
         .update({
           is_paid: true,
         })
+        .eq('id', input.purchase_id)
         .select()
 
       if (error || !createdPayment) {
         console.error('Error closing purchase bills.', error)
       }
     }
+
+    revalidatePath('/admin/purchases')
   })

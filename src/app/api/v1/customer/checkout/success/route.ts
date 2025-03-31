@@ -1,5 +1,5 @@
 import { readPurchaseById } from '@/app/[public_store]/purchases/[id]/actions'
-import { readStoreById } from '@/app/admin/(protected)/(app)/config/(options)/account/register/store/actions'
+import { readStoreById } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/actions'
 import { createClient } from '@/lib/supabase/server'
 import { ProdutoType, RequestSolicitarType } from '@/models/kangu-shipping'
 import { revalidatePath } from 'next/cache'
@@ -28,14 +28,18 @@ async function solicitShipping(purchaseId: string) {
 
   if (!store) return
 
-  const produtos = purchase?.purchase_items.map((item) => ({
-    peso: item.products.pkg_weight,
-    altura: item.products.pkg_height,
-    largura: item.products.pkg_width,
-    comprimento: item.products.pkg_length,
-    valor: item.products.price,
-    produto: item.products.name,
-  })) as unknown as ProdutoType[]
+  const produtos = purchase?.purchase_items.map((item) => {
+    if (!item.products) return null
+
+    return {
+      peso: item.products.pkg_weight,
+      altura: item.products.pkg_height,
+      largura: item.products.pkg_width,
+      comprimento: item.products.pkg_length,
+      valor: item.products.price,
+      produto: item.products.name,
+    }
+  }) as unknown as ProdutoType[]
 
   const remetente = {
     nome: store.name,

@@ -15,7 +15,7 @@ export function RealtimeNotifications({
 
   useEffect(() => {
     const hasPending = purchases.some(
-      (purchase) => purchase.status === 'pending',
+      (purchase) => purchase.status === 'accept',
     )
 
     let interval: NodeJS.Timeout | null = null

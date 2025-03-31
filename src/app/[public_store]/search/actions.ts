@@ -1,16 +1,32 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { adminProcedure } from '@/lib/zsa-procedures'
+import { z } from 'zod'
 
-export async function getSearchedProducts(query: string) {
-  const supabase = createClient()
+export const getSearchedProducts = adminProcedure
+  .createServerAction()
+  .input(z.object({ query: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase } = ctx
+    const { query } = input
 
-  const sanitizedQuery = `%${query.replace(/[^a-zA-Z0-9 ]/g, '')}%`
+    const sanitizedQuery = `%${query.replace(/[^a-zA-Z0-9 ]/g, '')}%`
 
-  const { data: products, error: searchError } = await supabase
-    .from('products')
-    .select('*')
-    .ilike('name', sanitizedQuery)
+    const { data: products, error: searchError } = await supabase
+      .from('products')
+      .select(
+        `
+        *,
+        product_images (*)
+      `,
+      )
+      .eq('store_id', store.id)
+      .ilike('name', sanitizedQuery)
 
-  return { products, searchError }
-}
+    if (searchError || !products) {
+      console.error('Erro ao buscar produtos.', searchError)
+      return null
+    }
+
+    return { products }
+  })

@@ -1,13 +1,17 @@
+import { IfoodItem } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../actions'
+import { DELIVERY_TYPES } from './info'
 import { Printer } from './printer'
 
 export default async function PrintKitchenReceipt({
   params,
+  searchParams,
 }: {
   params: { id: string }
+  searchParams: { reprint: string }
 }) {
   const [purchaseData] = await readPurchaseById({ id: params.id })
 
@@ -15,23 +19,22 @@ export default async function PrintKitchenReceipt({
 
   const displayId = purchase?.id.substring(0, 4)
 
-  const DELIVERY_TYPES = {
-    pickup: 'Retirar na loja',
-    delivery: 'Entregar',
-  }
-
   if (!purchase) {
     return null
   }
+
+  const reprint = searchParams.reprint
+  const unprintedItems = purchase.purchase_items.filter((item) => !item.printed)
+
+  const itemsList = reprint ? purchase.purchase_items : unprintedItems
 
   const customerName =
     purchase?.customers?.users?.name ??
     purchase.guest_data?.name ??
     purchase.customers.name
-  const customerPhone =
-    purchase?.customers?.users?.phone ??
-    purchase.guest_data?.phone ??
-    purchase.customers.phone
+
+  const isIfood = purchase.is_ifood
+  const ifoodItems: IfoodItem[] = isIfood && purchase.ifood_order_data.items
 
   return (
     <div
@@ -52,11 +55,10 @@ export default async function PrintKitchenReceipt({
       >
         <p>Data: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
         <p>Cliente: {customerName}</p>
-        <p>Telefone: {customerPhone}</p>
+        {purchase.observations && (
+          <p className="text-base"> OBS: {purchase.observations}</p>
+        )}
       </div>
-
-      {/* Forçando uma nova página antes dos itens */}
-      <div className="force-page-break"></div>
 
       <div
         className="w-full border-b border-dashed last:border-0 py-4 space-y-1 print-section
@@ -65,26 +67,55 @@ export default async function PrintKitchenReceipt({
         <h3 className="mx-auto text-xs uppercase">Itens do pedido</h3>
 
         <ul>
-          {purchase.purchase_items.map((item) => (
-            <li
-              key={item.id}
-              className="border-b border-dotted last:border-0 py-2 print-section uppercase"
-            >
-              <span>
-                {item.quantity} {item.products.name}
-              </span>
+          {!isIfood
+            ? itemsList.map((item) => {
+                if (!item.products) {
+                  return null
+                }
 
-              {item.extras.length > 0 &&
-                item.extras.map((extra) => (
-                  <p className="flex flex-row items-center w-full text-xs">
-                    <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
-                    {extra.name}
-                  </p>
-                ))}
+                return (
+                  <li
+                    key={item.id}
+                    className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                  >
+                    <span>
+                      {item.quantity} {item.products.name}
+                    </span>
 
-              {item.observations && <strong>**{item.observations}</strong>}
-            </li>
-          ))}
+                    {item.extras.length > 0 &&
+                      item.extras.map((extra) => (
+                        <p className="flex flex-row items-center w-full">
+                          <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
+                          {extra.name}
+                        </p>
+                      ))}
+
+                    {item.observations && (
+                      <strong>**{item.observations}</strong>
+                    )}
+                  </li>
+                )
+              })
+            : ifoodItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                >
+                  <span>
+                    {item.quantity} {item.name}
+                  </span>
+
+                  {item.options.length > 0 &&
+                    item.options.map((option) => (
+                      <p className="flex flex-row items-center w-full text-xs">
+                        <Plus className="w-3 h-3 mr-1" /> {option.quantity} ad.{' '}
+                        {option.name}
+                      </p>
+                    ))}
+
+                  {item.observations && <strong>**{item.observations}</strong>}
+                </li>
+              ))}
         </ul>
       </div>
 

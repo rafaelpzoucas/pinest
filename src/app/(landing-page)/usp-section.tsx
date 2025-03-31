@@ -6,14 +6,14 @@ export function USPSection() {
           text-center gap-6 md:gap-12"
       >
         <h3 className="text-2xl md:text-5xl font-bold text-primary max-w-2xl">
-          Sua loja online, com os melhores padrões de design
+          Seu cardápio online, com os melhores padrões de design
         </h3>
 
         <p className="max-w-2xl text-muted-foreground">
-          Na Pinest, sua loja já vem pronta com um visual profissional e
-          otimizado para vendas. Além de bonita, ela é fácil de usar,
-          proporcionando uma ótima experiência para seus clientes e ajudando
-          você a vender mais.
+          Com a Pinest, seu restaurante ganha um cardápio digital moderno e
+          interativo. Personalize sua loja online, receba pedidos diretamente
+          pelo WhatsApp ou iFood e ofereça uma experiência prática e intuitiva
+          para seus clientes.
         </p>
       </div>
     </section>

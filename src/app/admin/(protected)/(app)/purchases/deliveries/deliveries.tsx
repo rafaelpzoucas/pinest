@@ -6,10 +6,13 @@ import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
+import { useCashRegister } from '@/stores/cashRegisterStore'
 import { Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useServerAction } from 'zsa-react'
+import { readCashSession } from '../../cash-register/actions'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
@@ -31,6 +34,11 @@ export function Deliveries({
   const searchStr = normalizeString(search)
 
   const statusFilters = [
+    {
+      status: 'accept',
+      title: 'aguardando',
+      status_length: getStatusLengths('accept'),
+    },
     {
       status: 'pending',
       title: 'pendente(s)',
@@ -58,9 +66,13 @@ export function Deliveries({
     },
   ]
 
+  const hasPending = deliveries?.some(
+    (delivery) => delivery.status === 'accept',
+  )
+
   function getStatusLengths(status: string) {
     const statusLength = deliveries?.filter(
-      (purchase) => purchase.status === status,
+      (delivery) => delivery.status === status,
     )
 
     return statusLength?.length
@@ -85,6 +97,33 @@ export function Deliveries({
     setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
   }
 
+  function showNotification() {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        const notification = new Notification('Novo Pedido Recebido', {
+          body: 'Clique aqui para visualizar o pedido.',
+          icon: '/icon-dark.svg',
+        })
+
+        notification.onclick = () => {
+          const myWindow = window.open(
+            `${process.env.NEXT_PUBLIC_APP_URL}/admin/purchases?tab=deliveries`,
+            'pinest',
+          )
+          if (myWindow) {
+            myWindow.focus()
+          }
+        }
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted' && hasPending) {
+            showNotification()
+          }
+        })
+      }
+    }
+  }
+
   useEffect(() => {
     const channel = supabase
       .channel('realtime-purchases')
@@ -105,11 +144,36 @@ export function Deliveries({
       supabase.removeChannel(channel)
     }
   }, [supabase, router])
+
+  useEffect(() => {
+    if (hasPending) {
+      showNotification()
+    }
+  }, [hasPending])
+
+  const { setIsCashOpen } = useCashRegister()
+
+  const { execute, data } = useServerAction(readCashSession, {
+    onSuccess: () => {
+      const isOpen = !!data?.cashSession
+
+      setIsCashOpen(isOpen)
+    },
+  })
+
+  async function handleReadCashSession() {
+    await execute()
+  }
+
+  useEffect(() => {
+    handleReadCashSession()
+  }, [])
+
   return (
     <section className="flex flex-col gap-4 text-sm">
-      <header className="flex flex-row gap-4">
+      <header className="flex flex-col lg:flex-row gap-4">
         <Link
-          href="purchases/deliveries/create"
+          href="purchases/deliveries/register"
           className={cn(buttonVariants(), 'w-full max-w-sm')}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -128,7 +192,7 @@ export function Deliveries({
         </div>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}

@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -11,10 +11,11 @@ export function HeroSection() {
           gap-4 md:gap-8 px-6"
       >
         <h1 className={cn('text-4xl md:text-7xl font-bold text-primary')}>
-          Construa sua Loja em Minutos!
+          Gerencie seu Restaurante com Eficiência!
         </h1>
         <p className="text-muted-foreground md:text-xl">
-          Design e configurações prontos para você começar a vender rápido.
+          Controle pedidos, mesas, entregas, comandas e integrações com iFood em
+          uma única plataforma.
         </p>
 
         <div className="flex flex-col gap-2 w-full items-center">
@@ -22,7 +23,7 @@ export function HeroSection() {
             href="#pricing"
             className={cn(buttonVariants(), 'w-full max-w-xs')}
           >
-            CRIAR MINHA LOJA <ArrowRight className="w-4 h-4 ml-2" />
+            COMEÇAR AGORA <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
           <Link
             href="/admin/sign-in"

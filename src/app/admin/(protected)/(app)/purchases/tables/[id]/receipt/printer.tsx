@@ -1,11 +1,19 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useServerAction } from 'zsa-react'
+import { updateTablePrintedItems } from '../actions'
 
 export function Printer({ tableId }: { tableId: string }) {
+  const { execute } = useServerAction(updateTablePrintedItems, {
+    onSuccess: () => {
+      window.close()
+    },
+  })
+
   useEffect(() => {
     window.onafterprint = () => {
-      window.close()
+      execute({ tableId })
     }
 
     window.print()

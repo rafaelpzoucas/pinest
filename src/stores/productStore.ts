@@ -19,7 +19,7 @@ export const useProduct = create<UseProductType>((set) => ({
 
   increase: (max) =>
     set((state) => ({
-      amount: Math.min(state.amount + 1, max),
+      amount: max ? Math.min(state.amount + 1, max) : state.amount + 1,
     })),
 
   decrease: () =>

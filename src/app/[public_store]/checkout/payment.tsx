@@ -32,8 +32,8 @@ export function Payment() {
       <header className="grid grid-cols-[1fr_5fr_1fr] items-center w-full py-2">
         <Link
           href={cn(
-            selectedPickup === 'delivery'
-              ? `?step=address&pickup=delivery&address=${selectedAddress}`
+            selectedPickup === 'DELIVERY'
+              ? `?step=address&pickup=DELIVERY&address=${selectedAddress}`
               : '?step=pickup',
           )}
           className="flex flex-row items-center p-2"

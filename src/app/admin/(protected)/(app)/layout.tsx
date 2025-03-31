@@ -1,7 +1,15 @@
+import IfoodHandshakeDisputeSchema from '@/app/api/v1/integrations/ifood/webhook/schemas'
 import { StoreStatus } from '@/app/store-status'
+import { AppSidebar } from '@/components/sidebar/app-sidebar'
+import { SubscriptionPlans } from '@/components/subscription-plans'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { SidebarProvider } from '@/components/ui/sidebar'
 import type { Metadata } from 'next'
-import { Navigation } from './navigation/index'
+import { cookies } from 'next/headers'
+import { z } from 'zod'
+import { readLastEvents, readStoreSubscriptionStatus } from './actions'
+import { IfoodHandshakePlatform } from './ifood-handshake-platform'
+import { MobileNavigation } from './navigation'
 import { SoundNotification } from './sound-notification'
 
 export const metadata: Metadata = {
@@ -19,19 +27,36 @@ export default async function ProtectedLayout({
     public_store: string
   }
 }>) {
+  const [data] = await readLastEvents()
+  const [subscription] = await readStoreSubscriptionStatus()
+
+  const events: z.infer<typeof IfoodHandshakeDisputeSchema>[] =
+    (data && data.events && data.events) ?? []
+
+  const isSubscriptionActive = subscription?.subscriptionStatus === 'active'
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true'
+
   return (
-    <main className="md:flex flex-row">
-      <Navigation />
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar />
+      <MobileNavigation />
 
-      <SoundNotification />
+      <main className="md:flex flex-row w-full">
+        <SoundNotification />
 
-      <ScrollArea className="w-full h-dvh lg:px-5 print:p-0">
-        <main className="flex flex-col items-center w-full">
-          <div className="w-full max-w-7xl pb-16">{children}</div>
-        </main>
-      </ScrollArea>
+        <ScrollArea className="w-full h-dvh lg:px-5 print:p-0">
+          <main className="flex flex-col items-center w-full">
+            <div className="w-full max-w-7xl pb-16">
+              {isSubscriptionActive ? children : <SubscriptionPlans />}
+            </div>
+          </main>
+        </ScrollArea>
 
-      <StoreStatus storeUrl={params.public_store} />
-    </main>
+        {events.length > 0 &&
+          events.map((event) => <IfoodHandshakePlatform event={event} />)}
+        <StoreStatus storeUrl={params.public_store} />
+      </main>
+    </SidebarProvider>
   )
 }

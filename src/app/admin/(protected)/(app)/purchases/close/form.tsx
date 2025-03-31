@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
+import { CustomerType } from '@/models/customer'
 import { PaymentType } from '@/models/payment'
 import { useCloseBillStore } from '@/stores/closeBillStore'
 import { Loader2 } from 'lucide-react'
@@ -26,16 +27,28 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { closeBills, createPayment } from './actions'
+import { CustomersCombobox } from './customers/combobox'
 import { closeBillFormSchema } from './schemas'
 
-export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
+export function CloseBillForm({
+  payments,
+  customers,
+  isPermissionGranted,
+}: {
+  payments: PaymentType[]
+  customers: CustomerType[]
+  isPermissionGranted: boolean
+}) {
   const searchParams = useSearchParams()
   const router = useRouter()
+
+  const tab = searchParams.get('tab')
 
   const { rowSelection, setRowSelection, items, updateItemPayment } =
     useCloseBillStore()
 
   const [enterAmount, setEnterAmount] = useState('')
+  const customerFormSheetState = useState(false)
 
   const selectedItems = items.filter((_, index) => rowSelection[index])
 
@@ -45,7 +58,6 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
     defaultValues: {
       amount: '',
       discount: '',
-      payment_type: 'pix',
       status: 'confirmed',
       table_id: searchParams.get('table_id') ?? undefined,
       purchase_id: searchParams.get('purchase_id') ?? undefined,
@@ -56,24 +68,34 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
     (sum, item) => sum + item.product_price * item.quantity,
     0,
   )
+  const totalDiscount = payments.reduce((sum, item) => sum + item.discount, 0)
   const totalAmountPaid = payments.reduce((sum, item) => sum + item.amount, 0)
-  const remainingAmount = totalAmount - totalAmountPaid
+  const remainingAmount = totalAmount - totalDiscount - totalAmountPaid
 
   const totalSelectedAmount = selectedItems.reduce(
     (sum, item) => sum + item.product_price * item.quantity,
     0,
   )
 
-  const isCashPayment = form.watch('payment_type') === 'cash'
+  const isCashPayment = form.watch('payment_type') === 'CASH'
+  const isDeferredPayment = form.watch('payment_type') === 'DEFERRED'
 
   const discount = stringToNumber(form.watch('discount'))
-  const amountToPay = stringToNumber(form.watch('amount')) ?? 0
+  const amount = stringToNumber(form.watch('amount')) ?? 0
+  const amountToPay = amount
   const isCloseBill = amountToPay >= remainingAmount
 
   const changeAmount = stringToNumber(enterAmount) - amountToPay
 
   const { execute: executeCreatePayment, isPending: isCreatePending } =
-    useServerAction(createPayment)
+    useServerAction(createPayment, {
+      onSuccess: () => {
+        router.refresh()
+      },
+      onError: (error) => {
+        console.error('Error ao salvar pagamento:', error)
+      },
+    })
   const { execute: executeCloseBill, isPending: isCloseBillPending } =
     useServerAction(closeBills)
 
@@ -98,7 +120,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
         return null
       }
 
-      router.push('/admin/purchases?tab=tables')
+      router.push(`/admin/purchases?tab=${tab}`)
     }
 
     form.reset()
@@ -137,7 +159,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                 <FormControl>
                   <Input
                     maskType="currency"
-                    placeholder="Insira o valor a ser pago..."
+                    placeholder="Insira o valor do desconto..."
                     {...field}
                   />
                 </FormControl>
@@ -155,7 +177,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                 <FormControl>
                   <Input
                     maskType="currency"
-                    placeholder="Insira o valor a ser pago..."
+                    placeholder="Insira o valor a receber..."
                     {...field}
                   />
                 </FormControl>
@@ -184,13 +206,13 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="pix" />
+                        <RadioGroupItem value="PIX" />
                       </FormControl>
                       <FormLabel className="font-normal">PIX</FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="credit-card" />
+                        <RadioGroupItem value="CREDIT" />
                       </FormControl>
                       <FormLabel className="font-normal">
                         Cartão de crédito
@@ -198,18 +220,27 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="cash" />
+                        <RadioGroupItem value="CASH" />
                       </FormControl>
                       <FormLabel className="font-normal">Dinheiro</FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="debit-card" />
+                        <RadioGroupItem value="DEBIT" />
                       </FormControl>
                       <FormLabel className="font-normal">
                         Cartão de débito
                       </FormLabel>
                     </FormItem>
+
+                    {isPermissionGranted && (
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="DEFERRED" />
+                        </FormControl>
+                        <FormLabel className="font-normal">A Prazo</FormLabel>
+                      </FormItem>
+                    )}
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -240,6 +271,14 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
             </div>
           )}
 
+          {isDeferredPayment && (
+            <CustomersCombobox
+              customers={customers}
+              form={form}
+              customerFormSheetState={customerFormSheetState}
+            />
+          )}
+
           <header className="flex-1 text-sm text-muted-foreground border-t pt-2">
             <div>
               <div className="flex flex-row items-center justify-between w-full">
@@ -249,6 +288,10 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
               <div className="flex flex-row items-center justify-between w-full">
                 <span>Total pago</span>
                 <strong>{formatCurrencyBRL(totalAmountPaid ?? 0)}</strong>
+              </div>
+              <div className="flex flex-row items-center justify-between w-full">
+                <span>Total desconto</span>
+                <strong>{formatCurrencyBRL(totalDiscount ?? 0)}</strong>
               </div>
               <div className="flex flex-row items-center justify-between w-full">
                 <span>A pagar</span>
@@ -261,10 +304,7 @@ export function CloseBillForm({ payments }: { payments: PaymentType[] }) {
             type="submit"
             className="w-full"
             disabled={
-              isCreatePending ||
-              isCloseBillPending ||
-              amountToPay === 0 ||
-              !form.formState.isValid
+              isCreatePending || isCloseBillPending || amountToPay === 0
             }
           >
             {isCreatePending || isCloseBillPending ? (

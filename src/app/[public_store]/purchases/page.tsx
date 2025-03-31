@@ -70,11 +70,14 @@ export default async function PurchasesPage({
                 </span>
 
                 <div>
-                  {purchase.purchase_items.slice(0, maxItems).map((item) => (
-                    <div key={item.products.id}>
-                      x{item.quantity} {item.products.name}
-                    </div>
-                  ))}
+                  {purchase.purchase_items.slice(0, maxItems).map((item) => {
+                    if (!item.products) return null
+                    return (
+                      <div key={item.products.id}>
+                        x{item.quantity} {item.products.name}
+                      </div>
+                    )
+                  })}
                   {purchase.purchase_items.length > maxItems && (
                     <span>...</span>
                   )}

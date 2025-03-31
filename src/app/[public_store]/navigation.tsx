@@ -17,6 +17,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
+import { PopoverPortal } from '@radix-ui/react-popover'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -101,31 +102,33 @@ export function PublicStoreNavigation({
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-96">
-              <section className="flex flex-col gap-2">
-                <ScrollArea className="h-[394px]">
-                  <CartProducts
-                    cartProducts={cartProducts}
-                    storeName={storeUrl}
-                  />
-                </ScrollArea>
+            <PopoverPortal>
+              <PopoverContent align="end" className="w-96">
+                <section className="flex flex-col gap-2">
+                  <ScrollArea className="h-[394px]">
+                    <CartProducts
+                      cartProducts={cartProducts}
+                      storeName={storeUrl}
+                    />
+                  </ScrollArea>
 
-                <footer className="pt-3 bg-background">
-                  {connectedAccount && productsPrice > 0 && (
-                    <Link
-                      href={finishPurchaseLink}
-                      className={cn(
-                        buttonVariants(),
-                        'flex justify-between w-full',
-                      )}
-                    >
-                      Finalizar compra{' '}
-                      <strong>{formatCurrencyBRL(productsPrice)}</strong>
-                    </Link>
-                  )}
-                </footer>
-              </section>
-            </PopoverContent>
+                  <footer className="pt-3 bg-background">
+                    {connectedAccount && productsPrice > 0 && (
+                      <Link
+                        href={finishPurchaseLink}
+                        className={cn(
+                          buttonVariants(),
+                          'flex justify-between w-full',
+                        )}
+                      >
+                        Finalizar compra{' '}
+                        <strong>{formatCurrencyBRL(productsPrice)}</strong>
+                      </Link>
+                    )}
+                  </footer>
+                </section>
+              </PopoverContent>
+            </PopoverPortal>
           </Popover>
         </NavigationMenuList>
       </NavigationMenu>

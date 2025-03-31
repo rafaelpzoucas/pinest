@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
 import { getCart } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
-import { readStoreAddress } from '../actions'
+import { readStore, readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
 import { Delivery } from './delivery'
 
@@ -52,7 +52,7 @@ function CheckoutButton({
   const qPayment = payment ? `&payment=${payment}` : ''
   const qChange = changeValue ? `&changeValue=${changeValue}` : ''
 
-  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'pickup' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}${qChange}`
+  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'TAKEOUT' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}${qChange}`
 
   return (
     <Link href={query} className={cn(buttonVariants(), 'w-full')}>
@@ -83,19 +83,26 @@ export default async function Summary({
   const payment = searchParams.payment
   const pickup = searchParams.pickup
   const changeValue = searchParams.changeValue
+  const { store } = await readStore(params.public_store)
 
   const PAYMENT_METHODS = {
-    card: {
-      label: 'com cartão',
-      description: 'Você poderá pagar com um cartão de crédito ou débito.',
+    CREDIT: {
+      label: 'com cartão de crédito',
+      description: 'Você poderá pagar com um cartão de crédito.',
     },
-    cash: {
-      label: 'no momento da entrega',
-      description: `Você deverá efetuar o pagamento no momento da ${pickup === 'delivery' ? 'entrega.' : 'retirada.'}`,
+    DEBIT: {
+      label: 'com cartão de débito',
+      description: 'Você poderá pagar com um cartão de débito.',
     },
-    pix: {
+    CASH: {
+      label: 'em dinheiro',
+      description: `Você deverá efetuar o pagamento no momento da ${pickup === 'DELIVERY' ? 'entrega.' : 'retirada.'}`,
+    },
+    PIX: {
       label: 'com PIX',
-      description: 'A chave PIX da loja é: 456789123456',
+      description: store?.pix_key
+        ? `A chave PIX da loja é: ${store?.pix_key}`
+        : 'Solicite a chave PIX para a loja.',
     },
   }
 
@@ -121,7 +128,7 @@ export default async function Summary({
     : 0
 
   const shippingPrice =
-    pickup === 'delivery'
+    pickup === 'DELIVERY'
       ? parseFloat(shippingCost) || (shipping?.price ?? 0)
       : 0
 
@@ -141,13 +148,13 @@ export default async function Summary({
 
         <div className="flex flex-row justify-between text-xs text-muted-foreground">
           <p>
-            {searchParams.pickup !== 'pickup' ? 'Frete' : 'Retirar'}
+            {searchParams.pickup !== 'TAKEOUT' ? 'Frete' : 'Retirar'}
             <strong>{transp ? ` por ${transp}` : ''}</strong>
           </p>
-          {searchParams.pickup !== 'pickup' && shipping && (
+          {searchParams.pickup !== 'TAKEOUT' && shipping && (
             <span>{formatCurrencyBRL(shippingPrice)}</span>
           )}
-          {searchParams.pickup === 'pickup' && shipping && (
+          {searchParams.pickup === 'TAKEOUT' && shipping && (
             <span className="text-emerald-600">Grátis</span>
           )}
         </div>

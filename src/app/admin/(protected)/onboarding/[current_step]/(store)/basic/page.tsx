@@ -1,5 +1,5 @@
-import { readMarketNiches } from '@/app/admin/(protected)/(app)/config/(options)/account/register/store/actions'
-import { StoreForm } from '@/app/admin/(protected)/(app)/config/(options)/account/register/store/form'
+import { readMarketNiches } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/actions'
+import { StoreForm } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/form'
 
 export default async function StoreBasicInformations() {
   const { marketNiches, readNichesError } = await readMarketNiches()

@@ -19,4 +19,5 @@ export type StoreType = {
   addresses: AddressType[]
   store_hours: HourType[]
   users: UserType
+  pix_key: string
 }

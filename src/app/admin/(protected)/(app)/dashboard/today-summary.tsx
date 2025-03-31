@@ -27,9 +27,9 @@ export async function TodaySummary() {
   const AOV = purchasesCount ? totalAmount / purchasesCount : 0
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Resumo de hoje</CardTitle>
+        <CardTitle className="text-xl">Resumo de hoje</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-row items-center justify-between w-full">

@@ -128,23 +128,25 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
 
   const valuesToInsert = {
     customer_id: customer?.id ?? null,
-    status: 'pending',
-    total_amount: newPurchase.totalAmount,
+    status: 'accept',
     updated_at: new Date().toISOString(),
     address_id: newPurchase.addressId,
     store_id: store?.id,
-    shipping_price: type !== 'pickup' ? newPurchase.shippingPrice : 0,
-    delivery_time: type === 'delivery' ? newPurchase.shippingTime : null,
+    delivery_time: type === 'DELIVERY' ? newPurchase.shippingTime : null,
     type,
     payment_type: newPurchase.payment_type,
-    change_value: newPurchase.changeValue,
     guest_data: guestData ? JSON.parse(guestData.value) : null,
+    total: {
+      total_amount: newPurchase.totalAmount,
+      shipping_price: type !== 'TAKEOUT' ? newPurchase.shippingPrice : 0,
+      change_value: newPurchase.changeValue,
+    },
   }
 
   const { data: purchase, error: purchaseError } = await supabase
     .from('purchases')
     .insert(valuesToInsert)
-    .select('id')
+    .select()
     .single()
 
   if (purchaseError) {
@@ -168,19 +170,33 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     console.error('Erro ao criar variações: ', createPurchaseVariationsError)
   }
 
+  const deliveryFee = newPurchase.type === 'DELIVERY' && {
+    purchase_id: purchase?.id,
+    is_paid: false,
+    description: 'Taxa de entrega',
+    product_price: purchase?.total?.shipping_price,
+    quantity: 1,
+    observations: '',
+    extras: [],
+  }
+
+  const cartItems =
+    (cart &&
+      cart.map((item) => ({
+        purchase_id: purchase.id,
+        product_id: item?.product_id,
+        quantity: item?.quantity,
+        product_price: item?.product_price,
+        observations: item?.observations,
+        extras: item.extras,
+      }))) ??
+    []
+
+  const purchaseItemsArray = [...cartItems, deliveryFee]
+
   const { data: purchaseItems, error: purchaseItemsError } = await supabase
     .from('purchase_items')
-    .insert(
-      cart &&
-        cart.map((item) => ({
-          purchase_id: purchase?.id,
-          product_id: item?.products.id,
-          quantity: item?.quantity,
-          product_price: item?.product_price,
-          observations: item?.observations,
-          extras: item.extras,
-        })),
-    )
+    .insert(purchaseItemsArray)
     .select('*')
 
   if (purchaseItemsError) {
@@ -216,7 +232,8 @@ export async function updateAmountSoldAndStock(
     .from('products')
     .update({
       amount_sold: product?.amount_sold + quantity,
-      stock: product?.stock - quantity,
+      stock:
+        product?.stock !== null ? product?.stock - quantity : product.stock,
     })
     .eq('id', productId)
 

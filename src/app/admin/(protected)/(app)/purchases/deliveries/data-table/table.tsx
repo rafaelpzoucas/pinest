@@ -56,7 +56,8 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
-              const accepted = (row.original as { accepted: boolean }).accepted
+              const accepted =
+                (row.original as { status: string }).status !== 'accept'
 
               return (
                 <TableRow
