@@ -8,12 +8,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useCashRegister } from '@/stores/cashRegisterStore'
 import { BadgeDollarSign, Eye, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useServerAction } from 'zsa-react'
-import { readCashSession } from '../../../cash-register/actions'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
@@ -33,25 +31,9 @@ export function PurchaseOptions({
   isIfood: boolean
 }) {
   const searchParams = useSearchParams()
-  const [isCashOpen, setIsCashOpen] = useState(false)
+  const { isCashOpen } = useCashRegister()
 
   const tab = searchParams.get('tab')
-
-  const { execute, data, isPending } = useServerAction(readCashSession, {
-    onSuccess: () => {
-      const isOpen = !!data?.cashSession
-
-      setIsCashOpen(isOpen)
-    },
-  })
-
-  async function handleReadCashSession() {
-    await execute()
-  }
-
-  useEffect(() => {
-    handleReadCashSession()
-  }, [])
 
   return (
     <>

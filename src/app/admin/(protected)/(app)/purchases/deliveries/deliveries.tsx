@@ -6,10 +6,13 @@ import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
+import { useCashRegister } from '@/stores/cashRegisterStore'
 import { Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useServerAction } from 'zsa-react'
+import { readCashSession } from '../../cash-register/actions'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
@@ -147,6 +150,24 @@ export function Deliveries({
       showNotification()
     }
   }, [hasPending])
+
+  const { setIsCashOpen } = useCashRegister()
+
+  const { execute, data } = useServerAction(readCashSession, {
+    onSuccess: () => {
+      const isOpen = !!data?.cashSession
+
+      setIsCashOpen(isOpen)
+    },
+  })
+
+  async function handleReadCashSession() {
+    await execute()
+  }
+
+  useEffect(() => {
+    handleReadCashSession()
+  }, [])
 
   return (
     <section className="flex flex-col gap-4 text-sm">
