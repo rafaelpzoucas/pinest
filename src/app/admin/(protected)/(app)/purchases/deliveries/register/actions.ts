@@ -44,15 +44,18 @@ export const createPurchase = adminProcedure
       return
     }
 
-    const deliveryFee = input.type === 'DELIVERY' && {
-      purchase_id: createdPurchase[0].id,
-      is_paid: false,
-      description: 'Taxa de entrega',
-      product_price: input.total.shipping_price,
-      quantity: 1,
-      observations: '',
-      extras: [],
-    }
+    const deliveryFee =
+      input.type === 'DELIVERY'
+        ? {
+            purchase_id: createdPurchase[0].id,
+            is_paid: false,
+            description: 'Taxa de entrega',
+            product_price: input.total.shipping_price,
+            quantity: 1,
+            observations: '',
+            extras: [],
+          }
+        : null
 
     const purchaseItemsArray = [
       ...input.purchase_items.map((item) => ({
@@ -63,7 +66,7 @@ export const createPurchase = adminProcedure
         observations: item?.observations,
         extras: item.extras,
       })),
-      deliveryFee,
+      ...(deliveryFee ? [deliveryFee] : []),
     ]
 
     const { data: purchaseItems, error: purchaseItemsError } = await supabase
