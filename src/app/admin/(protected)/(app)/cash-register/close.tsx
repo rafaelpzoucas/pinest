@@ -10,6 +10,12 @@ import {
 } from '@/components/ui/sheet'
 
 import { Button, buttonVariants } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -34,10 +40,14 @@ export function CloseCashSession({
   cashBalance,
   totalBalance,
   cashSessionId,
+  hasOpenPurchases,
+  hasOpenTables,
 }: {
   cashBalance: number
   totalBalance: number
   cashSessionId: string
+  hasOpenPurchases: boolean
+  hasOpenTables: boolean
 }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
@@ -81,7 +91,22 @@ export function CloseCashSession({
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <SheetTrigger className={buttonVariants()}>Fechar caixa</SheetTrigger>
+      {hasOpenPurchases || hasOpenTables ? (
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger>
+              <Button className="cursor-not-allowed opacity-50">
+                Fechar caixa
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Você ainda tem pedidos ou mesas em aberto.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <SheetTrigger className={buttonVariants()}>Fechar caixa</SheetTrigger>
+      )}
       <SheetContent className="space-y-8">
         <SheetHeader>
           <SheetTitle>Fechamento de caixa</SheetTitle>

@@ -1,7 +1,12 @@
 import { AdminHeader } from '@/app/admin-header'
 import { PaymentType } from '@/models/payment'
 import { DollarSign } from 'lucide-react'
-import { readCashSession, readCashSessionPayments } from './actions'
+import {
+  readCashSession,
+  readCashSessionPayments,
+  readOpenPurchases,
+  readOpenTables,
+} from './actions'
 import { CloseCashSession } from './close'
 import { CreateTransactionForm } from './create-transaction-form'
 import { columns } from './data-table/columns'
@@ -12,9 +17,15 @@ import { CashRegisterSummary } from './summary'
 export default async function CashRegister() {
   const [cashSessionData] = await readCashSession()
   const [paymentsData] = await readCashSessionPayments()
+  const [openPurchasesData] = await readOpenPurchases()
+  const [openTablesData] = await readOpenTables()
 
   const cashSession = cashSessionData?.cashSession
   const payments: PaymentType[] = paymentsData?.payments || []
+
+  const hasOpenPurchases =
+    (openPurchasesData?.openPurchases?.length as number) > 0
+  const hasOpenTables = (openTablesData?.openTables?.length as number) > 0
 
   const initialAmount = payments.find(
     (payment) => payment.description === 'Abertura de caixa',
@@ -109,6 +120,8 @@ export default async function CashRegister() {
                 cashBalance={cashBalance}
                 totalBalance={totalBalance}
                 cashSessionId={cashSession.id}
+                hasOpenPurchases={hasOpenPurchases}
+                hasOpenTables={hasOpenTables}
               />
 
               <CreateTransactionForm />

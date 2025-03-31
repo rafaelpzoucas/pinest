@@ -151,3 +151,39 @@ export const readPaymentsByCashSessionId = adminProcedure
 
     return { payments }
   })
+
+export const readOpenPurchases = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: openPurchases, error } = await supabase
+      .from('purchases')
+      .select('*')
+      .eq('store_id', store.id)
+      .neq('status', 'delivered')
+      .neq('status', 'cancelled')
+
+    if (error) {
+      console.error('Error reading cash session payments:', error)
+    }
+
+    return { openPurchases }
+  })
+
+export const readOpenTables = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: openTables, error } = await supabase
+      .from('tables')
+      .select('*')
+      .eq('store_id', store.id)
+
+    if (error) {
+      console.error('Error reading cash session payments:', error)
+    }
+
+    return { openTables }
+  })
