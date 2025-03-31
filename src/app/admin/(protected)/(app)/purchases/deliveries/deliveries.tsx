@@ -63,9 +63,13 @@ export function Deliveries({
     },
   ]
 
+  const hasPending = deliveries?.some(
+    (delivery) => delivery.status === 'accept',
+  )
+
   function getStatusLengths(status: string) {
     const statusLength = deliveries?.filter(
-      (purchase) => purchase.status === status,
+      (delivery) => delivery.status === status,
     )
 
     return statusLength?.length
@@ -129,7 +133,9 @@ export function Deliveries({
         },
         () => {
           router.refresh()
-          showNotification()
+          if (hasPending) {
+            showNotification()
+          }
         },
       )
       .subscribe()

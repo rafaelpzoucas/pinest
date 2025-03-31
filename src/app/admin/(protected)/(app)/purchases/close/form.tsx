@@ -68,8 +68,9 @@ export function CloseBillForm({
     (sum, item) => sum + item.product_price * item.quantity,
     0,
   )
+  const totalDiscount = payments.reduce((sum, item) => sum + item.discount, 0)
   const totalAmountPaid = payments.reduce((sum, item) => sum + item.amount, 0)
-  const remainingAmount = totalAmount - totalAmountPaid
+  const remainingAmount = totalAmount - totalDiscount - totalAmountPaid
 
   const totalSelectedAmount = selectedItems.reduce(
     (sum, item) => sum + item.product_price * item.quantity,
@@ -80,7 +81,8 @@ export function CloseBillForm({
   const isDeferredPayment = form.watch('payment_type') === 'DEFERRED'
 
   const discount = stringToNumber(form.watch('discount'))
-  const amountToPay = stringToNumber(form.watch('amount')) ?? 0
+  const amount = stringToNumber(form.watch('amount')) ?? 0
+  const amountToPay = amount
   const isCloseBill = amountToPay >= remainingAmount
 
   const changeAmount = stringToNumber(enterAmount) - amountToPay
@@ -288,6 +290,10 @@ export function CloseBillForm({
               <div className="flex flex-row items-center justify-between w-full">
                 <span>Total pago</span>
                 <strong>{formatCurrencyBRL(totalAmountPaid ?? 0)}</strong>
+              </div>
+              <div className="flex flex-row items-center justify-between w-full">
+                <span>Total desconto</span>
+                <strong>{formatCurrencyBRL(totalDiscount ?? 0)}</strong>
               </div>
               <div className="flex flex-row items-center justify-between w-full">
                 <span>A pagar</span>

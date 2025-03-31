@@ -48,3 +48,23 @@ export const adminProcedure = createServerActionProcedure(
     store,
   }
 })
+
+export const cashProcedure = createServerActionProcedure(
+  adminProcedure,
+).handler(async ({ ctx }) => {
+  const { user, store, supabase } = ctx
+
+  const { data: cashSession, error } = await supabase
+    .from('cash_sessions')
+    .select('*')
+    .eq('store_id', store.id)
+    .eq('user_id', user.id)
+    .eq('status', 'open')
+    .single()
+
+  if (error || !cashSession) {
+    console.error('Cash session is not open:', error)
+  }
+
+  return { cashSession, user, store, supabase }
+})

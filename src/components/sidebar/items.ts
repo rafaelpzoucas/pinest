@@ -2,6 +2,7 @@ import {
   Bike,
   Blocks,
   ChartPie,
+  CircleDollarSign,
   LayoutList,
   ReceiptText,
   Store,
@@ -14,11 +15,11 @@ export const main = [
     url: '/admin/purchases',
     icon: ReceiptText,
   },
-  // {
-  //   title: 'Financeiro',
-  //   url: '/admin/finance',
-  //   icon: CircleDollarSign,
-  // },
+  {
+    title: 'Financeiro',
+    url: '/admin/cash-register',
+    icon: CircleDollarSign,
+  },
   {
     title: 'Cardápio',
     url: '/admin/catalog',
