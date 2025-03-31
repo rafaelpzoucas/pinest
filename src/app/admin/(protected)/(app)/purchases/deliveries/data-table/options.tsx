@@ -11,6 +11,9 @@ import {
 import { BadgeDollarSign, Eye, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useServerAction } from 'zsa-react'
+import { readCashSession } from '../../../cash-register/actions'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
@@ -30,8 +33,25 @@ export function PurchaseOptions({
   isIfood: boolean
 }) {
   const searchParams = useSearchParams()
+  const [isCashOpen, setIsCashOpen] = useState(false)
 
   const tab = searchParams.get('tab')
+
+  const { execute, data, isPending } = useServerAction(readCashSession, {
+    onSuccess: () => {
+      const isOpen = !!data?.cashSession
+
+      setIsCashOpen(isOpen)
+    },
+  })
+
+  async function handleReadCashSession() {
+    await execute()
+  }
+
+  useEffect(() => {
+    handleReadCashSession()
+  }, [])
 
   return (
     <>
@@ -67,7 +87,11 @@ export function PurchaseOptions({
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`}
+                  href={
+                    isCashOpen
+                      ? `/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`
+                      : '/admin/cash-register'
+                  }
                   className={buttonVariants({
                     variant: 'ghost',
                     size: 'icon',
@@ -78,7 +102,14 @@ export function PurchaseOptions({
               </TooltipTrigger>
 
               <TooltipContent>
-                <p>Fechar venda</p>
+                {isCashOpen ? (
+                  <p>Fechar venda</p>
+                ) : (
+                  <div>
+                    <strong>Fechar venda</strong>
+                    <p>Para fechar a venda, é necessário abrir o caixa.</p>
+                  </div>
+                )}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
