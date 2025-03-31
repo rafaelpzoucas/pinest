@@ -17,7 +17,7 @@ export const getValidIfoodAccessToken = adminProcedure
       .single()
 
     if (error || !data?.access_token) {
-      console.log('🔄 Token não encontrado, gerando um novo...')
+      console.error('🔄 Token não encontrado, gerando um novo...')
       return await refreshIfoodAccessToken(ctx)
     }
 
@@ -26,7 +26,7 @@ export const getValidIfoodAccessToken = adminProcedure
 
     // 🔹 2. Se o token estiver expirado, buscar um novo
     if (now >= expiresAt) {
-      console.log('🔄 Token expirado, gerando um novo...')
+      console.error('🔄 Token expirado, gerando um novo...')
       return await refreshIfoodAccessToken(ctx)
     }
 
@@ -88,7 +88,7 @@ export const getIfoodMerchantId = adminProcedure
       .single()
 
     if (error || !data) {
-      console.log('Merchant ID não encontrado.')
+      console.error('Merchant ID não encontrado.')
       return null
     }
 
@@ -109,7 +109,7 @@ export const insertIfoodMerchantId = adminProcedure
       .eq('store_id', store.id)
 
     if (error || !data) {
-      console.log('Erro ao salvar o merchant_id.', error)
+      console.error('Erro ao salvar o merchant_id.', error)
       return null
     }
 

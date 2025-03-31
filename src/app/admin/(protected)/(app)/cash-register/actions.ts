@@ -106,7 +106,7 @@ export const readCashSession = adminProcedure
       .single()
 
     if (error) {
-      console.error('Error creating cash session:', error)
+      console.error('Error reading cash session:', error)
     }
 
     revalidatePath('/admin/cash-register')

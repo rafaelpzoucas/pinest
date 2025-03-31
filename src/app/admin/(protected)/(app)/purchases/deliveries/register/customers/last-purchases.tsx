@@ -70,8 +70,6 @@ export function LastPurchases({
     handleGetCustomerLastPurchases()
   }, [customerId])
 
-  console.log({ lastPurchases })
-
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger className={cn(buttonVariants({ variant: 'outline' }))}>

@@ -194,8 +194,6 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
 
   const purchaseItemsArray = [...cartItems, deliveryFee]
 
-  console.log({ purchaseItemsArray })
-
   const { data: purchaseItems, error: purchaseItemsError } = await supabase
     .from('purchase_items')
     .insert(purchaseItemsArray)

@@ -144,8 +144,6 @@ export function CloseBillForm({
     form.setValue('amount', (totalSelectedAmount - discount).toString())
   }, [discount])
 
-  console.log(form.formState.errors)
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">

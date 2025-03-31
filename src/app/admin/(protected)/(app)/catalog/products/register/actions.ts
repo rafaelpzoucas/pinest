@@ -94,8 +94,6 @@ export async function updateProduct(
 ) {
   const supabase = createClient()
 
-  console.log({ values })
-
   const { data, error } = await supabase
     .from('products')
     .update({

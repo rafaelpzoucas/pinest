@@ -74,8 +74,6 @@ export default async function OrderPage({
   const subTotal = isIfood ? ifoodItemsTotal : purchaseItemsTotal
   const change = purchase?.total?.change_value - purchase?.total?.total_amount
 
-  console.log({ purchase })
-
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0">
       <AdminHeader title={`Detalhes: #${displayId}`} withBackButton />

@@ -35,7 +35,6 @@ export const readStore = webhookProcedure
     const { supabase } = ctx
     const { merchantId } = input
 
-    console.log({ merchantId })
     const [integration] = await readIntegration({
       merchantId,
     })
@@ -143,7 +142,7 @@ export const getAccessToken = webhookProcedure
       .single()
 
     if (error || !data?.access_token) {
-      console.log('🔄 Token não encontrado, gerando um novo...')
+      console.error('🔄 Token não encontrado, gerando um novo...')
       return await refreshAccessToken({ merchantId })
     }
 
@@ -151,9 +150,12 @@ export const getAccessToken = webhookProcedure
     const expiresAt = new Date(data.expires_at)
 
     if (now >= expiresAt) {
-      console.log('🔄 Token expirado, tentando gerar um novo para', merchantId)
+      console.error(
+        '🔄 Token expirado, tentando gerar um novo para',
+        merchantId,
+      )
       const [newToken] = await refreshAccessToken({ merchantId })
-      console.log('Novo token gerado:', newToken)
+      console.error('Novo token gerado:', newToken)
       return newToken
     }
 

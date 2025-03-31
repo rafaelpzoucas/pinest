@@ -94,8 +94,6 @@ export function Deliveries({
     setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
   }
 
-  console.log({ hasPending })
-
   function showNotification() {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {
