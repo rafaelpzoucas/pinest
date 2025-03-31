@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PurchaseType } from '@/models/purchase'
 import { TableType } from '@/models/table'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 import { MdSportsMotorsports, MdTableBar } from 'react-icons/md'
 import { Deliveries } from './deliveries/deliveries'
 import { Tables } from './tables/tables'
@@ -19,6 +20,10 @@ export function Purchases({
   const searchParams = useSearchParams()
 
   const currentTab = searchParams.get('tab')
+
+  useEffect(() => {
+    router.push('?tab=deliveries')
+  }, [])
 
   return (
     <Tabs

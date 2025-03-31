@@ -94,6 +94,8 @@ export function Deliveries({
     setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
   }
 
+  console.log({ hasPending })
+
   function showNotification() {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {
@@ -113,7 +115,7 @@ export function Deliveries({
         }
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
+          if (permission === 'granted' && hasPending) {
             showNotification()
           }
         })
@@ -133,9 +135,6 @@ export function Deliveries({
         },
         () => {
           router.refresh()
-          if (hasPending) {
-            showNotification()
-          }
         },
       )
       .subscribe()
@@ -144,6 +143,12 @@ export function Deliveries({
       supabase.removeChannel(channel)
     }
   }, [supabase, router])
+
+  useEffect(() => {
+    if (hasPending) {
+      showNotification()
+    }
+  }, [hasPending])
 
   return (
     <section className="flex flex-col gap-4 text-sm">
