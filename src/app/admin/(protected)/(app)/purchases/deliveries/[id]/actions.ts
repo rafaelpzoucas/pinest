@@ -147,27 +147,35 @@ export async function updateDiscount(purchaseId: string, discount: number) {
   revalidatePath('/admin/purchases')
 }
 
-export async function updatePurchaseStatus(
-  newStatus: string,
-  purchaseId: string,
-  isIfood: boolean,
-) {
-  const supabase = createClient()
+export const updatePurchaseStatus = adminProcedure
+  .createServerAction()
+  .input(
+    z.object({
+      newStatus: z.string(),
+      purchaseId: z.string(),
+      isIfood: z.boolean(),
+    }),
+  )
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
 
-  const { error: updateStatusError } = await supabase
-    .from('purchases')
-    .update({ status: newStatus })
-    .eq('id', purchaseId)
+    const { data, error: updateStatusError } = await supabase
+      .from('purchases')
+      .update({ status: input.newStatus })
+      .eq('id', input.purchaseId)
 
-  if (updateStatusError) {
-    console.error(updateStatusError)
-  }
+    if (updateStatusError || !data) {
+      console.error('Erro ao atualizar o status.', updateStatusError)
+    }
 
-  revalidatePath('/purchases')
+    revalidatePath('/purchases')
 
-  if (!isIfood) return null
-  await updateIfoodOrderStatus({ purchaseId, newStatus })
-}
+    if (!input.isIfood) return null
+    await updateIfoodOrderStatus({
+      purchaseId: input.purchaseId,
+      newStatus: input.newStatus,
+    })
+  })
 
 export const updateIfoodOrderStatus = adminProcedure
   .createServerAction()

@@ -116,13 +116,15 @@ export const columns: ColumnDef<PurchaseType>[] = [
     accessorKey: 'change_value',
     header: 'Troco',
     cell: ({ row }) => {
+      const isIfood = row.original.is_ifood
       const changeValue = row.original?.total?.change_value ?? 0
       const totalAmount = row.original?.total?.total_amount ?? 0
       const ifoodOrderData: IfoodOrder =
-        row.original.is_ifood && row.original?.ifood_order_data
-      const ifoodCashChangeAmount = ifoodOrderData?.payments.methods[0].cash
-        ? ifoodOrderData.payments.methods[0].cash.changeFor
-        : 0
+        isIfood && row.original?.ifood_order_data
+      const ifoodCashChangeAmount =
+        isIfood && ifoodOrderData?.payments.methods[0].cash
+          ? ifoodOrderData.payments.methods[0].cash.changeFor
+          : 0
 
       return changeValue ? (
         formatCurrencyBRL((ifoodCashChangeAmount || changeValue) - totalAmount)
@@ -158,13 +160,11 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Ações',
     cell: ({ row }) => {
       const currentStatus = row.original.status as string
-      const accepted = row.original.status !== 'accept'
       const type = row.original.type
-      const isIfood = row.original.is_ifood
+      const isIfood = row.original.is_ifood ?? false
 
       return (
         <PurchaseOptions
-          accepted={accepted}
           purchaseId={row.getValue('id')}
           currentStatus={currentStatus}
           type={type}

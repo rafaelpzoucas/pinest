@@ -195,7 +195,10 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
       }))) ??
     []
 
-  const purchaseItemsArray = [...cartItems, deliveryFee]
+  const purchaseItemsArray = [
+    ...cartItems,
+    ...(deliveryFee ? [deliveryFee] : []),
+  ]
 
   const { data: purchaseItems, error: purchaseItemsError } = await supabase
     .from('purchase_items')

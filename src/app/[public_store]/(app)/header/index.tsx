@@ -24,7 +24,7 @@ export async function Header({ storeURL }: { storeURL: string }) {
     console.error(storeError)
   }
 
-  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const { data: userData } = await supabase.auth.getUser()
 
   const { user } = await readStripeConnectedAccountByStoreUrl(storeURL)
 

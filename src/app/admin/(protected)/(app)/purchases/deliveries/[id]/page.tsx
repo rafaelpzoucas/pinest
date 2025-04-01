@@ -91,7 +91,6 @@ export default async function OrderPage({
               <PurchaseOptions
                 currentStatus={purchase?.status}
                 purchaseId={params.id}
-                accepted={accepted}
                 type={purchase.type}
                 isIfood={purchase.is_ifood}
                 isDetailsPage

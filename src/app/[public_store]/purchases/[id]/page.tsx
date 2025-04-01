@@ -22,6 +22,8 @@ export default async function PurchasePage({
   const currentStatus = statuses[purchase?.status as StatusKey]
   const shippingPrice = purchase?.total?.shipping_price ?? 0
 
+  console.log(purchase?.purchase_items)
+
   return (
     <section className="flex flex-col items-center justify-center gap-4">
       <Header title="Detalhes do pedido" />
@@ -87,18 +89,20 @@ export default async function PurchasePage({
           )}
 
           <Card className="flex flex-col gap-3 p-4">
-            {purchase.purchase_items.map((item) => (
-              <ProductCard
-                key={item.id}
-                data={item.products}
-                variant="bag_items"
-                variations={purchase.purchase_item_variations}
-                publicStore={params.public_store}
-                observations={item.observations}
-                extras={item.extras}
-                quantity={item.quantity}
-              />
-            ))}
+            {purchase.purchase_items
+              .filter((item) => item.product_id)
+              .map((item) => (
+                <ProductCard
+                  key={item.id}
+                  data={item.products}
+                  variant="bag_items"
+                  variations={purchase.purchase_item_variations}
+                  publicStore={params.public_store}
+                  observations={item.observations}
+                  extras={item.extras}
+                  quantity={item.quantity}
+                />
+              ))}
           </Card>
         </div>
       )}

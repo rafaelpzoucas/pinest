@@ -7,7 +7,12 @@ export async function StoreStatus({ storeUrl }: { storeUrl: string }) {
   // Buscar informações da loja e horários
   const { data: store, error: readStoreError } = await supabase
     .from('stores')
-    .select(`*, store_hours (*)`)
+    .select(
+      `
+        *, 
+        store_hours (*)
+      `,
+    )
     .eq('store_url', storeUrl)
     .single()
 

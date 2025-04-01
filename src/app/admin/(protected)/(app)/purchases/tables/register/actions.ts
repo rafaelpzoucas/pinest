@@ -18,6 +18,7 @@ export const checkTableExists = adminProcedure
         .select('*')
         .eq('store_id', store.id)
         .eq('number', input.number)
+        .eq('status', 'open')
         .single()
 
     if (readExistingTablesError && !existingTable) {
@@ -38,6 +39,7 @@ export const createTable = adminProcedure
       .from('tables')
       .insert({
         number: parseInt(input.number),
+        description: input.description,
         store_id: store?.id,
       })
       .select()

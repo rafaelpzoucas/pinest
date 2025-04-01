@@ -33,7 +33,9 @@ export default async function PrintKitchenReceipt({
     >
       <h1 className="uppercase text-base">cozinha</h1>
 
-      <h2 className="uppercase">Mesa #{displayId}</h2>
+      <h2 className="uppercase">
+        Mesa #{displayId} - {table.description}
+      </h2>
 
       <div
         className="w-full border-b border-dashed last:border-0 py-4 space-y-1 print-section

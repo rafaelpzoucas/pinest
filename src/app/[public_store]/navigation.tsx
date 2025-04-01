@@ -21,6 +21,7 @@ import { PopoverPortal } from '@radix-ui/react-popover'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { parseCookies } from 'nookies'
 import { CartProducts } from './cart/cart-products'
 
 export function PublicStoreNavigation({
@@ -36,6 +37,10 @@ export function PublicStoreNavigation({
 
   const storeUrl = params.public_store as unknown as string
 
+  const cookies = parseCookies()
+  const savedGuest = cookies.guest_data
+  const guestData = JSON.parse(savedGuest)
+
   const links = [
     {
       href: `/${storeUrl}`,
@@ -49,9 +54,10 @@ export function PublicStoreNavigation({
     },
   ]
 
-  const finishPurchaseLink = !userData.user
-    ? `/${params.public_store}/sign-in?checkout=true`
-    : `/${params.public_store}/checkout?step=pickup`
+  const finishPurchaseLink =
+    !userData.user && !guestData
+      ? `/${params.public_store}/sign-in?checkout=true`
+      : `/${params.public_store}/checkout?step=pickup`
 
   const productsPrice = cartProducts
     ? cartProducts.reduce((acc, cartProduct) => {

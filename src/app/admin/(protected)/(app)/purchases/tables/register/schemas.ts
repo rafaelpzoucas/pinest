@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const createTableSchema = z.object({
   id: z.string().optional(),
   number: z.string({ message: 'Insira o número da mesa.' }),
+  description: z.string().optional(),
   purchase_items: z
     .array(
       z.object({

@@ -22,16 +22,16 @@ export default function SignIn({
       </header>
 
       <div className="flex flex-col gap-2 w-full max-w-sm">
-        <SignInWithGoogle storeName={params.public_store} />
-
-        <span className="mx-auto text-muted-foreground">ou</span>
-
         <Link
           href={`account${checkout ? '?checkout=pickup' : ''}`}
           className={buttonVariants({ variant: 'outline' })}
         >
           <UserCheck className="w-4 h-4 mr-2" /> Comprar sem conta
         </Link>
+
+        <span className="mx-auto text-muted-foreground">ou</span>
+
+        <SignInWithGoogle storeName={params.public_store} />
       </div>
     </main>
   )

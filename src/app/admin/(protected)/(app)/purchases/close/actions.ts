@@ -115,7 +115,7 @@ export const closeBills = adminProcedure
     if (input.table_id) {
       const { data: createdPayment, error } = await supabase
         .from('tables')
-        .delete()
+        .update({ status: 'closed' })
         .eq('id', input.table_id)
 
       if (error || !createdPayment) {
