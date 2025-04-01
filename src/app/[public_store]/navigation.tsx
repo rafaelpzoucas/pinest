@@ -39,7 +39,7 @@ export function PublicStoreNavigation({
 
   const cookies = parseCookies()
   const savedGuest = cookies.guest_data
-  const guestData = JSON.parse(savedGuest)
+  const guestData = savedGuest && JSON.parse(savedGuest)
 
   const links = [
     {
