@@ -8,7 +8,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { statuses } from '@/models/statuses'
-import { Check, FastForward } from 'lucide-react'
+import { Check, FastForward, Loader2 } from 'lucide-react'
+import { useServerAction } from 'zsa-react'
 import { acceptPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
@@ -26,17 +27,31 @@ export function UpdateStatusButton({
   type: string
   isIfood: boolean
 }) {
+  const { execute: executeAccept, isPending: isAcceptPending } =
+    useServerAction(acceptPurchase, {
+      onSuccess: () => {
+        window.open(
+          `/admin/purchases/deliveries/${purchaseId}/receipt`,
+          '_blank',
+        )
+      },
+    })
+
+  const { execute, isPending } = useServerAction(updatePurchaseStatus, {
+    onSuccess: () => {
+      console.log('Status updated.')
+    },
+  })
+
   async function handleUpdateStatus(status: string) {
     if (!accepted) {
-      await acceptPurchase({ purchaseId })
-
-      window.open(`/admin/purchases/deliveries/${purchaseId}/receipt`, '_blank')
+      await executeAccept({ purchaseId })
     }
 
     const newStatus =
       status === 'shipped' && type === 'TAKEOUT' ? 'readyToPickup' : status
 
-    await updatePurchaseStatus(newStatus, purchaseId, isIfood)
+    await execute({ newStatus, purchaseId, isIfood })
   }
 
   if (
@@ -67,6 +82,8 @@ export function UpdateStatusButton({
           >
             {!accepted ? (
               <Check className="w-5 h-5" />
+            ) : isPending || isAcceptPending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <FastForward className="w-5 h-5" />
             )}

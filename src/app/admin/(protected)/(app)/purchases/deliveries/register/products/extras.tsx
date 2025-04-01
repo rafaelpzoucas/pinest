@@ -1,7 +1,9 @@
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -125,50 +127,54 @@ export function Extras({
           <Plus className="w-4 h-4 mr-1" /> Adicionais
         </Button>
       </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
+      <SheetContent className="px-0">
+        <SheetHeader className="px-6">
           <SheetTitle>Adicionais para {product.name}</SheetTitle>
         </SheetHeader>
-        <div className="space-y-3 mt-4">
-          {extras.map((extra) => (
-            <div key={extra.id} className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span>{extra.name}</span>
-                <strong className="text-xs text-muted-foreground">
-                  {formatCurrencyBRL(extra.price)}
-                </strong>
+        <ScrollArea className="h-[calc(100vh_-_124px)] px-6">
+          <div className="space-y-3 mt-4">
+            {extras.map((extra) => (
+              <div key={extra.id} className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span>{extra.name}</span>
+                  <strong className="text-xs text-muted-foreground">
+                    {formatCurrencyBRL(extra.price)}
+                  </strong>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant={'secondary'}
+                    size={'icon'}
+                    onClick={() => handleExtraChange(product.id, extra.id, -1)}
+                    disabled={!selectedProductExtras[product.id]?.[extra.id]}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="w-6 text-center text-xs">
+                    {selectedProductExtras[product.id]?.[extra.id] || 0}
+                  </span>
+                  <Button
+                    type="button"
+                    variant={'secondary'}
+                    size={'icon'}
+                    onClick={() => handleExtraChange(product.id, extra.id, 1)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant={'secondary'}
-                  size={'icon'}
-                  onClick={() => handleExtraChange(product.id, extra.id, -1)}
-                  disabled={!selectedProductExtras[product.id]?.[extra.id]}
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-                <span className="w-6 text-center text-xs">
-                  {selectedProductExtras[product.id]?.[extra.id] || 0}
-                </span>
-                <Button
-                  type="button"
-                  variant={'secondary'}
-                  size={'icon'}
-                  onClick={() => handleExtraChange(product.id, extra.id, 1)}
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <Button
-          className="mt-4 w-full"
-          onClick={() => handleSaveExtras(product.id)}
-        >
-          Salvar Adicionais
-        </Button>
+            ))}
+          </div>
+        </ScrollArea>
+        <SheetFooter className="px-6">
+          <Button
+            className="mt-4 w-full"
+            onClick={() => handleSaveExtras(product.id)}
+          >
+            Salvar Adicionais
+          </Button>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   )

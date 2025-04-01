@@ -5,5 +5,6 @@ export type TableType = {
   created_at: string
   store_id: string
   number: number
+  description: string
   purchase_items: PurchaseItemsType[]
 }

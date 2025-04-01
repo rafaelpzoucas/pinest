@@ -16,14 +16,12 @@ import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
 export function PurchaseOptions({
-  accepted,
   purchaseId,
   currentStatus,
   type,
   isDetailsPage,
   isIfood,
 }: {
-  accepted: boolean
   purchaseId: string
   currentStatus: string
   type: string
@@ -34,6 +32,9 @@ export function PurchaseOptions({
   const { isCashOpen } = useCashRegister()
 
   const tab = searchParams.get('tab')
+
+  const accepted = currentStatus !== 'accept'
+  const delivered = currentStatus === 'delivered'
 
   return (
     <>
@@ -64,7 +65,7 @@ export function PurchaseOptions({
           isIfood={isIfood}
         />
 
-        {accepted && (
+        {accepted && delivered && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>

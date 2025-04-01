@@ -141,7 +141,11 @@ export async function handlePayment(purchaseId: string, storeURL: string) {
     return
   }
 
-  await updatePurchaseStatus('accept', purchase.id, false)
+  await updatePurchaseStatus({
+    newStatus: 'accept',
+    purchaseId: purchase.id,
+    isIfood: false,
+  })
 
   await clearCart(storeURL)
 

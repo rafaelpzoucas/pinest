@@ -10,15 +10,44 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { TableType } from '@/models/table'
-import { ArrowLeft, Plus, Search } from 'lucide-react'
+import { useCashRegister } from '@/stores/cashRegisterStore'
+import { ArrowLeft, BadgeDollarSign, Loader2, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MdTableBar } from 'react-icons/md'
+import { useServerAction } from 'zsa-react'
+import { readCashSession } from '../../cash-register/actions'
 
 export function Tables({ tables }: { tables: TableType[] | null }) {
   const [search, setSearch] = useState('')
+
+  const { setIsCashOpen, isCashOpen } = useCashRegister()
+
+  const { execute, data, isPending } = useServerAction(readCashSession, {
+    onSuccess: () => {
+      const isOpen = !!data?.cashSession
+
+      setIsCashOpen(isOpen)
+    },
+  })
+
+  async function handleReadCashSession() {
+    await execute()
+  }
+
+  useEffect(() => {
+    if (!data) {
+      handleReadCashSession()
+    }
+  }, [tables])
 
   return (
     <section className="flex flex-col gap-4 text-sm">
@@ -43,7 +72,7 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
         </div>
       </header>
 
-      <div className="grid grid-cols-4 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-4 lg:grid-cols-10 gap-4">
         {tables &&
           tables.length > 0 &&
           tables.map((table) => {
@@ -54,10 +83,16 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
             )
 
             return (
-              <Sheet>
+              <Sheet key={table.id}>
                 <SheetTrigger>
-                  <Card className="flex items-center justify-center aspect-square">
+                  <Card className="flex flex-col items-center justify-center aspect-square p-2">
                     <strong className="text-xl">{table.number}</strong>
+
+                    {table.description && (
+                      <span className="text-sm text-muted-foreground line-clamp-2">
+                        {table.description}
+                      </span>
+                    )}
                   </Card>
                 </SheetTrigger>
                 <SheetContent className="px-0">
@@ -77,12 +112,42 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                         <span>{formatCurrencyBRL(totalAmount)}</span>{' '}
                       </div>
 
-                      <Link
-                        href={`purchases/close?table_id=${table.id}&tab=tables`}
-                        className={cn(buttonVariants())}
-                      >
-                        Fechar mesa
-                      </Link>
+                      <TooltipProvider>
+                        <Tooltip delayDuration={0}>
+                          <TooltipTrigger asChild>
+                            <Link
+                              href={
+                                isCashOpen
+                                  ? `purchases/close?table_id=${table.id}&tab=tables`
+                                  : '/admin/cash-register'
+                              }
+                              className={cn(
+                                buttonVariants(),
+                                isPending && 'opacity-50 cursor-not-allowed',
+                              )}
+                            >
+                              {isPending ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <BadgeDollarSign className="w-5 h-5" />
+                              )}
+                              Fechar mesa
+                            </Link>
+                          </TooltipTrigger>
+
+                          {!isCashOpen && (
+                            <TooltipContent>
+                              <div>
+                                <strong>Fechar venda</strong>
+                                <p>
+                                  Para fechar a venda, é necessário abrir o
+                                  caixa.
+                                </p>
+                              </div>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
                     </section>
 
                     <section className="flex flex-col gap-2 relative h-full">
@@ -134,7 +199,10 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
 
                                 {item.extras.length > 0 &&
                                   item.extras.map((extra) => (
-                                    <p className="flex flex-row items-center justify-between w-full text-muted-foreground">
+                                    <p
+                                      key={extra.id}
+                                      className="flex flex-row items-center justify-between w-full text-muted-foreground"
+                                    >
                                       <span className="flex flex-row items-center">
                                         <Plus className="w-3 h-3 mr-1" />{' '}
                                         {extra.quantity} ad. {extra.name}

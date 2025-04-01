@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
@@ -23,6 +24,10 @@ export default async function CartPage({
   const connectedAccount = user?.stripe_connected_account
 
   const { cart } = await getCart(params.public_store)
+
+  const cookiesStore = await cookies()
+  const guest = cookiesStore.get('guest_data')
+  const guestData = guest && JSON.parse(guest.value)
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
@@ -55,7 +60,7 @@ export default async function CartPage({
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {!userData.user ? (
+            {!userData.user && !guestData ? (
               <Link
                 href={`/${params.public_store}/sign-in?checkout=true`}
                 className={cn(buttonVariants(), 'w-full')}

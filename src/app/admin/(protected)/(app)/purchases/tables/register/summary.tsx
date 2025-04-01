@@ -46,22 +46,42 @@ export function Summary({
       {table?.id ? (
         <div className="flex flex-row items-center justify-between w-full">
           <strong className="text-xl">Mesa #{table.number}</strong>
+          <p>{table.description}</p>
         </div>
       ) : (
-        <FormField
-          control={form.control}
-          name="number"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mesa</FormLabel>
-              <FormControl>
-                <Input placeholder="Insira o número da mesa" {...field} />
-              </FormControl>
+        <div className="grid grid-cols-[1fr_4fr] gap-4">
+          <FormField
+            control={form.control}
+            name="number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mesa</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nº" {...field} />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Descrição (opcional)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Insira uma descrição para a mesa"
+                    {...field}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       )}
 
       <SelectedProducts form={form} products={products} extras={extras} />

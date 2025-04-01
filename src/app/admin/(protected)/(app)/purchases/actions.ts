@@ -74,6 +74,7 @@ export const readTables = adminProcedure
         `,
       )
       .eq('store_id', store.id)
+      .eq('status', 'open')
 
     if (readTablesError || !tables) {
       console.error('Não foi possível buscar as mesas.', readTablesError)

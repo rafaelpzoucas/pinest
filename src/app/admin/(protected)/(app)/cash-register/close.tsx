@@ -94,7 +94,7 @@ export function CloseCashSession({
       {hasOpenPurchases || hasOpenTables ? (
         <TooltipProvider>
           <Tooltip delayDuration={0}>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button className="cursor-not-allowed opacity-50">
                 Fechar caixa
               </Button>

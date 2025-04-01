@@ -45,6 +45,7 @@ export function CreateSaleForm({
     resolver: zodResolver(createTableSchema),
     defaultValues: {
       number: table?.number?.toString() ?? undefined,
+      description: table?.description ?? undefined,
       purchase_items: [],
     },
   })

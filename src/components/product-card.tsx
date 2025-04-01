@@ -158,6 +158,7 @@ export function ProductCard({
           extras.length > 0 &&
           extras.map((extra) => (
             <p
+              key={extra.id}
               className="flex flex-row items-center justify-between text-xs text-muted-foreground
                 line-clamp-2 w-full"
             >
