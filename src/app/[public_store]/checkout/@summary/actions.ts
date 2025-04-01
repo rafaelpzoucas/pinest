@@ -170,15 +170,18 @@ export async function createPurchase(newPurchase: CreatePurchaseType): Promise<{
     console.error('Erro ao criar variações: ', createPurchaseVariationsError)
   }
 
-  const deliveryFee = newPurchase.type === 'DELIVERY' && {
-    purchase_id: purchase?.id,
-    is_paid: false,
-    description: 'Taxa de entrega',
-    product_price: purchase?.total?.shipping_price,
-    quantity: 1,
-    observations: '',
-    extras: [],
-  }
+  const deliveryFee =
+    newPurchase.type === 'DELIVERY'
+      ? {
+          purchase_id: purchase?.id,
+          is_paid: false,
+          description: 'Taxa de entrega',
+          product_price: purchase?.total?.shipping_price,
+          quantity: 1,
+          observations: '',
+          extras: [],
+        }
+      : null
 
   const cartItems =
     (cart &&
