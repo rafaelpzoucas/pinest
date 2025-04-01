@@ -11,7 +11,7 @@ export const getSalesReport = adminProcedure
       .from('purchases')
       .select(
         `
-          id, total_amount, payment_type, type, created_at,
+          id, total_amount, payment_type, type, created_at, total,
           purchase_items (
             quantity,
             products ( id, name, price )
@@ -29,7 +29,7 @@ export const getSalesReport = adminProcedure
     const groupedPaymentTypes = purchases.reduce<Record<string, number>>(
       (acc, sale) => {
         acc[sale.payment_type] =
-          (acc[sale.payment_type] || 0) + sale.total_amount
+          (acc[sale.payment_type] || 0) + sale.total.total_amount
         return acc
       },
       {},
