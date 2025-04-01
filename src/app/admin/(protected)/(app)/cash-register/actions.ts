@@ -180,6 +180,7 @@ export const readOpenTables = adminProcedure
       .from('tables')
       .select('*')
       .eq('store_id', store.id)
+      .neq('status', 'closed')
 
     if (error) {
       console.error('Error reading cash session payments:', error)
