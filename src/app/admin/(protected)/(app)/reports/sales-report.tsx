@@ -1,10 +1,13 @@
 'use client'
 
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { PAYMENT_TYPES } from '@/models/purchase'
+import { Printer } from 'lucide-react'
+import Link from 'next/link'
 
-type SalesReportType =
+export type SalesReportType =
   | {
       deliveriesCount: number | null
       totalAmount: number | null
@@ -12,11 +15,27 @@ type SalesReportType =
     }
   | undefined
 
-export function SalesReport({ data }: { data: SalesReportType }) {
+export function SalesReport({
+  data,
+  startDate,
+  endDate,
+}: {
+  data: SalesReportType
+  startDate: string
+  endDate: string
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Relatório de Vendas</CardTitle>
+
+        <Link
+          href={`reports/print/sales?start_date=${startDate}&end_date=${endDate}`}
+          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+          target="_blank"
+        >
+          <Printer className="w-4 h-4" />
+        </Link>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         {data?.totalAmount ? (
