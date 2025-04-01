@@ -55,7 +55,10 @@ export default async function PrintKitchenReceipt({
 
                 {item.extras.length > 0 &&
                   item.extras.map((extra) => (
-                    <p className="flex flex-row items-center w-full text-xs">
+                    <p
+                      key={extra.id}
+                      className="flex flex-row items-center w-full text-xs"
+                    >
                       <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
                       {extra.name}
                     </p>

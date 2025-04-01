@@ -43,7 +43,10 @@ export function Items({ purchase }: { purchase: PurchaseType }) {
                   </div>
                   {item.extras.length > 0 &&
                     item.extras.map((extra) => (
-                      <p className="flex flex-row items-center justify-between w-full">
+                      <p
+                        key={extra.id}
+                        className="flex flex-row items-center justify-between w-full"
+                      >
                         <span className="flex flex-row items-center">
                           <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
                           {extra.name}
@@ -93,7 +96,10 @@ export function Items({ purchase }: { purchase: PurchaseType }) {
                   </div>
                   {item.options.length > 0 &&
                     item.options.map((option) => (
-                      <p className="flex flex-row items-center justify-between w-full">
+                      <p
+                        key={option.id}
+                        className="flex flex-row items-center justify-between w-full"
+                      >
                         <span className="flex flex-row items-center">
                           <Plus className="w-3 h-3 mr-1" /> {option.quantity}{' '}
                           ad. {option.name}

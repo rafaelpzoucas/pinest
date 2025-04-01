@@ -103,12 +103,12 @@ export function LastPurchases({
                   {purchase.purchase_items
                     .filter((item) => item?.products)
                     .map((item) => (
-                      <div>
+                      <div key={item.id}>
                         <p>
                           {item.quantity} un. {item?.products?.name}
                         </p>
                         {item.extras.map((extra) => (
-                          <p>
+                          <p key={extra.id}>
                             + {extra.quantity} ad. {extra.name}
                           </p>
                         ))}

@@ -21,8 +21,11 @@ export function ProductsSoldReport({ data }: { data: ProductsSoldReportType }) {
       <CardContent className="flex flex-col gap-6">
         <div className="flex flex-col">
           {data && data.length > 0 ? (
-            data.map((item) => (
-              <p className="grid grid-cols-3 py-2 border-b border-dashed last:border-none text-lg">
+            data.map((item, index) => (
+              <p
+                key={index}
+                className="grid grid-cols-3 py-2 border-b border-dashed last:border-none text-lg"
+              >
                 <span>{item.name}</span>
                 <span className="text-right">{item.quantity} un.</span>
                 <span className="text-right">

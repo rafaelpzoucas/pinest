@@ -60,7 +60,10 @@ export default async function OrderPage({
 
                     {item.extras.length > 0 &&
                       item.extras.map((extra) => (
-                        <p className="flex flex-row items-center justify-between w-full text-muted-foreground">
+                        <p
+                          key={extra.id}
+                          className="flex flex-row items-center justify-between w-full text-muted-foreground"
+                        >
                           <span className="flex flex-row items-center">
                             <Plus className="w-3 h-3 mr-1" /> {extra.quantity}{' '}
                             ad. {extra.name}

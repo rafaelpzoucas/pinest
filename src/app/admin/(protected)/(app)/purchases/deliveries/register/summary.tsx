@@ -49,7 +49,7 @@ export function Summary({
     (discount || 0)
 
   return (
-    <Card className="space-y-6 p-0 lg:p-4 border-0 lg:border-card">
+    <Card className="space-y-6 p-0 lg:p-4 border-0 lg:border">
       <h1 className="text-lg font-bold">Resumo do pedido</h1>
       <CustomersCombobox
         customers={customers}

@@ -54,7 +54,7 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
             )
 
             return (
-              <Sheet>
+              <Sheet key={table.id}>
                 <SheetTrigger>
                   <Card className="flex items-center justify-center aspect-square">
                     <strong className="text-xl">{table.number}</strong>
@@ -134,7 +134,10 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
 
                                 {item.extras.length > 0 &&
                                   item.extras.map((extra) => (
-                                    <p className="flex flex-row items-center justify-between w-full text-muted-foreground">
+                                    <p
+                                      key={extra.id}
+                                      className="flex flex-row items-center justify-between w-full text-muted-foreground"
+                                    >
                                       <span className="flex flex-row items-center">
                                         <Plus className="w-3 h-3 mr-1" />{' '}
                                         {extra.quantity} ad. {extra.name}
