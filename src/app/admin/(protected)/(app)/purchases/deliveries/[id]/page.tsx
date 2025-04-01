@@ -28,7 +28,6 @@ export default async function OrderPage({
 
   const displayId = params.id.substring(0, 4)
 
-  const accepted = purchase.status !== 'accept'
   const purchaseItems = purchase?.purchase_items
   const customer = purchase?.customers?.users ?? purchase?.guest_data
   const customerAddress = ((purchase?.addresses
@@ -40,7 +39,7 @@ export default async function OrderPage({
   const isIfood = purchase?.is_ifood
   const ifoodOrderData: IfoodOrder = isIfood && purchase?.ifood_order_data
   const ifoodItems: IfoodItem[] = ifoodOrderData?.items
-  const ifoodItemsTotal = ifoodOrderData?.total.subTotal
+  const ifoodItemsTotal = (isIfood && ifoodOrderData?.total.subTotal) || 0
   const ifoodAdditionalFees = isIfood && ifoodOrderData?.total.additionalFees
   const PAYMENT_TYPES = {
     CREDIT: 'Cartão de crédito',
@@ -51,11 +50,11 @@ export default async function OrderPage({
 
   type PaymentTypes = keyof typeof PAYMENT_TYPES
 
-  const ifoodPaymentType: PaymentTypes = ifoodOrderData?.payments.methods[0]
-    .type as PaymentTypes
+  const ifoodPaymentType: PaymentTypes = ifoodOrderData?.payments?.methods[0]
+    ?.type as PaymentTypes
   const ifoodCashChangeAmount =
-    ifoodOrderData?.payments.methods[0].cash?.changeFor &&
-    ifoodOrderData?.payments.methods[0].cash?.changeFor -
+    ifoodOrderData?.payments?.methods[0]?.cash?.changeFor &&
+    ifoodOrderData?.payments?.methods[0]?.cash?.changeFor -
       purchase?.total?.total_amount
 
   const deliveryDateTime = addHours(

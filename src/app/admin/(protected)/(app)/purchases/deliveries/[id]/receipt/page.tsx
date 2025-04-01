@@ -76,7 +76,7 @@ export default async function PrintKitchenReceipt({
                 return (
                   <li
                     key={item.id}
-                    className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                    className="border-b border-dotted last:border-0 py-2 print-section uppercase flex flex-col"
                   >
                     <span>
                       {item.quantity} {item.products.name}
@@ -102,7 +102,7 @@ export default async function PrintKitchenReceipt({
             : ifoodItems.map((item) => (
                 <li
                   key={item.id}
-                  className="border-b border-dotted last:border-0 py-2 print-section uppercase"
+                  className="border-b border-dotted last:border-0 py-2 print-section uppercase flex flex-col"
                 >
                   <span>
                     {item.quantity} {item.name}
