@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/sanduba-da-leyla/$1",
+      "has": [
+        { "type": "host", "value": "sandubadaleyla.com.br" }
+      ]
+    }
+  ]
+}
