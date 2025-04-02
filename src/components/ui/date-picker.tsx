@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { ptBR } from 'date-fns/locale'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Select,
@@ -48,7 +49,11 @@ export function DatePicker() {
           )}
         >
           <CalendarIcon className="w-4 h-4 mr-2" />
-          {date ? format(date, 'PPP') : <span>Selecione uma data</span>}
+          {date ? (
+            format(date, 'PPP', { locale: ptBR })
+          ) : (
+            <span>Selecione uma data</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
