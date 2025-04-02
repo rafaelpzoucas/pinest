@@ -1,9 +1,12 @@
 'use client'
 
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { Printer } from 'lucide-react'
+import Link from 'next/link'
 
-type ProductsSoldReportType =
+export type ProductsSoldReportType =
   | {
       name: string
       quantity: number
@@ -11,11 +14,29 @@ type ProductsSoldReportType =
     }[]
   | undefined
 
-export function ProductsSoldReport({ data }: { data: ProductsSoldReportType }) {
+export function ProductsSoldReport({
+  data,
+  startDate,
+  endDate,
+}: {
+  data: ProductsSoldReportType
+  startDate: string
+  endDate: string
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Produtos vendidos</CardTitle>
+
+        {data && data.length > 0 && (
+          <Link
+            href={`reports/print/products-sold?start_date=${startDate}&end_date=${endDate}`}
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            target="_blank"
+          >
+            <Printer className="w-4 h-4" />
+          </Link>
+        )}
       </CardHeader>
 
       <CardContent className="flex flex-col gap-6">

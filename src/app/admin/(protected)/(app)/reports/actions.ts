@@ -1,4 +1,5 @@
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { endOfDay, startOfDay } from 'date-fns'
 import { getSalesReportInputSchema } from './schemas'
 
 export const getSalesReport = adminProcedure
@@ -7,11 +8,14 @@ export const getSalesReport = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase, store } = ctx
 
+    const startDate = startOfDay(input.start_date).toISOString()
+    const endDate = endOfDay(input.end_date ?? input.start_date).toISOString()
+
     const { data: purchases, error: purchasesError } = await supabase
       .from('purchases')
       .select(
         `
-          id, total_amount, payment_type, type, created_at,
+          id, total_amount, payment_type, type, created_at, total,
           purchase_items (
             quantity,
             products ( id, name, price )
@@ -19,8 +23,8 @@ export const getSalesReport = adminProcedure
         `,
       )
       .eq('store_id', store?.id)
-      .gte('created_at', input.start_date)
-      .lte('created_at', input.end_date)
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
 
     if (purchasesError || !purchases) {
       throw new Error('Error fetching purchases report')
@@ -29,7 +33,7 @@ export const getSalesReport = adminProcedure
     const groupedPaymentTypes = purchases.reduce<Record<string, number>>(
       (acc, sale) => {
         acc[sale.payment_type] =
-          (acc[sale.payment_type] || 0) + sale.total_amount
+          (acc[sale.payment_type] || 0) + sale.total.total_amount
         return acc
       },
       {},

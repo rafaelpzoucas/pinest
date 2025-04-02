@@ -1,33 +1,53 @@
-import { buttonVariants } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn, formatAddress } from '@/lib/utils'
-import { StoreType } from '@/models/store'
-import { ExternalLink, MapPin, Phone } from 'lucide-react'
-import Link from 'next/link'
+'use client'
 
-export async function ProfileCard({ store }: { store: StoreType }) {
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatAddress } from '@/lib/utils'
+import { StoreType } from '@/models/store'
+import { Check, Clipboard, MapPin, Phone } from 'lucide-react'
+import { useState } from 'react'
+
+export function ProfileCard({ store }: { store: StoreType }) {
+  const [copied, setCopied] = useState(false)
+  const fullUrl = `/${store.store_url}`
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(fullUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000) // Reseta após 2s
+    } catch (error) {
+      console.error('Erro ao copiar o link:', error)
+    }
+  }
+
   return (
-    <Card className="max-w-sm">
+    <Card className="break-inside-avoid">
       <CardHeader>
-        <CardTitle>{store?.name}</CardTitle>
+        <CardTitle className="capitalize">{store?.name}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <span className="flex flex-row gap-2 text-sm text-muted-foreground">
-          <MapPin className="w-4 h-4" />
+        <span className="flex flex-row gap-2 text-sm text-muted-foreground w-full">
+          <MapPin className="w-4 h-4 min-w-4" />
           {formatAddress(store?.addresses[0])}
         </span>
-        <span className="flex flex-row gap-2 text-sm text-muted-foreground">
+        <span className="flex flex-row gap-2 text-sm text-muted-foreground w-full">
           <Phone className="w-4 h-4" />
           {store?.phone}
         </span>
-        <Link
-          href={`/${store?.store_url}`}
-          target="_blank"
-          className={cn(buttonVariants(), 'w-full')}
-        >
-          Ver minha loja
-          <ExternalLink className="w-4 h-4 ml-2" />
-        </Link>
+        <Button onClick={handleCopy} className="w-full max-w-sm">
+          {copied ? (
+            <>
+              Copiado!
+              <Check className="w-4 h-4 ml-2" />
+            </>
+          ) : (
+            <>
+              Copiar link da loja
+              <Clipboard className="w-4 h-4 ml-2" />
+            </>
+          )}
+        </Button>
       </CardContent>
     </Card>
   )

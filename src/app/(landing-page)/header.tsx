@@ -33,7 +33,7 @@ export function Header() {
         alt="pinest"
         width={150}
         height={50}
-        className="light:hidden"
+        className="hidden dark:block"
       />
       <Image
         src="/logo-light.svg"

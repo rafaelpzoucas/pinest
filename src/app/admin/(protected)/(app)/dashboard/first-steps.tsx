@@ -62,7 +62,7 @@ export async function FirstSteps() {
   if (progress === 100) return null
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="w-full max-w-lg break-inside-avoid">
       <CardHeader>
         <CardTitle>Primeiros passos</CardTitle>
         <CardDescription>
