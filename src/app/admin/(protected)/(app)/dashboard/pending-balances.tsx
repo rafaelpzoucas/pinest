@@ -10,7 +10,7 @@ export async function PendingBalances() {
   }
 
   return (
-    <Card>
+    <Card className="h-auto max-w-full break-inside-avoid">
       <CardHeader>
         <CardTitle className="text-xl">Saldos pendentes</CardTitle>
       </CardHeader>

@@ -1,4 +1,5 @@
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { endOfDay, startOfDay } from 'date-fns'
 import { getSalesReportInputSchema } from './schemas'
 
 export const getSalesReport = adminProcedure
@@ -6,6 +7,9 @@ export const getSalesReport = adminProcedure
   .input(getSalesReportInputSchema)
   .handler(async ({ ctx, input }) => {
     const { supabase, store } = ctx
+
+    const startDate = startOfDay(input.start_date).toISOString()
+    const endDate = endOfDay(input.end_date ?? input.start_date).toISOString()
 
     const { data: purchases, error: purchasesError } = await supabase
       .from('purchases')
@@ -19,8 +23,8 @@ export const getSalesReport = adminProcedure
         `,
       )
       .eq('store_id', store?.id)
-      .gte('created_at', input.start_date)
-      .lte('created_at', input.end_date)
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
 
     if (purchasesError || !purchases) {
       throw new Error('Error fetching purchases report')

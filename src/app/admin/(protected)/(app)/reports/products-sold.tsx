@@ -27,13 +27,16 @@ export function ProductsSoldReport({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Produtos vendidos</CardTitle>
-        <Link
-          href={`reports/print/products-sold?start_date=${startDate}&end_date=${endDate}`}
-          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-          target="_blank"
-        >
-          <Printer className="w-4 h-4" />
-        </Link>
+
+        {data && data.length > 0 && (
+          <Link
+            href={`reports/print/products-sold?start_date=${startDate}&end_date=${endDate}`}
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            target="_blank"
+          >
+            <Printer className="w-4 h-4" />
+          </Link>
+        )}
       </CardHeader>
 
       <CardContent className="flex flex-col gap-6">

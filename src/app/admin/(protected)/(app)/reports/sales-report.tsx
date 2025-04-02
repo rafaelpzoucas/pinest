@@ -24,18 +24,21 @@ export function SalesReport({
   startDate: string
   endDate: string
 }) {
+  console.log({ data })
   return (
-    <Card>
+    <Card className="h-auto max-w-full break-inside-avoid">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Relatório de Vendas</CardTitle>
 
-        <Link
-          href={`reports/print/sales?start_date=${startDate}&end_date=${endDate}`}
-          className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-          target="_blank"
-        >
-          <Printer className="w-4 h-4" />
-        </Link>
+        {data?.totalAmount && data?.totalAmount > 0 ? (
+          <Link
+            href={`reports/print/sales?start_date=${startDate}&end_date=${endDate}`}
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            target="_blank"
+          >
+            <Printer className="w-4 h-4" />
+          </Link>
+        ) : null}
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         {data?.totalAmount ? (
