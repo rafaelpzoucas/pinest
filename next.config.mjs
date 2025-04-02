@@ -24,6 +24,20 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/:path*', // Captura todas as rotas do domínio
+        destination: '/sanduba-da-leyla/:path*', // Redireciona para a pasta correta
+        has: [
+          {
+            type: 'host',
+            value: 'sandubadaleyla.com.br',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 export default withMDX(nextConfig)
