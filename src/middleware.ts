@@ -2,25 +2,25 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Primeiro, executa a lógica do updateSession
+  // Atualiza a sessão primeiro
   const sessionResponse = await updateSession(request)
+  if (sessionResponse) return sessionResponse
 
-  if (sessionResponse) {
-    return sessionResponse
-  }
-
-  // Captura o host (domínio acessado)
+  // Obtém o domínio acessado pelo usuário
   const host = request.headers.get('host') || ''
 
-  // Mapeamento de domínios personalizados para os caminhos na Pinest
+  // Mapeamento de domínios para seus respectivos caminhos
   const domainMappings: Record<string, string> = {
     'sandubadaleyla.com.br': '/sanduba-da-leyla',
     'outrocliente.com.br': '/outro-cliente',
     // Adicione mais domínios conforme necessário
   }
 
+  // Se o domínio existir no mapeamento, faz o rewrite para o caminho correto
   if (domainMappings[host]) {
-    return NextResponse.rewrite(new URL(domainMappings[host], request.url))
+    const url = request.nextUrl.clone()
+    url.pathname = domainMappings[host] + url.pathname // Mantém o subcaminho
+    return NextResponse.rewrite(url)
   }
 
   return NextResponse.next()
@@ -28,11 +28,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Mantém a mesma configuração anterior,
-     * garantindo que o middleware seja aplicado a todas as rotas,
-     * exceto arquivos estáticos e imagens.
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
