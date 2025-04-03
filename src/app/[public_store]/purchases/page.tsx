@@ -2,7 +2,7 @@ import { Header } from '@/components/store-header'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
-import { cn, formatDate } from '@/lib/utils'
+import { cn, createPath, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -41,7 +41,7 @@ export default async function PurchasesPage({
   const connectedAccount = user?.stripe_connected_account
 
   if (!userData || userError) {
-    return redirect(`/${params.public_store}/sign-in`)
+    return redirect(createPath('/sign-in', params.public_store))
   }
 
   return (
