@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { PopoverPortal } from '@radix-ui/react-popover'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
@@ -41,14 +41,16 @@ export function PublicStoreNavigation({
   const savedGuest = cookies.guest_data
   const guestData = savedGuest && JSON.parse(savedGuest)
 
+  const rootPath = getRootPath(storeSubdomain)
+
   const links = [
     {
-      href: `/${storeSubdomain}`,
+      href: rootPath ?? '/',
       name: 'Home',
       icon: Home,
     },
     {
-      href: `/${storeSubdomain}/purchases`,
+      href: `${rootPath}/purchases`,
       name: 'Meus pedidos',
       icon: ScrollText,
     },

@@ -2,6 +2,7 @@
 
 import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
 import { createClient } from '@/lib/supabase/server'
+import { getRootPath } from '@/lib/utils'
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CustomerType } from '@/models/customer'
 import { StoreType } from '@/models/store'
@@ -201,9 +202,8 @@ export const createPurchase = storeProcedure
 
     await handlePayment({ purchaseId: createdPurchase.id })
 
-    return redirect(
-      `/${store.store_subdomain}/purchases/${createdPurchase.id}?back=home`,
-    )
+    const rootPath = getRootPath(store.store_subdomain)
+    return redirect(`/${rootPath}/purchases/${createdPurchase.id}?back=home`)
   })
 
 export async function updateAmountSoldAndStock(
