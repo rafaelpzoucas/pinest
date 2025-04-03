@@ -6,18 +6,15 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel'
+import { CategoryType } from '@/models/category'
 import { Box } from 'lucide-react'
 import Link from 'next/link'
-import { readCategoriesByStoreURL } from '../search/actions'
 
-export async function Categories({ storeURL }: { storeURL: string }) {
-  const { data: categories, error: categoriesError } =
-    await readCategoriesByStoreURL(storeURL)
-
-  if (categoriesError) {
-    console.error(categoriesError)
-  }
-
+export async function Categories({
+  categories,
+}: {
+  categories?: CategoryType[]
+}) {
   return (
     <>
       <div className="lg:hidden w-full max-w-7xl">

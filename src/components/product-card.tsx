@@ -3,7 +3,7 @@
 import defaultThumbUrl from '@/../public/default_thumb_url.png'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { PurchaseItemVariations } from '@/models/purchase'
@@ -11,6 +11,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { Badge } from './ui/badge'
 
 const productCardVariants = cva('text-sm leading-4', {
@@ -31,7 +32,6 @@ export interface ProductCardProps
     VariantProps<typeof productCardVariants> {
   data?: ProductType
   variations?: PurchaseItemVariations[]
-  publicStore?: string
   observations?: string
   extras?: ExtraType[]
   quantity?: number
@@ -42,11 +42,14 @@ export function ProductCard({
   variations,
   className,
   variant,
-  publicStore,
   observations,
   extras,
   quantity,
 }: ProductCardProps) {
+  const params = useParams()
+
+  const storeSubdomain = params.public_store as unknown as string
+
   const isPromotional = data?.promotional_price
 
   function getImageURL() {
@@ -78,9 +81,13 @@ export function ProductCard({
     )
   }
 
+  const rootPath = getRootPath(storeSubdomain)
+
+  const productLink = `/${rootPath}/products/${data.product_url}`
+
   return (
     <Link
-      href={publicStore ? `/${publicStore}/products/${data.product_url}` : '#'}
+      href={productLink}
       className={cn(
         productCardVariants({ variant }),
         'focus:outline-none focus:ring ring-offset-4 ring-offset-background rounded-xl',

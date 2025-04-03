@@ -41,7 +41,7 @@ export async function createStore(
   const newColumns = {
     ...columns,
     name: columns.name.trim().toLowerCase(),
-    store_url: generateSlug(columns.name.trim()),
+    store_subdomain: generateSlug(columns.name.trim()),
   }
   const supabase = createClient()
 
@@ -67,7 +67,7 @@ export async function updateStore(
   const newColumns = {
     ...columns,
     name: columns.name.trim(),
-    store_url: generateSlug(columns.name.trim()),
+    store_subdomain: generateSlug(columns.name.trim()),
   }
 
   const supabase = createClient()

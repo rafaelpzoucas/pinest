@@ -3,63 +3,14 @@ import { Card } from '@/components/ui/card'
 import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
-import { ShippingConfigType } from '@/models/shipping'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
-import { getCart } from '../../cart/actions'
+import { readCart } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
 import { readStore, readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
+import { CheckoutButton } from './checkout-button'
 import { Delivery } from './delivery'
-
-function CheckoutButton({
-  totalAmount,
-  storeName,
-  addressId,
-  shipping,
-  pickup,
-  reference,
-  shippingPrice,
-  transp,
-  payment,
-  changeValue,
-}: {
-  totalAmount: number
-  storeName: string
-  addressId: string
-  shipping: ShippingConfigType | null
-  pickup: string
-  reference: string
-  shippingPrice: number
-  transp: string
-  payment: string
-  changeValue: string
-}) {
-  const shippingCost =
-    (shippingPrice && `&shippingPrice=${shippingPrice}`) ?? shipping?.price
-
-  const qTotalAmount = `totalAmount=${totalAmount}`
-  const qStoreName = `&storeName=${storeName}`
-  const qAddressId = addressId ? `&addressId=${addressId}` : ''
-  const qShippingPrice =
-    shippingCost ??
-    (shipping && shipping.status ? `&shippingPrice=${shipping.price}` : '')
-  const qShippingTime =
-    shipping && shipping.status ? `&shippingTime=${shipping.delivery_time}` : ''
-  const qPickup = `&pickup=${pickup}`
-  const qReference = transp ? `&reference=${reference}` : ''
-  const qTransp = transp ? `&transp=${transp}` : ''
-  const qPayment = payment ? `&payment=${payment}` : ''
-  const qChange = changeValue ? `&changeValue=${changeValue}` : ''
-
-  const query = `checkout/create?${qTotalAmount}${qStoreName}${qAddressId}${pickup !== 'TAKEOUT' ? qShippingPrice + qShippingTime : ''}${qPickup}${qTransp}${qReference}${qPayment}${qChange}`
-
-  return (
-    <Link href={query} className={cn(buttonVariants(), 'w-full')}>
-      Finalizar pedido
-    </Link>
-  )
-}
 
 export default async function Summary({
   params,
@@ -108,7 +59,8 @@ export default async function Summary({
 
   const paymentKey = payment as keyof typeof PAYMENT_METHODS
 
-  const { cart } = await getCart(params.public_store)
+  const [cartData] = await readCart()
+  const cart = cartData?.cart
   const { address } = await readAddressById(addressId)
   const { storeAddress } = await readStoreAddress(params.public_store)
   const { shipping } = await readOwnShipping(params.public_store)
@@ -138,6 +90,17 @@ export default async function Summary({
 
   const formattedAddress = storeAddress && formatAddress(storeAddress)
 
+  const createPurchaseValues = {
+    addressId:
+      searchParams.address === 'guest' ? undefined : searchParams.address,
+    type: searchParams.pickup,
+    payment_type: searchParams.payment,
+    totalAmount: totalPrice,
+    shippingPrice,
+    shippingTime: shipping && shipping.status ? shipping.delivery_time : 0,
+    changeValue: parseFloat(searchParams.changeValue ?? 0),
+  }
+
   return (
     <div className="flex flex-col w-full">
       <Card className="flex flex-col p-4 w-full space-y-2">
@@ -164,18 +127,7 @@ export default async function Summary({
           <strong>{formatCurrencyBRL(totalPrice)}</strong>
         </div>
 
-        <CheckoutButton
-          storeName={params.public_store}
-          totalAmount={totalPrice}
-          addressId={searchParams.address}
-          shipping={shipping}
-          pickup={searchParams.pickup}
-          shippingPrice={shippingPrice}
-          reference={searchParams.reference}
-          transp={searchParams.transp}
-          payment={searchParams.payment}
-          changeValue={changeValue}
-        />
+        <CheckoutButton values={createPurchaseValues} />
       </Card>
 
       {searchParams.pickup !== 'pickup' && (

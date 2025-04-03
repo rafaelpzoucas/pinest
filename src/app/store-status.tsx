@@ -13,7 +13,7 @@ export async function StoreStatus({ storeUrl }: { storeUrl: string }) {
         store_hours (*)
       `,
     )
-    .eq('store_url', storeUrl)
+    .eq('store_subdomain', storeUrl)
     .single()
 
   if (readStoreError) {

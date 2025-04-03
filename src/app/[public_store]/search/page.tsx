@@ -2,8 +2,8 @@ import { ProductCard } from '@/components/product-card'
 import { Header } from '@/components/store-header'
 import { createClient } from '@/lib/supabase/server'
 import { Search } from 'lucide-react'
-import { getStoreByStoreURL } from '../actions'
-import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
+import { readStore } from '../actions'
+import { readCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { getSearchedProducts } from './actions'
 
 export default async function SearchPage({
@@ -15,18 +15,17 @@ export default async function SearchPage({
 }) {
   const supabase = createClient()
 
-  const [searchData] = await getSearchedProducts({ query: searchParams.q })
+  const [[searchData], [storeData], [cartData], { data: userData }] =
+    await Promise.all([
+      getSearchedProducts({ query: searchParams.q }),
+      readStore(),
+      readCart(),
+      supabase.auth.getUser(),
+    ])
+
   const products = searchData?.products
-
-  const { store, storeError } = await getStoreByStoreURL(params.public_store)
-
-  const { cart } = await getCart(params.public_store)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const store = storeData?.store
+  const cart = cartData?.cart
 
   const { user } = await readStripeConnectedAccountByStoreUrl(
     params.public_store,
@@ -60,7 +59,6 @@ export default async function SearchPage({
                       key={product.id}
                       variant={'featured'}
                       data={product}
-                      publicStore={params.public_store}
                       className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
                     />
                   ))}

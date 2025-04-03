@@ -4,8 +4,10 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-export async function StoreSocials({ storeURL }: { storeURL: string }) {
-  const { socials } = await readStoreSocials(storeURL)
+export async function StoreSocials() {
+  const [socialsData] = await readStoreSocials()
+
+  const socials = socialsData?.socials || []
 
   return (
     <div className="flex flex-row gap-2 w-full max-w-sm">

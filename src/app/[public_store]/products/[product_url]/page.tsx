@@ -11,12 +11,11 @@ import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 import { Header } from '@/components/store-header'
 import { createClient } from '@/lib/supabase/server'
-import { getStoreByStoreURL } from '../../actions'
+import { readStore } from '../../actions'
 import {
-  getCart,
+  readCart,
   readStripeConnectedAccountByStoreUrl,
 } from '../../cart/actions'
-import { readStoreAddress } from '../../checkout/actions'
 import { readExtras, readProductByURL, readProductVariations } from './actions'
 import { ProductInfo } from './info'
 
@@ -25,23 +24,34 @@ export default async function ProductPage({
   searchParams,
 }: {
   searchParams: { cart_product_id: string }
-  params: { product_url: string; public_store: string }
+  params: { product_url: string }
 }) {
   const cartProductId = searchParams.cart_product_id
 
   const supabase = createClient()
 
-  const { store, storeError } = await getStoreByStoreURL(params.public_store)
-  const { storeAddress } = await readStoreAddress(params.public_store)
-  const { data: extras } = await readExtras(params.public_store)
+  const [
+    [storeData],
+    [extrasData],
+    [cartData],
+    [productData],
+    [productVariationsData],
+  ] = await Promise.all([
+    readStore(),
+    readExtras(),
+    readCart(),
+    readProductByURL({ productURL: params.product_url }),
+    readProductVariations({ productURL: params.product_url }),
+  ])
 
-  const { cart } = await getCart(params.public_store)
+  const store = storeData?.store
+  const extras = extrasData?.extras
+  const cart = cartData?.cart
+  const storeAddress = store?.addresses[0]
+  const product = productData?.product
+  const variations = productVariationsData?.variations
 
   const cartProduct = cart?.find((item) => item.id === cartProductId)
-
-  if (storeError) {
-    console.error(storeError)
-  }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
@@ -50,34 +60,12 @@ export default async function ProductPage({
   }
 
   const { user } = await readStripeConnectedAccountByStoreUrl(
-    params.public_store,
+    store?.store_subdomain,
   )
 
   const connectedAccount = user?.stripe_connected_account
 
-  const { product, productError } = await readProductByURL(
-    params.public_store,
-    params.product_url,
-  )
-
-  if (productError) {
-    console.error({ productError })
-  }
-
-  const { variations, variationsError } = await readProductVariations(
-    params.public_store,
-    params.product_url,
-  )
-
-  if (productError) {
-    console.error(productError)
-  }
-
-  if (variationsError) {
-    console.error(variationsError)
-  }
-
-  const productImages = product.product_images
+  const productImages = product?.product_images || []
 
   return (
     <main className="flex flex-col items-center justify-center gap-6">
@@ -126,7 +114,6 @@ export default async function ProductPage({
             <ProductInfo
               isOpen={store?.is_open}
               product={product}
-              storeURL={params.public_store}
               variations={variations}
               storeAddress={storeAddress}
               cartProduct={cartProduct}

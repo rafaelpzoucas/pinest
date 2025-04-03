@@ -1,15 +1,12 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
-import { readBenefitsByStoreId } from './actions'
+import { readBenefits } from './actions'
 
-export async function Benefits({ storeURL }: { storeURL: string }) {
-  const { benefits, readBenefitsError } = await readBenefitsByStoreId(storeURL)
+export async function Benefits() {
+  const [data] = await readBenefits()
 
-  if (readBenefitsError) {
-    console.error(readBenefitsError)
-    return null
-  }
+  const benefits = data?.benefits
 
   if (benefits?.length === 0) {
     return null

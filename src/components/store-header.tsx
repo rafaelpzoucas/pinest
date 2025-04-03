@@ -76,7 +76,7 @@ export function Header({
 
         {title && <h1 className="lg:hidden text-center font-bold">{title}</h1>}
 
-        <SearchSheet publicStore={storeUrl} />
+        <SearchSheet subdomain={storeUrl} />
 
         {cartProducts && connectedAccount && userData && (
           <div className="hidden lg:block">

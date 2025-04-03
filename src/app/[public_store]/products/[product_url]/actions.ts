@@ -1,88 +1,78 @@
 'use server'
 
-import { readStoreByStoreURL } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
-import { createClient } from '@/lib/supabase/server'
+import { storeProcedure } from '@/lib/zsa-procedures'
+import { ExtraType } from '@/models/extras'
 import { ProductType, ProductVariationType } from '@/models/product'
-import { readStoreByName } from '../../checkout/@summary/actions'
+import { z } from 'zod'
 
-export async function readProductByURL(
-  storeURL: string,
-  productURL: string,
-): Promise<{
-  product: ProductType
-  productError: any | null
-}> {
-  const supabase = createClient()
+export const readProductByURL = storeProcedure
+  .createServerAction()
+  .input(z.object({ productURL: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase } = ctx
 
-  const { store, storeError } = await readStoreByName(storeURL)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { data: products, error: productError } = await supabase
-    .from('products')
-    .select(
-      `
+    const { data: products, error: productError } = await supabase
+      .from('products')
+      .select(
+        `
         *,
         product_images (*)
       `,
-    )
-    .eq('product_url', productURL)
-    .eq('store_id', store?.id)
+      )
+      .eq('product_url', input.productURL)
+      .eq('store_id', store?.id)
 
-  const product = products && products.length > 0 && products[0]
+    const product = products && products.length > 0 && products[0]
 
-  return { product, productError }
-}
+    return { product: product as ProductType }
+  })
 
-export async function readProductVariations(
-  storeURL: string,
-  productURL: string,
-): Promise<{
-  variations: ProductVariationType[] | null
-  variationsError: any | null
-}> {
-  const supabase = createClient()
+export const readProductVariations = storeProcedure
+  .createServerAction()
+  .input(z.object({ productURL: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
 
-  const { product, productError } = await readProductByURL(storeURL, productURL)
+    const [productData] = await readProductByURL({
+      productURL: input.productURL,
+    })
 
-  if (productError) {
-    console.error(productError)
-  }
+    const product = productData?.product
 
-  const { data: variations, error: variationsError } = await supabase
-    .from('product_variations')
-    .select(
-      `
+    const { data: variations, error: variationsError } = await supabase
+      .from('product_variations')
+      .select(
+        `
         *,
         attributes (*)
       `,
-    )
-    .eq('product_id', product.id)
+      )
+      .eq('product_id', product?.id)
 
-  return { variations, variationsError }
-}
+    if (variationsError) {
+      console.error(
+        'Não foi possível ler as variações do produto.',
+        variationsError,
+      )
+    }
 
-export async function readExtras(storeURL: string) {
-  const supabase = createClient()
+    return { variations: variations as ProductVariationType[] }
+  })
 
-  const { store, readStoreError } = await readStoreByStoreURL(storeURL)
+export const readExtras = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
 
-  if (readStoreError) {
-    console.error(readStoreError)
-    throw new Error('Não foi possível encontrar a loja', readStoreError)
-  }
+    const { data: extras, error } = await supabase
+      .from('extras')
+      .select('*')
+      .eq('store_id', store?.id)
 
-  const { data, error } = await supabase
-    .from('extras')
-    .select('*')
-    .eq('store_id', store?.id)
+    if (error) {
+      console.error(error)
+      throw new Error('Não foi possível ler os adicionais.', error)
+    }
 
-  if (error) {
-    console.error(error)
-    throw new Error('Não foi possível ler os adicionais.', error)
-  }
-
-  return { data, error }
-}
+    return { extras: extras as ExtraType[] }
+  })

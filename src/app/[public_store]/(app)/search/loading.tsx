@@ -15,7 +15,7 @@ export default function SearchLoading() {
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1" className="border-0">
           <div className="flex flex-row items-center gap-3 w-full">
-            <SearchSheet publicStore={''} />
+            <SearchSheet subdomain="" />
             <AccordionTrigger className="[&>svg]:hidden py-0">
               <span className="flex p-2 bg-primary text-primary-foreground rounded-md">
                 <ListFilter className="block w-4 h-4" />

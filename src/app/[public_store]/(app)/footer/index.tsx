@@ -1,23 +1,27 @@
-import { readStoreHours } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
 import { HoursList } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/hours/hours-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { CategoryType } from '@/models/category'
+import { HourType } from '@/models/hour'
+import { StoreType } from '@/models/store'
 import { Clock, Pyramid } from 'lucide-react'
 import Link from 'next/link'
 import { FaWhatsapp } from 'react-icons/fa'
-import { getStoreByStoreURL } from '../../actions'
-import { readCategoriesByStoreURL } from '../search/actions'
 import GoogleTransparencyBadge from './google-transparency-badge'
 import { PaymentMethods } from './payment-methods'
 import { StoreSocials } from './socials'
 
-export async function Footer({ storeURL }: { storeURL: string }) {
-  const { store } = await getStoreByStoreURL(storeURL)
-  const { data: categories } = await readCategoriesByStoreURL(storeURL)
-  const { hours } = await readStoreHours(storeURL)
-
+export async function Footer({
+  store,
+  categories,
+  hours,
+}: {
+  store?: StoreType
+  categories?: CategoryType[]
+  hours?: HourType[]
+}) {
   if (!store) {
     return null
   }
@@ -47,7 +51,7 @@ export async function Footer({ storeURL }: { storeURL: string }) {
             </div>
           </div>
 
-          <StoreSocials storeURL={storeURL} />
+          <StoreSocials />
         </section>
 
         <section>

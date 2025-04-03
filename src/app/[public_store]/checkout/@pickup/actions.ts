@@ -1,5 +1,5 @@
 import { RequestSimularType, ShippingType } from '@/models/kangu-shipping'
-import { getCart } from '../../cart/actions'
+import { readCart } from '../../cart/actions'
 
 export type SimulateShippingType = {
   storeURL: string
@@ -11,7 +11,8 @@ export async function simulateShipping(values: SimulateShippingType): Promise<{
   data: ShippingType[] | null
   error: any | null
 }> {
-  const { cart } = await getCart(values.storeURL)
+  const [cartData] = await readCart()
+  const cart = cartData?.cart
 
   if (cart) {
     const { cartPrice, cartWeight } = cart.reduce(

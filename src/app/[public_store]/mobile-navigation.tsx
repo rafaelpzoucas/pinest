@@ -2,7 +2,7 @@
 
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
@@ -12,23 +12,25 @@ import { SearchSheet } from './(app)/search/search-sheet'
 export function MobileNavigation({
   cartProducts,
 }: {
-  cartProducts: CartProductType[] | null
+  cartProducts?: CartProductType[]
 }) {
   const params = useParams()
   const pathname = usePathname()
 
-  const storeUrl = params.public_store as unknown as string
+  const storeSubdomain = params.public_store as unknown as string
 
   const iconsClassNames = 'w-5 h-5'
 
+  const rootPath = getRootPath(storeSubdomain)
+
   const links = [
     {
-      href: `/${storeUrl}`,
+      href: rootPath ?? '/',
       name: 'Home',
       icon: Home,
     },
     {
-      href: `/${storeUrl}/purchases`,
+      href: `${rootPath}/purchases`,
       name: 'Meus pedidos',
       icon: ScrollText,
     },
@@ -70,17 +72,17 @@ export function MobileNavigation({
         <div
           className={cn(
             'relative',
-            pathname !== `/${storeUrl}/search` && 'opacity-50',
+            pathname !== `${rootPath}/search` && 'opacity-50',
           )}
         >
-          <SearchSheet publicStore={storeUrl} />
-          {pathname === `/${storeUrl}/search` && (
+          <SearchSheet subdomain={storeSubdomain} />
+          {pathname === `${rootPath}/search` && (
             <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg -mt-1 bg-primary"></span>
           )}
         </div>
 
         <Link
-          href={`/${storeUrl}/cart`}
+          href={`${rootPath}/cart`}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'icon' }),
             'relative bg-transparent',
@@ -98,12 +100,12 @@ export function MobileNavigation({
           <div
             className={cn(
               'relative',
-              pathname !== `/${storeUrl}/cart` && 'opacity-50',
+              pathname !== `${rootPath}/cart` && 'opacity-50',
             )}
           >
             <ShoppingCart className="w-5 h-5" />
 
-            {pathname === `/${storeUrl}/cart` && (
+            {pathname === `${rootPath}/cart` && (
               <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg mt-1 bg-primary"></span>
             )}
           </div>

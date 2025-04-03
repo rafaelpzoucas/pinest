@@ -3,7 +3,7 @@ import { formatAddress, isSameCity } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
-import { getCart } from '../../cart/actions'
+import { readCart } from '../../cart/actions'
 import { readCustomerAddress, readStoreAddress } from '../actions'
 import { Delivery } from './delivery'
 import { ShippingOptions } from './shipping'
@@ -24,7 +24,8 @@ export default async function PickupOptions({
 
   const { shipping } = await readOwnShipping(params.public_store)
 
-  const { cart } = await getCart(params.public_store)
+  const [cartData] = await readCart()
+  const cart = cartData?.cart
 
   if (customerAddressError) {
     console.error(customerAddressError)

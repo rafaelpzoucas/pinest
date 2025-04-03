@@ -8,14 +8,12 @@ import {
 
 import { ProductCard } from '@/components/product-card'
 
+import { ShowcaseType } from '@/models/showcase'
 import { Benefits } from '../benefits'
-import { readShowcases } from './actions'
 
-export async function Showcases({ storeURL }: { storeURL: string }) {
-  const showcases = await readShowcases(storeURL)
-
+export async function Showcases({ showcases }: { showcases?: ShowcaseType[] }) {
   if (!showcases || showcases.length === 0) {
-    return <Benefits storeURL={storeURL} />
+    return <Benefits />
   }
 
   const [firstShowcase, ...otherShowcases] = showcases
@@ -37,11 +35,7 @@ export async function Showcases({ storeURL }: { storeURL: string }) {
                   className="flex-[0_0_40%] lg:flex-[0_0_22.5%]"
                   key={product.id}
                 >
-                  <ProductCard
-                    variant={'featured'}
-                    data={product}
-                    publicStore={storeURL}
-                  />
+                  <ProductCard variant={'featured'} data={product} />
                 </CarouselItem>
               ))}
           </CarouselContent>
@@ -53,7 +47,7 @@ export async function Showcases({ storeURL }: { storeURL: string }) {
         </Carousel>
       </section>
 
-      <Benefits storeURL={storeURL} />
+      <Benefits />
 
       {otherShowcases.map((showcase) => (
         <section
@@ -74,11 +68,7 @@ export async function Showcases({ storeURL }: { storeURL: string }) {
                     className="flex-[0_0_40%] lg:flex-[0_0_22.5%]"
                     key={product.id}
                   >
-                    <ProductCard
-                      variant={'featured'}
-                      data={product}
-                      publicStore={storeURL}
-                    />
+                    <ProductCard variant={'featured'} data={product} />
                   </CarouselItem>
                 ))}
             </CarouselContent>

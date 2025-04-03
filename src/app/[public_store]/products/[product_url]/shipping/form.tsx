@@ -23,7 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatCurrencyBRL, formatDistanceToFuture } from '@/lib/utils'
-import { RequestSimularType, ShippingType } from '@/models/kangu-shipping'
+import { ShippingType } from '@/models/kangu-shipping'
 import { ProductType } from '@/models/product'
 import { AddressType } from '@/models/user'
 import { useProduct } from '@/stores/productStore'
@@ -32,7 +32,6 @@ import { useState } from 'react'
 
 type ShippingPropsType = {
   product: ProductType
-  storeURL: string
   storeAddress: AddressType
 }
 
@@ -40,11 +39,7 @@ const formSchema = z.object({
   zip_code: z.string().min(9, { message: 'Por favor, insira um CEP válido.' }),
 })
 
-export function ShippingForm({
-  product,
-  storeURL,
-  storeAddress,
-}: ShippingPropsType) {
+export function ShippingForm({ product, storeAddress }: ShippingPropsType) {
   const { amount } = useProduct()
 
   const [shipping, setShipping] = useState<ShippingType[]>([])
@@ -56,67 +51,65 @@ export function ShippingForm({
     },
   })
 
-  async function handleSimulateShipping(zipCode: string) {
-    const simulationData: RequestSimularType = {
-      cepOrigem: storeAddress.zip_code,
-      cepDestino: zipCode,
-      vlrMerc: product.price,
-      pesoMerc: product.pkg_weight,
-      volumes: [
-        {
-          peso: product.pkg_weight,
-          altura: product.pkg_height,
-          largura: product.pkg_width,
-          comprimento: product.pkg_length,
-          tipo: '',
-          valor: product.price,
-          quantidade: amount ?? 1,
-        },
-      ],
-      produtos: [
-        {
-          peso: product.pkg_weight,
-          altura: product.pkg_height,
-          largura: product.pkg_width,
-          comprimento: product.pkg_length,
-          valor: product.price,
-          quantidade: amount ?? 1,
-          produto: product.name,
-        },
-      ],
-      servicos: ['E', 'X', 'M', 'R'],
-      ordernar: 'preco',
-    }
+  // async function handleSimulateShipping(zipCode: string) {
+  //   const simulationData: RequestSimularType = {
+  //     cepOrigem: storeAddress.zip_code,
+  //     cepDestino: zipCode,
+  //     vlrMerc: product.price,
+  //     pesoMerc: product.pkg_weight,
+  //     volumes: [
+  //       {
+  //         peso: product.pkg_weight,
+  //         altura: product.pkg_height,
+  //         largura: product.pkg_width,
+  //         comprimento: product.pkg_length,
+  //         tipo: '',
+  //         valor: product.price,
+  //         quantidade: amount ?? 1,
+  //       },
+  //     ],
+  //     produtos: [
+  //       {
+  //         peso: product.pkg_weight,
+  //         altura: product.pkg_height,
+  //         largura: product.pkg_width,
+  //         comprimento: product.pkg_length,
+  //         valor: product.price,
+  //         quantidade: amount ?? 1,
+  //         produto: product.name,
+  //       },
+  //     ],
+  //     servicos: ['E', 'X', 'M', 'R'],
+  //     ordernar: 'preco',
+  //   }
 
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/shipping/simulate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ storeURL, simulationData }),
-        },
-      )
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/shipping/simulate`,
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ storeURL, simulationData }),
+  //       },
+  //     )
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Erro: ${errorText}`)
-      }
+  //     if (!response.ok) {
+  //       const errorText = await response.text()
+  //       throw new Error(`Erro: ${errorText}`)
+  //     }
 
-      const data = await response.json()
+  //     const data = await response.json()
 
-      setShipping(data)
-    } catch (error) {
-      console.error('Erro ao simular frete:', error)
-    }
-  }
+  //     setShipping(data)
+  //   } catch (error) {
+  //     console.error('Erro ao simular frete:', error)
+  //   }
+  // }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const zipCode = values.zip_code.replaceAll('-', '')
-
-    await handleSimulateShipping(zipCode)
   }
 
   return (

@@ -1,15 +1,9 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readStoreByUserId, readStoreSocials } from '../../../account/actions'
+import { readSocials } from './actions'
 import { SocialsForm } from './form'
 
 export default async function ProfileRegister() {
-  const { store } = await readStoreByUserId()
-
-  if (!store) {
-    return null
-  }
-
-  const { socials, readSocialsError } = await readStoreSocials(store.store_url)
+  const { socials, readSocialsError } = await readSocials()
 
   if (readSocialsError) {
     console.error(readSocialsError)

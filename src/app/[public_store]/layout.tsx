@@ -1,26 +1,23 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import ThemeDataProvider from '@/context/theme-data-provider'
 import { Metadata, ResolvingMetadata } from 'next'
-import { getStoreByStoreURL } from './actions'
-import { getCart } from './cart/actions'
+import { readStore } from './actions'
+import { readCart } from './cart/actions'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
 type PublicStoreLayoutProps = {
   children: React.ReactNode
-  params: { public_store: string }
 }
 
 export async function generateMetadata(
-  { params }: PublicStoreLayoutProps,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const storeURL = params.public_store
+  const [response] = await readStore()
+  const store = response?.store
 
-  const { store, storeError } = await getStoreByStoreURL(storeURL)
-
-  if (storeError) {
-    console.error({ storeError })
+  if (!store) {
+    console.error('Não foi possível buscar a loja.')
 
     return {
       title: 'Pinest',
@@ -51,19 +48,17 @@ export async function generateMetadata(
 
 export default async function PublicStoreLayout({
   children,
-  params,
 }: PublicStoreLayoutProps) {
-  const { store, storeError } = await getStoreByStoreURL(params.public_store)
+  const [response] = await readStore()
 
-  if (storeError) {
-    console.error(storeError)
-  }
+  const store = response?.store
 
   if (!store) {
     return <NotFound />
   }
 
-  const { cart } = await getCart(params.public_store)
+  const [cartData] = await readCart()
+  const cart = cartData?.cart
 
   return (
     <ThemeProvider

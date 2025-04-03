@@ -4,10 +4,8 @@ import { CartProduct } from './cart-product'
 
 export function CartProducts({
   cartProducts,
-  storeName,
 }: {
-  cartProducts: CartProductType[] | null
-  storeName: string
+  cartProducts?: CartProductType[]
 }) {
   return (
     <div className="lg:h-[370px] p-1 pr-2">

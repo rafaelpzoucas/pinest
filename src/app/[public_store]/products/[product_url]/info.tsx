@@ -13,19 +13,21 @@ export function ProductInfo({
   isOpen,
   product,
   variations,
-  storeURL,
   storeAddress,
   cartProduct,
   extras,
 }: {
   isOpen?: boolean
-  product: ProductType
-  variations: ProductVariationType[] | null
-  storeURL: string
+  product?: ProductType
+  variations?: ProductVariationType[]
   storeAddress: AddressType
   cartProduct?: CartProductType
-  extras: ExtraType[] | null
+  extras?: ExtraType[]
 }) {
+  if (!product) {
+    return null
+  }
+
   const isPromotional = product?.promotional_price
   const { productPrice } = useProduct()
 
@@ -63,7 +65,6 @@ export function ProductInfo({
 
       <AddToCard
         isOpen={isOpen}
-        storeURL={storeURL}
         product={product}
         variations={variations}
         cartProduct={cartProduct}
@@ -71,11 +72,7 @@ export function ProductInfo({
       />
 
       {productHasDimensions && (
-        <ShippingForm
-          storeURL={storeURL}
-          storeAddress={storeAddress}
-          product={product}
-        />
+        <ShippingForm storeAddress={storeAddress} product={product} />
       )}
     </section>
   )

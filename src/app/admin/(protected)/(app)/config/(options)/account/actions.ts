@@ -2,7 +2,7 @@
 
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
-import { adminProcedure } from '@/lib/zsa-procedures'
+import { adminProcedure, storeProcedure } from '@/lib/zsa-procedures'
 import { HourType } from '@/models/hour'
 import { SocialMediaType } from '@/models/social'
 import { StoreType } from '@/models/store'
@@ -83,63 +83,63 @@ export async function readStoreByStoreURL(storeURL: string) {
   const { data: store, error: readStoreError } = await supabase
     .from('stores')
     .select('*')
-    .eq('store_url', storeURL)
+    .eq('store_subdomain', storeURL)
     .single()
 
   return { store, readStoreError }
 }
 
-export async function readStoreSocials(storeURL: string): Promise<{
-  socials: SocialMediaType[] | null
-  readSocialsError: any | null
-}> {
-  const supabase = createClient()
+export const readStoreSocials = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
 
-  const { store } = await readStoreByStoreURL(storeURL)
+    const { data: socials, error: readSocialsError } = await supabase
+      .from('store_socials')
+      .select('*')
+      .eq('store_id', store?.id)
 
-  const { data: socials, error: readSocialsError } = await supabase
-    .from('store_socials')
-    .select('*')
-    .eq('store_id', store.id)
+    if (readSocialsError) {
+      return { socials: null, readSocialsError }
+    }
 
-  return { socials, readSocialsError }
-}
+    return { socials: socials as SocialMediaType[] }
+  })
 
-export async function readStoreHours(storeURL: string): Promise<{
-  hours: HourType[] | null
-  readHoursError: any | null
-}> {
-  const supabase = createClient()
+export const readOpeningHours = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
 
-  const { store } = await readStoreByStoreURL(storeURL)
+    const { data: hours, error: readHoursError } = await supabase
+      .from('store_hours')
+      .select('*')
+      .eq('store_id', store?.id)
 
-  const { data: hours, error: readHoursError } = await supabase
-    .from('store_hours')
-    .select('*')
-    .eq('store_id', store?.id)
+    if (readHoursError || !hours) {
+      console.error('Erro ao buscar horários de abertura.', readHoursError)
+      return
+    }
 
-  if (readHoursError) {
-    return { hours: null, readHoursError }
-  }
+    // Ordem dos dias da semana para referência
+    const dayOrder = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ]
 
-  // Ordem dos dias da semana para referência
-  const dayOrder = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-  ]
+    // Ordenar os horários com base na referência
+    const sortedHours = hours?.sort(
+      (a, b) =>
+        dayOrder.indexOf(a.day_of_week) - dayOrder.indexOf(b.day_of_week),
+    )
 
-  // Ordenar os horários com base na referência
-  const sortedHours = hours?.sort(
-    (a, b) => dayOrder.indexOf(a.day_of_week) - dayOrder.indexOf(b.day_of_week),
-  )
-
-  return { hours: sortedHours, readHoursError: null }
-}
+    return { hours: sortedHours as HourType[] }
+  })
 
 export async function readStoreTheme(storeURL: string): Promise<{
   themeColor: string
@@ -150,7 +150,7 @@ export async function readStoreTheme(storeURL: string): Promise<{
   const { data, error } = await supabase
     .from('stores')
     .select('theme_color, theme_mode')
-    .eq('store_url', storeURL)
+    .eq('store_subdomain', storeURL)
     .single()
 
   if (error) {

@@ -50,27 +50,19 @@ export type SelectedExtraType = {
 type AddToCardDrawerProps = {
   isOpen?: boolean
   product: ProductType
-  variations: ProductVariationType[] | null
+  variations?: ProductVariationType[]
   cartProduct?: CartProductType
-  storeURL: string
-  extras: ExtraType[] | null
+  extras?: ExtraType[]
 }
 
 export function AddToCard({
   isOpen,
   product,
   variations,
-  storeURL,
   cartProduct,
   extras,
 }: AddToCardDrawerProps) {
   const selectedVariations = cartProduct?.product_variations
-
-  const productHasDimensions =
-    product.pkg_height !== null &&
-    product.pkg_width !== null &&
-    product.pkg_length !== null &&
-    product.pkg_weight !== null
 
   const {
     productPrice,
@@ -176,7 +168,7 @@ export function AddToCard({
       extras: selectedExtras.filter((item) => item.quantity > 0),
     }
 
-    await addToCart(storeURL, newCartProduct)
+    await addToCart({ newItem: newCartProduct })
 
     toast(`Produto(s) adicionado(s) ao carrinho.`)
 
