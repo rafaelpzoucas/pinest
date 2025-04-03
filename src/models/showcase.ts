@@ -1,3 +1,5 @@
+import { ProductType } from './product'
+
 export type ShowcaseType = {
   id: string
   created_at: string
@@ -6,4 +8,5 @@ export type ShowcaseType = {
   order_by: string
   status: boolean
   position: number
+  products: ProductType[]
 }

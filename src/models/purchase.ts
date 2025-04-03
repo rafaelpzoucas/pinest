@@ -14,17 +14,6 @@ export interface CustomersType extends CustomerType {
   users: UserType
 }
 
-export type CreatePurchaseType = {
-  totalAmount: number
-  storeName: string
-  addressId?: string | null
-  shippingPrice: number
-  shippingTime: number
-  type: string
-  payment_type: string
-  changeValue: number | null
-}
-
 export type PurchaseItemsType = {
   id: string
   created_at: string

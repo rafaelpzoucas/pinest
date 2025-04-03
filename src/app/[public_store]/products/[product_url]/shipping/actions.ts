@@ -9,7 +9,7 @@ async function readStoreKanguToken(storeURL: string) {
   const { data } = await supabase
     .from('stores')
     .select('kangu_token')
-    .eq('store_url', storeURL)
+    .eq('store_subdomain', storeURL)
     .single()
 
   return data?.kangu_token || process.env.KANGU_TOKEN_GLOBAL

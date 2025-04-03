@@ -1,33 +1,30 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { storeProcedure } from '@/lib/zsa-procedures'
 import { CategoryType } from '@/models/category'
-import { getStoreByStoreURL } from '../../actions'
 
-export async function getProductsByCategory(storeURL: string): Promise<{
-  categories: CategoryType[] | null
-  categoriesError: any | null
-}> {
-  const supabase = createClient()
+export const readProductsByCategory = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store, supabase } = ctx
 
-  const { store, storeError } = await getStoreByStoreURL(storeURL)
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { data: categories, error: categoriesError } = await supabase
-    .from('categories')
-    .select(
-      `
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select(
+        `
         *,
         products (
           *,
           product_images (*)
         )
       `,
-    )
-    .eq('store_id', store?.id)
+      )
+      .eq('store_id', store?.id)
 
-  return { categories, categoriesError }
-}
+    if (error) {
+      console.error('Falha ao buscar categorias.', error)
+      return { categories: [] }
+    }
+
+    return { categories: categories as CategoryType[] }
+  })

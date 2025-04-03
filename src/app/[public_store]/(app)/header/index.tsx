@@ -2,31 +2,31 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { CartProductType } from '@/models/cart'
+import { StoreType } from '@/models/store'
 import { Pyramid } from 'lucide-react'
-import { getStoreByStoreURL } from '../../actions'
-import {
-  getCart,
-  readStripeConnectedAccountByStoreUrl,
-} from '../../cart/actions'
+import { readStripeConnectedAccountByStoreUrl } from '../../cart/actions'
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../search/search-sheet'
 import { readOwnShipping } from './actions'
 import { Status } from './status'
 
-export async function Header({ storeURL }: { storeURL: string }) {
+export async function Header({
+  store,
+  cart,
+}: {
+  store?: StoreType
+  cart: CartProductType[]
+}) {
   const supabase = createClient()
 
-  const { store, storeError } = await getStoreByStoreURL(storeURL)
-  const { cart } = await getCart(storeURL)
-  const { shipping } = await readOwnShipping(storeURL)
-
-  if (storeError) {
-    console.error(storeError)
-  }
+  const { shipping } = await readOwnShipping(store?.store_subdomain ?? '')
 
   const { data: userData } = await supabase.auth.getUser()
 
-  const { user } = await readStripeConnectedAccountByStoreUrl(storeURL)
+  const { user } = await readStripeConnectedAccountByStoreUrl(
+    store?.store_subdomain ?? '',
+  )
 
   const connectedAccount = user?.stripe_connected_account
 
@@ -68,12 +68,12 @@ export async function Header({ storeURL }: { storeURL: string }) {
         </div>
 
         <div className="hidden lg:block">
-          <SearchSheet publicStore={storeURL} />
+          <SearchSheet subdomain={store?.store_subdomain} />
         </div>
 
         <div className="hidden lg:block">
           <PublicStoreNavigation
-            cartProducts={cart}
+            cartProducts={cart ?? []}
             connectedAccount={connectedAccount}
             userData={userData}
           />

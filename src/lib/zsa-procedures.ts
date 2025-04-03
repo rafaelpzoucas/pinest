@@ -1,3 +1,5 @@
+import { StoreType } from '@/models/store'
+import { cookies } from 'next/headers'
 import { createServerActionProcedure } from 'zsa'
 import { createClient } from './supabase/server'
 
@@ -68,3 +70,40 @@ export const cashProcedure = createServerActionProcedure(
 
   return { cashSession, user, store, supabase }
 })
+
+export const storeProcedure = createServerActionProcedure().handler(
+  async () => {
+    const supabase = createClient()
+    const cookieStore = cookies()
+    const allCookies = cookieStore.getAll()
+
+    // Procura por um cookie que comece com 'store_'
+    const subdomainCookie = allCookies
+      .find((cookie) => cookie.name.startsWith('public_store_'))
+      ?.name.split('public_store_')[1]
+
+    if (!subdomainCookie) {
+      console.error('Nenhuma loja identificada.')
+      return null
+    }
+
+    const { data: store, error } = await supabase
+      .from('stores')
+      .select(
+        `
+          *,
+          store_hours (*),
+          market_niches (*),
+          addresses (*)
+          `,
+      )
+      .eq('store_subdomain', subdomainCookie)
+      .single()
+
+    if (error) {
+      console.error('Erro ao buscar dados da loja.', error)
+    }
+
+    return { store: store as StoreType, supabase }
+  },
+)

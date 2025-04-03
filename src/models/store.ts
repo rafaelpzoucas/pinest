@@ -9,7 +9,7 @@ export type StoreType = {
   phone: string
   user_id: string
   logo_url: string
-  store_url: string
+  store_subdomain: string
   market_niche_id: string
   theme_color: string
   theme_mode: string

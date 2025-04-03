@@ -1,11 +1,13 @@
 import { ProductCard } from '@/components/product-card'
+import { CategoryType } from '@/models/category'
 import { Box, Boxes } from 'lucide-react'
-import { getProductsByCategory } from './actions'
 
-export async function ProductsList({ storeURL }: { storeURL: string }) {
-  const { categories, categoriesError } = await getProductsByCategory(storeURL)
-
-  if (categoriesError) {
+export async function ProductsList({
+  categories,
+}: {
+  categories?: CategoryType[]
+}) {
+  if (!categories) {
     return (
       <div
         className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-xs text-muted
@@ -41,7 +43,6 @@ export async function ProductsList({ storeURL }: { storeURL: string }) {
                     key={product.id}
                     variant={'featured'}
                     data={product}
-                    publicStore={storeURL}
                     className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
                   />
                 ))}

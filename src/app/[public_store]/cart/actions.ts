@@ -2,10 +2,13 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getRootPath } from '@/lib/utils'
+import { storeProcedure } from '@/lib/zsa-procedures'
 import { CartProductType } from '@/models/cart'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { v4 as uuidv4 } from 'uuid'
+import { z } from 'zod'
 
 async function createCartSession(storeUrl: string) {
   const cookieStore = cookies()
@@ -19,13 +22,13 @@ async function createCartSession(storeUrl: string) {
   }
 }
 
-async function getCartSession(storeUrl: string) {
+async function getCartSession(storeSubdomain: string) {
   const cookieStore = cookies()
 
-  const session = cookieStore.get(`${storeUrl}_cart_session`)
+  const session = cookieStore.get(`${storeSubdomain}_cart_session`)
 
   if (!session) {
-    const createdSession = await createCartSession(storeUrl)
+    const createdSession = await createCartSession(storeSubdomain)
 
     if (createdSession) {
       return createdSession
@@ -35,29 +38,27 @@ async function getCartSession(storeUrl: string) {
   return session
 }
 
-async function getCartProduct(
-  storeUrl: string,
-  cartSessionId?: string,
-): Promise<{
-  cartProduct: CartProductType | null
-  cartProductError: any | null
-}> {
-  const supabase = createClient()
-  const cartSession = await getCartSession(storeUrl)
+export const readCartProduct = storeProcedure
+  .createServerAction()
+  .input(z.object({ cartSessionId: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase } = ctx
 
-  const { data: cartProduct, error: cartProductError } = await supabase
-    .from('cart_sessions')
-    .select('*')
-    .eq('session_id', cartSession?.value)
-    .eq('id', cartSessionId)
-    .single()
+    const cartSession = await getCartSession(store.store_subdomain)
 
-  if (cartProductError) {
-    console.error(cartProductError)
-  }
+    const { data: cartProduct, error: cartProductError } = await supabase
+      .from('cart_sessions')
+      .select('*')
+      .eq('session_id', cartSession?.value)
+      .eq('id', input.cartSessionId)
+      .single()
 
-  return { cartProduct, cartProductError }
-}
+    if (cartProductError) {
+      console.error(cartProductError)
+    }
+
+    return { cartProduct: cartProduct as CartProductType }
+  })
 
 async function insertCartProduct(
   newItem: CartProductType,
@@ -112,58 +113,93 @@ async function updateCartProduct(
   revalidatePath('/')
 }
 
-export async function getCart(storeUrl: string): Promise<{
-  cart: CartProductType[] | null
-  cartError: any | null
-}> {
-  const supabase = createClient()
-  const cartSession = await getCartSession(storeUrl)
+export const readCart = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store, supabase } = ctx
 
-  const { data: cart, error: cartError } = await supabase
-    .from('cart_sessions')
-    .select(
-      `
+    const cartSession = await getCartSession(store.store_subdomain)
+
+    const { data: cart, error: cartError } = await supabase
+      .from('cart_sessions')
+      .select(
+        `
         *,
         products (
          *,
          product_images (*)
         )
       `,
-    )
-    .eq('session_id', cartSession?.value)
+      )
+      .eq('session_id', cartSession?.value)
 
-  if (cartError) {
-    console.error(cartError)
-  }
+    if (cartError) {
+      console.error('Erro ao buscar dados do carrinho.', cartError)
+    }
 
-  return { cart, cartError }
-}
+    return { cart: cart as CartProductType[] }
+  })
 
-export async function addToCart(storeUrl: string, newItem: CartProductType) {
-  const cartSession = await getCartSession(storeUrl)
+// export async function getCart(storeUrl: string): Promise<{
+//   cart: CartProductType[] | null
+//   cartError: any | null
+// }> {
+//   const supabase = createClient()
+//   const cartSession = await getCartSession(storeUrl)
 
-  if (!newItem?.id) {
-    await insertCartProduct(newItem, cartSession?.value)
-    return revalidatePath(`/${storeUrl}/cart`)
-  }
+//   const { data: cart, error: cartError } = await supabase
+//     .from('cart_sessions')
+//     .select(
+//       `
+//         *,
+//         products (
+//          *,
+//          product_images (*)
+//         )
+//       `,
+//     )
+//     .eq('session_id', cartSession?.value)
 
-  const { cartProduct, cartProductError } = await getCartProduct(
-    storeUrl,
-    newItem.id,
-  )
+//   if (cartError) {
+//     console.error(cartError)
+//   }
 
-  if (cartProductError) {
-    console.error(cartProductError)
-  }
+//   return { cart, cartError }
+// }
 
-  if (!cartProduct) {
-    return
-  }
+export const addToCart = storeProcedure
+  .createServerAction()
+  .input(z.object({ newItem: z.custom<CartProductType>() }))
+  .handler(async ({ ctx, input }) => {
+    const { store } = ctx
+    const { newItem } = input
 
-  await updateCartProduct(newItem, cartProduct, cartSession?.value)
+    const cartSession = await getCartSession(store.store_subdomain)
 
-  revalidatePath(`/${storeUrl}/cart`)
-}
+    const rootPath = getRootPath(store.store_subdomain)
+
+    const redirectURL = `/${rootPath}/cart`
+
+    if (!newItem?.id) {
+      await insertCartProduct(newItem, cartSession?.value)
+
+      return revalidatePath(redirectURL)
+    }
+
+    const [cartProductData] = await readCartProduct({
+      cartSessionId: newItem.id,
+    })
+
+    const cartProduct = cartProductData?.cartProduct
+
+    if (!cartProduct) {
+      return
+    }
+
+    await updateCartProduct(newItem, cartProduct, cartSession?.value)
+
+    revalidatePath(redirectURL)
+  })
 
 export async function updateCartProductQuantity(
   cartProductId: string,
@@ -214,7 +250,7 @@ export async function clearCart(storeUrl: string) {
 }
 
 export async function readStripeConnectedAccountByStoreUrl(
-  storeUrl: string,
+  storeUrl?: string,
 ): Promise<{
   user: { stripe_connected_account: 'connected' | null } | null
   userError: any | null
@@ -224,7 +260,7 @@ export async function readStripeConnectedAccountByStoreUrl(
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('user_id')
-    .eq('store_url', storeUrl)
+    .eq('store_subdomain', storeUrl)
     .single()
 
   if (storeError) {

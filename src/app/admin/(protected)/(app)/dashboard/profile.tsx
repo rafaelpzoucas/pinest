@@ -9,7 +9,7 @@ import { useState } from 'react'
 
 export function ProfileCard({ store }: { store: StoreType }) {
   const [copied, setCopied] = useState(false)
-  const fullUrl = `/${store.store_url}`
+  const fullUrl = `/${store.store_subdomain}`
 
   const handleCopy = async () => {
     try {

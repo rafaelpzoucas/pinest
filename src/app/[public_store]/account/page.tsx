@@ -1,14 +1,11 @@
 import { Header } from '@/components/store-header'
-import { getStoreByStoreURL } from '../actions'
+import { readStore } from '../actions'
 import { selectCustomerUser } from './actions'
 import { AccountForm } from './form'
 
-export default async function AccountPage({
-  params,
-}: {
-  params: { public_store: string }
-}) {
-  const { store } = await getStoreByStoreURL(params.public_store)
+export default async function AccountPage() {
+  const [storeData] = await readStore()
+  const store = storeData?.store
 
   const { customerUser } = await selectCustomerUser()
 

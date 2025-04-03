@@ -7,8 +7,8 @@ import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getStoreByStoreURL } from '../actions'
-import { getCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
+import { readStore } from '../actions'
+import { readCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { readPurchases } from './actions'
 
 type StatusKey = keyof typeof statuses
@@ -18,19 +18,19 @@ export default async function PurchasesPage({
 }: {
   params: { public_store: string }
 }) {
-  const supabase = createClient()
-
-  const { purchases, error } = await readPurchases()
-
   const maxItems = 3
 
-  const { store, storeError } = await getStoreByStoreURL(params.public_store)
+  const supabase = createClient()
 
-  const { cart } = await getCart(params.public_store)
+  const [[storeData], [cartData], [purchasesData]] = await Promise.all([
+    readStore(),
+    readCart(),
+    readPurchases(),
+  ])
 
-  if (storeError) {
-    console.error(storeError)
-  }
+  const store = storeData?.store
+  const cart = cartData?.cart
+  const purchases = purchasesData?.purchases ?? []
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 

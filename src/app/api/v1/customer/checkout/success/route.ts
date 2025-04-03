@@ -121,7 +121,7 @@ export async function GET(request: Request) {
   const supabase = createClient()
 
   const requestUrl = new URL(request.url)
-  const storeURL = requestUrl.searchParams.get('store_url')
+  const storeURL = requestUrl.searchParams.get('store_subdomain')
   const purchaseId = requestUrl.searchParams.get('purchase')
   const stripeAccountId = requestUrl.searchParams.get('stripe_account')
   const amount = requestUrl.searchParams.get('amount')

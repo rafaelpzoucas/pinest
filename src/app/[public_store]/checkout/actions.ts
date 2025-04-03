@@ -1,10 +1,8 @@
-import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
-import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { clearCart } from '../cart/actions'
 import { readStoreByName } from './@summary/actions'
@@ -41,7 +39,7 @@ export async function readStore(storeURL: string): Promise<{
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('*')
-    .eq('store_url', storeURL)
+    .eq('store_subdomain', storeURL)
     .single()
 
   return { store, storeError }
@@ -134,26 +132,6 @@ async function createStripeCheckoutSession(
   }
 }
 
-export async function handlePayment(purchaseId: string, storeURL: string) {
-  const { purchase } = await readPurchaseItems(purchaseId)
-
-  if (!purchase) {
-    return
-  }
-
-  await updatePurchaseStatus({
-    newStatus: 'accept',
-    purchaseId: purchase.id,
-    isIfood: false,
-  })
-
-  await clearCart(storeURL)
-
-  revalidatePath(`/`)
-
-  return redirect(`/${storeURL}/purchases/${purchase.id}?callback=purchases`)
-}
-
 export async function createStripeCheckout(
   storeURL: string,
   purchaseId: string,
@@ -210,7 +188,7 @@ export async function createStripeCheckout(
 
   const session = await createStripeCheckoutSession(
     lineItems,
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/customer/checkout/success?store_url=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}&pickup=${purchase.type}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/customer/checkout/success?store_subdomain=${storeURL}&purchase=${purchaseId}&stripe_account=${stripeAccount?.stripe_account_id}&amount=${totalProductPrice}&pickup=${purchase.type}`,
     `${process.env.NEXT_PUBLIC_APP_URL}/${storeURL}/purchases/${purchaseId}`,
     stripeAccount?.stripe_account_id,
   )

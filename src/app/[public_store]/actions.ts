@@ -1,25 +1,32 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { StoreType } from '@/models/store'
+import { storeProcedure } from '@/lib/zsa-procedures'
 
-export async function getStoreByStoreURL(storeURL: string): Promise<{
-  store: StoreType | null
-  storeError: any | null
-}> {
-  const supabase = createClient()
+// export async function getStoreByStoreURL(storeURL: string): Promise<{
+//   store: StoreType | null
+//   storeError: any | null
+// }> {
+//   const supabase = createClient()
 
-  const { data: store, error: storeError } = await supabase
-    .from('stores')
-    .select(
-      `
-        *,
-        store_hours (*),
-        market_niches (*) 
-      `,
-    )
-    .eq('store_url', storeURL)
-    .single()
+//   const { data: store, error: storeError } = await supabase
+//     .from('stores')
+//     .select(
+//       `
+//         *,
+//         store_hours (*),
+//         market_niches (*)
+//       `,
+//     )
+//     .eq('store_subdomain', storeURL)
+//     .single()
 
-  return { store, storeError }
-}
+//   return { store, storeError }
+// }
+
+export const readStore = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store } = ctx
+
+    return { store }
+  })

@@ -6,7 +6,7 @@ import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { getCart, readStripeConnectedAccountByStoreUrl } from './actions'
+import { readCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
 
 export default async function CartPage({
@@ -23,7 +23,9 @@ export default async function CartPage({
 
   const connectedAccount = user?.stripe_connected_account
 
-  const { cart } = await getCart(params.public_store)
+  const [cartData] = await readCart()
+
+  const cart = cartData?.cart
 
   const cookiesStore = await cookies()
   const guest = cookiesStore.get('guest_data')
@@ -88,7 +90,7 @@ export default async function CartPage({
           Adicionar itens
         </Link>
 
-        <CartProducts cartProducts={cart} storeName={params.public_store} />
+        <CartProducts cartProducts={cart} />
       </section>
     </main>
   )

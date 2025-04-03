@@ -11,7 +11,7 @@ export function Socials({ store }: { store: StoreType | null }) {
     <Card className="relative flex flex-col gap-4 p-4">
       <h3 className="text-lg font-bold">Redes sociais</h3>
 
-      {store && <StoreSocials storeURL={store.store_url} />}
+      {store && <StoreSocials />}
 
       <Link
         href={`layout/register/socials`}

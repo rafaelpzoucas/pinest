@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { PopoverPortal } from '@radix-ui/react-popover'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
@@ -31,24 +31,26 @@ export function PublicStoreNavigation({
 }: {
   connectedAccount: any
   userData: any
-  cartProducts: CartProductType[] | null
+  cartProducts: CartProductType[]
 }) {
   const params = useParams()
 
-  const storeUrl = params.public_store as unknown as string
+  const storeSubdomain = params.public_store as unknown as string
 
   const cookies = parseCookies()
   const savedGuest = cookies.guest_data
   const guestData = savedGuest && JSON.parse(savedGuest)
 
+  const rootPath = getRootPath(storeSubdomain)
+
   const links = [
     {
-      href: `/${storeUrl}`,
+      href: rootPath ?? '/',
       name: 'Home',
       icon: Home,
     },
     {
-      href: `/${storeUrl}/purchases`,
+      href: `${rootPath}/purchases`,
       name: 'Meus pedidos',
       icon: ScrollText,
     },
@@ -112,10 +114,7 @@ export function PublicStoreNavigation({
               <PopoverContent align="end" className="w-96">
                 <section className="flex flex-col gap-2">
                   <ScrollArea className="h-[394px]">
-                    <CartProducts
-                      cartProducts={cartProducts}
-                      storeName={storeUrl}
-                    />
+                    <CartProducts cartProducts={cartProducts} />
                   </ScrollArea>
 
                   <footer className="pt-3 bg-background">
