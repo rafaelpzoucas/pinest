@@ -38,8 +38,8 @@ export default async function HomePage() {
     <div className="w-full space-y-8">
       <Header store={store} cart={cart ?? []} />
       <Categories categories={categories} />
-      <Showcases showcases={showcases} />
-      <ProductsList categories={products} />
+      <Showcases showcases={showcases} store={store} />
+      <ProductsList categories={products} store={store} />
       <Footer store={store} hours={hours} categories={categories} />
     </div>
   )

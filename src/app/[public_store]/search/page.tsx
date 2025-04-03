@@ -57,6 +57,7 @@ export default async function SearchPage({
                       key={product.id}
                       variant={'featured'}
                       data={product}
+                      storeSubdomain={store?.store_subdomain}
                       className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
                     />
                   ))}

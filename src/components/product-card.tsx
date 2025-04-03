@@ -11,7 +11,6 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { Badge } from './ui/badge'
 
 const productCardVariants = cva('text-sm leading-4', {
@@ -35,6 +34,7 @@ export interface ProductCardProps
   observations?: string
   extras?: ExtraType[]
   quantity?: number
+  storeSubdomain?: string
 }
 
 export function ProductCard({
@@ -45,11 +45,8 @@ export function ProductCard({
   observations,
   extras,
   quantity,
+  storeSubdomain,
 }: ProductCardProps) {
-  const params = useParams()
-
-  const storeSubdomain = params.public_store as unknown as string
-
   const isPromotional = data?.promotional_price
 
   function getImageURL() {

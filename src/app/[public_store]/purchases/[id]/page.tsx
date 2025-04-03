@@ -103,6 +103,7 @@ export default async function PurchasePage({
                   observations={item.observations}
                   extras={item.extras}
                   quantity={item.quantity}
+                  storeSubdomain={store?.store_subdomain}
                 />
               ))}
           </Card>

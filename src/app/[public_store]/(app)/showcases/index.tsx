@@ -9,9 +9,16 @@ import {
 import { ProductCard } from '@/components/product-card'
 
 import { ShowcaseType } from '@/models/showcase'
+import { StoreType } from '@/models/store'
 import { Benefits } from '../benefits'
 
-export async function Showcases({ showcases }: { showcases?: ShowcaseType[] }) {
+export async function Showcases({
+  showcases,
+  store,
+}: {
+  showcases?: ShowcaseType[]
+  store?: StoreType
+}) {
   if (!showcases || showcases.length === 0) {
     return <Benefits />
   }
@@ -35,7 +42,11 @@ export async function Showcases({ showcases }: { showcases?: ShowcaseType[] }) {
                   className="flex-[0_0_40%] lg:flex-[0_0_22.5%]"
                   key={product.id}
                 >
-                  <ProductCard variant={'featured'} data={product} />
+                  <ProductCard
+                    variant={'featured'}
+                    data={product}
+                    storeSubdomain={store?.store_subdomain}
+                  />
                 </CarouselItem>
               ))}
           </CarouselContent>
@@ -68,7 +79,11 @@ export async function Showcases({ showcases }: { showcases?: ShowcaseType[] }) {
                     className="flex-[0_0_40%] lg:flex-[0_0_22.5%]"
                     key={product.id}
                   >
-                    <ProductCard variant={'featured'} data={product} />
+                    <ProductCard
+                      variant={'featured'}
+                      data={product}
+                      storeSubdomain={store?.store_subdomain}
+                    />
                   </CarouselItem>
                 ))}
             </CarouselContent>

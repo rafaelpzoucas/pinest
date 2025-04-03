@@ -17,7 +17,10 @@ export default async function AccountPage() {
         storeSubdomain={store?.store_subdomain}
       />
 
-      <AccountForm user={customerUser} />
+      <AccountForm
+        user={customerUser}
+        storeSubdomain={store?.store_subdomain}
+      />
     </div>
   )
 }

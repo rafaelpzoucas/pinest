@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useSearchParams } from 'next/navigation'
 import { FaGoogle } from 'react-icons/fa'
 
-export function SignInWithGoogle({ storeName }: { storeName: string }) {
+export function SignInWithGoogle({ storeName }: { storeName?: string }) {
   const searchParams = useSearchParams()
   const isCheckout = searchParams.get('checkout')
 

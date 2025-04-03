@@ -2,21 +2,19 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
-import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import { cn, createPath, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
+import { readStore } from '../../actions'
 import { readCart } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
-import { readStore, readStoreAddress } from '../actions'
 import { readAddressById } from './actions'
 import { CheckoutButton } from './checkout-button'
 import { Delivery } from './delivery'
 
 export default async function Summary({
-  params,
   searchParams,
 }: {
-  params: { public_store: string }
   searchParams: {
     address: string
     pickup: string
@@ -34,7 +32,19 @@ export default async function Summary({
   const payment = searchParams.payment
   const pickup = searchParams.pickup
   const changeValue = searchParams.changeValue
-  const { store } = await readStore(params.public_store)
+
+  const [[storeData], [cartData], [ownShippingData], { address }] =
+    await Promise.all([
+      readStore(),
+      readCart(),
+      readOwnShipping(),
+      readAddressById(addressId),
+    ])
+
+  const store = storeData?.store
+  const storeAddress = store?.addresses[0]
+  const cart = cartData?.cart
+  const shipping = ownShippingData?.shipping
 
   const PAYMENT_METHODS = {
     CREDIT: {
@@ -58,12 +68,6 @@ export default async function Summary({
   }
 
   const paymentKey = payment as keyof typeof PAYMENT_METHODS
-
-  const [cartData] = await readCart()
-  const cart = cartData?.cart
-  const { address } = await readAddressById(addressId)
-  const { storeAddress } = await readStoreAddress(params.public_store)
-  const { shipping } = await readOwnShipping(params.public_store)
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
@@ -131,7 +135,7 @@ export default async function Summary({
       </Card>
 
       {searchParams.pickup !== 'pickup' && (
-        <Delivery customerAddress={address} />
+        <Delivery customerAddress={address} store={store} />
       )}
 
       {searchParams.pickup === 'pickup' && (
@@ -172,7 +176,10 @@ export default async function Summary({
         </span>
 
         <Link
-          href={`/${params.public_store}/checkout?step=payment&pickup=${searchParams.pickup}${searchParams.address ? '&address=' + searchParams.address : ''}`}
+          href={createPath(
+            `/checkout?step=payment&pickup=${searchParams.pickup}${searchParams.address ? '&address=' + searchParams.address : ''}`,
+            store?.store_subdomain,
+          )}
           className={cn(buttonVariants({ variant: 'link' }))}
         >
           Alterar meio de pagamento

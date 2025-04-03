@@ -1,21 +1,21 @@
 'use client'
 
 import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn, createPath } from '@/lib/utils'
+import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { parseCookies } from 'nookies'
 import { useEffect, useState } from 'react'
 
 export function Delivery({
   customerAddress,
+  store,
 }: {
   customerAddress: AddressType | null
+  store?: StoreType
 }) {
-  const params = useParams()
-
   const [address, setAddress] = useState<AddressType | null>(customerAddress)
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function Delivery({
       )}
 
       <Link
-        href={`/${params.public_store}/checkout?step=pickup`}
+        href={createPath('/checkout?step=pickup', store?.store_subdomain)}
         className={cn(buttonVariants({ variant: 'link' }))}
       >
         Editar ou escolher outro

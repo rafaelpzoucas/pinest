@@ -20,12 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductVariationType } from '@/models/product'
 import { Edit, Loader2, Plus, Trash } from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   readCartProductVariations,
@@ -35,11 +34,13 @@ import {
 
 type CartProductPropsType = {
   cartProduct: CartProductType
+  storeSubdomain?: string
 }
 
-export function CartProduct({ cartProduct }: CartProductPropsType) {
-  const params = useParams()
-
+export function CartProduct({
+  cartProduct,
+  storeSubdomain,
+}: CartProductPropsType) {
   const [isQttOpen, setIsQttOpen] = useState(false)
   const [amount, setAmount] = useState('')
   const [variations, setVariations] = useState<ProductVariationType[]>([])
@@ -168,7 +169,10 @@ export function CartProduct({ cartProduct }: CartProductPropsType) {
             </SelectContent>
           </Select>
           <Link
-            href={`/${params.public_store}/products/${product.product_url}?cart_product_id=${cartProduct.id}`}
+            href={createPath(
+              `/products/${product.product_url}?cart_product_id=${cartProduct.id}`,
+              storeSubdomain,
+            )}
             className={buttonVariants({ variant: 'outline', size: 'icon' })}
           >
             <Edit className="w-4 h-4" />

@@ -3,36 +3,38 @@ import { formatAddress, isSameCity } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
+import { readStore } from '../../actions'
 import { readCart } from '../../cart/actions'
 import { readCustomerAddress, readStoreAddress } from '../actions'
 import { Delivery } from './delivery'
 import { ShippingOptions } from './shipping'
 
-export default async function PickupOptions({
-  params,
-}: {
-  params: { public_store: string }
-}) {
-  const { storeAddress, storeAddressError } = await readStoreAddress(
-    params.public_store,
-  )
-  const { customerAddress, customerAddressError } = await readCustomerAddress()
+export default async function PickupOptions() {
+  const [
+    [storeData],
+    [storeAddressData],
+    { customerAddress, customerAddressError },
+    [shippingData],
+    [cartData],
+  ] = await Promise.all([
+    readStore(),
+    readStoreAddress(),
+    readCustomerAddress(),
+    readOwnShipping(),
+    readCart(),
+  ])
 
   if (customerAddressError) {
     console.error(customerAddressError)
   }
 
-  const { shipping } = await readOwnShipping(params.public_store)
-
-  const [cartData] = await readCart()
+  const store = storeData?.store
   const cart = cartData?.cart
+  const storeAddress = storeAddressData?.storeAddress
+  const shipping = shippingData?.shipping
 
   if (customerAddressError) {
     console.error(customerAddressError)
-  }
-
-  if (storeAddressError) {
-    console.error(storeAddressError)
   }
 
   const isAddressesSameCity =
@@ -43,13 +45,17 @@ export default async function PickupOptions({
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
-      {storeAddress && customerAddress && cart && !isAddressesSameCity && (
-        <ShippingOptions
-          storeZipCode={storeAddress.zip_code}
-          customerAddress={customerAddress}
-          storeURL={params.public_store}
-        />
-      )}
+      {store &&
+        storeAddress &&
+        customerAddress &&
+        cart &&
+        !isAddressesSameCity && (
+          <ShippingOptions
+            storeZipCode={storeAddress.zip_code}
+            customerAddress={customerAddress}
+            storeURL={store?.store_subdomain}
+          />
+        )}
 
       {shipping && shipping.status && (
         <Delivery customerAddress={customerAddress} shipping={shipping} />

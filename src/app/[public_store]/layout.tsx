@@ -73,7 +73,10 @@ export default async function PublicStoreLayout({
           <div className="w-full lg:max-w-7xl">
             {children}
 
-            <MobileNavigation cartProducts={cart} />
+            <MobileNavigation
+              cartProducts={cart}
+              storeSubdomain={store.store_subdomain}
+            />
           </div>
         </div>
       </ThemeDataProvider>

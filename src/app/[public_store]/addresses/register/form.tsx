@@ -11,13 +11,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn, createPath } from '@/lib/utils'
 import { AddressType } from '@/models/user'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { parseCookies, setCookie } from 'nookies'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -51,18 +51,18 @@ export const addressFormSchema = z.object({
 export function AddressForm({
   address,
   user,
+  storeSubdomain,
 }: {
   address: AddressType | null
   user: any | null
+  storeSubdomain?: string
 }) {
   const router = useRouter()
-  const params = useParams()
   const searchParams = useSearchParams()
 
   const [currentAddress, setCurrentAddress] = useState(!!address)
 
   const zipCode = searchParams.get('zip-code')
-  const storeName = params.public_store
 
   const form = useForm<z.infer<typeof addressFormSchema>>({
     resolver: zodResolver(addressFormSchema),
@@ -114,7 +114,7 @@ export function AddressForm({
         maxAge: 30 * 24 * 60 * 60,
       })
     }
-    return router.push(`/${storeName}/checkout?step=pickup`)
+    return router.push(createPath('/checkout?step=pickup', storeSubdomain))
   }
 
   useEffect(() => {

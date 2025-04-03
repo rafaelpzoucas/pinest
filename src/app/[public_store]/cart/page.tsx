@@ -97,7 +97,7 @@ export default async function CartPage() {
           Adicionar itens
         </Link>
 
-        <CartProducts cartProducts={cart} />
+        <CartProducts cartProducts={cart} store={store} />
       </section>
     </main>
   )

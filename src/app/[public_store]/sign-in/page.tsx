@@ -1,16 +1,18 @@
 import { buttonVariants } from '@/components/ui/button'
 import { UserCheck } from 'lucide-react'
 import Link from 'next/link'
+import { readStore } from '../actions'
 import { SignInWithGoogle } from './google'
 
-export default function SignIn({
-  params,
+export default async function SignIn({
   searchParams,
 }: {
-  params: { public_store: string }
   searchParams: { checkout: string }
 }) {
   const checkout = searchParams.checkout
+  const [storeData] = await readStore()
+
+  const store = storeData?.store
 
   return (
     <main className="flex flex-col items-center gap-12 p-6 py-8">
@@ -31,7 +33,7 @@ export default function SignIn({
 
         <span className="mx-auto text-muted-foreground">ou</span>
 
-        <SignInWithGoogle storeName={params.public_store} />
+        <SignInWithGoogle storeName={store?.store_subdomain} />
       </div>
     </main>
   )

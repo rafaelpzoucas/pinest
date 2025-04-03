@@ -1,27 +1,22 @@
-import { createClient } from '@/lib/supabase/server'
+import { storeProcedure } from '@/lib/zsa-procedures'
 import { ShippingConfigType } from '@/models/shipping'
-import { readStoreByName } from '../../checkout/@summary/actions'
 
-export async function readOwnShipping(storeName: string): Promise<{
-  shipping: ShippingConfigType | null
-  shippingError: any | null
-}> {
-  const supabase = createClient()
+export const readOwnShipping = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store, supabase } = ctx
 
-  const { store } = await readStoreByName(storeName)
+    const { data: shipping, error: shippingError } = await supabase
+      .from('shippings')
+      .select('*')
+      .eq('store_id', store?.id)
+      .single()
 
-  const { data: shipping, error: shippingError } = await supabase
-    .from('shippings')
-    .select('*')
-    .eq('store_id', store?.id)
-    .single()
+    if (shippingError) {
+      console.error('Erro ao ler os dados de entrega da loja.', shippingError)
+    }
 
-  if (shippingError) {
-    console.error(shippingError)
-  }
-
-  return {
-    shipping,
-    shippingError,
-  }
-}
+    return {
+      shipping: shipping as ShippingConfigType,
+    }
+  })
