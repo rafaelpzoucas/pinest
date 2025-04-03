@@ -2,30 +2,31 @@ import { Header } from '@/components/store-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
+import { readStore } from '../actions'
 import { readCart, readStripeConnectedAccountByStoreUrl } from './actions'
 import { CartProducts } from './cart-products'
 
-export default async function CartPage({
-  params,
-}: {
-  params: { public_store: string }
-}) {
+export default async function CartPage() {
   const supabase = createClient()
 
-  const { data: userData } = await supabase.auth.getUser()
+  const [{ data: userData }, [storeData], [cartData]] = await Promise.all([
+    supabase.auth.getUser(),
+    readStore(),
+    readCart(),
+  ])
+
+  const store = storeData?.store
+  const cart = cartData?.cart
+
   const { user } = await readStripeConnectedAccountByStoreUrl(
-    params.public_store,
+    store?.store_subdomain,
   )
 
   const connectedAccount = user?.stripe_connected_account
-
-  const [cartData] = await readCart()
-
-  const cart = cartData?.cart
 
   const cookiesStore = await cookies()
   const guest = cookiesStore.get('guest_data')
@@ -64,14 +65,20 @@ export default async function CartPage({
 
             {!userData.user && !guestData ? (
               <Link
-                href={`/${params.public_store}/sign-in?checkout=true`}
+                href={createPath(
+                  '/sign-in?checkout=true',
+                  store?.store_subdomain,
+                )}
                 className={cn(buttonVariants(), 'w-full')}
               >
                 Finalizar compra
               </Link>
             ) : (
               <Link
-                href={`/${params.public_store}/checkout?step=pickup`}
+                href={createPath(
+                  '/checkout?step=pickup',
+                  store?.store_subdomain,
+                )}
                 className={cn(buttonVariants(), 'w-full')}
               >
                 Finalizar compra
@@ -83,7 +90,7 @@ export default async function CartPage({
 
       <section className="flex flex-col gap-2 w-full">
         <Link
-          href={`/${params.public_store}`}
+          href={createPath('/', store?.store_subdomain)}
           className={cn(buttonVariants({ variant: 'outline' }))}
         >
           <Plus className="w-4 h-4 mr-2" />

@@ -28,14 +28,14 @@ export function PublicStoreNavigation({
   cartProducts,
   connectedAccount,
   userData,
+  storeSubdomain,
 }: {
   connectedAccount: any
   userData: any
   cartProducts: CartProductType[]
+  storeSubdomain?: string
 }) {
   const params = useParams()
-
-  const storeSubdomain = params.public_store as unknown as string
 
   const cookies = parseCookies()
   const savedGuest = cookies.guest_data

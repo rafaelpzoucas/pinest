@@ -1,11 +1,11 @@
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
+import { storeProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
 import { AddressType } from '@/models/user'
 import { redirect } from 'next/navigation'
 import { clearCart } from '../cart/actions'
-import { readStoreByName } from './@summary/actions'
 
 export async function readCustomerAddress() {
   'use server'
@@ -57,24 +57,23 @@ export async function readUserConnectedAccountId(userId: string) {
   return { stripeAccount, stripeAccountError }
 }
 
-export async function readStoreAddress(storeName: string): Promise<{
-  storeAddress: AddressType | null
-  storeAddressError: any | null
-}> {
-  const supabase = createClient()
+export const readStoreAddress = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store, supabase } = ctx
 
-  const { store, storeError } = await readStoreByName(storeName)
+    const { data: storeAddress, error: storeAddressError } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('store_id', store?.id)
+      .single()
 
-  if (storeError) console.error(storeError)
+    if (storeAddressError) {
+      console.error('Erro ao ler o endereço da loja.', storeAddressError)
+    }
 
-  const { data: storeAddress, error: storeAddressError } = await supabase
-    .from('addresses')
-    .select('*')
-    .eq('store_id', store?.id)
-    .single()
-
-  return { storeAddress, storeAddressError }
-}
+    return { storeAddress: storeAddress as AddressType }
+  })
 
 export async function readPurchaseItems(purchaseId: string): Promise<{
   purchase: PurchaseType | null

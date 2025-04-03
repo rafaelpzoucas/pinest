@@ -76,6 +76,7 @@ export async function Header({
             cartProducts={cart ?? []}
             connectedAccount={connectedAccount}
             userData={userData}
+            storeSubdomain={store?.store_subdomain}
           />
         </div>
       </Card>

@@ -7,10 +7,8 @@ import { readCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
 import { getSearchedProducts } from './actions'
 
 export default async function SearchPage({
-  params,
   searchParams,
 }: {
-  params: { public_store: string }
   searchParams: { q: string }
 }) {
   const supabase = createClient()
@@ -28,7 +26,7 @@ export default async function SearchPage({
   const cart = cartData?.cart
 
   const { user } = await readStripeConnectedAccountByStoreUrl(
-    params.public_store,
+    store?.store_subdomain,
   )
 
   const connectedAccount = user?.stripe_connected_account

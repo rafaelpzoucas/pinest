@@ -3,17 +3,22 @@ import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
-import { readStoreAddress } from '../../checkout/actions'
+import { readStore } from '../../actions'
 import { readPurchaseById } from './actions'
 import { Status, StatusKey } from './status'
 
 export default async function PurchasePage({
   params,
 }: {
-  params: { id: string; public_store: string }
+  params: { id: string }
 }) {
-  const { purchase, purchaseError } = await readPurchaseById(params.id)
-  const { storeAddress } = await readStoreAddress(params.public_store)
+  const [[storeData], { purchase, purchaseError }] = await Promise.all([
+    readStore(),
+    readPurchaseById(params.id),
+  ])
+
+  const store = storeData?.store
+  const storeAddress = store?.addresses[0]
 
   if (purchaseError) console.error(purchaseError)
 
@@ -28,7 +33,7 @@ export default async function PurchasePage({
 
       {purchase && (
         <div className="flex flex-col gap-2 text-sm w-full max-w-lg">
-          <Status purchase={purchase} storeName={params.public_store} />
+          <Status purchase={purchase} />
 
           <Card className="p-4">
             <span className="text-muted-foreground">
