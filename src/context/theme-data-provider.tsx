@@ -1,33 +1,41 @@
 'use client'
 
+import { readStore } from '@/app/[public_store]/actions'
 import { readStoreTheme } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
 import setGlobalColorTheme from '@/lib/theme-colors'
+import { StoreType } from '@/models/store'
 import { useTheme } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
-import { useParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useServerAction } from 'zsa-react'
 
 const ThemeContext = createContext<ThemeColorStateParams>(
   {} as ThemeColorStateParams,
 )
 
 export default function ThemeDataProvider({ children }: ThemeProviderProps) {
-  const params = useParams()
-  const storeURL = params.public_store as string
-
+  const [store, setStore] = useState<StoreType | undefined>()
   const [themeColor, setThemeColor] = useState<ThemeColors>('Zinc')
   const [themeMode, setThemeMode] = useState<ThemeModes>('light')
   const [isMounted, setIsMounted] = useState(false)
   const { setTheme } = useTheme()
 
+  const { execute, data } = useServerAction(readStore, {
+    onSuccess: () => {
+      setStore(data?.store)
+    },
+  })
+
+  const storeSubdomain = store?.store_subdomain
+
   const getSavedTheme = async () => {
     try {
-      if (!storeURL) {
+      if (!storeSubdomain) {
         return { color: 'Zinc' as ThemeColors, mode: 'system' as ThemeModes }
       }
 
       const { themeColor: color, themeMode: mode } =
-        await readStoreTheme(storeURL)
+        await readStoreTheme(storeSubdomain)
 
       return {
         color: (color as ThemeColors) || 'Zinc',
@@ -47,10 +55,10 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     }
 
     loadTheme()
-  }, [storeURL, setTheme])
+  }, [storeSubdomain, setTheme])
 
   useEffect(() => {
-    if (!storeURL) {
+    if (!storeSubdomain) {
       return
     }
 
@@ -63,6 +71,10 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
       setIsMounted(true)
     }
   }, [themeColor, themeMode]) // eslint-disable-line
+
+  useEffect(() => {
+    execute()
+  }, [])
 
   if (!isMounted) {
     return null

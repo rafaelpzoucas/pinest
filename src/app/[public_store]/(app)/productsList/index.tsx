@@ -1,11 +1,14 @@
 import { ProductCard } from '@/components/product-card'
 import { CategoryType } from '@/models/category'
+import { StoreType } from '@/models/store'
 import { Box, Boxes } from 'lucide-react'
 
 export async function ProductsList({
   categories,
+  store,
 }: {
   categories?: CategoryType[]
+  store?: StoreType
 }) {
   if (!categories) {
     return (
@@ -43,6 +46,7 @@ export async function ProductsList({
                     key={product.id}
                     variant={'featured'}
                     data={product}
+                    storeSubdomain={store?.store_subdomain}
                     className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
                   />
                 ))}

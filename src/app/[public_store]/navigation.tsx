@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
+import { cn, createPath, formatCurrencyBRL, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { PopoverPortal } from '@radix-ui/react-popover'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
@@ -28,14 +28,14 @@ export function PublicStoreNavigation({
   cartProducts,
   connectedAccount,
   userData,
+  storeSubdomain,
 }: {
   connectedAccount: any
   userData: any
   cartProducts: CartProductType[]
+  storeSubdomain?: string
 }) {
   const params = useParams()
-
-  const storeSubdomain = params.public_store as unknown as string
 
   const cookies = parseCookies()
   const savedGuest = cookies.guest_data
@@ -58,8 +58,8 @@ export function PublicStoreNavigation({
 
   const finishPurchaseLink =
     !userData.user && !guestData
-      ? `/${params.public_store}/sign-in?checkout=true`
-      : `/${params.public_store}/checkout?step=pickup`
+      ? createPath('/sign-in?checkout=true', storeSubdomain)
+      : createPath('/checkout?step=pickup', storeSubdomain)
 
   const productsPrice = cartProducts
     ? cartProducts.reduce((acc, cartProduct) => {

@@ -18,9 +18,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
+import { createPath } from '@/lib/utils'
 import { UserType } from '@/models/user'
 import { Loader2 } from 'lucide-react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { updateAccount } from './actions'
 
@@ -29,10 +30,15 @@ export const accountSchema = z.object({
   phone: z.string().min(1, 'Telefone é obrigatório'),
 })
 
-export function AccountForm({ user }: { user: UserType | null }) {
+export function AccountForm({
+  user,
+  storeSubdomain,
+}: {
+  user: UserType | null
+  storeSubdomain?: string
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const params = useParams()
 
   const checkout = searchParams.get('checkout')
 
@@ -79,7 +85,9 @@ export function AccountForm({ user }: { user: UserType | null }) {
     }
 
     if (checkout) {
-      return router.push(`/${params.public_store}/checkout?step=${checkout}`)
+      return router.push(
+        createPath(`/checkout?step=${checkout}`, storeSubdomain),
+      )
     }
   }
 

@@ -20,16 +20,15 @@ export async function Header({
 }) {
   const supabase = createClient()
 
-  const { shipping } = await readOwnShipping(store?.store_subdomain ?? '')
-
-  const { data: userData } = await supabase.auth.getUser()
-
-  const { user } = await readStripeConnectedAccountByStoreUrl(
-    store?.store_subdomain ?? '',
-  )
+  const [{ data: userData }, { user }, [shippingData]] = await Promise.all([
+    supabase.auth.getUser(),
+    await readStripeConnectedAccountByStoreUrl(store?.store_subdomain ?? ''),
+    await readOwnShipping(),
+  ])
 
   const connectedAccount = user?.stripe_connected_account
 
+  const shipping = shippingData?.shipping
   const storeNiche = store && store?.market_niches[0]
 
   return (
@@ -76,6 +75,7 @@ export async function Header({
             cartProducts={cart ?? []}
             connectedAccount={connectedAccount}
             userData={userData}
+            storeSubdomain={store?.store_subdomain}
           />
         </div>
       </Card>

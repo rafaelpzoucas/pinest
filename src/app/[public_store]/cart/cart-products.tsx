@@ -1,17 +1,24 @@
 import { CartProductType } from '@/models/cart'
+import { StoreType } from '@/models/store'
 import { ShoppingBag } from 'lucide-react'
 import { CartProduct } from './cart-product'
 
 export function CartProducts({
   cartProducts,
+  store,
 }: {
   cartProducts?: CartProductType[]
+  store?: StoreType
 }) {
   return (
     <div className="lg:h-[370px] p-1 pr-2">
       {cartProducts && cartProducts.length > 0 ? (
         cartProducts.map((product) => (
-          <CartProduct key={product.id} cartProduct={product} />
+          <CartProduct
+            key={product.id}
+            cartProduct={product}
+            storeSubdomain={store?.store_subdomain}
+          />
         ))
       ) : (
         <div

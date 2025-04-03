@@ -6,18 +6,17 @@ import { cn, createPath, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { SearchSheet } from './(app)/search/search-sheet'
 
 export function MobileNavigation({
   cartProducts,
+  storeSubdomain,
 }: {
   cartProducts?: CartProductType[]
+  storeSubdomain: string
 }) {
-  const params = useParams()
   const pathname = usePathname()
-
-  const storeSubdomain = params.public_store as unknown as string
 
   const iconsClassNames = 'w-5 h-5'
 

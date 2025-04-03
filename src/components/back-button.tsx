@@ -2,15 +2,12 @@
 
 import { getRootPath } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from './ui/button'
 
-export function BackButton() {
+export function BackButton({ storeSubdomain }: { storeSubdomain?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const params = useParams()
-
-  const storeSubdomain = params.public_store as unknown as string
 
   const qBack = searchParams.get('back')
 

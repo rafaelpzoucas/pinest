@@ -11,9 +11,16 @@ export default async function AccountPage() {
 
   return (
     <div className="space-y-4">
-      <Header title="Minha conta" store={store} />
+      <Header
+        title="Minha conta"
+        store={store}
+        storeSubdomain={store?.store_subdomain}
+      />
 
-      <AccountForm user={customerUser} />
+      <AccountForm
+        user={customerUser}
+        storeSubdomain={store?.store_subdomain}
+      />
     </div>
   )
 }

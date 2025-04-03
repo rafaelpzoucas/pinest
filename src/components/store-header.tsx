@@ -3,15 +3,11 @@
 import { SearchSheet } from '@/app/[public_store]/(app)/search/search-sheet'
 import { PublicStoreNavigation } from '@/app/[public_store]/navigation'
 import { Button } from '@/components/ui/button'
+import { createPath, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { StoreType } from '@/models/store'
 import { ArrowLeft } from 'lucide-react'
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Card } from './ui/card'
 
 type HeaderPropsType = {
@@ -20,6 +16,7 @@ type HeaderPropsType = {
   cartProducts?: CartProductType[] | null
   connectedAccount?: any
   userData?: any
+  storeSubdomain?: string
 }
 
 export function Header({
@@ -28,19 +25,19 @@ export function Header({
   cartProducts,
   connectedAccount,
   userData,
+  storeSubdomain,
 }: HeaderPropsType) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const params = useParams()
   const pathname = usePathname()
 
   const callback = searchParams.get('callback') as string
 
-  const storeUrl = params.public_store as unknown as string
+  const rootPath = getRootPath(storeSubdomain)
 
   const CALLBACK_URLS = {
-    home: `${storeUrl}`,
-    purchases: `${storeUrl}/purchases?callback=home`,
+    home: `${rootPath ?? ''}`,
+    purchases: createPath('/purchases?callback=home', storeSubdomain),
   }
 
   function redirect() {
@@ -58,7 +55,7 @@ export function Header({
           bg-secondary/50 border-0"
       >
         <div className="flex flex-col items-center lg:flex-row gap-4 lg:w-full max-w-xs">
-          {pathname !== `/${storeUrl}` && (
+          {pathname !== `/${rootPath}` && (
             <Button
               variant={'ghost'}
               size={'icon'}
@@ -76,7 +73,7 @@ export function Header({
 
         {title && <h1 className="lg:hidden text-center font-bold">{title}</h1>}
 
-        <SearchSheet subdomain={storeUrl} />
+        <SearchSheet subdomain={storeSubdomain} />
 
         {cartProducts && connectedAccount && userData && (
           <div className="hidden lg:block">
@@ -84,6 +81,7 @@ export function Header({
               cartProducts={cartProducts}
               connectedAccount={connectedAccount}
               userData={userData}
+              storeSubdomain={store?.store_subdomain}
             />
           </div>
         )}

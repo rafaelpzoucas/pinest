@@ -10,13 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { StatusKey } from './status'
 
-export function RealtimeStatus({
-  purchase,
-  createStripeCheckout,
-}: {
-  purchase: PurchaseType
-  createStripeCheckout: () => void
-}) {
+export function RealtimeStatus({ purchase }: { purchase: PurchaseType }) {
   const supabase = createClient()
   const router = useRouter()
 

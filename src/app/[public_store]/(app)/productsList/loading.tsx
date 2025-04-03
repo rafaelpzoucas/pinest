@@ -10,19 +10,19 @@ export default async function ProductsListLoading() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <ProductCard variant={'featured'} />
-          <ProductCard variant={'featured'} />
-          <ProductCard variant={'featured'} />
+          <ProductCard variant={'featured'} storeSubdomain="" />
+          <ProductCard variant={'featured'} storeSubdomain="" />
+          <ProductCard variant={'featured'} storeSubdomain="" />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <ProductCard variant={'featured'} />
-          <ProductCard variant={'featured'} />
-          <ProductCard variant={'featured'} />
+          <ProductCard variant={'featured'} storeSubdomain="" />
+          <ProductCard variant={'featured'} storeSubdomain="" />
+          <ProductCard variant={'featured'} storeSubdomain="" />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <ProductCard variant={'featured'} />
-          <ProductCard variant={'featured'} />
-          <ProductCard variant={'featured'} />
+          <ProductCard variant={'featured'} storeSubdomain="" />
+          <ProductCard variant={'featured'} storeSubdomain="" />
+          <ProductCard variant={'featured'} storeSubdomain="" />
         </div>
       </div>
     </section>

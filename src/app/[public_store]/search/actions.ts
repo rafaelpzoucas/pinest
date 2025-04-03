@@ -1,9 +1,9 @@
 'use server'
 
-import { adminProcedure } from '@/lib/zsa-procedures'
+import { storeProcedure } from '@/lib/zsa-procedures'
 import { z } from 'zod'
 
-export const getSearchedProducts = adminProcedure
+export const getSearchedProducts = storeProcedure
   .createServerAction()
   .input(z.object({ query: z.string() }))
   .handler(async ({ ctx, input }) => {

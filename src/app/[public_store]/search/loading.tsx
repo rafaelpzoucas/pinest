@@ -21,11 +21,11 @@ export default async function SearchPageLoading() {
           <section className="flex flex-col gap-8 pt-4 pb-16 w-full">
             <div className="flex flex-col">
               <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
-                <ProductCard variant={'featured'} />
-                <ProductCard variant={'featured'} />
-                <ProductCard variant={'featured'} />
-                <ProductCard variant={'featured'} />
-                <ProductCard variant={'featured'} />
+                <ProductCard variant={'featured'} storeSubdomain="" />
+                <ProductCard variant={'featured'} storeSubdomain="" />
+                <ProductCard variant={'featured'} storeSubdomain="" />
+                <ProductCard variant={'featured'} storeSubdomain="" />
+                <ProductCard variant={'featured'} storeSubdomain="" />
               </div>
             </div>
           </section>

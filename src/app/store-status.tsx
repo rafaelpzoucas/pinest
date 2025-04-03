@@ -1,27 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { format, isAfter, isBefore, parse } from 'date-fns'
+import { readStore } from './[public_store]/actions'
 
-export async function StoreStatus({ storeUrl }: { storeUrl: string }) {
+export async function StoreStatus() {
   const supabase = createClient()
 
-  // Buscar informações da loja e horários
-  const { data: store, error: readStoreError } = await supabase
-    .from('stores')
-    .select(
-      `
-        *, 
-        store_hours (*)
-      `,
-    )
-    .eq('store_subdomain', storeUrl)
-    .single()
+  const [storeData] = await readStore()
 
-  if (readStoreError) {
-    console.error('Erro ao buscar is_open da loja.', readStoreError)
-    return null
-  }
+  const store = storeData?.store
 
-  if (store.is_open_override) {
+  if (store?.is_open_override) {
     return null
   }
 
@@ -29,7 +17,7 @@ export async function StoreStatus({ storeUrl }: { storeUrl: string }) {
   const today = format(now, 'EEEE').toLowerCase() // Pega o dia da semana em inglês
 
   // Filtrar o horário de hoje
-  const todayHours = store.store_hours.find(
+  const todayHours = store?.store_hours.find(
     (hour: any) => hour.day_of_week === today,
   )
 
@@ -42,11 +30,11 @@ export async function StoreStatus({ storeUrl }: { storeUrl: string }) {
   const shouldBeOpen = isAfter(now, openTime) && isBefore(now, closeTime)
 
   // Se o status atual estiver incorreto, atualiza no Supabase
-  if (shouldBeOpen !== store.is_open) {
+  if (shouldBeOpen !== store?.is_open) {
     const { error: updateError } = await supabase
       .from('stores')
       .update({ is_open: shouldBeOpen })
-      .eq('id', store.id)
+      .eq('id', store?.id)
 
     if (updateError) {
       console.error('Erro ao atualizar status da loja:', updateError)

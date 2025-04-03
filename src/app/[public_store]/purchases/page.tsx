@@ -13,11 +13,7 @@ import { readPurchases } from './actions'
 
 type StatusKey = keyof typeof statuses
 
-export default async function PurchasesPage({
-  params,
-}: {
-  params: { public_store: string }
-}) {
+export default async function PurchasesPage() {
   const maxItems = 3
 
   const supabase = createClient()
@@ -35,13 +31,13 @@ export default async function PurchasesPage({
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
   const { user } = await readStripeConnectedAccountByStoreUrl(
-    params.public_store,
+    store?.store_subdomain,
   )
 
   const connectedAccount = user?.stripe_connected_account
 
   if (!userData || userError) {
-    return redirect(createPath('/sign-in', params.public_store))
+    return redirect(createPath('/sign-in', store?.store_subdomain))
   }
 
   return (

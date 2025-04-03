@@ -57,7 +57,7 @@ export default async function ProtectedLayout({
           events.map((event) => (
             <IfoodHandshakePlatform key={event.id} event={event} />
           ))}
-        <StoreStatus storeUrl={params.public_store} />
+        <StoreStatus />
       </main>
     </SidebarProvider>
   )
