@@ -203,7 +203,11 @@ export const createPurchase = storeProcedure
     await handlePayment({ purchaseId: createdPurchase.id })
 
     const rootPath = getRootPath(store.store_subdomain)
-    return redirect(`/${rootPath}/purchases/${createdPurchase.id}?back=home`)
+    return redirect(
+      rootPath
+        ? `/${rootPath}/purchases/${createdPurchase.id}?back=home`
+        : `/purchases/${createdPurchase.id}?back=home`,
+    )
   })
 
 export async function updateAmountSoldAndStock(

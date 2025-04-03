@@ -178,7 +178,7 @@ export const addToCart = storeProcedure
 
     const rootPath = getRootPath(store.store_subdomain)
 
-    const redirectURL = `/${rootPath}/cart`
+    const redirectURL = rootPath ? `/${rootPath}/cart` : '/cart'
 
     if (!newItem?.id) {
       await insertCartProduct(newItem, cartSession?.value)
