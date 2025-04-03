@@ -3,7 +3,7 @@
 import defaultThumbUrl from '@/../public/default_thumb_url.png'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { PurchaseItemVariations } from '@/models/purchase'
@@ -81,9 +81,7 @@ export function ProductCard({
     )
   }
 
-  const rootPath = getRootPath(storeSubdomain)
-
-  const productLink = `/${rootPath}/products/${data.product_url}`
+  const productLink = `/${storeSubdomain}/products/${data.product_url}`
 
   return (
     <Link

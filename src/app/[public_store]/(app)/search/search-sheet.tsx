@@ -11,7 +11,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getRootPath } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Search, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -42,9 +41,7 @@ export function SearchSheet({ subdomain }: { subdomain?: string }) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSheetOpen(false)
 
-    const rootPath = getRootPath(subdomain)
-
-    return router.push(`/${rootPath}/search?q=${values.search}`)
+    return router.push(`/${subdomain}/search?q=${values.search}`)
   }
 
   if (!subdomain) {

@@ -1,6 +1,5 @@
 'use client'
 
-import { getRootPath } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { Button } from './ui/button'
@@ -16,8 +15,7 @@ export function BackButton() {
 
   function getBack() {
     if (qBack && qBack === 'home') {
-      const rootPath = getRootPath(storeSubdomain)
-      router.push(`/${rootPath}`)
+      router.push(`/${storeSubdomain}`)
     }
     router.back()
   }

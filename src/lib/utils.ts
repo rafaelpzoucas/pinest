@@ -164,4 +164,4 @@ export async function isSameCity(cep1: string, cep2: string) {
 }
 
 export const getRootPath = (storeSubdomain: string | undefined | null) =>
-  process.env.NODE_ENV !== 'production' ? `${storeSubdomain}` : ''
+  storeSubdomain ?? ''

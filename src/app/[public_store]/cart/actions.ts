@@ -2,7 +2,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { getRootPath } from '@/lib/utils'
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CartProductType } from '@/models/cart'
 import { revalidatePath } from 'next/cache'
@@ -176,9 +175,7 @@ export const addToCart = storeProcedure
 
     const cartSession = await getCartSession(store.store_subdomain)
 
-    const rootPath = getRootPath(store.store_subdomain)
-
-    const redirectURL = `/${rootPath}/cart`
+    const redirectURL = `/${store.store_subdomain}/cart`
 
     if (!newItem?.id) {
       await insertCartProduct(newItem, cartSession?.value)
