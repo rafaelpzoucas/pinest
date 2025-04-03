@@ -17,7 +17,7 @@ export function BackButton() {
   function getBack() {
     if (qBack && qBack === 'home') {
       const rootPath = getRootPath(storeSubdomain)
-      router.push(`/${rootPath}`)
+      router.push(rootPath ? `/${rootPath}` : '/')
     }
     router.back()
   }

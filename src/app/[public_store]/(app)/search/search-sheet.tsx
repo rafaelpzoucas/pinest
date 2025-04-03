@@ -44,7 +44,11 @@ export function SearchSheet({ subdomain }: { subdomain?: string }) {
 
     const rootPath = getRootPath(subdomain)
 
-    return router.push(`/${rootPath}/search?q=${values.search}`)
+    return router.push(
+      rootPath
+        ? `/${rootPath}/search?q=${values.search}`
+        : `/search?q=${values.search}`,
+    )
   }
 
   if (!subdomain) {

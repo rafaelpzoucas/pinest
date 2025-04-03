@@ -25,12 +25,12 @@ export function MobileNavigation({
 
   const links = [
     {
-      href: rootPath ?? '/',
+      href: rootPath ? `/${rootPath}` : '/',
       name: 'Home',
       icon: Home,
     },
     {
-      href: `${rootPath}/purchases`,
+      href: rootPath ? `/${rootPath}/purchases` : '/purchases',
       name: 'Meus pedidos',
       icon: ScrollText,
     },
