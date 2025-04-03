@@ -2,7 +2,7 @@
 
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn, getRootPath } from '@/lib/utils'
+import { cn, createPath, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
@@ -23,14 +23,20 @@ export function MobileNavigation({
 
   const rootPath = getRootPath(storeSubdomain)
 
+  // Função auxiliar para verificar se um pathname corresponde a um determinado caminho
+  const isCurrentPath = (path: string) => {
+    const formattedPath = createPath(path, storeSubdomain)
+    return pathname === formattedPath
+  }
+
   const links = [
     {
-      href: rootPath ? `/${rootPath}` : '/',
+      href: rootPath ? createPath('/', storeSubdomain) : '/',
       name: 'Home',
       icon: Home,
     },
     {
-      href: rootPath ? `/${rootPath}/purchases` : '/purchases',
+      href: createPath('/purchases', storeSubdomain),
       name: 'Meus pedidos',
       icon: ScrollText,
     },
@@ -70,19 +76,16 @@ export function MobileNavigation({
         ))}
 
         <div
-          className={cn(
-            'relative',
-            pathname !== `${rootPath}/search` && 'opacity-50',
-          )}
+          className={cn('relative', !isCurrentPath('/search') && 'opacity-50')}
         >
           <SearchSheet subdomain={storeSubdomain} />
-          {pathname === `${rootPath}/search` && (
+          {isCurrentPath('/search') && (
             <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg -mt-1 bg-primary"></span>
           )}
         </div>
 
         <Link
-          href={`${rootPath}/cart`}
+          href={createPath('/cart', storeSubdomain)}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'icon' }),
             'relative bg-transparent',
@@ -98,14 +101,11 @@ export function MobileNavigation({
           )}
 
           <div
-            className={cn(
-              'relative',
-              pathname !== `${rootPath}/cart` && 'opacity-50',
-            )}
+            className={cn('relative', !isCurrentPath('/cart') && 'opacity-50')}
           >
             <ShoppingCart className="w-5 h-5" />
 
-            {pathname === `${rootPath}/cart` && (
+            {isCurrentPath('/cart') && (
               <span className="absolute left-1/2 -translate-x-1/2 w-3 h-[3px] rounded-lg mt-1 bg-primary"></span>
             )}
           </div>
