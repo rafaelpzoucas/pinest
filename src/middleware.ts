@@ -14,6 +14,10 @@ export async function middleware(request: NextRequest) {
     const parts = hostname.split('.')
     if (parts.length > 2) {
       subdomain = parts[0]
+    } else {
+      // Adiciona suporte para path como subdomínio em produção
+      const segments = request.nextUrl.pathname.split('/').filter(Boolean)
+      subdomain = segments[0] || null
     }
   }
 
