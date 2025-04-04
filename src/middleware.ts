@@ -1,5 +1,25 @@
 import { updateSession } from '@/lib/supabase/middleware'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+
+async function getStoreByCustomDomain(hostname: string) {
+  const supabase = createClient()
+
+  // Remove www. se existir
+  const domain = hostname.replace(/^www\./, '')
+
+  const { data, error } = await supabase
+    .from('stores')
+    .select('store_subdomain, custom_domain')
+    .eq('custom_domain', domain)
+    .single()
+
+  if (error || !data) {
+    return null
+  }
+
+  return data
+}
 
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request)
@@ -7,6 +27,31 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
 
   let subdomain: string | null = null
+
+  // Verificar se é um domínio personalizado
+  if (
+    process.env.NODE_ENV === 'production' &&
+    !hostname.endsWith('pinest.com.br') &&
+    hostname !== 'localhost'
+  ) {
+    const customDomainStore = await getStoreByCustomDomain(hostname)
+
+    if (customDomainStore && customDomainStore.store_subdomain) {
+      // Garantindo que subdomain seja uma string
+      const storeSubdomain: string = customDomainStore.store_subdomain
+
+      // Mantém o pathname original, mas adiciona o subdomínio como primeiro segmento
+      url.pathname =
+        url.pathname === '/'
+          ? `/${storeSubdomain}`
+          : `/${storeSubdomain}${url.pathname}`
+
+      // Define um cookie para armazenar a loja acessada
+      const cookieName = `public_store_${storeSubdomain}`
+      response.cookies.set(cookieName, storeSubdomain, { path: '/' })
+      return NextResponse.rewrite(url, response)
+    }
+  }
 
   if (process.env.NODE_ENV !== 'production') {
     // Em ambiente local, o subdomínio é extraído do caminho (localhost:3000/nomedaloja)
@@ -34,7 +79,8 @@ export async function middleware(request: NextRequest) {
 
   if (subdomain) {
     // Define um cookie para armazenar a loja acessada
-    response.cookies.set(`public_store_${subdomain}`, subdomain, { path: '/' })
+    const cookieName = `public_store_${subdomain}`
+    response.cookies.set(cookieName, subdomain, { path: '/' })
     return NextResponse.rewrite(url, response)
   }
 

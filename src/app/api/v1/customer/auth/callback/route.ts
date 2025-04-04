@@ -8,13 +8,20 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code')
   const subdomain = requestUrl.searchParams.get('subdomain')
   const checkout = requestUrl.searchParams.get('checkout')
+  const customDomain = requestUrl.searchParams.get('custom_domain')
   const origin = requestUrl.origin
 
   const supabase = createClient()
 
   let redirectURL = ''
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (customDomain) {
+    // Se tiver um domínio personalizado, usamos ele diretamente
+    redirectURL =
+      checkout === 'true'
+        ? `https://${customDomain}/account?checkout=pickup`
+        : `https://${customDomain}/purchases`
+  } else if (process.env.NODE_ENV !== 'production') {
     // Em ambiente de desenvolvimento utilizamos createPath
     const accountPath =
       checkout === 'true' ? '/account?checkout=pickup' : '/purchases'
@@ -23,8 +30,8 @@ export async function GET(request: Request) {
     // Em produção utilizamos o formato subdomínio.pinest.com.br
     redirectURL =
       checkout === 'true'
-        ? `https://${subdomain}.com.br/account?checkout=pickup`
-        : `https://${subdomain}.com.br/purchases`
+        ? `https://${subdomain}.pinest.com.br/account?checkout=pickup`
+        : `https://${subdomain}.pinest.com.br/purchases`
   }
 
   if (code) {

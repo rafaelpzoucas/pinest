@@ -10,6 +10,7 @@ export type StoreType = {
   user_id: string
   logo_url: string
   store_subdomain: string
+  custom_domain?: string
   market_niche_id: string
   theme_color: string
   theme_mode: string
