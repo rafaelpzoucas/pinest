@@ -17,10 +17,15 @@ export async function GET(request: Request) {
 
   if (customDomain) {
     // Se tiver um domínio personalizado, usamos ele diretamente
+    // Adicionamos o protocolo se não estiver presente
+    const domain = customDomain.startsWith('http')
+      ? customDomain
+      : `https://${customDomain}`
+
     redirectURL =
       checkout === 'true'
-        ? `https://${customDomain}/account?checkout=pickup`
-        : `https://${customDomain}/purchases`
+        ? `${domain}/account?checkout=pickup`
+        : `${domain}/purchases`
   } else if (process.env.NODE_ENV !== 'production') {
     // Em ambiente de desenvolvimento utilizamos createPath
     const accountPath =
@@ -34,6 +39,7 @@ export async function GET(request: Request) {
         : `https://${subdomain}.pinest.com.br/purchases`
   }
 
+  // Autenticação com o Supabase
   if (code) {
     await supabase.auth.exchangeCodeForSession(code)
   }
@@ -62,9 +68,11 @@ export async function GET(request: Request) {
     const { customerUser } = await selectCustomerUser()
 
     if (!customerUser?.cpf_cnpj) {
+      console.log('Redirecionando para:', redirectURL)
       return NextResponse.redirect(redirectURL)
     }
   }
 
+  console.log('Redirecionamento final para:', redirectURL)
   return NextResponse.redirect(redirectURL)
 }

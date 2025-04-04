@@ -15,13 +15,25 @@ async function getStoreByCustomDomain(hostname: string) {
     .single()
 
   if (error || !data) {
+    console.error('Erro ao buscar domínio personalizado:', domain, error)
     return null
   }
 
+  console.log(
+    'Domínio personalizado encontrado:',
+    domain,
+    'para loja:',
+    data.store_subdomain,
+  )
   return data
 }
 
 export async function middleware(request: NextRequest) {
+  // Ignorar rotas de API específicas
+  if (request.nextUrl.pathname.startsWith('/api/v1/customer/auth/callback')) {
+    return NextResponse.next()
+  }
+
   const response = await updateSession(request)
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
@@ -48,7 +60,12 @@ export async function middleware(request: NextRequest) {
 
       // Define um cookie para armazenar a loja acessada
       const cookieName = `public_store_${storeSubdomain}`
-      response.cookies.set(cookieName, storeSubdomain, { path: '/' })
+      response.cookies.set(cookieName, storeSubdomain, {
+        path: '/',
+        sameSite: 'lax',
+        domain: hostname, // Use o domínio atual para o cookie
+      })
+
       return NextResponse.rewrite(url, response)
     }
   }
@@ -80,7 +97,10 @@ export async function middleware(request: NextRequest) {
   if (subdomain) {
     // Define um cookie para armazenar a loja acessada
     const cookieName = `public_store_${subdomain}`
-    response.cookies.set(cookieName, subdomain, { path: '/' })
+    response.cookies.set(cookieName, subdomain, {
+      path: '/',
+      sameSite: 'lax',
+    })
     return NextResponse.rewrite(url, response)
   }
 
