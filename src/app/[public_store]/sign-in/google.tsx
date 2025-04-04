@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import { createPath } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 import { FaGoogle } from 'react-icons/fa'
 
@@ -19,22 +18,38 @@ export function SignInWithGoogle({
   async function signInWithGoogle() {
     const supabase = createClient()
 
-    const basePath =
-      customDomain ||
-      (subdomain
-        ? `${subdomain}.pinest.com.br`
-        : process.env.NEXT_PUBLIC_APP_URL)
+    // Determina se estamos usando um domínio personalizado ou o domínio padrão do Pinest
+    const isPinestDomain = !customDomain
 
-    const redirectParams = customDomain
-      ? `/api/v1/customer/auth/callback?subdomain=${subdomain}&custom_domain=${customDomain}${isCheckout ? '&checkout=true' : ''}`
-      : `/api/v1/customer/auth/callback?subdomain=${subdomain}${isCheckout ? '&checkout=true' : ''}`
+    let baseDomain
+    if (isPinestDomain) {
+      baseDomain =
+        process.env.NODE_ENV !== 'production'
+          ? process.env.NEXT_PUBLIC_APP_URL
+          : `https://${subdomain}.pinest.com.br`
+    } else {
+      baseDomain = customDomain
+      if (!baseDomain.startsWith('http')) {
+        baseDomain = `https://${baseDomain}`
+      }
+    }
 
-    const redirectURL = createPath(redirectParams, basePath)
+    // Montamos os parâmetros da URL de callback
+    const callbackParams = new URLSearchParams()
+    if (subdomain) callbackParams.append('subdomain', subdomain)
+    if (customDomain) callbackParams.append('custom_domain', customDomain)
+    if (isCheckout) callbackParams.append('checkout', 'true')
+
+    // URL de callback absoluta para o Supabase
+    const callbackURL =
+      process.env.NODE_ENV !== 'production'
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/customer/auth/callback?${callbackParams.toString()}`
+        : `https://www.pinest.com.br/api/v1/customer/auth/callback?${callbackParams.toString()}`
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectURL,
+        redirectTo: callbackURL,
       },
     })
 
