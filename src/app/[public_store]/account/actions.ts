@@ -22,12 +22,12 @@ export async function selectCustomerUser(): Promise<{
       .eq('id', session.user.id)
       .single()
 
+    customerUser = data
+    selectCustomerUserError = error
+
     if (selectCustomerUserError) {
       console.error(selectCustomerUserError)
     }
-
-    customerUser = data
-    selectCustomerUserError = error
   }
 
   return { customerUser, selectCustomerUserError }
