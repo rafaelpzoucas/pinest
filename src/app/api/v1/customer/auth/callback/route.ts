@@ -1,20 +1,31 @@
 import { selectCustomerUser } from '@/app/[public_store]/account/actions'
 import { createClient } from '@/lib/supabase/server'
+import { createPath } from '@/lib/utils'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const storeName = requestUrl.searchParams.get('store-name')
+  const subdomain = requestUrl.searchParams.get('subdomain')
   const checkout = requestUrl.searchParams.get('checkout')
   const origin = requestUrl.origin
 
   const supabase = createClient()
 
-  const redirectURL =
-    checkout === 'true'
-      ? `${origin}/${storeName}/account?checkout=pickup`
-      : `${origin}/${storeName}/purchases`
+  let redirectURL = ''
+
+  if (process.env.NODE_ENV !== 'production') {
+    // Em ambiente de desenvolvimento utilizamos createPath
+    const accountPath =
+      checkout === 'true' ? '/account?checkout=pickup' : '/purchases'
+    redirectURL = `${origin}${createPath(accountPath, subdomain)}`
+  } else {
+    // Em produção utilizamos o formato subdomínio.pinest.com.br
+    redirectURL =
+      checkout === 'true'
+        ? `https://${subdomain}.com.br/account?checkout=pickup`
+        : `https://${subdomain}.com.br/purchases`
+  }
 
   if (code) {
     await supabase.auth.exchangeCodeForSession(code)

@@ -33,7 +33,7 @@ export default async function SignIn({
 
         <span className="mx-auto text-muted-foreground">ou</span>
 
-        <SignInWithGoogle storeName={store?.store_subdomain} />
+        <SignInWithGoogle subdomain={store?.store_subdomain} />
       </div>
     </main>
   )
