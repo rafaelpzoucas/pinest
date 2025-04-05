@@ -21,8 +21,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CustomerType } from '@/models/customer'
+import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import { StoreCustomerType } from '@/models/store-customer'
 import { ChevronsUpDown, Edit2 } from 'lucide-react'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
@@ -31,20 +31,20 @@ import { CustomersForm } from '../../deliveries/register/customers/form'
 import { closeBillFormSchema } from '../schemas'
 
 type CustomersComboboxProps = {
-  customers: CustomerType[]
+  storeCustomers?: StoreCustomerType[]
   form: UseFormReturn<z.infer<typeof closeBillFormSchema>>
   customerFormSheetState: [boolean, Dispatch<SetStateAction<boolean>>]
 }
 
 export function CustomersCombobox({
-  customers,
+  storeCustomers,
   form,
   customerFormSheetState,
 }: CustomersComboboxProps) {
   const [sheetState, setSheetState] = customerFormSheetState
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(
-    null,
-  )
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    StoreCustomerType | undefined
+  >()
 
   return (
     <FormField
@@ -66,23 +66,23 @@ export function CustomersCombobox({
                   {field.value ? (
                     <div>
                       {
-                        customers.find(
-                          (customer) => customer.id === field.value,
-                        )?.name
+                        storeCustomers?.find(
+                          (storeCustomer) => storeCustomer.id === field.value,
+                        )?.customers.name
                       }
                       <p className="text-muted-foreground">
                         {
-                          customers.find(
-                            (customer) => customer.id === field.value,
-                          )?.phone
+                          storeCustomers?.find(
+                            (storeCustomer) => storeCustomer.id === field.value,
+                          )?.customers.phone
                         }
                       </p>
                       <p className="text-muted-foreground">
-                        {
-                          customers.find(
-                            (customer) => customer.id === field.value,
-                          )?.address
-                        }
+                        {formatAddress(
+                          storeCustomers?.find(
+                            (storeCustomer) => storeCustomer.id === field.value,
+                          )?.customers.address,
+                        )}
                       </p>
                     </div>
                   ) : (
@@ -109,18 +109,21 @@ export function CustomersCombobox({
                 <CommandList>
                   <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                   <CommandGroup>
-                    {customers.map((customer) => (
+                    {storeCustomers?.map((storeCustomer) => (
                       <CommandItem
-                        value={customer.name}
-                        key={customer.id}
+                        value={storeCustomer.customers.name}
+                        key={storeCustomer.customers.id}
                         onSelect={() => {
-                          form.setValue('customer_id', customer.id)
+                          form.setValue(
+                            'customer_id',
+                            storeCustomer.customers.id,
+                          )
                         }}
                       >
                         <div className="flex flex-col w-full">
                           <div className="flex flex-row items-start">
                             <span className="max-w-[225px] line-clamp-1">
-                              {customer.name}
+                              {storeCustomer.customers.name}
                             </span>
                             <div className="ml-auto flex flex-row gap-1">
                               <Button
@@ -129,7 +132,7 @@ export function CustomersCombobox({
                                 className="w-7 h-7"
                                 onClick={() => {
                                   setSheetState(true)
-                                  setSelectedCustomer(customer)
+                                  setSelectedCustomer(storeCustomer)
                                 }}
                               >
                                 <Edit2 className="w-4 h-4" />
@@ -137,14 +140,14 @@ export function CustomersCombobox({
                             </div>
                           </div>
                           <p className="text-muted-foreground">
-                            {customer.phone}
+                            {storeCustomer.customers.phone}
                           </p>
                           <p className="text-muted-foreground">
-                            {customer.address}
+                            {formatAddress(storeCustomer.customers.address)}
                           </p>
-                          {customer.balance < 0 && (
+                          {storeCustomer.balance < 0 && (
                             <p className="text-muted-foreground">
-                              Saldo: {formatCurrencyBRL(customer.balance)}
+                              Saldo: {formatCurrencyBRL(storeCustomer.balance)}
                             </p>
                           )}
                         </div>

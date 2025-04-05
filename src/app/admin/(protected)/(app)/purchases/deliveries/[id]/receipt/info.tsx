@@ -8,26 +8,23 @@ export const DELIVERY_TYPES = {
   DELIVERY: 'Entregar',
 }
 
-export function Info({ purchase }: { purchase: PurchaseType }) {
-  const isIfood = purchase.is_ifood
+export function Info({ purchase }: { purchase?: PurchaseType }) {
+  const isIfood = purchase?.is_ifood
   const ifoodOrder: IfoodOrder = isIfood && purchase.ifood_order_data
 
-  const customerName =
-    purchase?.customers?.users?.name ??
-    purchase.guest_data?.name ??
-    purchase.customers.name
-  const customerPhone =
-    purchase?.customers?.users?.phone ??
-    purchase.guest_data?.phone ??
-    purchase.customers.phone
-  const customerAddress = ((purchase.addresses
-    ? formatAddress(purchase.addresses)
-    : formatAddress(purchase.guest_data?.address)) ??
-    purchase.customers.address) as string
+  const customerName = purchase?.store_customers.customers.name
+  const customerPhone = purchase?.store_customers.customers.phone
+  const customerAddress = formatAddress(
+    purchase?.store_customers.customers.address,
+  )
 
   const displayId = isIfood
     ? ifoodOrder.displayId
     : purchase?.id.substring(0, 4)
+
+  if (!purchase) {
+    return null
+  }
 
   return (
     <section className="w-full">
@@ -35,7 +32,7 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
         <h1 className="uppercase">Pedido #{displayId}</h1>
 
         <h2 className="font-bold uppercase">
-          {DELIVERY_TYPES[purchase.type as keyof typeof DELIVERY_TYPES]}
+          {DELIVERY_TYPES[purchase?.type as keyof typeof DELIVERY_TYPES]}
         </h2>
       </header>
 
@@ -45,7 +42,7 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
       >
         {isIfood && <p className="text-center">{ifoodOrder.merchant.name}</p>}
 
-        <p>Data do pedido: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
+        <p>Data do pedido: {format(purchase?.created_at, 'dd/MM HH:mm:ss')}</p>
         {isIfood && (
           <p>
             Data da entrega:{' '}
@@ -59,7 +56,7 @@ export function Info({ purchase }: { purchase: PurchaseType }) {
         <p>Endereço: {customerAddress}</p>
 
         {((isIfood && ifoodOrder.delivery.observations) ||
-          purchase.observations) && (
+          purchase?.observations) && (
           <p>
             Observações:{' '}
             {ifoodOrder?.delivery?.observations ?? purchase.observations}

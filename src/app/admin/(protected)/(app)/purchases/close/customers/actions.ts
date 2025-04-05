@@ -1,6 +1,7 @@
 'use server'
 
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { StoreCustomerType } from '@/models/store-customer'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createCustomerFormSchema } from './schemas'
@@ -11,15 +12,20 @@ export const readCustomers = adminProcedure
     const { supabase, store } = ctx
 
     const { data: customers, error: customersError } = await supabase
-      .from('customers')
-      .select('*')
+      .from('store_customers')
+      .select(
+        `
+          *,
+          customers (*)
+        `,
+      )
       .eq('store_id', store.id)
 
     if (customersError || !customers) {
       throw new Error('Error fetching customers', customersError)
     }
 
-    return { customers }
+    return { customers: customers as StoreCustomerType[] }
   })
 
 export const createCustomer = adminProcedure

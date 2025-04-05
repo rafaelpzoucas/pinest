@@ -2,20 +2,22 @@
 
 import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import { AddressType } from '@/models/address'
 import { ShippingConfigType } from '@/models/shipping'
-import { AddressType } from '@/models/user'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { parseCookies } from 'nookies'
 import { useEffect, useState } from 'react'
 
 type DeliveryProps = {
-  customerAddress: AddressType | null
+  customerAddress?: AddressType
   shipping: ShippingConfigType
 }
 
 export function Delivery({ customerAddress, shipping }: DeliveryProps) {
-  const [address, setAddress] = useState<AddressType | null>(customerAddress)
+  const [address, setAddress] = useState<AddressType | undefined>(
+    customerAddress,
+  )
 
   useEffect(() => {
     if (!customerAddress) {
@@ -49,10 +51,7 @@ export function Delivery({ customerAddress, shipping }: DeliveryProps) {
         </Link>
       ) : (
         <>
-          <Link
-            href={`?step=payment&pickup=DELIVERY&address=${customerAddress ? address?.id : 'guest'}`}
-            className="space-y-2"
-          >
+          <Link href={`?step=payment&pickup=DELIVERY`} className="space-y-2">
             <div className="flex flex-col gap-2 p-4 w-full">
               <header className="flex flex-row items-center justify-between">
                 <strong className="text-sm">Entregar</strong>
@@ -73,7 +72,7 @@ export function Delivery({ customerAddress, shipping }: DeliveryProps) {
             </div>
           </Link>
 
-          <Link href={`addresses/register?id=${address.id ?? 'guest'}`}>
+          <Link href={`account/register?checkout=true`}>
             <footer className="border-t p-4 text-sm">
               <strong>Editar endereço</strong>
             </footer>

@@ -17,10 +17,10 @@ import {
 } from '@/components/ui/sheet'
 import { stringToNumber } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
-import { CustomerType } from '@/models/customer'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { ShippingConfigType } from '@/models/shipping'
+import { StoreCustomerType } from '@/models/store-customer'
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -37,11 +37,11 @@ export function CreatePurchaseForm({
   extras,
   shipping,
 }: {
-  customers: CustomerType[]
-  products: ProductType[]
-  categories: CategoryType[]
-  extras: ExtraType[]
-  shipping: ShippingConfigType
+  customers?: StoreCustomerType[]
+  products?: ProductType[]
+  categories?: CategoryType[]
+  extras?: ExtraType[]
+  shipping?: ShippingConfigType
 }) {
   const router = useRouter()
 
@@ -56,7 +56,7 @@ export function CreatePurchaseForm({
         change_value: '',
         discount: '',
         total_amount: 0,
-        shipping_price: shipping.price ?? 0,
+        shipping_price: shipping?.price ?? 0,
       },
     },
   })
@@ -72,6 +72,8 @@ export function CreatePurchaseForm({
 
   const { execute, isPending } = useServerAction(createPurchase)
 
+  console.log(form.formState.errors)
+
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createPurchaseFormSchema>) {
     const [data, err] = await execute({
@@ -82,6 +84,16 @@ export function CreatePurchaseForm({
           subtotal +
           (purchaseType === 'DELIVERY' ? shippingPrice : 0) -
           (discount || 0),
+      },
+      delivery: {
+        time: '1',
+        address: {
+          street: 'qwer',
+          number: '1234',
+          neighborhood: 'qwer',
+          complement: '',
+          observations: '',
+        },
       },
     })
 

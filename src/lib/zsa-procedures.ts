@@ -75,12 +75,7 @@ export const storeProcedure = createServerActionProcedure().handler(
   async () => {
     const supabase = createClient()
     const cookieStore = cookies()
-    const allCookies = cookieStore.getAll()
-
-    // Procura por um cookie que comece com 'store_'
-    const subdomainCookie = allCookies
-      .find((cookie) => cookie.name.startsWith('public_store_'))
-      ?.name.split('public_store_')[1]
+    const subdomainCookie = cookieStore.get('public_store_subdomain')?.value
 
     if (!subdomainCookie) {
       console.error('Nenhuma loja identificada.')
@@ -104,6 +99,6 @@ export const storeProcedure = createServerActionProcedure().handler(
       console.error('Erro ao buscar dados da loja.', error)
     }
 
-    return { store: store as StoreType, supabase }
+    return { store: store as StoreType, supabase, cookieStore }
   },
 )

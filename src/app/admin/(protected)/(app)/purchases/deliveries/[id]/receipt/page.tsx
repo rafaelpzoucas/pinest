@@ -1,5 +1,4 @@
 import { IfoodItem } from '@/models/ifood'
-import { PurchaseType } from '@/models/purchase'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { readPurchaseById } from '../actions'
@@ -15,7 +14,7 @@ export default async function PrintKitchenReceipt({
 }) {
   const [purchaseData] = await readPurchaseById({ id: params.id })
 
-  const purchase: PurchaseType = purchaseData?.purchase
+  const purchase = purchaseData?.purchase
 
   const displayId = purchase?.id.substring(0, 4)
 
@@ -28,10 +27,7 @@ export default async function PrintKitchenReceipt({
 
   const itemsList = reprint ? purchase.purchase_items : unprintedItems
 
-  const customerName =
-    purchase?.customers?.users?.name ??
-    purchase.guest_data?.name ??
-    purchase.customers.name
+  const customerName = purchase.store_customers.customers.name
 
   const isIfood = purchase.is_ifood
   const ifoodItems: IfoodItem[] = isIfood && purchase.ifood_order_data.items

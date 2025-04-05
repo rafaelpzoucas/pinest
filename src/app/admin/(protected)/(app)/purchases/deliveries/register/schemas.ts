@@ -1,3 +1,4 @@
+import { addressSchema } from '@/app/[public_store]/account/register/schemas'
 import { z } from 'zod'
 
 export const createPurchaseFormSchema = z.object({
@@ -42,5 +43,9 @@ export const createPurchaseFormSchema = z.object({
     discount: z.string(),
     change_value: z.string(),
     total_amount: z.number(),
+  }),
+  delivery: z.object({
+    time: z.string().optional(),
+    address: addressSchema,
   }),
 })

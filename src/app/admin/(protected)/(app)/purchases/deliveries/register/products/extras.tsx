@@ -28,7 +28,7 @@ export function Extras({
   selectedProducts,
 }: {
   form: UseFormReturn<z.infer<typeof createPurchaseFormSchema>>
-  extras: ExtraType[]
+  extras?: ExtraType[]
   product: ProductType
   selectedProducts: PurchaseItemType[]
 }) {
@@ -47,7 +47,7 @@ export function Extras({
     const productExtras = selectedProductExtras[productId] || {}
     const totalExtrasPrice = Object.entries(productExtras).reduce(
       (total, [extraId, quantity]) => {
-        const extra = extras.find((e) => e.id === extraId)
+        const extra = extras?.find((e) => e.id === extraId)
         if (extra) {
           total += extra.price * quantity
         }
@@ -90,7 +90,7 @@ export function Extras({
 
     const formattedExtras = Object.entries(productExtras)
       .map(([id, quantity]) => {
-        const extra = extras.find((e) => e.id === id)
+        const extra = extras?.find((e) => e.id === id)
         return extra
           ? {
               extra_id: extra.id,
@@ -133,7 +133,7 @@ export function Extras({
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh_-_124px)] px-6">
           <div className="space-y-3 mt-4">
-            {extras.map((extra) => (
+            {extras?.map((extra) => (
               <div key={extra.id} className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <span>{extra.name}</span>

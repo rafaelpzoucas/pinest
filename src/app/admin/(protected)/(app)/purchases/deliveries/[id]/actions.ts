@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { PurchaseType } from '@/models/purchase'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getValidIfoodAccessToken } from '../../../config/integrations/ifood/actions'
@@ -36,21 +37,20 @@ export const readPurchaseById = adminProcedure
       .from('purchases')
       .select(
         `
-      *,
-      purchase_items (
-        *,
-        products (*)
-      ),
-      purchase_item_variations (
-        *,
-        product_variations (*)
-      ),
-      customers (
-        *,
-        users (*)
-      ),
-      addresses (*)
-      `,
+          *,
+          purchase_items (
+            *,
+            products (*)
+          ),
+          purchase_item_variations (
+            *,
+            product_variations (*)
+          ),
+          store_customers (
+            *,
+            customers (*)
+          )
+        `,
       )
       .eq('id', input.id)
       .single()
@@ -60,7 +60,7 @@ export const readPurchaseById = adminProcedure
       return
     }
 
-    return { purchase }
+    return { purchase: purchase as PurchaseType }
   })
 
 export const acceptPurchase = adminProcedure

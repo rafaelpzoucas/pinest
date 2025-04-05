@@ -32,7 +32,7 @@ type PedidoType = {
 
 type DestinoType = {
   nome: string
-  cnpjCpf: string
+  cnpjCpf?: string
   endereco: {
     logradouro: string
     numero: string

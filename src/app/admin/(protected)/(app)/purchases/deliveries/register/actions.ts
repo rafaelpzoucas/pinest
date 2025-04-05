@@ -19,8 +19,6 @@ export const createPurchase = adminProcedure
           status: input.status,
           updated_at: new Date().toISOString(),
           store_id: store?.id,
-          delivery_time:
-            input.type === 'DELIVERY' ? store?.delivery_time : null,
           type: input.type,
           payment_type: input.payment_type,
           observations: input.observations,
@@ -35,6 +33,10 @@ export const createPurchase = adminProcedure
             discount: input.total.discount
               ? stringToNumber(input.total.discount)
               : null,
+          },
+          delivery: {
+            time: input.type === 'DELIVERY' ? store?.delivery_time : null,
+            address: input.delivery.address,
           },
         })
         .select()

@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { addressFormSchema } from './form'

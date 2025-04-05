@@ -2,7 +2,11 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 
-export function Total({ purchase }: { purchase: PurchaseType }) {
+export function Total({ purchase }: { purchase?: PurchaseType }) {
+  if (!purchase) {
+    return null
+  }
+
   const purchaseItemsPrice =
     purchase?.purchase_items.reduce((acc, item) => {
       // Calculando o total do item (produto base)

@@ -19,8 +19,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
-import { CustomerType } from '@/models/customer'
 import { PaymentType } from '@/models/payment'
+import { StoreCustomerType } from '@/models/store-customer'
 import { useCloseBillStore } from '@/stores/closeBillStore'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -32,11 +32,11 @@ import { closeBillFormSchema } from './schemas'
 
 export function CloseBillForm({
   payments,
-  customers,
+  storeCustomers,
   isPermissionGranted,
 }: {
   payments: PaymentType[]
-  customers: CustomerType[]
+  storeCustomers?: StoreCustomerType[]
   isPermissionGranted: boolean
 }) {
   const searchParams = useSearchParams()
@@ -273,7 +273,7 @@ export function CloseBillForm({
 
           {isDeferredPayment && (
             <CustomersCombobox
-              customers={customers}
+              storeCustomers={storeCustomers}
               form={form}
               customerFormSheetState={customerFormSheetState}
             />

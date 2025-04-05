@@ -1,4 +1,3 @@
-import { PurchaseType } from '@/models/purchase'
 import { readPurchaseById } from '../../actions'
 import { Info } from '../info'
 import { Items } from './items'
@@ -13,7 +12,7 @@ export default async function PrintDeliveryReceipt({
 }) {
   const [purchaseData] = await readPurchaseById({ id: params.id })
 
-  const purchase: PurchaseType = purchaseData?.purchase
+  const purchase = purchaseData?.purchase
 
   return (
     <div

@@ -12,17 +12,15 @@ export default async function PurchasePage({
 }: {
   params: { id: string }
 }) {
-  const [[storeData], { purchase, purchaseError }] = await Promise.all([
+  const [[storeData], [purchaseData]] = await Promise.all([
     readStore(),
-    readPurchaseById(params.id),
+    readPurchaseById({ purchaseId: params.id }),
   ])
 
   const store = storeData?.store
   const storeAddress = store?.addresses[0]
-
-  if (purchaseError) console.error(purchaseError)
-
-  const address = purchase?.addresses
+  const purchase = purchaseData?.purchase
+  const address = purchase?.delivery.address
 
   const currentStatus = statuses[purchase?.status as StatusKey]
   const shippingPrice = purchase?.total?.shipping_price ?? 0
@@ -73,9 +71,7 @@ export default async function PurchasePage({
                 <span className="text-muted-foreground">
                   {currentStatus.delivery_address} na
                 </span>{' '}
-                <strong>
-                  {formatAddress(address ?? purchase.guest_data.address)}
-                </strong>
+                <strong>{formatAddress(address)}</strong>
               </p>
             </Card>
           )}

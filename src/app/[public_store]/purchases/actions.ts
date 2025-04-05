@@ -4,13 +4,16 @@ import { PurchaseType } from '@/models/purchase'
 export const readPurchases = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    const { supabase } = ctx
-    const { data: session } = await supabase.auth.getUser()
+    const { supabase, store, cookieStore } = ctx
+
+    const customerPhone = cookieStore.get(
+      `${store.store_subdomain}_customer_phone`,
+    )?.value
 
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .select('id')
-      .eq('user_id', session.user?.id)
+      .eq('phone', customerPhone)
       .single()
 
     if (customerError) {
@@ -31,6 +34,7 @@ export const readPurchases = storeProcedure
       `,
       )
       .eq('customer_id', customer?.id)
+      .eq('store_id', store.id)
       .order('created_at', { ascending: false })
 
     if (error || !purchases) {

@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 import { ViacepType } from '@/models/viacep-address'
 import { Loader2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'

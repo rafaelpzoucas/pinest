@@ -3,7 +3,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { IfoodItem, IfoodOrder } from '@/models/ifood'
-import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { addHours, format } from 'date-fns'
 import { Plus } from 'lucide-react'
@@ -20,7 +19,7 @@ export default async function OrderPage({
 }) {
   const [purchaseData] = await readPurchaseById({ id: params.id })
 
-  const purchase: PurchaseType = purchaseData?.purchase
+  const purchase = purchaseData?.purchase
 
   if (!purchase) {
     return null
@@ -29,10 +28,10 @@ export default async function OrderPage({
   const displayId = params.id.substring(0, 4)
 
   const purchaseItems = purchase?.purchase_items
-  const customer = purchase?.customers?.users ?? purchase?.guest_data
-  const customerAddress = ((purchase?.addresses
-    ? formatAddress(purchase.addresses)
-    : purchase?.guest_data?.address) ?? purchase?.customers.address) as string
+  const customer = purchase?.store_customers?.customers
+  const customerAddress = formatAddress(
+    purchase?.store_customers.customers.address,
+  )
 
   const variations = purchase?.purchase_item_variations
 
@@ -348,11 +347,11 @@ export default async function OrderPage({
         <Card className="space-y-6 p-4">
           <header className="flex flex-row gap-4">
             <div className="flex flex-col gap-1">
-              <strong>{customer?.name ?? purchase.customers.name}</strong>
+              <strong>{customer?.name}</strong>
 
               {customer?.phone && (
                 <p className="text-muted-foreground">
-                  Telefone: {customer?.phone ?? purchase.customers.phone}
+                  Telefone: {customer?.phone}
                 </p>
               )}
 

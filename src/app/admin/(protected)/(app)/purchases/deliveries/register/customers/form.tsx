@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { createCustomerSchema } from '@/app/[public_store]/account/register/schemas'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Form,
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
@@ -24,17 +26,16 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CustomerType } from '@/models/customer'
+import { StoreCustomerType } from '@/models/store-customer'
 import { Loader2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useServerAction } from 'zsa-react'
-import { createCustomer } from './actions'
-import { createCustomerFormSchema } from './schemas'
+import { createCustomer, updateCustomer } from './actions'
 
 type CustomersFormProps = {
   sheetState: [boolean, Dispatch<SetStateAction<boolean>>]
-  selectedCustomer?: CustomerType | null
+  selectedCustomer?: StoreCustomerType
 }
 export function CustomersForm({
   sheetState,
@@ -44,8 +45,8 @@ export function CustomersForm({
 
   const [isSheetOpen, setIsSheetOpen] = sheetState
 
-  const form = useForm<z.infer<typeof createCustomerFormSchema>>({
-    resolver: zodResolver(createCustomerFormSchema),
+  const form = useForm<z.infer<typeof createCustomerSchema>>({
+    resolver: zodResolver(createCustomerSchema),
     defaultValues: {
       name: undefined,
       phone: '+55',
@@ -53,28 +54,51 @@ export function CustomersForm({
     },
   })
 
-  const { execute, isPending, data } = useServerAction(createCustomer, {
-    onError: (err: any) => {
-      console.error('Error creating customer:', err)
+  const { execute: executeCreate, isPending: isCreating } = useServerAction(
+    createCustomer,
+    {
+      onSuccess: () => {
+        form.reset()
+        setIsSheetOpen(false)
+      },
     },
-    onSuccess: () => {
-      const customer = data?.createdCustomer[0] as unknown as CustomerType
-
-      router.push(`?created_customer=${customer?.id}`)
-      form.reset()
-      setIsSheetOpen(false)
+  )
+  const { execute: executeUpdate, isPending: isUpdating } = useServerAction(
+    updateCustomer,
+    {
+      onSuccess: () => {
+        form.reset()
+        setIsSheetOpen(false)
+      },
     },
-  })
+  )
 
-  function onSubmit(values: z.infer<typeof createCustomerFormSchema>) {
-    execute(values)
+  function onSubmit(values: z.infer<typeof createCustomerSchema>) {
+    if (selectedCustomer) {
+      executeUpdate({ ...values, id: selectedCustomer.id })
+    } else {
+      executeCreate(values)
+    }
   }
 
   useEffect(() => {
     if (selectedCustomer) {
-      form.setValue('name', selectedCustomer.name)
-      form.setValue('phone', selectedCustomer.phone)
-      form.setValue('address', selectedCustomer.address)
+      form.setValue('name', selectedCustomer.customers.name)
+      form.setValue('phone', selectedCustomer.customers.phone)
+      form.setValue('address.street', selectedCustomer.customers.address.street)
+      form.setValue('address.number', selectedCustomer.customers.address.number)
+      form.setValue(
+        'address.neighborhood',
+        selectedCustomer.customers.address.neighborhood,
+      )
+      form.setValue(
+        'address.complement',
+        selectedCustomer.customers.address.complement,
+      )
+      form.setValue(
+        'address.observations',
+        selectedCustomer.customers.address.observations,
+      )
     }
   }, [selectedCustomer])
 
@@ -90,83 +114,144 @@ export function CustomersForm({
         Criar Cliente
       </SheetTrigger>
 
-      <SheetContent className="space-y-6">
-        <SheetHeader>
-          <SheetTitle>
-            {selectedCustomer ? 'Editando' : 'Novo'} cliente
-          </SheetTitle>
-        </SheetHeader>
+      <SheetContent className="!p-0">
+        <ScrollArea className="space-y-6 h-dvh px-5">
+          <SheetHeader>
+            <SheetTitle>
+              {selectedCustomer ? 'Editando' : 'Novo'} cliente
+            </SheetTitle>
+          </SheetHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Insira o nome do cliente..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefone (WhatsApp)</FormLabel>
-                  <FormControl>
-                    <PhoneInput
-                      placeholder="Insira o WhatsApp do cliente..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Endereço</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Insira o endereço do cliente..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Ex: Rua Exemplo, 123 - Centro
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {selectedCustomer ? 'Atualizar' : 'Cadastrar'} cliente
-            </Button>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col w-full space-y-6"
+            >
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone</FormLabel>
+                    <FormControl>
+                      <PhoneInput {...field} />
+                    </FormControl>
+                    <FormDescription>O número de WhatsApp.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        {selectedCustomer && (
-          <section>
-            <h1 className="text-lg font-bold">Saldo do cliente</h1>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Digite o seu nome..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="flex flex-row items-center justify-between text-muted-foreground">
-              <p>Saldo atual:</p>
-              <strong>{formatCurrencyBRL(selectedCustomer.balance)}</strong>
-            </div>
-          </section>
-        )}
+              <FormField
+                control={form.control}
+                name="address.street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rua</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Insira a sua rua..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address.number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Número</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Insira o número..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address.neighborhood"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bairro</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Insira o bairro..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address.complement"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Complemento (opcional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Insira o complemento se tiver..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address.observations"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Observações (opcional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Insira uma observação..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="ml-auto"
+                disabled={isCreating || isUpdating}
+              >
+                {(isCreating || isUpdating) && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
+                {selectedCustomer ? 'Atualizar' : 'Cadastrar'} cliente
+              </Button>
+            </form>
+          </Form>
+
+          {selectedCustomer && (
+            <section>
+              <h1 className="text-lg font-bold">Saldo do cliente</h1>
+
+              <div className="flex flex-row items-center justify-between text-muted-foreground">
+                <p>Saldo atual:</p>
+                <strong>{formatCurrencyBRL(selectedCustomer.balance)}</strong>
+              </div>
+            </section>
+          )}
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   )

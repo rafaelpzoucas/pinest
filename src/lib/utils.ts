@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -61,12 +61,22 @@ export function queryParamsLink(params: any | null) {
   return queryParams.toString()
 }
 
-export function formatAddress(address: AddressType) {
-  if (address) {
-    return `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''} - ${address.neighborhood} - ${address.city}/${address.state}`
-  } else {
-    return null
-  }
+export function formatAddress(
+  address: AddressType | null | undefined,
+): string | null {
+  if (!address) return null
+
+  const { street, number, complement, neighborhood, city, state } = address
+
+  const parts = [
+    `${street}, ${number}`,
+    complement,
+    neighborhood ? `- ${neighborhood}` : null,
+    city ? `- ${city}` : null,
+    state ? `/${state}` : null,
+  ]
+
+  return parts.filter(Boolean).join(' ')
 }
 
 export function formatBytes(bytes: number, decimals = 2) {

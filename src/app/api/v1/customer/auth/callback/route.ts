@@ -1,4 +1,3 @@
-import { selectCustomerUser } from '@/app/[public_store]/account/actions'
 import { createClient } from '@/lib/supabase/server'
 import { createPath } from '@/lib/utils'
 import { NextResponse } from 'next/server'
@@ -64,14 +63,14 @@ export async function GET(request: Request) {
     }
   }
 
-  if (session) {
-    const { customerUser } = await selectCustomerUser()
+  // if (session) {
+  //   const { customerUser } = await selectCustomerUser()
 
-    if (!customerUser?.cpf_cnpj) {
-      console.log('Redirecionando para:', redirectURL)
-      return NextResponse.redirect(redirectURL)
-    }
-  }
+  //   if (!customerUser?.cpf_cnpj) {
+  //     console.log('Redirecionando para:', redirectURL)
+  //     return NextResponse.redirect(redirectURL)
+  //   }
+  // }
 
   console.log('Redirecionamento final para:', redirectURL)
   return NextResponse.redirect(redirectURL)

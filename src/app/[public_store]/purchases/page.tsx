@@ -1,10 +1,10 @@
 import { Header } from '@/components/store-header'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { createClient } from '@/lib/supabase/server'
 import { cn, createPath, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
 import { Box, ChevronRight } from 'lucide-react'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { readStore } from '../actions'
@@ -15,8 +15,7 @@ type StatusKey = keyof typeof statuses
 
 export default async function PurchasesPage() {
   const maxItems = 3
-
-  const supabase = createClient()
+  const cookieStore = cookies()
 
   const [[storeData], [cartData], [purchasesData]] = await Promise.all([
     readStore(),
@@ -28,7 +27,9 @@ export default async function PurchasesPage() {
   const cart = cartData?.cart
   const purchases = purchasesData?.purchases ?? []
 
-  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const storeCustomerPhone = cookieStore.get(
+    `${store?.store_subdomain}_customer_phone`,
+  )
 
   const { user } = await readStripeConnectedAccountByStoreUrl(
     store?.store_subdomain,
@@ -36,8 +37,8 @@ export default async function PurchasesPage() {
 
   const connectedAccount = user?.stripe_connected_account
 
-  if (!userData || userError) {
-    return redirect(createPath('/sign-in', store?.store_subdomain))
+  if (!storeCustomerPhone) {
+    return redirect(createPath('/account', store?.store_subdomain))
   }
 
   return (
@@ -46,7 +47,6 @@ export default async function PurchasesPage() {
         title="Minhas compras"
         store={store}
         cartProducts={cart}
-        userData={userData}
         connectedAccount={connectedAccount}
       />
 

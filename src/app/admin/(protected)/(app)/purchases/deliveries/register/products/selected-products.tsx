@@ -20,8 +20,8 @@ export function SelectedProducts({
   extras,
 }: {
   form: UseFormReturn<z.infer<typeof createPurchaseFormSchema>>
-  products: ProductType[]
-  extras: ExtraType[]
+  products?: ProductType[]
+  extras?: ExtraType[]
 }) {
   const { control, setValue } = form
   const { append, remove } = useFieldArray({
@@ -62,7 +62,7 @@ export function SelectedProducts({
       <Label>Produtos</Label>
       {selectedProducts.length > 0 ? (
         selectedProducts.map((item, index) => {
-          const product = products.find((p) => p.id === item.product_id)
+          const product = products?.find((p) => p.id === item.product_id)
           if (!product) return null
 
           const quantity = item.quantity

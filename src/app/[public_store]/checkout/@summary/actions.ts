@@ -2,15 +2,15 @@
 
 import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
 import { createClient } from '@/lib/supabase/server'
-import { getRootPath } from '@/lib/utils'
+import { createPath } from '@/lib/utils'
 import { storeProcedure } from '@/lib/zsa-procedures'
+import { AddressType } from '@/models/address'
 import { CustomerType } from '@/models/customer'
 import { StoreType } from '@/models/store'
-import { AddressType } from '@/models/user'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { readCustomer } from '../../account/actions'
 import { clearCart, readCart } from '../../cart/actions'
 import { readPurchaseItems } from '../actions'
 import { createPurchaseSchema } from './schemas'
@@ -60,54 +60,37 @@ export async function readStoreByName(storeName: string): Promise<{
   return { store, storeError }
 }
 
-export const handleCustomer = storeProcedure
+const updateStoreCustomerPurchasesQuantity = storeProcedure
   .createServerAction()
-  .handler(async ({ ctx }) => {
+  .input(z.object({ customerId: z.string().optional() }))
+  .handler(async ({ ctx, input }) => {
     const { store, supabase } = ctx
-    const { data: session } = await supabase.auth.getUser()
 
-    const { data: customer, error: customerError } = await readCustomerById(
-      session.user?.id ?? '',
-    )
+    const { data: storeCustomer, error } = await supabase
+      .from('store_customers')
+      .select('*')
+      .eq('customer_id', input.customerId)
+      .eq('store_id', store.id)
+      .single()
 
-    if (customerError) {
-      console.error('Erro ao ler os dados do cliente', customerError)
+    if (error || !storeCustomer) {
+      console.log('Nenhum cliente encontrado.', error)
     }
 
-    if (!customer) {
-      const { error: insertCustomerError } = await supabase
-        .from('customers')
-        .insert([
-          {
-            store_id: store.id,
-            user_id: session.user?.id,
-            purchases_quantity: 1,
-          },
-        ])
-
-      if (insertCustomerError) {
-        console.error('Erro ao criar novo cliente.', insertCustomerError)
-      }
-
-      const { data: customer, error: customerError } = await readCustomerById(
-        session.user?.id ?? '',
-      )
-
-      return { customer, customerError }
-    }
-
-    const { error: insertCustomerError } = await supabase
-      .from('customers')
+    const { error: updateCustomerError } = await supabase
+      .from('store_customers')
       .update({
-        purchases_quantity: customer && customer.purchases_quantity + 1,
+        purchases_quantity:
+          storeCustomer && storeCustomer.purchases_quantity + 1,
       })
-      .eq('id', customer.id)
+      .eq('id', storeCustomer?.id)
 
-    if (insertCustomerError) {
-      console.error(insertCustomerError)
+    if (updateCustomerError) {
+      console.error(
+        'Não foi possível atualizar a quantidade de compras na loja.',
+        updateCustomerError,
+      )
     }
-
-    return { customer: customer as CustomerType }
   })
 
 export const createPurchase = storeProcedure
@@ -115,16 +98,14 @@ export const createPurchase = storeProcedure
   .input(createPurchaseSchema)
   .handler(async ({ ctx, input }) => {
     const { store, supabase } = ctx
-    const cookieStore = cookies()
 
     const [[cartData], [customerData]] = await Promise.all([
       readCart(),
-      handleCustomer(),
+      readCustomer({}),
     ])
 
     const cart = cartData?.cart
     const customer = customerData?.customer
-    const guestData = cookieStore.get('guest_data')
 
     const type = input.type
 
@@ -132,16 +113,17 @@ export const createPurchase = storeProcedure
       customer_id: customer?.id ?? null,
       status: 'accept',
       updated_at: new Date().toISOString(),
-      address_id: input.addressId,
       store_id: store?.id,
-      delivery_time: type === 'DELIVERY' ? input.shippingTime : null,
       type,
       payment_type: input.payment_type,
-      guest_data: guestData ? JSON.parse(guestData.value) : null,
       total: {
         total_amount: input.totalAmount,
         shipping_price: type !== 'TAKEOUT' ? input.shippingPrice : 0,
         change_value: input.changeValue,
+      },
+      delivery: {
+        time: type === 'DELIVERY' ? input.shippingTime : null,
+        address: customer?.address,
       },
     }
 
@@ -196,17 +178,20 @@ export const createPurchase = storeProcedure
 
     if (purchaseItems) {
       for (const item of purchaseItems) {
-        await updateAmountSoldAndStock(item.product_id, item.quantity)
+        if (item.product_id) {
+          await updateAmountSoldAndStock(item.product_id, item.quantity)
+        }
       }
     }
 
     await handlePayment({ purchaseId: createdPurchase.id })
+    await updateStoreCustomerPurchasesQuantity({ customerId: customer?.id })
 
-    const rootPath = getRootPath(store.store_subdomain)
     return redirect(
-      rootPath
-        ? `/${rootPath}/purchases/${createdPurchase.id}?back=home`
-        : `/purchases/${createdPurchase.id}?back=home`,
+      createPath(
+        `/purchases/${createdPurchase.id}?back=home`,
+        store.store_subdomain,
+      ),
     )
   })
 

@@ -2,38 +2,42 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { PurchaseType } from '@/models/purchase'
+import { z } from 'zod'
+import { createServerAction } from 'zsa'
 
-export async function readPurchaseById(id: string): Promise<{
-  purchase: PurchaseType | null
-  purchaseError: any | null
-}> {
-  const supabase = createClient()
+export const readPurchaseById = createServerAction()
+  .input(z.object({ purchaseId: z.string() }))
+  .handler(async ({ input }) => {
+    const supabase = createClient()
 
-  const { data: purchase, error: purchaseError } = await supabase
-    .from('purchases')
-    .select(
-      `
-      *,
-      purchase_items (
-        *,
-        products (
+    const { data: purchase, error: purchaseError } = await supabase
+      .from('purchases')
+      .select(
+        `
           *,
-          product_images (*)
-        )
-      ),
-      purchase_item_variations (
-        *,
-        product_variations (*)
-      ),
-      addresses (*),
-      customers (
-        *,
-        users (*)
+          purchase_items (
+            *,
+            products (
+              *,
+              product_images (*)
+            )
+          ),
+          purchase_item_variations (
+            *,
+            product_variations (*)
+          ),
+          customers (*)
+        `,
       )
-    `,
-    )
-    .eq('id', id)
-    .single()
+      .eq('id', input.purchaseId)
+      .single()
 
-  return { purchase, purchaseError }
-}
+    if (purchaseError) {
+      console.error(
+        'Não foi possível buscar os dados da compra.',
+        purchaseError,
+      )
+    }
+
+    return { purchase: purchase as PurchaseType }
+  })

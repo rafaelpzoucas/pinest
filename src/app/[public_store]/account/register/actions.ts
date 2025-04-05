@@ -1,15 +1,11 @@
 'use server'
 
-import {
-  createCustomerSchema,
-  updateCustomerSchema,
-} from '@/app/[public_store]/account/register/schemas'
-import { adminProcedure } from '@/lib/zsa-procedures'
+import { storeProcedure } from '@/lib/zsa-procedures'
 import { CustomerType } from '@/models/customer'
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+import { createCustomerSchema, updateCustomerSchema } from './schemas'
 
-export const createCustomer = adminProcedure
+export const createCustomer = storeProcedure
   .createServerAction()
   .input(createCustomerSchema)
   .handler(async ({ ctx, input }) => {
@@ -44,7 +40,7 @@ export const createCustomer = adminProcedure
     return { createdCustomer: createdCustomer as CustomerType }
   })
 
-export const updateCustomer = adminProcedure
+export const updateCustomer = storeProcedure
   .createServerAction()
   .input(updateCustomerSchema)
   .handler(async ({ ctx, input }) => {
@@ -65,37 +61,4 @@ export const updateCustomer = adminProcedure
     }
 
     return revalidatePath('/')
-  })
-
-export const readCustomerLastPurchases = adminProcedure
-  .createServerAction()
-  .input(z.object({ customerId: z.string() }))
-  .handler(async ({ ctx, input }) => {
-    const { supabase, store } = ctx
-
-    const { data: lastPurchases, error: readLastPurchasesError } =
-      await supabase
-        .from('purchases')
-        .select(
-          `
-          *,
-          purchase_items (
-            *,
-            products (
-              *
-            )
-          )  
-        `,
-        )
-        .eq('store_id', store.id)
-        .eq('customer_id', input.customerId)
-        .order('created_at', { ascending: false })
-
-    if (readLastPurchasesError || !lastPurchases) {
-      throw new Error('Error creating customer', readLastPurchasesError)
-    }
-
-    revalidatePath('/admin/purchases')
-
-    return { lastPurchases }
   })
