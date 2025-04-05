@@ -13,9 +13,9 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { CustomerType } from '@/models/customer'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
+import { StoreCustomerType } from '@/models/store-customer'
 import { CustomersCombobox } from './customers/combobox'
 import { LastPurchases } from './customers/last-purchases'
 import { SelectedProducts } from './products/selected-products'
@@ -29,9 +29,9 @@ export function Summary({
 }: {
   form: any
   isPending: boolean
-  customers: CustomerType[]
-  products: ProductType[]
-  extras: ExtraType[]
+  customers?: StoreCustomerType[]
+  products?: ProductType[]
+  extras?: ExtraType[]
 }) {
   const customerFormSheetState = useState(false)
   const customerId = form.watch('customer_id')
@@ -52,7 +52,7 @@ export function Summary({
     <Card className="space-y-6 p-0 lg:p-4 border-0 lg:border">
       <h1 className="text-lg font-bold">Resumo do pedido</h1>
       <CustomersCombobox
-        customers={customers}
+        storeCustomers={customers}
         form={form}
         customerFormSheetState={customerFormSheetState}
       />

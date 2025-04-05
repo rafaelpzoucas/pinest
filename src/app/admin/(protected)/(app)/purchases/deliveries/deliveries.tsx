@@ -81,12 +81,10 @@ export function Deliveries({
   const filteredDeliveries =
     deliveries &&
     deliveries.filter((delivery) => {
-      const { customers, status, id, guest_data: guestData } = delivery
+      const { store_customers: storeCustomers, status, id } = delivery
 
       const matchesSearch =
-        normalizeString(customers?.users?.name).includes(searchStr) ||
-        normalizeString(customers?.name).includes(searchStr) ||
-        normalizeString(guestData?.name).includes(searchStr) ||
+        normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
         id.includes(searchStr)
       const matchesStatus = statusFilter ? status === statusFilter : true
 

@@ -3,10 +3,14 @@ import { IfoodItem, IfoodOrder } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { Plus } from 'lucide-react'
 
-export function Items({ purchase }: { purchase: PurchaseType }) {
-  const isIfood = purchase.is_ifood
-  const ifoodOrder: IfoodOrder = isIfood && purchase.ifood_order_data
+export function Items({ purchase }: { purchase?: PurchaseType }) {
+  const isIfood = purchase?.is_ifood
+  const ifoodOrder: IfoodOrder = isIfood && purchase?.ifood_order_data
   const ifoodItems: IfoodItem[] = ifoodOrder?.items ?? []
+
+  if (!purchase) {
+    return null
+  }
 
   return (
     <section className="w-full border-b border-dashed last:border-0 py-4 space-y-1">

@@ -1,6 +1,7 @@
+import { AddressType } from './address'
 import { HourType } from './hour'
 import { MarketNicheType } from './market-niches'
-import { AddressType, UserType } from './user'
+import { UserType } from './user'
 
 export type StoreType = {
   id: string

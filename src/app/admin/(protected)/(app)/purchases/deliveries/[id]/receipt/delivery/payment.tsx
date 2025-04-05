@@ -2,7 +2,10 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 import { PAYMENT_TYPES, PurchaseType } from '@/models/purchase'
 
-export function Payment({ purchase }: { purchase: PurchaseType }) {
+export function Payment({ purchase }: { purchase?: PurchaseType }) {
+  if (!purchase) {
+    return null
+  }
   const isIfood = purchase.is_ifood
   const ifoodOrder: IfoodOrder = isIfood && purchase.ifood_order_data
   return (

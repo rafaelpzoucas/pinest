@@ -20,7 +20,9 @@ async function updatePurchaseTrackingCode(
 }
 
 async function solicitShipping(purchaseId: string) {
-  const { purchase } = await readPurchaseById(purchaseId)
+  const [purchaseData] = await readPurchaseById({ purchaseId })
+
+  const purchase = purchaseData?.purchase
 
   if (!purchase) return
 
@@ -56,16 +58,15 @@ async function solicitShipping(purchaseId: string) {
   }
 
   const destinatario = {
-    nome: purchase.customers.users.name,
-    cnpjCpf: purchase.customers.users.cpf_cnpj,
+    nome: purchase.store_customers.customers.name,
     endereco: {
-      logradouro: purchase.addresses.street,
-      numero: purchase.addresses.number,
-      complemento: purchase.addresses.complement,
-      bairro: purchase.addresses.neighborhood,
-      cep: purchase.addresses.zip_code,
-      cidade: purchase.addresses.city,
-      uf: purchase.addresses.state,
+      logradouro: purchase.store_customers.customers.address.street,
+      numero: purchase.store_customers.customers.address.number,
+      complemento: purchase.store_customers.customers.address.complement,
+      bairro: purchase.store_customers.customers.address.neighborhood,
+      cep: purchase.store_customers.customers.address.zip_code,
+      cidade: purchase.store_customers.customers.address.city,
+      uf: purchase.store_customers.customers.address.state,
     },
   }
 

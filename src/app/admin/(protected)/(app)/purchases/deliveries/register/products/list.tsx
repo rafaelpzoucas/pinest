@@ -18,11 +18,11 @@ export function ProductsList({
   categories,
 }: {
   form: UseFormReturn<z.infer<typeof createPurchaseFormSchema>>
-  products: ProductType[]
-  categories: CategoryType[]
+  products?: ProductType[]
+  categories?: CategoryType[]
 }) {
-  const { control, register, watch, setValue } = form
-  const { fields, append, remove } = useFieldArray({
+  const { control, watch, setValue } = form
+  const { append, remove } = useFieldArray({
     control,
     name: 'purchase_items',
   })
@@ -95,7 +95,7 @@ export function ProductsList({
 
   // Calcula o valor total da compra
   const totalAmount = selectedProducts.reduce((total, item) => {
-    const product = products.find((p) => p.id === item.product_id)
+    const product = products?.find((p) => p.id === item.product_id)
     return total + (product ? item.product_price * item.quantity : 0)
   }, 0)
 
@@ -118,7 +118,7 @@ export function ProductsList({
         </div>
 
         <div className="flex flex-row flex-wrap gap-4">
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <Card
               key={category.id}
               className={cn(
@@ -136,8 +136,9 @@ export function ProductsList({
 
         <ScrollArea className="lg:h-[calc(100vh_-_1rem_-_68px_-_24px_-_12rem_-_1rem)]">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
-            {filteredProducts.length > 0 &&
-              filteredProducts.map((product) => (
+            {filteredProducts &&
+              filteredProducts.length > 0 &&
+              filteredProducts?.map((product) => (
                 <Card
                   key={product.id}
                   className="flex flex-row justify-between p-4 cursor-pointer hover:bg-secondary/30"
@@ -162,7 +163,7 @@ export function ProductsList({
           </div>
         </ScrollArea>
 
-        {filteredProducts.length === 0 && (
+        {filteredProducts?.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
             <Search className="w-32 h-32" />
             <p className="text-center">

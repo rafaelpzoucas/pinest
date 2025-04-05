@@ -1,8 +1,6 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { parseCookies, setCookie } from 'nookies'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -16,79 +14,38 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
-import { createPath } from '@/lib/utils'
-import { UserType } from '@/models/user'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { toast } from 'sonner'
-import { updateAccount } from './actions'
+import { useServerAction } from 'zsa-react'
+import { readCustomer } from './actions'
+import { readAccountSchema } from './schemas'
 
-export const accountSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  phone: z.string().min(1, 'Telefone é obrigatório'),
-})
-
-export function AccountForm({
-  user,
-  storeSubdomain,
-}: {
-  user: UserType | null
-  storeSubdomain?: string
-}) {
+export function ReadCustomerForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const checkout = searchParams.get('checkout')
+  const qCheckout = searchParams.get('checkout')
 
-  const form = useForm<z.infer<typeof accountSchema>>({
-    resolver: zodResolver(accountSchema),
+  const form = useForm<z.infer<typeof readAccountSchema>>({
+    resolver: zodResolver(readAccountSchema),
     defaultValues: {
-      name: '',
       phone: '',
     },
   })
 
-  useEffect(() => {
-    if (!user) {
-      const cookies = parseCookies()
-      const savedGuest = cookies.guest_data
-      if (savedGuest) {
-        const guestData = JSON.parse(savedGuest)
-        form.reset(guestData)
+  const { execute, isPending } = useServerAction(readCustomer, {
+    onSuccess: () => {
+      if (qCheckout) {
+        router.push(`account/register?checkout=${qCheckout}`)
+      } else {
+        router.push(`account/register`)
       }
-    } else {
-      form.reset({
-        name: user.name ?? '',
-        phone: user.phone ?? '',
-      })
-    }
-  }, [user, form])
+    },
+  })
 
-  async function onSubmit(values: z.infer<typeof accountSchema>) {
-    if (user) {
-      const { error } = await updateAccount(values)
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      toast('Informações atualizadas com sucesso')
-    } else {
-      setCookie(null, 'guest_data', JSON.stringify(values), {
-        maxAge: 30 * 24 * 60 * 60,
-        path: '/',
-      })
-      toast('Dados salvos para futuras compras')
-    }
-
-    if (checkout) {
-      return router.push(
-        createPath(`/checkout?step=${checkout}`, storeSubdomain),
-      )
-    }
+  async function onSubmit(values: z.infer<typeof readAccountSchema>) {
+    execute(values)
   }
 
   return (
@@ -97,20 +54,6 @@ export function AccountForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col w-full space-y-6"
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite o seu nome..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           control={form.control}
           name="phone"
@@ -126,19 +69,9 @@ export function AccountForm({
           )}
         />
 
-        <Button
-          type="submit"
-          className="ml-auto"
-          disabled={
-            form.formState.isSubmitting ||
-            form.formState.isSubmitted ||
-            !form.formState.isValid
-          }
-        >
-          {form.formState.isSubmitting && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          )}
-          Salvar
+        <Button type="submit" className="ml-auto" disabled={isPending}>
+          {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          Próximo
         </Button>
       </form>
     </Form>

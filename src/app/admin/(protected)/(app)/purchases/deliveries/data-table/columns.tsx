@@ -4,9 +4,8 @@ import { StatusKey } from '@/app/[public_store]/purchases/[id]/status'
 import { Badge } from '@/components/ui/badge'
 import { cn, formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
-import { CustomersType, PurchaseType } from '@/models/purchase'
+import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
-import { GuestType } from '@/models/user'
 import { ColumnDef } from '@tanstack/react-table'
 import { addHours, format } from 'date-fns'
 import Image from 'next/image'
@@ -71,27 +70,18 @@ export const columns: ColumnDef<PurchaseType>[] = [
     },
   },
   {
-    accessorKey: 'customers',
+    accessorKey: 'store_customers',
     header: 'Cliente',
     cell: ({ row }) => {
       const purchase = row.original
-      const customer = row.getValue('customers') as CustomersType
-      const guest = purchase.guest_data as GuestType
+      const customer = row.original.store_customers.customers
       const type = purchase.type
-      const customerAddress = ((purchase.addresses
-        ? formatAddress(purchase.addresses)
-        : formatAddress(purchase.guest_data?.address)) ??
-        purchase.customers.address) as string
-
+      const customerAddress = formatAddress(
+        purchase.store_customers.customers.address,
+      )
       return (
         <div className="max-w-[280px]">
-          <p className="capitalize">
-            {(
-              customer?.users?.name ??
-              customer?.name ??
-              guest?.name
-            ).toLowerCase()}
-          </p>
+          <p className="capitalize">{(customer?.name).toLowerCase()}</p>
           <p className="text-xs text-muted-foreground">
             {type === 'DELIVERY' ? customerAddress : 'Retirada na loja'}
           </p>

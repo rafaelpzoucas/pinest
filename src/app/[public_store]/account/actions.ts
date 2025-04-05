@@ -1,49 +1,33 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { UserType } from '@/models/user'
-import { revalidatePath } from 'next/cache'
+import { storeProcedure } from '@/lib/zsa-procedures'
+import { CustomerType } from '@/models/customer'
 import { z } from 'zod'
-import { accountSchema } from './form'
 
-export async function selectCustomerUser(): Promise<{
-  customerUser: UserType | null
-  selectCustomerUserError: any | null
-}> {
-  const supabase = createClient()
-  const { data: session } = await supabase.auth.getUser()
-  let customerUser = null
-  let selectCustomerUserError = null
+export const readCustomer = storeProcedure
+  .createServerAction()
+  .input(z.object({ phone: z.string().optional() }))
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase, cookieStore } = ctx
 
-  if (session?.user) {
-    const { data, error } = await supabase
-      .from('users')
+    if (input.phone) {
+      cookieStore.set(`${store.store_subdomain}_customer_phone`, input.phone)
+      return
+    }
+
+    const customerPhone = cookieStore.get(
+      `${store.store_subdomain}_customer_phone`,
+    )?.value
+
+    const { data: customer, error } = await supabase
+      .from('customers')
       .select('*')
-      .eq('id', session.user.id)
+      .eq('phone', customerPhone || input.phone)
       .single()
 
-    customerUser = data
-    selectCustomerUserError = error
-
-    if (selectCustomerUserError) {
-      console.error(selectCustomerUserError)
+    if (error || !customer) {
+      console.error('Erro ao buscar o cliente pelo telefone', error)
     }
-  }
 
-  return { customerUser, selectCustomerUserError }
-}
-
-export async function updateAccount(columns: z.infer<typeof accountSchema>) {
-  const supabase = createClient()
-
-  const { data: session } = await supabase.auth.getUser()
-
-  const { data, error } = await supabase
-    .from('users')
-    .update(columns)
-    .eq('id', session.user?.id)
-
-  revalidatePath('/')
-
-  return { data, error }
-}
+    return { customer: customer as CustomerType }
+  })

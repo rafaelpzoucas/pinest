@@ -1,49 +1,13 @@
+'use server'
+
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { storeProcedure } from '@/lib/zsa-procedures'
+import { AddressType } from '@/models/address'
 import { PurchaseType } from '@/models/purchase'
-import { StoreType } from '@/models/store'
-import { AddressType } from '@/models/user'
 import { redirect } from 'next/navigation'
+import { readStore } from '../actions'
 import { clearCart } from '../cart/actions'
-
-export async function readCustomerAddress() {
-  'use server'
-
-  const supabase = createClient()
-
-  const { data: session, error: sessionError } = await supabase.auth.getUser()
-
-  if (sessionError) {
-    console.error(sessionError)
-  }
-
-  const { data: customerAddress, error: customerAddressError } = await supabase
-    .from('addresses')
-    .select('*')
-    .eq('user_id', session.user?.id)
-    .single()
-
-  return {
-    customerAddress,
-    customerAddressError,
-  }
-}
-
-export async function readStore(storeURL: string): Promise<{
-  store: StoreType | null
-  storeError: any | null
-}> {
-  const supabase = createClient()
-
-  const { data: store, error: storeError } = await supabase
-    .from('stores')
-    .select('*')
-    .eq('store_subdomain', storeURL)
-    .single()
-
-  return { store, storeError }
-}
 
 export async function readUserConnectedAccountId(userId: string) {
   const supabase = createClient()
@@ -136,13 +100,14 @@ export async function createStripeCheckout(
   purchaseId: string,
 ) {
   const { purchase, purchaseError } = await readPurchaseItems(purchaseId)
-  const { store, storeError } = await readStore(storeURL)
+  const [storeData] = await readStore()
+  const store = storeData?.store
   const { stripeAccount, stripeAccountError } =
     await readUserConnectedAccountId(store?.user_id ?? '')
 
   const shippingPrice = purchase?.total?.shipping_price ?? 0
 
-  if (purchaseError || storeError || stripeAccountError) {
+  if (purchaseError || !store || stripeAccountError) {
     throw new Error('Erro ao obter dados necessários para criar o checkout')
   }
 

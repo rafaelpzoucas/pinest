@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 
 export async function readAddress(): Promise<{
   address: AddressType | null

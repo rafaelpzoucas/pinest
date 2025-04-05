@@ -130,7 +130,7 @@ export const readPendingBalances = adminProcedure
     const { supabase, store } = ctx
 
     const { data: pendingBalances, error } = await supabase
-      .from('customers')
+      .from('store_customers')
       .select('*')
       .lt('balance', 0)
       .eq('store_id', store?.id)

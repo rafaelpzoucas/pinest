@@ -1,6 +1,5 @@
 import { AdminHeader } from '@/app/admin-header'
 import { Card } from '@/components/ui/card'
-import { CustomerType } from '@/models/customer'
 import { PaymentType } from '@/models/payment'
 import { PurchaseItemsType } from '@/models/purchase'
 import { isPermissionGranted } from '../../actions'
@@ -31,6 +30,8 @@ export default async function CloseBill({
 
   const sale = tableData?.table ?? purchaseData?.purchase
 
+  const storeCustomers = customersData?.customers
+
   // const isIfood = sale.is_ifood
   // const ifoodItems = sale.ifood_order_data.items as IfoodItem[]
 
@@ -59,7 +60,7 @@ export default async function CloseBill({
         <aside className="sticky top-4">
           <CloseBillForm
             payments={purchasePayments}
-            customers={customersData?.customers as unknown as CustomerType[]}
+            storeCustomers={storeCustomers}
             isPermissionGranted={permission?.granted}
           />
         </aside>

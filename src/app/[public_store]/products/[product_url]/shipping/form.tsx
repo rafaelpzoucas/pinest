@@ -23,9 +23,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatCurrencyBRL, formatDistanceToFuture } from '@/lib/utils'
+import { AddressType } from '@/models/address'
 import { ShippingType } from '@/models/kangu-shipping'
 import { ProductType } from '@/models/product'
-import { AddressType } from '@/models/user'
 import { useProduct } from '@/stores/productStore'
 import { Loader2, Truck } from 'lucide-react'
 import { useState } from 'react'

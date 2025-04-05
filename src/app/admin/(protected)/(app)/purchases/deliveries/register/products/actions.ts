@@ -1,6 +1,11 @@
 'use server'
 
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { CategoryType } from '@/models/category'
+import { ExtraType } from '@/models/extras'
+import { ProductType } from '@/models/product'
+import { ShippingConfigType } from '@/models/shipping'
+import { StoreType } from '@/models/store'
 
 export const readStoreData = adminProcedure
   .createServerAction()
@@ -25,5 +30,11 @@ export const readStoreData = adminProcedure
       })
     }
 
-    return { categories, products, extras, shippings }
+    return {
+      store: store as StoreType,
+      categories: categories as CategoryType[],
+      products: products as ProductType[],
+      extras: extras as ExtraType[],
+      shippings: shippings as ShippingConfigType,
+    }
   })

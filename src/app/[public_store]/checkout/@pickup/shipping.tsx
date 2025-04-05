@@ -4,7 +4,7 @@ import {
   formatCurrencyBRL,
   formatDistanceToFuture,
 } from '@/lib/utils'
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 import { ChevronRight, Edit } from 'lucide-react'
 import Link from 'next/link'
 import { simulateShipping } from './actions'

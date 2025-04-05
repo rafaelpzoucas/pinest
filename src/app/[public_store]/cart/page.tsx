@@ -1,36 +1,24 @@
 import { Header } from '@/components/store-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { createClient } from '@/lib/supabase/server'
 import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
+import { readCustomer } from '../account/actions'
 import { readStore } from '../actions'
-import { readCart, readStripeConnectedAccountByStoreUrl } from './actions'
+import { readCart } from './actions'
 import { CartProducts } from './cart-products'
 
 export default async function CartPage() {
-  const supabase = createClient()
-
-  const [{ data: userData }, [storeData], [cartData]] = await Promise.all([
-    supabase.auth.getUser(),
+  const [[customerData], [storeData], [cartData]] = await Promise.all([
+    readCustomer({}),
     readStore(),
     readCart(),
   ])
 
   const store = storeData?.store
   const cart = cartData?.cart
-
-  const { user } = await readStripeConnectedAccountByStoreUrl(
-    store?.store_subdomain,
-  )
-
-  const connectedAccount = user?.stripe_connected_account
-
-  const cookiesStore = await cookies()
-  const guest = cookiesStore.get('guest_data')
-  const guestData = guest && JSON.parse(guest.value)
+  const customer = customerData?.customer
 
   const productsPrice = cart
     ? cart.reduce((acc, cartProduct) => {
@@ -50,7 +38,7 @@ export default async function CartPage() {
     <main className="w-full space-y-4 pb-40">
       <Header title="Finalizar compra" />
 
-      {connectedAccount && productsPrice > 0 && (
+      {productsPrice > 0 && (
         <section className="flex flex-col gap-2 w-full max-w-2xl">
           <Card className="p-4 w-full space-y-2">
             <div className="flex flex-row justify-between text-xs text-muted-foreground">
@@ -63,10 +51,10 @@ export default async function CartPage() {
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {!userData.user && !guestData ? (
+            {customer ? (
               <Link
                 href={createPath(
-                  '/sign-in?checkout=true',
+                  '/account?checkout=true',
                   store?.store_subdomain,
                 )}
                 className={cn(buttonVariants(), 'w-full')}

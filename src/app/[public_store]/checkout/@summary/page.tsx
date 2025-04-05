@@ -5,10 +5,10 @@ import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 import { cn, createPath, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
+import { readCustomer } from '../../account/actions'
 import { readStore } from '../../actions'
 import { readCart } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
-import { readAddressById } from './actions'
 import { CheckoutButton } from './checkout-button'
 import { Delivery } from './delivery'
 
@@ -26,25 +26,25 @@ export default async function Summary({
     changeValue: string
   }
 }) {
-  const addressId = searchParams.address
   const shippingCost = searchParams.shippingPrice
   const transp = searchParams.transp
   const payment = searchParams.payment
   const pickup = searchParams.pickup
-  const changeValue = searchParams.changeValue
+  const changeValue = parseFloat(searchParams.changeValue)
 
-  const [[storeData], [cartData], [ownShippingData], { address }] =
+  const [[storeData], [cartData], [ownShippingData], [customerData]] =
     await Promise.all([
       readStore(),
       readCart(),
       readOwnShipping(),
-      readAddressById(addressId),
+      readCustomer({}),
     ])
 
   const store = storeData?.store
   const storeAddress = store?.addresses[0]
   const cart = cartData?.cart
   const shipping = ownShippingData?.shipping
+  const customerAddress = customerData?.customer.address
 
   const PAYMENT_METHODS = {
     CREDIT: {
@@ -56,7 +56,7 @@ export default async function Summary({
       description: 'Você poderá pagar com um cartão de débito.',
     },
     CASH: {
-      label: 'em dinheiro',
+      label: `em dinheiro ${changeValue ? ' - troco para ' + formatCurrencyBRL(changeValue) : ''}`,
       description: `Você deverá efetuar o pagamento no momento da ${pickup === 'DELIVERY' ? 'entrega.' : 'retirada.'}`,
     },
     PIX: {
@@ -95,8 +95,6 @@ export default async function Summary({
   const formattedAddress = storeAddress && formatAddress(storeAddress)
 
   const createPurchaseValues = {
-    addressId:
-      searchParams.address === 'guest' ? undefined : searchParams.address,
     type: searchParams.pickup,
     payment_type: searchParams.payment,
     totalAmount: totalPrice,
@@ -135,7 +133,7 @@ export default async function Summary({
       </Card>
 
       {searchParams.pickup !== 'pickup' && (
-        <Delivery customerAddress={address} store={store} />
+        <Delivery customerAddress={customerAddress} store={store} />
       )}
 
       {searchParams.pickup === 'pickup' && (
@@ -164,9 +162,10 @@ export default async function Summary({
       )}
 
       <section className="flex flex-col items-center gap-2 text-center border-b py-6">
-        {payment === 'card' && <CreditCard />}
-        {payment === 'cash' && <Banknote />}
-        {payment === 'pix' && <DollarSign />}
+        {payment === 'CREDIT' && <CreditCard />}
+        {payment === 'DEBIT' && <CreditCard />}
+        {payment === 'CASH' && <Banknote />}
+        {payment === 'PIX' && <DollarSign />}
         <p>
           Você pagará {formatCurrencyBRL(totalPrice)}{' '}
           {PAYMENT_METHODS[paymentKey].label}
@@ -199,7 +198,13 @@ export default async function Summary({
       </section> */}
 
       <section className="flex flex-col items-start gap-2 py-6">
-        {cart && cart.map((item) => <CartProduct cartProduct={item} />)}
+        {cart &&
+          cart.map((item) => (
+            <CartProduct
+              cartProduct={item}
+              storeSubdomain={store?.store_subdomain}
+            />
+          ))}
       </section>
     </div>
   )

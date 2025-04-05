@@ -1,7 +1,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 import { Edit, MapPin } from 'lucide-react'
 import Link from 'next/link'
 

@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { cn, createPath } from '@/lib/utils'
-import { AddressType } from '@/models/user'
+import { AddressType } from '@/models/address'
 import { supabaseErrors } from '@/services/supabase-errors'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'

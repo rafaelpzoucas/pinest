@@ -1,10 +1,10 @@
 'use client'
 
 import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { AddressType } from '@/models/address'
 import { CartProductType } from '@/models/cart'
 import { ExtraType } from '@/models/extras'
 import { ProductType, ProductVariationType } from '@/models/product'
-import { AddressType } from '@/models/user'
 import { useProduct } from '@/stores/productStore'
 import { AddToCard } from './add-to-cart'
 import { ShippingForm } from './shipping/form'

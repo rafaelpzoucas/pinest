@@ -1,9 +1,9 @@
 'use client'
 
 import { buttonVariants } from '@/components/ui/button'
-import { cn, createPath } from '@/lib/utils'
+import { cn, createPath, formatAddress } from '@/lib/utils'
+import { AddressType } from '@/models/address'
 import { StoreType } from '@/models/store'
-import { AddressType } from '@/models/user'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { parseCookies } from 'nookies'
@@ -13,10 +13,12 @@ export function Delivery({
   customerAddress,
   store,
 }: {
-  customerAddress: AddressType | null
+  customerAddress?: AddressType
   store?: StoreType
 }) {
-  const [address, setAddress] = useState<AddressType | null>(customerAddress)
+  const [address, setAddress] = useState<AddressType | undefined>(
+    customerAddress,
+  )
 
   useEffect(() => {
     if (!customerAddress) {
@@ -36,13 +38,7 @@ export function Delivery({
       <MapPin />
       {address ? (
         <>
-          <p>
-            {address?.street}, {address?.number}
-          </p>
-          <span className="text-xs text-muted-foreground">
-            CEP {address?.zip_code} - {address?.neighborhood} - {address?.city}/
-            {address?.state}
-          </span>
+          <p>{formatAddress(address)}</p>
         </>
       ) : (
         <p>Nenhum endereço cadastrado</p>
