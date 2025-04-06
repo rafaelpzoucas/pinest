@@ -74,6 +74,7 @@ export default async function ProductPage({
         connectedAccount={connectedAccount}
         store={store}
         userData={userData}
+        storeSubdomain={store?.store_subdomain}
       />
 
       <div className="w-full max-w-7xl">
