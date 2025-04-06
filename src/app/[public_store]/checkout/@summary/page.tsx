@@ -44,7 +44,7 @@ export default async function Summary({
   const storeAddress = store?.addresses[0]
   const cart = cartData?.cart
   const shipping = ownShippingData?.shipping
-  const customerAddress = customerData?.customer.address
+  const customerAddress = customerData?.customer?.address
 
   const PAYMENT_METHODS = {
     CREDIT: {
