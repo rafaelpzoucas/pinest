@@ -6,6 +6,11 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
+  // ⚠️ Ignora rotas que começam com /admin
+  if (url.pathname.startsWith('/admin')) {
+    return response
+  }
+
   let subdomain: string | null = null
 
   if (process.env.NODE_ENV !== 'production') {
