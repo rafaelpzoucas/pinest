@@ -139,20 +139,17 @@ export default function Payment() {
                                       name="change_value"
                                       render={({ field }) => (
                                         <FormItem>
-                                          <FormLabel>
-                                            Valor a ser pago
-                                          </FormLabel>
+                                          <FormLabel>Troco para</FormLabel>
                                           <FormControl>
                                             <Input
                                               maskType="currency"
-                                              placeholder="Insira o valor que você pagará"
+                                              placeholder="Insira o valor..."
                                               {...field}
                                             />
                                           </FormControl>
                                           <FormDescription>
-                                            Digite quanto vai pagar em dinheiro
-                                            para que o entregador leve o seu
-                                            troco.
+                                            Se for pagar em dinheiro, escreva
+                                            quanto vai dar para o entregador.
                                           </FormDescription>
                                           <FormMessage />
                                         </FormItem>
