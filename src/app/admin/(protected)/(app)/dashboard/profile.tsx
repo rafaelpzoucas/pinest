@@ -2,20 +2,25 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatAddress } from '@/lib/utils'
+import { createPath, formatAddress } from '@/lib/utils'
 import { StoreType } from '@/models/store'
 import { Check, Clipboard, MapPin, Phone } from 'lucide-react'
 import { useState } from 'react'
 
 export function ProfileCard({ store }: { store: StoreType }) {
   const [copied, setCopied] = useState(false)
-  const fullUrl = `/${store.store_subdomain}`
+
+  const domain = store.custom_domain ?? `${store.store_subdomain}.pinest.com.br`
+  const fullUrl =
+    process.env.NODE_ENV === 'production'
+      ? createPath('/', store.store_subdomain)
+      : domain
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(fullUrl)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000) // Reseta após 2s
+      setTimeout(() => setCopied(false), 2000)
     } catch (error) {
       console.error('Erro ao copiar o link:', error)
     }
