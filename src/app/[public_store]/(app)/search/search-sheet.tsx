@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getRootPath } from '@/lib/utils'
+import { cn, getRootPath } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Search, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -84,7 +84,12 @@ export function SearchSheet({ subdomain }: { subdomain?: string }) {
               <span>{query ?? 'Buscar na loja'}</span>
             </div>
 
-            <div className={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+            <div
+              className={cn(
+                buttonVariants({ variant: 'ghost', size: 'icon' }),
+                'w-12',
+              )}
+            >
               <Search className="lg:hidden w-5 h-5" />
             </div>
           </div>

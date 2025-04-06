@@ -4,7 +4,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, createPath, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
-import { Home, ScrollText, ShoppingCart } from 'lucide-react'
+import { Home, ReceiptText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SearchSheet } from './(app)/search/search-sheet'
@@ -18,7 +18,9 @@ export function MobileNavigation({
 }) {
   const pathname = usePathname()
 
-  const iconsClassNames = 'w-5 h-5'
+  if (pathname.includes('register')) {
+    return null
+  }
 
   const rootPath = getRootPath(storeSubdomain)
 
@@ -36,8 +38,8 @@ export function MobileNavigation({
     },
     {
       href: createPath('/purchases', storeSubdomain),
-      name: 'Meus pedidos',
-      icon: ScrollText,
+      name: 'Pedidos',
+      icon: ReceiptText,
     },
   ]
 
@@ -49,7 +51,7 @@ export function MobileNavigation({
       )}
     >
       <Card
-        className="flex flex-row lg:flex-col items-center justify-between gap-4 w-fit p-1
+        className="flex flex-row lg:flex-col items-center justify-between gap-4 w-fit h-fit p-2
           bg-background/90 backdrop-blur-sm"
       >
         {links.map((link) => (
@@ -58,13 +60,12 @@ export function MobileNavigation({
             href={link.href}
             className={cn(
               buttonVariants({ variant: 'ghost', size: 'icon' }),
-              'bg-transparent relative',
+              'bg-transparent relative w-12',
             )}
           >
             <link.icon
               className={cn(
-                iconsClassNames,
-                'opacity-50',
+                'opacity-50 w-6 h-6',
                 pathname === link.href && 'opacity-100',
               )}
             />
@@ -87,7 +88,7 @@ export function MobileNavigation({
           href={createPath('/cart', storeSubdomain)}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'icon' }),
-            'relative bg-transparent',
+            'relative bg-transparent w-12',
           )}
         >
           {cartProducts && cartProducts?.length > 0 && (
