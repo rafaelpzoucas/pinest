@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
 
   // ⚠️ Ignora rotas que começam com /admin
-  if (url.pathname.startsWith('/admin')) {
+  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
     return response
   }
 
