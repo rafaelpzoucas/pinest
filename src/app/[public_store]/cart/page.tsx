@@ -51,7 +51,7 @@ export default async function CartPage() {
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {customer ? (
+            {!customer ? (
               <Link
                 href={createPath(
                   '/account?checkout=true',
