@@ -12,7 +12,7 @@ export default async function PickupOptions() {
     await Promise.all([readStoreAddress(), readCustomer({}), readOwnShipping()])
 
   const storeAddress = storeAddressData?.storeAddress
-  const customerAddress = customerData?.customer.address
+  const customerAddress = customerData?.customer?.address
   const shipping = shippingData?.shipping
 
   const formattedAddress = storeAddress && formatAddress(storeAddress)

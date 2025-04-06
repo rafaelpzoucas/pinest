@@ -168,10 +168,10 @@ export default async function Summary({
         {payment === 'PIX' && <DollarSign />}
         <p>
           Você pagará {formatCurrencyBRL(totalPrice)}{' '}
-          {PAYMENT_METHODS[paymentKey].label}
+          {PAYMENT_METHODS[paymentKey]?.label}
         </p>
         <span className="text-xs text-muted-foreground">
-          {PAYMENT_METHODS[paymentKey].description}
+          {PAYMENT_METHODS[paymentKey]?.description}
         </span>
 
         <Link
