@@ -48,6 +48,10 @@ export function Header({
     }
   }
 
+  console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', {
+    store,
+  })
+
   return (
     <header className="flex items-center justify-center w-full">
       <Card

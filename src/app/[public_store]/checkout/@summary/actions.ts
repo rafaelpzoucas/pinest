@@ -10,8 +10,8 @@ import { StoreType } from '@/models/store'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { readCustomer } from '../../account/actions'
 import { clearCart, readCart } from '../../cart/actions'
+import { readStoreCustomer } from '../../purchases/actions'
 import { readPurchaseItems } from '../actions'
 import { createPurchaseSchema } from './schemas'
 
@@ -101,16 +101,16 @@ export const createPurchase = storeProcedure
 
     const [[cartData], [customerData]] = await Promise.all([
       readCart(),
-      readCustomer({}),
+      readStoreCustomer(),
     ])
 
     const cart = cartData?.cart
-    const customer = customerData?.customer
+    const storeCustomer = customerData?.storeCustomer
 
     const type = input.type
 
     const newPurchaseValues = {
-      customer_id: customer?.id ?? null,
+      customer_id: storeCustomer?.id ?? null,
       status: 'accept',
       updated_at: new Date().toISOString(),
       store_id: store?.id,
@@ -123,7 +123,7 @@ export const createPurchase = storeProcedure
       },
       delivery: {
         time: type === 'DELIVERY' ? input.shippingTime : null,
-        address: customer?.address,
+        address: storeCustomer?.customers?.address,
       },
     }
 
@@ -185,7 +185,9 @@ export const createPurchase = storeProcedure
     }
 
     await handlePayment({ purchaseId: createdPurchase.id })
-    await updateStoreCustomerPurchasesQuantity({ customerId: customer?.id })
+    await updateStoreCustomerPurchasesQuantity({
+      customerId: storeCustomer?.customers?.id,
+    })
 
     return redirect(
       createPath(

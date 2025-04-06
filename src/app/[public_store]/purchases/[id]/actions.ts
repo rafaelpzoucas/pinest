@@ -26,7 +26,10 @@ export const readPurchaseById = createServerAction()
             *,
             product_variations (*)
           ),
-          customers (*)
+          store_customers (
+            *,
+            customers (*)
+          )
         `,
       )
       .eq('id', input.purchaseId)
