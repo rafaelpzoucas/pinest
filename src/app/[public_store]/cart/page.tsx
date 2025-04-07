@@ -34,6 +34,10 @@ export default async function CartPage() {
       }, 0)
     : 0
 
+  const finishPurchaseLink = !customer
+    ? createPath('/account?checkout=true', store?.store_subdomain)
+    : createPath('/checkout?step=pickup', store?.store_subdomain)
+
   return (
     <main className="w-full space-y-4 pb-40">
       <Header title="Finalizar compra" />
@@ -51,27 +55,12 @@ export default async function CartPage() {
               <strong>{formatCurrencyBRL(productsPrice - 0)}</strong>
             </div>
 
-            {!customer ? (
-              <Link
-                href={createPath(
-                  '/account?checkout=true',
-                  store?.store_subdomain,
-                )}
-                className={cn(buttonVariants(), 'w-full')}
-              >
-                Finalizar compra
-              </Link>
-            ) : (
-              <Link
-                href={createPath(
-                  '/checkout?step=pickup',
-                  store?.store_subdomain,
-                )}
-                className={cn(buttonVariants(), 'w-full')}
-              >
-                Finalizar compra
-              </Link>
-            )}
+            <Link
+              href={finishPurchaseLink}
+              className={cn(buttonVariants(), 'w-full')}
+            >
+              Finalizar compra
+            </Link>
           </Card>
         </section>
       )}

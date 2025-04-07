@@ -78,7 +78,7 @@ export function CustomerRegisterForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full space-y-6"
+        className="flex flex-col w-full max-w-md mx-auto space-y-6"
       >
         <FormField
           control={form.control}

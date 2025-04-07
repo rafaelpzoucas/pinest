@@ -114,10 +114,7 @@ export function CustomersCombobox({
                         value={storeCustomer.customers.name}
                         key={storeCustomer.customers.id}
                         onSelect={() => {
-                          form.setValue(
-                            'customer_id',
-                            storeCustomer.customers.id,
-                          )
+                          form.setValue('customer_id', storeCustomer.id)
                         }}
                       >
                         <div className="flex flex-col w-full">

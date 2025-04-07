@@ -41,6 +41,7 @@ export type ProductType = {
   amount_sold: number
   sku: string
   allows_extras: boolean
+  status: 'active' | 'inactive'
   pkg_weight: number
   pkg_length: number
   pkg_width: number

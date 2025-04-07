@@ -2,8 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { generateSlug } from '@/lib/utils'
+import { adminProcedure } from '@/lib/zsa-procedures'
 import { ProductType } from '@/models/product'
 import { revalidatePath } from 'next/cache'
+import { updateProductStatusSchema } from './schemas'
 
 export async function readProductsByStore(storeId?: string): Promise<{
   data: ProductType[] | null
@@ -121,3 +123,21 @@ export async function deleteProduct(id: string) {
 
   return { error }
 }
+
+export const updateProductStatus = adminProcedure
+  .createServerAction()
+  .input(updateProductStatusSchema)
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const { error } = await supabase
+      .from('products')
+      .update({ status: input.status ? 'active' : 'inactive' })
+      .eq('id', input.product_id)
+
+    if (error) {
+      console.error('Erro ao atualizar o status do produto.', error)
+    }
+
+    revalidatePath('/admin/catalog')
+  })

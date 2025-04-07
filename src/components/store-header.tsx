@@ -14,8 +14,8 @@ type HeaderPropsType = {
   store?: StoreType | null
   title?: string
   cartProducts?: CartProductType[] | null
-  connectedAccount?: any
-  userData?: any
+
+  customer?: any
   storeSubdomain?: string
 }
 
@@ -23,8 +23,7 @@ export function Header({
   title,
   store,
   cartProducts,
-  connectedAccount,
-  userData,
+  customer,
   storeSubdomain,
 }: HeaderPropsType) {
   const router = useRouter()
@@ -47,10 +46,6 @@ export function Header({
       router.back()
     }
   }
-
-  console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', {
-    store,
-  })
 
   return (
     <header className="flex items-center justify-center w-full">
@@ -79,12 +74,11 @@ export function Header({
 
         <SearchSheet subdomain={storeSubdomain} />
 
-        {cartProducts && connectedAccount && userData && (
+        {cartProducts && customer && (
           <div className="hidden lg:block">
             <PublicStoreNavigation
               cartProducts={cartProducts}
-              connectedAccount={connectedAccount}
-              userData={userData}
+              customer={customer}
               storeSubdomain={store?.store_subdomain}
             />
           </div>

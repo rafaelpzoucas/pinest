@@ -211,7 +211,11 @@ export function AddToCard({
     setSelectedExtras(getMergedExtras())
   }, [cartProduct])
 
-  if (product.stock === null || product.stock > 0) {
+  if (
+    product.stock === null ||
+    product.stock > 0 ||
+    product.status !== 'active'
+  ) {
     return (
       <Form {...form}>
         {isOpen ? (

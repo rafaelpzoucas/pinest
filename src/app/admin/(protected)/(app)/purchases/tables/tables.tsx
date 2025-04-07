@@ -127,11 +127,16 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                               )}
                             >
                               {isPending ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <>
+                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                  <span>Carregando...</span>
+                                </>
                               ) : (
-                                <BadgeDollarSign className="w-5 h-5" />
+                                <>
+                                  <BadgeDollarSign className="w-5 h-5" />
+                                  <span>Fechar mesa</span>
+                                </>
                               )}
-                              Fechar mesa
                             </Link>
                           </TooltipTrigger>
 

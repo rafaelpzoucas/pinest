@@ -1,4 +1,3 @@
-import defaultThumbUrl from '@/../public/default_thumb_url.png'
 import { ProductCardImage } from '@/components/product-card-image'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,22 +7,6 @@ import { ProductOptions } from './options'
 
 export function ProductCard({ product }: { product?: ProductType }) {
   const isPromotional = product?.promotional_price
-
-  function getImageURL() {
-    if (
-      product &&
-      product.product_images &&
-      product.product_images.length > 0
-    ) {
-      return product.product_images[0].image_url
-    }
-
-    return ''
-  }
-
-  const imageURL = getImageURL()
-
-  const thumbURL = imageURL === '' ? defaultThumbUrl : imageURL
 
   if (!product) {
     return (
@@ -82,7 +65,7 @@ export function ProductCard({ product }: { product?: ProductType }) {
       </div>
 
       <div className="absolute top-1 right-1">
-        <ProductOptions productId={product.id} />
+        <ProductOptions product={product} />
       </div>
 
       <footer className="flex flex-row justify-between border-t pt-2 mt-3">

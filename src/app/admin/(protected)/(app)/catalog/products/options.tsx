@@ -33,43 +33,48 @@ import { Edit, Layers2, MoreVertical, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { deleteProduct, duplicateProduct } from './actions'
+import { ProductStatus } from './product-status'
 
 type ProductOptions = Omit<ProductType, 'product_images'>
 
-export function ProductOptions({ productId }: { productId: string }) {
+export function ProductOptions({ product }: { product: ProductType }) {
   const [isAlertOpen, setIsAlertOpen] = useState(false)
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="lg:hidden">
-          <Button variant={'ghost'} size={'icon'}>
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Opções</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <Link href={`catalog/products/register?id=${productId}`}>
-            <DropdownMenuItem>Editar</DropdownMenuItem>
-          </Link>
+      <div className="lg:hidden flex flex-row items-center gap-2">
+        <ProductStatus productId={product.id} defaultStatus={product.status} />
 
-          <DropdownMenuItem onClick={() => duplicateProduct(productId)}>
-            Duplicar
-          </DropdownMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant={'ghost'} size={'icon'}>
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Opções</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <Link href={`catalog/products/register?id=${product.id}`}>
+              <DropdownMenuItem>Editar</DropdownMenuItem>
+            </Link>
 
-          <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
-            Excluir
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem onClick={() => duplicateProduct(product.id)}>
+              Duplicar
+            </DropdownMenuItem>
 
-      <div className="hidden lg:flex flex-row">
+            <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="hidden lg:flex flex-row items-center pr-2">
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                href={`catalog/products/register?id=${productId}`}
+                href={`catalog/products/register?id=${product.id}`}
                 className={buttonVariants({ variant: 'ghost', size: 'icon' })}
               >
                 <Edit className="w-4 h-4" />
@@ -84,7 +89,7 @@ export function ProductOptions({ productId }: { productId: string }) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                onClick={() => duplicateProduct(productId)}
+                onClick={() => duplicateProduct(product.id)}
                 variant="ghost"
                 size="icon"
               >
@@ -112,6 +117,21 @@ export function ProductOptions({ productId }: { productId: string }) {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ProductStatus
+                  productId={product.id}
+                  defaultStatus={product.status}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{product.status ? 'Pausar venda' : 'Ativar produto'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
@@ -126,7 +146,7 @@ export function ProductOptions({ productId }: { productId: string }) {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteProduct(productId)}
+              onClick={() => deleteProduct(product.id)}
             >
               Sim, excluir
             </AlertDialogAction>

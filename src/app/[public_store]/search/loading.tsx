@@ -5,12 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default async function SearchPageLoading() {
   return (
     <div className="space-y-6 lg:space-y-8">
-      <Header
-        store={null}
-        cartProducts={[]}
-        userData={null}
-        connectedAccount={null}
-      />
+      <Header store={null} cartProducts={[]} customer={null} />
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="w-full space-y-2">
