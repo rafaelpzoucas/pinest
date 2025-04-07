@@ -3,9 +3,11 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { readPendingBalances } from './actions'
 
 export async function PendingBalances() {
-  const [data] = await readPendingBalances()
+  const [storeCustomersData] = await readPendingBalances()
 
-  if (!data?.pendingBalances || data.pendingBalances.length === 0) {
+  const storeCustomers = storeCustomersData?.storeCustomers
+
+  if (!storeCustomers || storeCustomers.length === 0) {
     return
   }
 
@@ -16,12 +18,12 @@ export async function PendingBalances() {
       </CardHeader>
       <CardContent>
         <div>
-          {data?.pendingBalances.map((customer) => (
+          {storeCustomers.map((customer) => (
             <p
               key={customer.id}
               className="flex flex-row items-center justify-between py-2 border-b last:border-0"
             >
-              <span>{customer.name}</span>
+              <span>{customer.customers.name}</span>
               <span>{formatCurrencyBRL(customer.balance)}</span>
             </p>
           ))}

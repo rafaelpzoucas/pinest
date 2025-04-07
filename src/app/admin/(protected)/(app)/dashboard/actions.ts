@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
+import { StoreCustomerType } from '@/models/store-customer'
 import {
   endOfDay,
   endOfMonth,
@@ -129,9 +130,14 @@ export const readPendingBalances = adminProcedure
   .handler(async ({ ctx }) => {
     const { supabase, store } = ctx
 
-    const { data: pendingBalances, error } = await supabase
+    const { data: storeCustomers, error } = await supabase
       .from('store_customers')
-      .select('*')
+      .select(
+        `
+          *,
+          customers (*)
+        `,
+      )
       .lt('balance', 0)
       .eq('store_id', store?.id)
 
@@ -140,5 +146,5 @@ export const readPendingBalances = adminProcedure
       return
     }
 
-    return { pendingBalances }
+    return { storeCustomers: storeCustomers as StoreCustomerType[] }
   })
