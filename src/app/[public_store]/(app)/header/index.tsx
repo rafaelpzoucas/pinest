@@ -1,11 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
-import { createClient } from '@/lib/supabase/server'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { StoreType } from '@/models/store'
 import { Pyramid } from 'lucide-react'
-import { readStripeConnectedAccountByStoreUrl } from '../../cart/actions'
+import { readCustomer } from '../../account/actions'
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../search/search-sheet'
 import { readOwnShipping } from './actions'
@@ -18,16 +17,12 @@ export async function Header({
   store?: StoreType
   cart: CartProductType[]
 }) {
-  const supabase = createClient()
-
-  const [{ data: userData }, { user }, [shippingData]] = await Promise.all([
-    supabase.auth.getUser(),
-    await readStripeConnectedAccountByStoreUrl(store?.store_subdomain ?? ''),
+  const [[customerData], [shippingData]] = await Promise.all([
+    await readCustomer({}),
     await readOwnShipping(),
   ])
 
-  const connectedAccount = user?.stripe_connected_account
-
+  const customer = customerData?.customer
   const shipping = shippingData?.shipping
   const storeNiche = store && store?.market_niches[0]
 
@@ -73,8 +68,7 @@ export async function Header({
         <div className="hidden lg:block">
           <PublicStoreNavigation
             cartProducts={cart ?? []}
-            connectedAccount={connectedAccount}
-            userData={userData}
+            customer={customer}
             storeSubdomain={store?.store_subdomain}
           />
         </div>

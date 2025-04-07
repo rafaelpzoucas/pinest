@@ -20,27 +20,17 @@ import { CartProductType } from '@/models/cart'
 import { PopoverPortal } from '@radix-ui/react-popover'
 import { Home, ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { parseCookies } from 'nookies'
 import { CartProducts } from './cart/cart-products'
 
 export function PublicStoreNavigation({
   cartProducts,
-  connectedAccount,
-  userData,
+  customer,
   storeSubdomain,
 }: {
-  connectedAccount: any
-  userData: any
+  customer: any
   cartProducts: CartProductType[]
   storeSubdomain?: string
 }) {
-  const params = useParams()
-
-  const cookies = parseCookies()
-  const savedGuest = cookies.guest_data
-  const guestData = savedGuest && JSON.parse(savedGuest)
-
   const rootPath = getRootPath(storeSubdomain)
 
   const links = [
@@ -56,10 +46,9 @@ export function PublicStoreNavigation({
     },
   ]
 
-  const finishPurchaseLink =
-    !userData.user && !guestData
-      ? createPath('/sign-in?checkout=true', storeSubdomain)
-      : createPath('/checkout?step=pickup', storeSubdomain)
+  const finishPurchaseLink = !customer
+    ? createPath('/account?checkout=true', storeSubdomain)
+    : createPath('/checkout?step=pickup', storeSubdomain)
 
   const productsPrice = cartProducts
     ? cartProducts.reduce((acc, cartProduct) => {
@@ -118,7 +107,7 @@ export function PublicStoreNavigation({
                   </ScrollArea>
 
                   <footer className="pt-3 bg-background">
-                    {connectedAccount && productsPrice > 0 && (
+                    {productsPrice > 0 && (
                       <Link
                         href={finishPurchaseLink}
                         className={cn(

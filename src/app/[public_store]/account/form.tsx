@@ -46,13 +46,14 @@ export function ReadCustomerForm() {
 
   async function onSubmit(values: z.infer<typeof readAccountSchema>) {
     execute(values)
+    console.log(values)
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full space-y-6"
+        className="flex flex-col w-full max-w-md mx-auto space-y-6"
       >
         <FormField
           control={form.control}

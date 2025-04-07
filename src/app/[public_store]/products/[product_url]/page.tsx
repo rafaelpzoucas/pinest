@@ -10,12 +10,9 @@ import {
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 import { Header } from '@/components/store-header'
-import { createClient } from '@/lib/supabase/server'
+import { readCustomer } from '../../account/actions'
 import { readStore } from '../../actions'
-import {
-  readCart,
-  readStripeConnectedAccountByStoreUrl,
-} from '../../cart/actions'
+import { readCart } from '../../cart/actions'
 import { readExtras, readProductByURL, readProductVariations } from './actions'
 import { ProductInfo } from './info'
 
@@ -28,20 +25,20 @@ export default async function ProductPage({
 }) {
   const cartProductId = searchParams.cart_product_id
 
-  const supabase = createClient()
-
   const [
     [storeData],
     [extrasData],
     [cartData],
     [productData],
     [productVariationsData],
+    [customerData],
   ] = await Promise.all([
     readStore(),
     readExtras(),
     readCart(),
     readProductByURL({ productURL: params.product_url }),
     readProductVariations({ productURL: params.product_url }),
+    readCustomer({}),
   ])
 
   const store = storeData?.store
@@ -50,20 +47,9 @@ export default async function ProductPage({
   const storeAddress = store?.addresses[0]
   const product = productData?.product
   const variations = productVariationsData?.variations
+  const customer = customerData?.customer
 
   const cartProduct = cart?.find((item) => item.id === cartProductId)
-
-  const { data: userData, error: userError } = await supabase.auth.getUser()
-
-  if (userError) {
-    console.error({ userError })
-  }
-
-  const { user } = await readStripeConnectedAccountByStoreUrl(
-    store?.store_subdomain,
-  )
-
-  const connectedAccount = user?.stripe_connected_account
 
   const productImages = product?.product_images || []
 
@@ -71,9 +57,8 @@ export default async function ProductPage({
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
         cartProducts={cart}
-        connectedAccount={connectedAccount}
         store={store}
-        userData={userData}
+        customer={customer}
         storeSubdomain={store?.store_subdomain}
       />
 

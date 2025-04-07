@@ -10,6 +10,7 @@ export const PAYMENT_TYPES = {
   DEBIT: 'Cartão de débito',
   PIX: 'PIX',
   CASH: 'Dinheiro',
+  DEFERRED: 'Prazo',
 }
 
 export interface CustomersType extends CustomerType {

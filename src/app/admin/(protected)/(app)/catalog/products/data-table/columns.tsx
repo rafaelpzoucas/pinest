@@ -50,6 +50,6 @@ export const columns: ColumnDef<ProductType>[] = [
   {
     accessorKey: 'id',
     header: 'Ações',
-    cell: ({ row }) => <ProductOptions productId={row.getValue('id')} />,
+    cell: ({ row }) => <ProductOptions product={row.original} />,
   },
 ]

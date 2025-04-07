@@ -7,6 +7,7 @@ import {
   ReceiptText,
   Store,
   User,
+  Users,
 } from 'lucide-react'
 
 export const main = [
@@ -24,6 +25,11 @@ export const main = [
     title: 'Cardápio',
     url: '/admin/catalog',
     icon: LayoutList,
+  },
+  {
+    title: 'Clientes',
+    url: '/admin/customers',
+    icon: Users,
   },
 ]
 

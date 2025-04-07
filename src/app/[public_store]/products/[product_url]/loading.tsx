@@ -5,12 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default async function ProductPageLoading() {
   return (
     <main className="flex flex-col items-center justify-center gap-6">
-      <Header
-        cartProducts={[]}
-        connectedAccount={null}
-        store={null}
-        userData={null}
-      />
+      <Header cartProducts={[]} store={null} customer={null} />
 
       <div className="w-full max-w-7xl">
         <div className="flex flex-col xl:flex-row xl:gap-12">

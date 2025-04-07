@@ -8,7 +8,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { readStore } from '../actions'
-import { readCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
+import { readCart } from '../cart/actions'
 import { readPurchases } from './actions'
 
 type StatusKey = keyof typeof statuses
@@ -31,24 +31,13 @@ export default async function PurchasesPage() {
     `${store?.store_subdomain}_customer_phone`,
   )
 
-  const { user } = await readStripeConnectedAccountByStoreUrl(
-    store?.store_subdomain,
-  )
-
-  const connectedAccount = user?.stripe_connected_account
-
   if (!storeCustomerPhone) {
     return redirect(createPath('/account', store?.store_subdomain))
   }
 
   return (
     <div className="space-y-4">
-      <Header
-        title="Minhas compras"
-        store={store}
-        cartProducts={cart}
-        connectedAccount={connectedAccount}
-      />
+      <Header title="Minhas compras" store={store} cartProducts={cart} />
 
       <div className="flex flex-col gap-2 lg:grid grid-cols-4">
         {purchases && purchases.length > 0 ? (

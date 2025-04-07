@@ -27,6 +27,7 @@ export function CashRegisterSummary({ payments }: { payments: PaymentType[] }) {
         DEBIT: 'Cartão de débito',
         CASH: 'Dinheiro',
         PIX: 'PIX',
+        DEFERRED: 'Prazo',
       } as const
 
       const key = typeMap[payment.payment_type as keyof typeof typeMap]
@@ -47,6 +48,7 @@ export function CashRegisterSummary({ payments }: { payments: PaymentType[] }) {
         DEBIT: 'Cartão de débito',
         CASH: 'Dinheiro',
         PIX: 'PIX',
+        DEFERRED: 'Prazo',
       } as const
 
       const key = typeMap[payment.payment_type as keyof typeof typeMap]

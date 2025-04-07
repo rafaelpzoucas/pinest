@@ -47,6 +47,8 @@ export const createPayment = cashProcedure
     const amount = stringToNumber(input.amount)
     const discount = stringToNumber(input.discount)
 
+    console.log({ input })
+
     const { data: createdPayment, error } = await supabase
       .from('payments')
       .insert({
@@ -66,7 +68,11 @@ export const createPayment = cashProcedure
     }
 
     const { data: customerToUpdate, error: customerToUpdateError } =
-      await supabase.from('customers').select('*').eq('id', customerId).single()
+      await supabase
+        .from('store_customers')
+        .select('*')
+        .eq('id', customerId)
+        .single()
 
     if (customerToUpdateError || !customerToUpdate) {
       console.error(
@@ -78,9 +84,9 @@ export const createPayment = cashProcedure
 
     if (customerId) {
       const { error: updateCustomerBalance } = await supabase
-        .from('customers')
+        .from('store_customers')
         .update({ balance: customerToUpdate?.balance - amount })
-        .eq('id', input.customer_id)
+        .eq('id', customerId)
 
       if (updateCustomerBalance) {
         console.error('Error updating customer balance.', updateCustomerBalance)

@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/toaster'
 import { ReactNode } from 'react'
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -11,6 +12,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       disableTransitionOnChange
     >
       {children}
+      <Toaster />
     </ThemeProvider>
   )
 }

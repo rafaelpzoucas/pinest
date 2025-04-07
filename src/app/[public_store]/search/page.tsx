@@ -1,9 +1,9 @@
 import { ProductCard } from '@/components/product-card'
 import { Header } from '@/components/store-header'
-import { createClient } from '@/lib/supabase/server'
 import { Search } from 'lucide-react'
+import { readCustomer } from '../account/actions'
 import { readStore } from '../actions'
-import { readCart, readStripeConnectedAccountByStoreUrl } from '../cart/actions'
+import { readCart } from '../cart/actions'
 import { getSearchedProducts } from './actions'
 
 export default async function SearchPage({
@@ -11,34 +11,22 @@ export default async function SearchPage({
 }: {
   searchParams: { q: string }
 }) {
-  const supabase = createClient()
-
-  const [[searchData], [storeData], [cartData], { data: userData }] =
+  const [[searchData], [storeData], [cartData], [customerData]] =
     await Promise.all([
       getSearchedProducts({ query: searchParams.q }),
       readStore(),
       readCart(),
-      supabase.auth.getUser(),
+      readCustomer({}),
     ])
 
   const products = searchData?.products
   const store = storeData?.store
   const cart = cartData?.cart
-
-  const { user } = await readStripeConnectedAccountByStoreUrl(
-    store?.store_subdomain,
-  )
-
-  const connectedAccount = user?.stripe_connected_account
+  const customer = customerData?.customer
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      <Header
-        store={store}
-        cartProducts={cart}
-        userData={userData}
-        connectedAccount={connectedAccount}
-      />
+      <Header store={store} cartProducts={cart} customer={customer} />
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="w-full">
