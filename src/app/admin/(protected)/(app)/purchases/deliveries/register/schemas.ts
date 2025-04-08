@@ -1,26 +1,10 @@
 import { addressSchema } from '@/app/[public_store]/account/register/schemas'
 import { z } from 'zod'
+import { purchaseItemsSchema } from '../../schemas'
 
 export const createPurchaseFormSchema = z.object({
   customer_id: z.string().min(1, 'Selecione o cliente.'),
-  purchase_items: z
-    .array(
-      z.object({
-        product_id: z.string(),
-        quantity: z.number(),
-        product_price: z.number(),
-        observations: z.string(),
-        extras: z.array(
-          z.object({
-            name: z.string(),
-            price: z.number(),
-            extra_id: z.string(),
-            quantity: z.number(),
-          }),
-        ),
-      }),
-    )
-    .min(1, 'O pedido precisa de pelo menos 1 item.'),
+  purchase_items: purchaseItemsSchema,
   type: z.enum(['DELIVERY', 'TAKEOUT'], {
     message: 'Escolha o tipo do pedido.',
   }),

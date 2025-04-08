@@ -2,7 +2,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL, normalizeString } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
 import { ProductType } from '@/models/product'
 import { Plus, Search } from 'lucide-react'
@@ -20,65 +20,33 @@ export function ProductsList({
   products: ProductType[]
   categories: CategoryType[]
 }) {
-  const { control, register, watch, setValue } = form
-  const { fields, append, remove } = useFieldArray({
+  const { control } = form
+  const { append } = useFieldArray({
     control,
     name: 'purchase_items',
   })
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
 
-  const normalizeString = (str: string | undefined) => str?.toLowerCase() || ''
-
   const searchStr = normalizeString(search)
 
-  const selectedProducts = watch('purchase_items') ?? []
-
-  const handleQuantityChange = (product: ProductType, change: number) => {
-    const index = selectedProducts.findIndex((p) => p.product_id === product.id)
-
-    if (index === -1 && change > 0) {
-      // Adiciona o produto ao carrinho se ainda não estiver
-      append({
-        product_id: product.id,
-        quantity: 1,
-        product_price: product.price,
-        observations: '',
-        extras: [],
-      })
-    } else if (index !== -1) {
-      const selectedProduct = selectedProducts[index]
-
-      // Verifica se o produto já tem extras. Se sim, cria uma nova entrada.
-      if (selectedProduct.extras?.length > 0) {
-        // Adiciona um novo item no carrinho, sem alterar a quantidade do item existente
-        append({
-          product_id: product.id,
-          quantity: 1,
-          product_price: product.price,
-          observations: '',
-          extras: [],
-        })
-      } else {
-        const newQuantity = selectedProduct.quantity + change
-
-        if (newQuantity > 0) {
-          setValue(`purchase_items.${index}.quantity`, newQuantity)
-        } else {
-          remove(index) // Remove o produto se a quantidade for 0
-        }
-      }
-    }
+  const handleAddItem = (product: ProductType, _change: number) => {
+    append({
+      product_id: product.id,
+      quantity: 1,
+      product_price: product.price,
+      observations: [],
+      extras: [],
+    })
   }
 
   const filteredProducts =
     products &&
     products.filter((product) => {
-      const { id, name, description, category_id: categoryId, sku } = product
+      const { name, description, category_id: categoryId, sku } = product
 
       const matchesSearch =
         normalizeString(name).includes(searchStr) ||
-        id.includes(searchStr) ||
         description.includes(searchStr) ||
         sku?.includes(searchStr)
       const matchesCategory = categoryFilter
@@ -130,7 +98,7 @@ export function ProductsList({
                 <Card
                   key={product.id}
                   className="flex flex-row justify-between p-4 cursor-pointer hover:bg-secondary/30"
-                  onClick={() => handleQuantityChange(product, 1)}
+                  onClick={() => handleAddItem(product, 1)}
                 >
                   <div className="flex flex-col">
                     <span>{product.name}</span>
@@ -149,16 +117,19 @@ export function ProductsList({
                 </Card>
               ))}
           </div>
-        </ScrollArea>
 
-        {filteredProducts.length === 0 && (
-          <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-            <Search className="w-32 h-32" />
-            <p className="text-center">
-              Nenhum produto &quot;{search}&quot; encontrado.
-            </p>
-          </div>
-        )}
+          {filteredProducts.length === 0 && (
+            <div
+              className="flex flex-col items-center justify-center gap-4 text-muted-foreground mx-auto
+                w-fit"
+            >
+              <Search className="w-32 h-32" />
+              <p className="text-center">
+                Nenhum produto &quot;{search}&quot; encontrado.
+              </p>
+            </div>
+          )}
+        </ScrollArea>
       </div>
     </div>
   )

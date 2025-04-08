@@ -1,9 +1,10 @@
 'use client'
 
+import { ExtrasInput } from '@/components/extras-input'
+import { ObservationsInput } from '@/components/observations-input'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
@@ -12,7 +13,6 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
 import { useFieldArray, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { createTableSchema } from '../schemas'
-import { Extras } from './extras'
 
 export function SelectedProducts({
   form,
@@ -43,7 +43,7 @@ export function SelectedProducts({
         product_id: product.id,
         quantity: 1,
         product_price: product.price,
-        observations: '',
+        observations: [],
         extras: [],
       })
     } else if (index !== -1) {
@@ -71,7 +71,7 @@ export function SelectedProducts({
           return (
             <Card
               key={index}
-              className="space-y-2 bg-secondary/20 p-3 rounded-lg"
+              className="space-y-1 bg-secondary/20 p-3 rounded-lg"
             >
               <header className="flex flex-row justify-between">
                 <div className="flex flex-col">
@@ -106,44 +106,22 @@ export function SelectedProducts({
                 </div>
               </header>
 
-              <ul>
-                {item.extras.map((extra, index) => (
-                  <li key={index}>
-                    <div className="flex flex-row justify-between text-sm">
-                      <span className="flex flex-row items-center gap-1">
-                        <Plus className="w-3 h-3" />
-                        <span>{extra.quantity}</span>
-                        {extra.name}
-                      </span>
-                      <span>{formatCurrencyBRL(extra.price)}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
               {product.allows_extras && (
-                <Extras
-                  form={form}
-                  extras={extras}
-                  product={product}
-                  selectedProducts={selectedProducts}
+                <ExtrasInput
+                  availableExtras={extras}
+                  value={item.extras}
+                  onChange={(newExtras) =>
+                    setValue(`purchase_items.${index}.extras`, newExtras)
+                  }
                 />
               )}
 
-              <div className="space-y-2">
-                <FormField
-                  control={form.control}
-                  name={`purchase_items.${index}.observations` as const}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Input
-                        placeholder="Insira uma observação..."
-                        {...field}
-                      />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <ObservationsInput
+                value={item.observations || []}
+                onChange={(newObs) =>
+                  setValue(`purchase_items.${index}.observations`, newObs)
+                }
+              />
             </Card>
           )
         })

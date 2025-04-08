@@ -31,7 +31,7 @@ export type ProductType = {
   id: string
   name: string
   description: string
-  observations: string
+  observations: string[]
   price: number
   promotional_price: number
   stock: number

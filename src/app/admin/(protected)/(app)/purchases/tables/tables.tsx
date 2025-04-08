@@ -19,7 +19,15 @@ import {
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { TableType } from '@/models/table'
 import { useCashRegister } from '@/stores/cashRegisterStore'
-import { ArrowLeft, BadgeDollarSign, Loader2, Plus, Search } from 'lucide-react'
+import {
+  ArrowLeft,
+  Asterisk,
+  BadgeDollarSign,
+  Edit,
+  Loader2,
+  Plus,
+  Search,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { MdTableBar } from 'react-icons/md'
@@ -104,6 +112,15 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                       <SheetTitle className="!mt-0">
                         Mesa #{table.number}
                       </SheetTitle>
+                      <Link
+                        href={`purchases/tables/register?id=${table.id}&edit=true`}
+                        className={cn(
+                          buttonVariants({ variant: 'ghost', size: 'icon' }),
+                          'ml-auto',
+                        )}
+                      >
+                        <Edit />
+                      </Link>
                     </SheetHeader>
 
                     <section className="py-4 w-full flex flex-col gap-4">
@@ -220,11 +237,16 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                                     </p>
                                   ))}
 
-                                {item.observations && (
-                                  <strong className="uppercase text-muted-foreground">
-                                    obs: {item.observations}
-                                  </strong>
-                                )}
+                                <div className="flex flex-col">
+                                  {item.observations &&
+                                    item.observations.length > 0 &&
+                                    item.observations.map((obs) => (
+                                      <span className="flex flex-row items-center text-muted-foreground uppercase">
+                                        <Asterisk className="w-3 h-3 mr-1" />
+                                        {obs}
+                                      </span>
+                                    ))}
+                                </div>
 
                                 <footer className="flex flex-row items-center justify-between">
                                   <p>Total:</p>

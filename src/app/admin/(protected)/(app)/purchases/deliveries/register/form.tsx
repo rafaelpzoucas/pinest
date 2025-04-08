@@ -139,19 +139,8 @@ export function CreatePurchaseForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] items-start gap-8 pb-16 lg:pb-0"
+        className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] items-start gap-4 pb-16 lg:pb-0"
       >
-        <aside className="lg:sticky top-4">
-          <Card className="space-y-6 p-4 lg:h-[calc(100vh_-_1rem_-_5rem)]">
-            <h1 className="text-lg font-bold">Produtos</h1>
-            <ProductsList
-              form={form}
-              products={products}
-              categories={categories}
-            />
-          </Card>
-        </aside>
-
         <Card className="flex lg:hidden flex-col gap-4 p-4 fixed bottom-2 left-2 right-2">
           <p>{selectedProducts.length} Produto(s) selecionado(s)</p>
 
@@ -191,6 +180,17 @@ export function CreatePurchaseForm({
             products={products}
           />
         </div>
+
+        <aside className="lg:sticky top-4">
+          <Card className="space-y-6 p-4 lg:h-[calc(100vh_-_1rem_-_5rem)]">
+            <h1 className="text-lg font-bold">Produtos</h1>
+            <ProductsList
+              form={form}
+              products={products}
+              categories={categories}
+            />
+          </Card>
+        </aside>
       </form>
     </Form>
   )

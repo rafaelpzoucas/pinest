@@ -199,7 +199,7 @@ export const createPurchase = storeProcedure
 
 export async function updateAmountSoldAndStock(
   productId: string,
-  quantity: number,
+  quantityDiff: number, // Pode ser positivo ou negativo
 ) {
   const supabase = createClient()
 
@@ -210,22 +210,23 @@ export async function updateAmountSoldAndStock(
     .single()
 
   if (productError) {
-    console.error('Erro ao buscar amount_sold e stock do produto', productError)
+    console.error('Erro ao buscar produto', productError)
+    return
   }
 
-  const { error: updateAmountSoldError } = await supabase
+  const { error: updateError } = await supabase
     .from('products')
     .update({
-      amount_sold: product?.amount_sold + quantity,
+      amount_sold: (product?.amount_sold ?? 0) + quantityDiff,
       stock:
-        product?.stock !== null ? product?.stock - quantity : product.stock,
+        product?.stock !== null ? product.stock - quantityDiff : product.stock,
     })
     .eq('id', productId)
 
-  if (updateAmountSoldError) {
+  if (updateError) {
     console.error(
-      `Erro ao atualizar amount_sold e stock do produto ${product?.id} - ${product?.name}`,
-      updateAmountSoldError,
+      `Erro ao atualizar produto ${product?.id} - ${product?.name}`,
+      updateError,
     )
   }
 }
