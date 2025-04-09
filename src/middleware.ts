@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   const isPreviewEnv = hostname === 'staging-pinest.vercel.app'
 
-  // 👉 Detecta admin
+  // 🔐 ADMIN: subdomínio admin (em produção) ou /admin no preview/dev
   const isAdmin =
     (process.env.NODE_ENV === 'production' && hostname.startsWith('admin.')) ||
     (isPreviewEnv && url.pathname.startsWith('/admin')) ||
@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   let subdomain: string | null = null
 
   if (isPreviewEnv || process.env.NODE_ENV !== 'production') {
-    // Usa o path para detectar o "subdomínio"
+    // ➕ DEV ou PREVIEW → subdomínio vem do PATH
     const segments = url.pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
 
@@ -38,20 +38,26 @@ export async function middleware(request: NextRequest) {
         : `/${subdomain}`
     }
   } else {
-    // Ambiente de produção com subdomínio real
+    // ➕ PRODUÇÃO → subdomínio vem do HOSTNAME
     const parts = hostname.split('.')
-    if (parts.length > 2) {
-      subdomain = parts[0]
+
+    // hostname: pinest.com.br (sem subdomínio) → landing
+    if (parts.length === 2) {
+      return response
+    }
+
+    // hostname: admin.pinest.com.br → já tratado acima
+    // hostname: loja123.pinest.com.br
+    subdomain = parts[0]
+
+    if (subdomain) {
       url.pathname =
         url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
-    } else {
-      // Domínio raiz (landing page)
-      return response
     }
   }
 
   if (subdomain) {
-    response.cookies.set(`public_store_subdomain`, subdomain, { path: '/' })
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
     return NextResponse.rewrite(url, response)
   }
 
