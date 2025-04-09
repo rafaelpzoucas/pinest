@@ -6,39 +6,51 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
-  // ⚠️ Ignora rotas que começam com /admin
+  const isPreviewEnv = hostname === 'staging-pinest.vercel.app'
+
+  // 👉 Detecta admin
+  const isAdmin =
+    (process.env.NODE_ENV === 'production' && hostname.startsWith('admin.')) ||
+    (isPreviewEnv && url.pathname.startsWith('/admin')) ||
+    (!isPreviewEnv && url.pathname.startsWith('/admin'))
+
+  if (isAdmin) {
+    url.pathname = '/admin' + url.pathname.replace('/admin', '')
+    return NextResponse.rewrite(url, response)
+  }
+
+  // ⚠️ Ignora rotas que começam com /admin ou /api
   if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
     return response
   }
 
   let subdomain: string | null = null
 
-  if (process.env.NODE_ENV !== 'production') {
-    // Em ambiente local, o subdomínio é extraído do caminho (localhost:3000/nomedaloja)
+  if (isPreviewEnv || process.env.NODE_ENV !== 'production') {
+    // Usa o path para detectar o "subdomínio"
     const segments = url.pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
 
     if (subdomain) {
-      // Remove o primeiro segmento (nome da loja) e mantém o resto do caminho
       const remainingPath = segments.slice(1).join('/')
       url.pathname = remainingPath
         ? `/${subdomain}/${remainingPath}`
         : `/${subdomain}`
     }
   } else {
-    // Em produção, captura o subdomínio de "nomedaloja.pinest.com.br"
+    // Ambiente de produção com subdomínio real
     const parts = hostname.split('.')
     if (parts.length > 2) {
       subdomain = parts[0]
-
-      // Mantém o pathname original, mas adiciona o subdomínio como primeiro segmento
       url.pathname =
         url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
+    } else {
+      // Domínio raiz (landing page)
+      return response
     }
   }
 
   if (subdomain) {
-    // Define um cookie para armazenar a loja acessada
     response.cookies.set(`public_store_subdomain`, subdomain, { path: '/' })
     return NextResponse.rewrite(url, response)
   }
