@@ -1,5 +1,5 @@
 import { TableType } from '@/models/table'
-import { Plus } from 'lucide-react'
+import { Asterisk, Plus } from 'lucide-react'
 import { readTableById } from '../actions'
 import { Printer } from './printer'
 
@@ -41,8 +41,6 @@ export default async function PrintKitchenReceipt({
         className="w-full border-b border-dashed last:border-0 py-4 space-y-1 print-section
           break-inside-avoid text-base"
       >
-        <h3 className="mx-auto text-xs uppercase">Itens do pedido</h3>
-
         <ul>
           {itemsList.map((item) => {
             if (!item.products) return null
@@ -59,14 +57,23 @@ export default async function PrintKitchenReceipt({
                   item.extras.map((extra) => (
                     <p
                       key={extra.id}
-                      className="flex flex-row items-center w-full text-xs"
+                      className="flex flex-row items-center w-full text-sm"
                     >
                       <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
                       {extra.name}
                     </p>
                   ))}
 
-                {item.observations && <strong>**{item.observations}</strong>}
+                <div className="flex flex-col">
+                  {item.observations &&
+                    item.observations.length > 0 &&
+                    item.observations.map((obs) => (
+                      <span className="flex flex-row">
+                        <Asterisk className="w-3 h-3 mr-1" />
+                        {obs}
+                      </span>
+                    ))}
+                </div>
               </li>
             )
           })}

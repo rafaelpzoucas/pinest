@@ -3,32 +3,17 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { GitCommitVertical, Home } from 'lucide-react'
+import Link from 'next/link'
 import { Footer } from './footer'
 import { Header } from './header'
-import { main, reports, settings } from './items'
+import { SidebarButtons } from './menu-buttons'
 
-const groups = [
-  {
-    label: 'Principal',
-    items: main,
-  },
-  {
-    label: 'Configurações',
-    items: settings,
-  },
-  {
-    label: 'Relatórios',
-    items: reports,
-  },
-]
 export async function AppSidebar() {
   const [storeData] = await readStore()
   const store = storeData?.store
@@ -46,34 +31,16 @@ export async function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href={'/admin/dashboard'}>
+                <Link href={'/admin/dashboard'}>
                   <Home />
                   <span>Home</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
 
-        {groups.map((group) => (
-          <SidebarGroup>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <SidebarButtons />
       </SidebarContent>
 
       <Footer />

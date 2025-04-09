@@ -211,158 +211,156 @@ export function AddToCard({
     setSelectedExtras(getMergedExtras())
   }, [cartProduct])
 
-  if (
-    product.stock === null ||
-    product.stock > 0 ||
-    product.status !== 'active'
-  ) {
-    return (
-      <Form {...form}>
-        {isOpen ? (
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 max-w-sm"
-          >
-            {groupedByAttribute && groupedByAttribute.length > 0 && (
-              <div className="flex flex-col md:flex-row gap-2">
-                {groupedByAttribute.map((attribute, index) => (
-                  <Card key={attribute.name} className="p-4 pt-3 w-fit">
-                    <FormField
-                      control={form.control}
-                      name={`variations.${index}.variation_id`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{attribute.name}</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex flex-row gap-5"
-                            >
-                              {attribute.variations.map((variation) => (
-                                <FormItem
-                                  key={variation.id}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <FormControl>
-                                    <RadioGroupItem value={variation.id} />
-                                  </FormControl>
-                                  <FormLabel className="font-normal !mt-0">
-                                    {variation.name}
-                                  </FormLabel>
-                                </FormItem>
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </Card>
-                ))}
-              </div>
-            )}
+  const isProductAvailable =
+    (product.stock > 0 || product.stock === null) && product.status === 'active'
 
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-row gap-4 w-full">
-                <div className="flex flex-row items-center gap-3">
-                  <Button
-                    type="button"
-                    variant={'secondary'}
-                    size={'icon'}
-                    onClick={decrease}
-                    disabled={amount === 1}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
+  if (!isProductAvailable) {
+    return (
+      <Card className="space-y-2 p-4 border-0 bg-secondary/30">
+        <h1 className="text-2xl font-bold">Produto indisponível</h1>
+        <p className="text-sm text-muted-foreground">
+          Este produto está indisponível no momento.
+        </p>
+      </Card>
+    )
+  }
+  return (
+    <Form {...form}>
+      {isOpen ? (
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 max-w-sm"
+        >
+          {groupedByAttribute && groupedByAttribute.length > 0 && (
+            <div className="flex flex-col md:flex-row gap-2">
+              {groupedByAttribute.map((attribute, index) => (
+                <Card key={attribute.name} className="p-4 pt-3 w-fit">
                   <FormField
                     control={form.control}
-                    name="quantity"
-                    render={() => (
+                    name={`variations.${index}.variation_id`}
+                    render={({ field }) => (
                       <FormItem>
+                        <FormLabel>{attribute.name}</FormLabel>
                         <FormControl>
-                          <input
-                            type="text"
-                            readOnly
-                            className="text-center w-5 bg-transparent"
-                            value={amount}
-                          />
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-row gap-5"
+                          >
+                            {attribute.variations.map((variation) => (
+                              <FormItem
+                                key={variation.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <FormControl>
+                                  <RadioGroupItem value={variation.id} />
+                                </FormControl>
+                                <FormLabel className="font-normal !mt-0">
+                                  {variation.name}
+                                </FormLabel>
+                              </FormItem>
+                            ))}
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button
-                    type="button"
-                    variant={'secondary'}
-                    size={'icon'}
-                    onClick={() => increase(product.stock)}
-                    disabled={amount === product.stock}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
+                </Card>
+              ))}
+            </div>
+          )}
 
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-row gap-4 w-full">
+              <div className="flex flex-row items-center gap-3">
                 <Button
-                  className="flex flex-row items-center justify-between w-full max-w-md"
-                  type="submit"
-                  disabled={isFormSubmitting || product.stock === 0 || !isOpen}
+                  type="button"
+                  variant={'secondary'}
+                  size={'icon'}
+                  onClick={decrease}
+                  disabled={amount === 1}
                 >
-                  {isFormSubmitting ? (
-                    <span className="flex flex-row items-center gap-1">
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {cartProduct ? 'Atualizando' : 'Adicionando'}
-                    </span>
-                  ) : (
-                    <span className="flex flex-row items-center gap-1">
-                      <Plus className="w-4 h-4" />
-                      {cartProduct ? 'Atualizar' : 'Adicionar'}{' '}
-                    </span>
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <FormField
+                  control={form.control}
+                  name="quantity"
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <input
+                          type="text"
+                          readOnly
+                          className="text-center w-5 bg-transparent"
+                          value={amount}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  <span>{formatCurrencyBRL(totalPrice * amount)}</span>
+                />
+                <Button
+                  type="button"
+                  variant={'secondary'}
+                  size={'icon'}
+                  onClick={() => increase(product.stock)}
+                  disabled={amount === product.stock}
+                >
+                  <Plus className="w-4 h-4" />
                 </Button>
               </div>
+
+              <Button
+                className="flex flex-row items-center justify-between w-full max-w-md"
+                type="submit"
+                disabled={isFormSubmitting || product.stock === 0 || !isOpen}
+              >
+                {isFormSubmitting ? (
+                  <span className="flex flex-row items-center gap-1">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {cartProduct ? 'Atualizando' : 'Adicionando'}
+                  </span>
+                ) : (
+                  <span className="flex flex-row items-center gap-1">
+                    <Plus className="w-4 h-4" />
+                    {cartProduct ? 'Atualizar' : 'Adicionar'}{' '}
+                  </span>
+                )}
+                <span>{formatCurrencyBRL(totalPrice * amount)}</span>
+              </Button>
             </div>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="observations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observações</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Sem cebola, sem picles, etc..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {product.allows_extras && extras && extras.length > 0 && (
-              <ExtrasSection
-                extras={extras}
-                selectedExtrasState={[selectedExtras, setSelectedExtras]}
-              />
+          <FormField
+            control={form.control}
+            name="observations"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Observações</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Sem cebola, sem picles, etc..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </form>
-        ) : (
-          <Card className="flex items-center justify-center p-2 bg-destructive text-destructive-foreground">
-            <h1>Estamos fechados no momento</h1>
-          </Card>
-        )}
-      </Form>
-    )
-  }
+          />
 
-  return (
-    <Card className="space-y-2 p-4 border-0 bg-secondary/30">
-      <h1 className="text-2xl font-bold">Produto indisponível</h1>
-      <p className="text-sm text-muted-foreground">
-        Este produto está indisponível no momento, por falta de estoque.
-      </p>
-    </Card>
+          {product.allows_extras && extras && extras.length > 0 && (
+            <ExtrasSection
+              extras={extras}
+              selectedExtrasState={[selectedExtras, setSelectedExtras]}
+            />
+          )}
+        </form>
+      ) : (
+        <Card className="flex items-center justify-center p-2 bg-destructive text-destructive-foreground">
+          <h1>Estamos fechados no momento</h1>
+        </Card>
+      )}
+    </Form>
   )
 }

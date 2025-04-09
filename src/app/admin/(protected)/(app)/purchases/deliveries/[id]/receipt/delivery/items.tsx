@@ -1,7 +1,7 @@
 import { formatCurrencyBRL } from '@/lib/utils'
 import { IfoodItem, IfoodOrder } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
-import { Plus } from 'lucide-react'
+import { Asterisk, Plus } from 'lucide-react'
 
 export function Items({ purchase }: { purchase?: PurchaseType }) {
   const isIfood = purchase?.is_ifood
@@ -61,11 +61,16 @@ export function Items({ purchase }: { purchase?: PurchaseType }) {
                       </p>
                     ))}
 
-                  {item.observations && (
-                    <strong className="uppercase">
-                      obs: {item.observations}
-                    </strong>
-                  )}
+                  <div className="flex flex-col">
+                    {item.observations &&
+                      item.observations.length > 0 &&
+                      item.observations.map((obs) => (
+                        <span className="flex flex-row">
+                          <Asterisk className="w-3 h-3 mr-1" />
+                          {obs}
+                        </span>
+                      ))}
+                  </div>
 
                   <footer className="flex flex-row items-center justify-between">
                     <p>Total:</p>

@@ -91,8 +91,13 @@ export function formatBytes(bytes: number, decimals = 2) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
 
-export function removeAccents(str: string) {
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+export function normalizeString(str: string) {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+    .trim() // Remove espaços no início e no final
 }
 
 export function stringToNumber(string: string) {
@@ -121,12 +126,7 @@ export function stringToNumber(string: string) {
 }
 
 export function generateSlug(str: string): string {
-  return removeAccents(str)
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
-    .trim() // Remove espaços no início e no final
-    .replace(/\s+/g, '-') // Substitui espaços por hífens
-    .replace(/-+/g, '-') // Garante que não haja hífens duplicados
+  return normalizeString(str).replace(/\s+/g, '') // Substitui espaços por hífens
 }
 
 export const dayTranslation: Record<string, string> = {

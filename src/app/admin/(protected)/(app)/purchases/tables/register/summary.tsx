@@ -57,7 +57,7 @@ export function Summary({
               <FormItem>
                 <FormLabel>Mesa</FormLabel>
                 <FormControl>
-                  <Input placeholder="Nº" {...field} />
+                  <Input placeholder="Nº" {...field} autoFocus />
                 </FormControl>
 
                 <FormMessage />

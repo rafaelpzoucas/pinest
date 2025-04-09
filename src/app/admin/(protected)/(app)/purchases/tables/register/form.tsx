@@ -20,7 +20,7 @@ import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
 import { X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
 import { checkTableExists, createTable, updateTable } from './actions'
 import { ProductsList } from './products/list'
@@ -39,6 +39,9 @@ export function CreateSaleForm({
   table: TableType
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const isEdit = searchParams.get('edit') === 'true'
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof createTableSchema>>({
@@ -46,7 +49,7 @@ export function CreateSaleForm({
     defaultValues: {
       number: table?.number?.toString() ?? undefined,
       description: table?.description ?? undefined,
-      purchase_items: [],
+      purchase_items: isEdit ? table.purchase_items : [],
     },
   })
 
@@ -60,16 +63,21 @@ export function CreateSaleForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createTableSchema>) {
     if (table?.id) {
-      const [data, err] = await executeUpdateTable({ id: table.id, ...values })
+      const [data, err] = await executeUpdateTable({
+        id: table.id,
+        is_edit: isEdit,
+        ...values,
+      })
 
       if (err && !data) {
         console.error({ err })
         return null
       }
 
-      const tableId = data?.updatedItems[0].table_id
-
-      window.open(`/admin/purchases/tables/${tableId}/receipt`, '_blank')
+      window.open(
+        `/admin/purchases/tables/${table?.id}/receipt${isEdit ? '?reprint=true' : ''}`,
+        '_blank',
+      )
 
       router.push('/admin/purchases?tab=tables')
     }
@@ -105,19 +113,8 @@ export function CreateSaleForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] items-start gap-8"
+        className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] items-start gap-4"
       >
-        <aside className="sticky top-4">
-          <Card className="space-y-6 p-4 lg:h-[calc(100vh_-_1rem_-_5rem)]">
-            <h1 className="text-lg font-bold">Produtos</h1>
-            <ProductsList
-              form={form}
-              products={products}
-              categories={categories}
-            />
-          </Card>
-        </aside>
-
         <Card className="flex lg:hidden flex-col gap-4 p-4 fixed bottom-2 left-2 right-2">
           <p>{purchaseItems.length} Produto(s) selecionado(s)</p>
 
@@ -159,6 +156,17 @@ export function CreateSaleForm({
             table={table}
           />
         </div>
+
+        <aside className="sticky top-4">
+          <Card className="space-y-6 p-4 lg:h-[calc(100vh_-_1rem_-_5rem)]">
+            <h1 className="text-lg font-bold">Produtos</h1>
+            <ProductsList
+              form={form}
+              products={products}
+              categories={categories}
+            />
+          </Card>
+        </aside>
       </form>
     </Form>
   )

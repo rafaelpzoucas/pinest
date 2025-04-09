@@ -1,6 +1,6 @@
 import { IfoodItem } from '@/models/ifood'
 import { format } from 'date-fns'
-import { Plus } from 'lucide-react'
+import { Asterisk, Plus } from 'lucide-react'
 import { readPurchaseById } from '../actions'
 import { DELIVERY_TYPES } from './info'
 import { Printer } from './printer'
@@ -89,9 +89,16 @@ export default async function PrintKitchenReceipt({
                         </p>
                       ))}
 
-                    {item.observations && (
-                      <strong>**{item.observations}</strong>
-                    )}
+                    <div className="flex flex-col">
+                      {item.observations &&
+                        item.observations.length > 0 &&
+                        item.observations.map((obs) => (
+                          <span className="flex flex-row">
+                            <Asterisk className="w-3 h-3 mr-1" />
+                            {obs}
+                          </span>
+                        ))}
+                    </div>
                   </li>
                 )
               })
