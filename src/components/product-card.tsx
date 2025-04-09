@@ -31,7 +31,7 @@ export interface ProductCardProps
     VariantProps<typeof productCardVariants> {
   data?: ProductType
   variations?: PurchaseItemVariations[]
-  observations?: string
+  observations?: string[]
   extras?: ExtraType[]
   quantity?: number
   storeSubdomain?: string
