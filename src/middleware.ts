@@ -6,7 +6,18 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
-  // ⚠️ Ignora rotas que começam com /admin
+  // 👉 Detecta se o subdomínio é "admin"
+  const isAdminSubdomain =
+    process.env.NODE_ENV === 'production'
+      ? hostname.startsWith('admin.')
+      : url.pathname.startsWith('/admin') // para desenvolvimento, assume que acessar /admin já é admin
+
+  if (isAdminSubdomain) {
+    url.pathname = '/admin' + url.pathname
+    return NextResponse.rewrite(url, response)
+  }
+
+  // ⚠️ Ignora rotas que começam com /admin ou /api
   if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
     return response
   }
@@ -14,31 +25,28 @@ export async function middleware(request: NextRequest) {
   let subdomain: string | null = null
 
   if (process.env.NODE_ENV !== 'production') {
-    // Em ambiente local, o subdomínio é extraído do caminho (localhost:3000/nomedaloja)
     const segments = url.pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
 
     if (subdomain) {
-      // Remove o primeiro segmento (nome da loja) e mantém o resto do caminho
       const remainingPath = segments.slice(1).join('/')
       url.pathname = remainingPath
         ? `/${subdomain}/${remainingPath}`
         : `/${subdomain}`
     }
   } else {
-    // Em produção, captura o subdomínio de "nomedaloja.pinest.com.br"
     const parts = hostname.split('.')
     if (parts.length > 2) {
       subdomain = parts[0]
-
-      // Mantém o pathname original, mas adiciona o subdomínio como primeiro segmento
       url.pathname =
         url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
+    } else {
+      // 👉 Acesso à raiz do domínio principal (ex: pinest.com.br), renderiza normalmente
+      return response
     }
   }
 
   if (subdomain) {
-    // Define um cookie para armazenar a loja acessada
     response.cookies.set(`public_store_subdomain`, subdomain, { path: '/' })
     return NextResponse.rewrite(url, response)
   }
