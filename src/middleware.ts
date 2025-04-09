@@ -6,14 +6,16 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
-  // 👉 Detecta se o subdomínio é "admin"
-  const isAdminSubdomain =
-    process.env.NODE_ENV === 'production'
-      ? hostname.startsWith('admin.')
-      : url.pathname.startsWith('/admin') // para desenvolvimento, assume que acessar /admin já é admin
+  const isPreviewEnv = hostname === 'staging-pinest.vercel.app'
 
-  if (isAdminSubdomain) {
-    url.pathname = '/admin' + url.pathname
+  // 🔐 ADMIN: subdomínio admin (em produção) ou /admin no preview/dev
+  const isAdmin =
+    (process.env.NODE_ENV === 'production' && hostname.startsWith('admin.')) ||
+    (isPreviewEnv && url.pathname.startsWith('/admin')) ||
+    (!isPreviewEnv && url.pathname.startsWith('/admin'))
+
+  if (isAdmin) {
+    url.pathname = '/admin' + url.pathname.replace('/admin', '')
     return NextResponse.rewrite(url, response)
   }
 
@@ -24,7 +26,8 @@ export async function middleware(request: NextRequest) {
 
   let subdomain: string | null = null
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (isPreviewEnv || process.env.NODE_ENV !== 'production') {
+    // ➕ DEV ou PREVIEW → subdomínio vem do PATH
     const segments = url.pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
 
@@ -35,19 +38,26 @@ export async function middleware(request: NextRequest) {
         : `/${subdomain}`
     }
   } else {
+    // ➕ PRODUÇÃO → subdomínio vem do HOSTNAME
     const parts = hostname.split('.')
-    if (parts.length > 2) {
-      subdomain = parts[0]
+
+    // hostname: pinest.com.br (sem subdomínio) → landing
+    if (parts.length === 2) {
+      return response
+    }
+
+    // hostname: admin.pinest.com.br → já tratado acima
+    // hostname: loja123.pinest.com.br
+    subdomain = parts[0]
+
+    if (subdomain) {
       url.pathname =
         url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
-    } else {
-      // 👉 Acesso à raiz do domínio principal (ex: pinest.com.br), renderiza normalmente
-      return response
     }
   }
 
   if (subdomain) {
-    response.cookies.set(`public_store_subdomain`, subdomain, { path: '/' })
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
     return NextResponse.rewrite(url, response)
   }
 
