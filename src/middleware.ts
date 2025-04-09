@@ -6,14 +6,16 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
-  // 👉 Detecta se o subdomínio é "admin"
-  const isAdminSubdomain =
-    process.env.NODE_ENV === 'production'
-      ? hostname.startsWith('admin.')
-      : url.pathname.startsWith('/admin') // para desenvolvimento, assume que acessar /admin já é admin
+  const isPreviewEnv = hostname === 'staging-pinest.vercel.app'
 
-  if (isAdminSubdomain) {
-    url.pathname = '/admin' + url.pathname
+  // 👉 Detecta admin
+  const isAdmin =
+    (process.env.NODE_ENV === 'production' && hostname.startsWith('admin.')) ||
+    (isPreviewEnv && url.pathname.startsWith('/admin')) ||
+    (!isPreviewEnv && url.pathname.startsWith('/admin'))
+
+  if (isAdmin) {
+    url.pathname = '/admin' + url.pathname.replace('/admin', '')
     return NextResponse.rewrite(url, response)
   }
 
@@ -24,7 +26,8 @@ export async function middleware(request: NextRequest) {
 
   let subdomain: string | null = null
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (isPreviewEnv || process.env.NODE_ENV !== 'production') {
+    // Usa o path para detectar o "subdomínio"
     const segments = url.pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
 
@@ -35,13 +38,14 @@ export async function middleware(request: NextRequest) {
         : `/${subdomain}`
     }
   } else {
+    // Ambiente de produção com subdomínio real
     const parts = hostname.split('.')
     if (parts.length > 2) {
       subdomain = parts[0]
       url.pathname =
         url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
     } else {
-      // 👉 Acesso à raiz do domínio principal (ex: pinest.com.br), renderiza normalmente
+      // Domínio raiz (landing page)
       return response
     }
   }
