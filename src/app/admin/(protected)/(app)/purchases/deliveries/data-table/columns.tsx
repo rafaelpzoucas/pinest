@@ -20,6 +20,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
 
       return formatDate(date, 'dd/MM - HH:mm:ss')
     },
+    meta: { clickable: true },
   },
   {
     accessorKey: 'type',
@@ -68,6 +69,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
         </div>
       )
     },
+    meta: { clickable: true },
   },
   {
     accessorKey: 'store_customers',
@@ -88,6 +90,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
         </div>
       )
     },
+    meta: { clickable: true },
   },
 
   {
@@ -101,6 +104,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
         </Badge>
       )
     },
+    meta: { clickable: true },
   },
   {
     accessorKey: 'change_value',
@@ -122,6 +126,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
         <p>-</p>
       )
     },
+    meta: { clickable: true },
   },
   {
     accessorKey: 'discount',
@@ -131,6 +136,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
 
       return discount ? formatCurrencyBRL(discount) : <p>-</p>
     },
+    meta: { clickable: true },
   },
   {
     accessorKey: 'total_amount',
@@ -144,6 +150,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
         </div>
       )
     },
+    meta: { clickable: true },
   },
   {
     accessorKey: 'id',
