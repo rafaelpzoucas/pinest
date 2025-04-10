@@ -16,6 +16,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import { PurchaseType } from '@/models/purchase'
+import { useRouter } from 'next/navigation'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -31,6 +33,8 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const router = useRouter()
 
   return (
     <div className="rounded-md border w-full overflow-hidden">
@@ -67,14 +71,28 @@ export function DataTable<TData, TValue>({
                     !accepted && 'bg-green-500/20 hover:bg-green-500/30',
                   )}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const isClickable = cell.column.columnDef.meta?.clickable
+
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        onClick={() => {
+                          if (isClickable) {
+                            router.push(
+                              `purchases/deliveries/${(row.original as PurchaseType).id}`,
+                            )
+                          }
+                        }}
+                        className={cn(isClickable && 'cursor-pointer')}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               )
             })

@@ -6,58 +6,40 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
-  const isPreviewEnv = hostname === 'staging-pinest.vercel.app'
-
-  // 🔐 ADMIN: subdomínio admin (em produção) ou /admin no preview/dev
-  const isAdmin =
-    (process.env.NODE_ENV === 'production' && hostname.startsWith('admin.')) ||
-    (isPreviewEnv && url.pathname.startsWith('/admin')) ||
-    (!isPreviewEnv && url.pathname.startsWith('/admin'))
-
-  if (isAdmin) {
-    url.pathname = '/admin' + url.pathname.replace('/admin', '')
-    return NextResponse.rewrite(url, response)
-  }
-
-  // ⚠️ Ignora rotas que começam com /admin ou /api
+  // ⚠️ Ignora rotas que começam com /admin
   if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
     return response
   }
 
   let subdomain: string | null = null
 
-  if (isPreviewEnv || process.env.NODE_ENV !== 'production') {
-    // ➕ DEV ou PREVIEW → subdomínio vem do PATH
+  if (process.env.NODE_ENV !== 'production') {
+    // Em ambiente local, o subdomínio é extraído do caminho (localhost:3000/nomedaloja)
     const segments = url.pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
 
     if (subdomain) {
+      // Remove o primeiro segmento (nome da loja) e mantém o resto do caminho
       const remainingPath = segments.slice(1).join('/')
       url.pathname = remainingPath
         ? `/${subdomain}/${remainingPath}`
         : `/${subdomain}`
     }
   } else {
-    // ➕ PRODUÇÃO → subdomínio vem do HOSTNAME
+    // Em produção, captura o subdomínio de "nomedaloja.pinest.com.br"
     const parts = hostname.split('.')
+    if (parts.length > 2) {
+      subdomain = parts[0]
 
-    // hostname: pinest.com.br (sem subdomínio) → landing
-    if (parts.length === 2) {
-      return response
-    }
-
-    // hostname: admin.pinest.com.br → já tratado acima
-    // hostname: loja123.pinest.com.br
-    subdomain = parts[0]
-
-    if (subdomain) {
+      // Mantém o pathname original, mas adiciona o subdomínio como primeiro segmento
       url.pathname =
         url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
     }
   }
 
   if (subdomain) {
-    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
+    // Define um cookie para armazenar a loja acessada
+    response.cookies.set(`public_store_subdomain`, subdomain, { path: '/' })
     return NextResponse.rewrite(url, response)
   }
 

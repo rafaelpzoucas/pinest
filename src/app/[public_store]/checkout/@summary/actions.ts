@@ -109,6 +109,9 @@ export const createPurchase = storeProcedure
 
     const type = input.type
 
+    const shippingPrice = type !== 'TAKEOUT' ? input.shippingPrice : 0
+    const subtotal = input.totalAmount - shippingPrice
+
     const newPurchaseValues = {
       customer_id: storeCustomer?.id ?? null,
       status: 'accept',
@@ -117,8 +120,9 @@ export const createPurchase = storeProcedure
       type,
       payment_type: input.payment_type,
       total: {
+        subtotal,
         total_amount: input.totalAmount,
-        shipping_price: type !== 'TAKEOUT' ? input.shippingPrice : 0,
+        shipping_price: shippingPrice,
         change_value: input.changeValue,
       },
       delivery: {
@@ -145,7 +149,7 @@ export const createPurchase = storeProcedure
             description: 'Taxa de entrega',
             product_price: createdPurchase?.total?.shipping_price,
             quantity: 1,
-            observations: '',
+            observations: [],
             extras: [],
           }
         : null
@@ -157,7 +161,7 @@ export const createPurchase = storeProcedure
           product_id: item?.product_id,
           quantity: item?.quantity,
           product_price: item?.product_price,
-          observations: item?.observations,
+          observations: [item?.observations],
           extras: item.extras,
         }))) ??
       []
