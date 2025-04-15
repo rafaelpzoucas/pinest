@@ -17,7 +17,7 @@ export const getValidIfoodAccessToken = adminProcedure
       .single()
 
     if (error || !data?.access_token) {
-      console.error('🔄 Token não encontrado, gerando um novo...')
+      console.error('🔄 Token não encontrado.', error)
       return await refreshIfoodAccessToken(ctx)
     }
 
@@ -26,7 +26,7 @@ export const getValidIfoodAccessToken = adminProcedure
 
     // 🔹 2. Se o token estiver expirado, buscar um novo
     if (now >= expiresAt) {
-      console.error('🔄 Token expirado, gerando um novo...')
+      console.error('🔄 Token expirado.')
       return await refreshIfoodAccessToken(ctx)
     }
 
@@ -38,6 +38,8 @@ export const refreshIfoodAccessToken = async (ctx: any) => {
   const clientId = process.env.IFOOD_CLIENT_ID
   const clientSecret = process.env.IFOOD_CLIENT_SECRET
   const api = process.env.IFOOD_API_BASE_URL
+
+  console.log('🔄 Gerando novo token...')
 
   const body = new URLSearchParams()
   body.append('grantType', 'client_credentials')
@@ -101,17 +103,17 @@ export const insertIfoodMerchantId = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase, store } = ctx
 
-    await getValidIfoodAccessToken()
-
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('ifood_integrations')
-      .update({ merchant_id: input.merchant_id })
+      .insert({ merchant_id: input.merchant_id, store_id: store.id })
       .eq('store_id', store.id)
 
-    if (error || !data) {
+    if (error) {
       console.error('Erro ao salvar o merchant_id.', error)
-      return null
+      return { success: false }
     }
+
+    await getValidIfoodAccessToken()
 
     revalidatePath('/')
 

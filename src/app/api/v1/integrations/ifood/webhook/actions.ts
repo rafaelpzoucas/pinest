@@ -196,7 +196,7 @@ export const getIfoodOrderData = webhookProcedure
       return
     }
 
-    return data
+    return data as IfoodOrder
   })
 
 export const handleOrderPlaced = webhookProcedure
@@ -211,26 +211,27 @@ export const handleOrderPlaced = webhookProcedure
       return
     }
 
-    const { id, createdAt, orderType, customer, payments, total, delivery } =
-      orderData
+    const { id, createdAt, orderType, payments, total, delivery } = orderData
 
     const newPurchaseValues: z.infer<typeof createIfoodPurchaseSchema> = {
       id,
       created_at: createdAt,
       status: 'accept',
-      total_amount: total?.orderAmount ?? 0,
-      shipping_price: total?.deliveryFee ?? 0,
       type: orderType,
-      accepted: false,
-      change_value: 0,
       payment_type: payments?.methods?.[0]?.method ?? 'unknown',
-      guest_data: {
-        name: customer?.name ?? 'Desconhecido',
-        phone: `${customer?.phone?.number ?? ''} ID:${customer?.phone?.localizer ?? ''}`,
-        address: delivery.deliveryAddress?.formattedAddress ?? 'Sem endereço',
-      },
       is_paid: false,
       is_ifood: true,
+      total: {
+        shipping_price: total.deliveryFee,
+        change_value: payments?.methods?.[0]?.cash?.changeFor ?? 0,
+        discount: total.benefits,
+        subtotal: total.subTotal,
+        total_amount: total.orderAmount,
+      },
+      delivery: {
+        time: delivery.deliveryDateTime,
+        address: delivery.deliveryAddress.formattedAddress,
+      },
       ifood_order_data: orderData,
     }
 
@@ -259,7 +260,7 @@ export const handleOrderNewStatus = webhookProcedure
 
     const { data, error } = await supabase
       .from('purchases')
-      .update({ status: newStatus, accepted: true })
+      .update({ status: newStatus })
       .eq('id', orderId)
       .select()
 
@@ -280,7 +281,7 @@ export const handleCancelOrder = webhookProcedure
 
     const { data, error } = await supabase
       .from('purchases')
-      .update({ status: 'cancelled', accepted: true })
+      .update({ status: 'cancelled' })
       .eq('id', orderId)
       .select()
 

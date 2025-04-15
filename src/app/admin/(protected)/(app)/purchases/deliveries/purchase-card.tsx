@@ -14,7 +14,11 @@ type PurchaseCardPropsType = {
 type StatusKey = keyof typeof statuses
 
 export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
-  const customer = purchase.store_customers.customers
+  const isIfood = purchase.is_ifood
+
+  const customer = isIfood
+    ? purchase.ifood_order_data.customer
+    : purchase.store_customers.customers
   const customerNames = customer?.name.split(' ')
   const firstName = customerNames && customerNames[0]
 

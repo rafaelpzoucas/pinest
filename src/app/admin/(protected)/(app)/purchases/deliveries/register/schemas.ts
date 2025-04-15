@@ -32,4 +32,6 @@ export const createPurchaseFormSchema = z.object({
     time: z.string().optional(),
     address: addressSchema,
   }),
+  is_ifood: z.boolean().optional(),
+  ifood_order_data: z.any().optional(),
 })

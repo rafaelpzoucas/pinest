@@ -27,10 +27,12 @@ export default async function PrintKitchenReceipt({
 
   const itemsList = reprint ? purchase.purchase_items : unprintedItems
 
-  const customerName = purchase.store_customers.customers.name
-
   const isIfood = purchase.is_ifood
   const ifoodItems: IfoodItem[] = isIfood && purchase.ifood_order_data.items
+
+  const customer = isIfood
+    ? purchase.ifood_order_data.customer
+    : purchase.store_customers.customers
 
   return (
     <div
@@ -50,7 +52,7 @@ export default async function PrintKitchenReceipt({
           print-section"
       >
         <p>Data: {format(purchase.created_at, 'dd/MM HH:mm:ss')}</p>
-        <p>Cliente: {customerName}</p>
+        <p>Cliente: {customer.name}</p>
         {purchase.observations && (
           <p className="text-base"> OBS: {purchase.observations}</p>
         )}
