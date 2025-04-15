@@ -76,11 +76,15 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Cliente',
     cell: ({ row }) => {
       const purchase = row.original
-      const customer = row.original.store_customers.customers
+      const isIfood = purchase.is_ifood
+
+      const customer = isIfood
+        ? purchase.ifood_order_data.customer
+        : purchase.store_customers.customers
       const type = purchase.type
-      const customerAddress = formatAddress(
-        purchase.store_customers.customers.address,
-      )
+      const customerAddress = isIfood
+        ? (purchase.delivery.address as unknown as string)
+        : formatAddress(purchase.store_customers.customers.address)
       return (
         <div className="max-w-[280px]">
           <p className="capitalize">{(customer?.name).toLowerCase()}</p>
@@ -139,10 +143,12 @@ export const columns: ColumnDef<PurchaseType>[] = [
     meta: { clickable: true },
   },
   {
-    accessorKey: 'total_amount',
+    accessorKey: 'total',
     header: 'Total',
     cell: ({ row }) => {
-      const totalAmount = row.original?.total?.total_amount
+      const purchase = row.original
+
+      const totalAmount = purchase?.total?.total_amount
 
       return (
         <div>

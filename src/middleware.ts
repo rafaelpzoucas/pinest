@@ -6,6 +6,12 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
+  // 🔁 Redireciona /admin para /admin/dashboard
+  if (url.pathname === '/admin') {
+    url.pathname = '/admin/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   // ⚠️ Ignora rotas que começam com /admin
   if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
     return response

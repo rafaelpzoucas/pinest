@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/card'
 import Image from 'next/image'
 import { getIfoodMerchantId } from './actions'
+import { MerchantIdForm } from './form'
 
 export async function Ifood() {
   const [merchant] = await getIfoodMerchantId()
@@ -22,8 +23,8 @@ export async function Ifood() {
       </CardHeader>
 
       <CardContent>
-        <p>Disponível em breve</p>
-        {/* <MerchantIdForm merchantId={merchantId} /> */}
+        {/* <p>Disponível em breve</p> */}
+        <MerchantIdForm merchantId={merchantId} />
       </CardContent>
     </Card>
   )

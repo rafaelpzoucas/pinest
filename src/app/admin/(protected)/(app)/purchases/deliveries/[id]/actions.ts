@@ -74,7 +74,7 @@ export const acceptPurchase = adminProcedure
 
     const { error: updateStatusError } = await supabase
       .from('purchases')
-      .update({ accepted: true, status: 'pending' })
+      .update({ status: 'pending' })
       .eq('id', purchaseId)
 
     if (updateStatusError) {

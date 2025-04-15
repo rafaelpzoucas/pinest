@@ -12,11 +12,17 @@ export function Info({ purchase }: { purchase?: PurchaseType }) {
   const isIfood = purchase?.is_ifood
   const ifoodOrder: IfoodOrder = isIfood && purchase.ifood_order_data
 
-  const customerName = purchase?.store_customers.customers.name
-  const customerPhone = purchase?.store_customers.customers.phone
-  const customerAddress = formatAddress(
-    purchase?.store_customers.customers.address,
-  )
+  const customer = isIfood
+    ? purchase?.ifood_order_data.customer
+    : purchase?.store_customers.customers
+
+  const customerName = customer.name
+  const customerPhone = isIfood
+    ? `${customer.phone.number} ID: ${customer.phone.localizer}`
+    : customer.phone
+  const customerAddress = isIfood
+    ? (purchase.delivery.address as unknown as string)
+    : formatAddress(purchase?.store_customers.customers.address)
 
   const displayId = isIfood
     ? ifoodOrder.displayId
