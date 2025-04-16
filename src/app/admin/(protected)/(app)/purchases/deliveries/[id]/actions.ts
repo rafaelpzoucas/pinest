@@ -55,7 +55,7 @@ export const readPurchaseById = adminProcedure
       .eq('id', input.id)
       .single()
 
-    if (readPurchaseError || !purchase) {
+    if (readPurchaseError) {
       console.error('Error reading purchase.', readPurchaseError)
       return
     }
@@ -113,7 +113,7 @@ export const updatePurchasePrintedItems = adminProcedure
       .select('*')
       .eq('purchase_id', input.purchaseId)
 
-    if (purchaseItemsError || !purchaseItems) {
+    if (purchaseItemsError) {
       console.error('Error reading purchase items', purchaseItemsError)
       return
     }

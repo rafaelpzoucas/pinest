@@ -25,7 +25,7 @@ export default async function PurchasePage({
   const total = purchase?.total
   const currentStatus = statuses[purchase?.status as StatusKey]
   const shippingPrice = total?.shipping_price ?? 0
-  const subtotal = (total?.total_amount ?? 0) - (total?.shipping_price ?? 0)
+  const subtotal = total?.subtotal ?? 0
 
   return (
     <section className="flex flex-col items-center justify-center gap-4">

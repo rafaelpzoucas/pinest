@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
+import { formatCurrencyBRL } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/card'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { StoreCustomerType } from '@/models/store-customer'
+import { useSearchParams } from 'next/navigation'
 import { CustomersCombobox } from './customers/combobox'
 import { LastPurchases } from './customers/last-purchases'
 import { SelectedProducts } from './products/selected-products'
@@ -33,20 +34,15 @@ export function Summary({
   products?: ProductType[]
   extras?: ExtraType[]
 }) {
+  const searchParams = useSearchParams()
+  const purchaseId = searchParams.get('purchase_id')
+
   const customerFormSheetState = useState(false)
   const customerId = form.watch('customer_id')
 
-  const purchaseType = form.watch('type')
-  const discountValue = form.watch('total.discount') ?? 'R$ 0,00'
-  const discount = stringToNumber(discountValue)
-  const shippingPrice = form.watch('total.shipping_price') ?? 0
-
   const subtotal = form.watch('total.subtotal') ?? 0
 
-  const totalAmount =
-    subtotal +
-    (purchaseType === 'DELIVERY' ? shippingPrice : 0) -
-    (discount || 0)
+  const totalAmount = form.watch('total.total_amount')
 
   return (
     <Card className="space-y-6 p-0 lg:p-4 border-0 lg:border">
@@ -232,10 +228,10 @@ export function Summary({
         {isPending ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            <span>Criando pedido</span>
+            <span>{purchaseId ? 'Atualizando' : 'Criando'} pedido</span>
           </>
         ) : (
-          <span>Criar pedido</span>
+          <span>{purchaseId ? 'Atualizar' : 'Criar'} pedido</span>
         )}
       </Button>
     </Card>

@@ -73,23 +73,24 @@ export function ExtrasInput({
       {value.length > 0 && <Label className="text-sm">Adicionais</Label>}
 
       <ul className="space-y-1">
-        {value.map((extra, index) => (
-          <li
-            key={index}
-            className="flex items-center bg-muted px-2 py-1 rounded-lg text-sm uppercase"
-          >
-            <span>{extra.quantity} ad.</span>
-            {extra.name}
-            <button
-              type="button"
-              onClick={() => handleRemove(index)}
-              className="flex flex-row items-center gap-2 ml-auto"
+        {value.length > 0 &&
+          value.map((extra, index) => (
+            <li
+              key={index}
+              className="flex items-center bg-muted px-2 py-1 rounded-lg text-sm uppercase"
             >
-              <span>{formatCurrencyBRL(extra.price)}</span>
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </li>
-        ))}
+              <span>{extra.quantity} ad.</span>
+              {extra.name}
+              <button
+                type="button"
+                onClick={() => handleRemove(index)}
+                className="flex flex-row items-center gap-2 ml-auto"
+              >
+                <span>{formatCurrencyBRL(extra.price)}</span>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </li>
+          ))}
       </ul>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>

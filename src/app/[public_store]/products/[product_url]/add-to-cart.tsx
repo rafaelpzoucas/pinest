@@ -132,7 +132,7 @@ export function AddToCard({
     defaultValues: {
       variations: selectedVariations ?? defaultVariations,
       quantity: amount ?? 1,
-      observations: '',
+      observations: undefined,
     },
   })
 

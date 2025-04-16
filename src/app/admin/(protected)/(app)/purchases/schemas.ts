@@ -4,7 +4,7 @@ export const purchaseItemsSchema = z
   .array(
     z.object({
       id: z.string().optional(),
-      product_id: z.string(),
+      product_id: z.string().nullable(),
       quantity: z.number(),
       product_price: z.number(),
       observations: z.array(z.string()).optional().default([]),

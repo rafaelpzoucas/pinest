@@ -19,13 +19,14 @@ import { stringToNumber } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
+import { PurchaseType } from '@/models/purchase'
 import { ShippingConfigType } from '@/models/shipping'
 import { StoreCustomerType } from '@/models/store-customer'
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useServerAction } from 'zsa-react'
-import { createPurchase } from './actions'
+import { createPurchase, updatePurchase } from './actions'
 import { ProductsList } from './products/list'
 import { createPurchaseFormSchema } from './schemas'
 import { Summary } from './summary'
@@ -36,12 +37,14 @@ export function CreatePurchaseForm({
   categories,
   extras,
   shipping,
+  purchase,
 }: {
   customers?: StoreCustomerType[]
   products?: ProductType[]
   categories?: CategoryType[]
   extras?: ExtraType[]
   shipping?: ShippingConfigType
+  purchase?: PurchaseType
 }) {
   const router = useRouter()
 
@@ -49,13 +52,18 @@ export function CreatePurchaseForm({
   const form = useForm<z.infer<typeof createPurchaseFormSchema>>({
     resolver: zodResolver(createPurchaseFormSchema),
     defaultValues: {
-      customer_id: '',
-      purchase_items: [],
+      customer_id: purchase?.customer_id ?? '',
+      purchase_items: purchase?.purchase_items ?? [],
       status: 'preparing',
+      type: purchase?.type ?? undefined,
+      payment_type: purchase?.payment_type ?? undefined,
+      observations: purchase?.observations ?? undefined,
+      delivery: purchase?.delivery ?? undefined,
       total: {
-        change_value: '',
-        discount: '',
-        total_amount: 0,
+        subtotal: purchase?.total?.subtotal ?? 0,
+        change_value: purchase?.total?.change_value?.toString() ?? '',
+        discount: purchase?.total?.discount?.toString() ?? '',
+        total_amount: purchase?.total?.total_amount ?? 0,
         shipping_price: shipping?.price ?? 0,
       },
     },
@@ -70,62 +78,62 @@ export function CreatePurchaseForm({
 
   const subtotal = form.watch('total.subtotal') ?? 0
 
-  const { execute, isPending } = useServerAction(createPurchase)
+  const {
+    execute: executeCreate,
+    isPending: isCreating,
+    data: createdPurchase,
+  } = useServerAction(createPurchase, {
+    onSuccess: () => {
+      const purchase = createdPurchase?.createdPurchase[0]
+      window.open(
+        `/admin/purchases/deliveries/${purchase?.id}/receipt`,
+        '_blank',
+      )
 
-  console.log(form.formState.errors)
+      router.push('/admin/purchases?tab=deliveries')
+    },
+  })
+  const { execute: executeUpdate, isPending: isUpdating } = useServerAction(
+    updatePurchase,
+    {
+      onSuccess: () => {
+        window.open(
+          `/admin/purchases/deliveries/${purchase?.id}/receipt`,
+          '_blank',
+        )
+
+        router.push('/admin/purchases?tab=deliveries')
+      },
+    },
+  )
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createPurchaseFormSchema>) {
-    const [data, err] = await execute({
-      ...values,
-      total: {
-        ...values.total,
-        total_amount:
-          subtotal +
-          (purchaseType === 'DELIVERY' ? shippingPrice : 0) -
-          (discount || 0),
-      },
-      delivery: {
-        time: '1',
-        address: {
-          street: 'qwer',
-          number: '1234',
-          neighborhood: 'qwer',
-          complement: '',
-          observations: '',
-        },
-      },
-    })
+    if (purchase) {
+      await executeUpdate({ ...values, id: purchase.id })
 
-    if (err && !data) {
-      console.error({ err })
-      return null
+      return
     }
 
-    const createdPurchase = data?.createdPurchase[0]
-
-    window.open(
-      `/admin/purchases/deliveries/${createdPurchase.id}/receipt`,
-      '_blank',
-    )
-
-    router.push('/admin/purchases?tab=deliveries')
+    await executeCreate(values)
   }
 
   useEffect(() => {
     const subscription = form.watch((values) => {
       const purchaseItems = values.purchase_items ?? []
 
-      const subtotal = purchaseItems.reduce((acc, item) => {
-        const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 1)
-        const extrasTotal = (item?.extras ?? []).reduce(
-          (extraAcc, extra) =>
-            extraAcc + (extra?.price ?? 0) * (extra?.quantity ?? 1),
-          0,
-        )
+      const subtotal = purchaseItems
+        .filter((item) => item?.product_id)
+        .reduce((acc, item) => {
+          const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 1)
+          const extrasTotal = (item?.extras ?? []).reduce(
+            (extraAcc, extra) =>
+              extraAcc + (extra?.price ?? 0) * (extra?.quantity ?? 1),
+            0,
+          )
 
-        return acc + itemTotal + extrasTotal
-      }, 0)
+          return acc + itemTotal + extrasTotal
+        }, 0)
 
       if (subtotal !== values.total?.subtotal) {
         form.setValue('total.subtotal', subtotal, { shouldValidate: true })
@@ -134,6 +142,9 @@ export function CreatePurchaseForm({
 
     return () => subscription.unsubscribe()
   }, [form.watch])
+
+  console.log(form.formState.errors)
+  console.log(form.watch('purchase_items'))
 
   return (
     <Form {...form}>
@@ -160,7 +171,7 @@ export function CreatePurchaseForm({
                 </SheetTitle>
 
                 <Summary
-                  isPending={isPending}
+                  isPending={isCreating || isUpdating}
                   form={form}
                   customers={customers}
                   extras={extras}
@@ -173,7 +184,7 @@ export function CreatePurchaseForm({
 
         <div className="hidden lg:block">
           <Summary
-            isPending={isPending}
+            isPending={isCreating || isUpdating}
             form={form}
             customers={customers}
             extras={extras}

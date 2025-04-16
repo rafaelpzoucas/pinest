@@ -35,18 +35,19 @@ export function ObservationsInput({
     <div className="space-y-1">
       <Label className="text-sm">{label}</Label>
       <ul className="space-y-1">
-        {value.map((obs, index) => (
-          <li
-            key={index}
-            className="flex justify-between items-center bg-muted px-2 py-1 rounded-lg text-sm
-              uppercase"
-          >
-            <span>*{obs}</span>
-            <button type="button" onClick={() => handleRemove(index)}>
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </li>
-        ))}
+        {value.length > 0 &&
+          value.map((obs, index) => (
+            <li
+              key={index}
+              className="flex justify-between items-center bg-muted px-2 py-1 rounded-lg text-sm
+                uppercase"
+            >
+              <span>*{obs}</span>
+              <button type="button" onClick={() => handleRemove(index)}>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </li>
+          ))}
       </ul>
       <Input
         value={inputValue}
