@@ -1,9 +1,11 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+import { addressSchema } from '@/app/[public_store]/account/register/schemas'
 import { AddressType } from '@/models/address'
 import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { z } from 'zod'
 
 type QueryParamsGeneric = { [key: string]: string | number | null | undefined }
 
@@ -62,18 +64,16 @@ export function queryParamsLink(params: any | null) {
 }
 
 export function formatAddress(
-  address: AddressType | null | undefined,
+  address: AddressType | z.infer<typeof addressSchema> | null | undefined,
 ): string | null {
   if (!address) return null
 
-  const { street, number, complement, neighborhood, city, state } = address
+  const { street, number, complement, neighborhood } = address
 
   const parts = [
     `${street}, ${number}`,
     complement,
     neighborhood ? `- ${neighborhood}` : null,
-    city ? `- ${city}` : null,
-    state ? `/${state}` : null,
   ]
 
   return parts.filter(Boolean).join(' ')

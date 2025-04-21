@@ -16,9 +16,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import { PurchaseItemsType } from '@/models/purchase'
-import { useCloseBillStore } from '@/stores/closeBillStore'
-import { useEffect } from 'react'
+import { PurchaseType } from '@/models/purchase'
+import { useRouter } from 'next/navigation'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -29,39 +28,16 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const { rowSelection, setRowSelection, setItems } = useCloseBillStore()
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      rowSelection,
-    },
   })
 
-  useEffect(() => {
-    if (data.length && rowSelection && Object.keys(rowSelection).length === 0) {
-      const unpaid = (data as PurchaseItemsType[]).filter(
-        (item) => !item.is_paid,
-      )
-
-      const defaultSelection = unpaid.reduce(
-        (acc, _, index) => {
-          acc[index] = true
-          return acc
-        },
-        {} as Record<number, boolean>,
-      )
-
-      setItems(data as PurchaseItemsType[])
-      setRowSelection(defaultSelection)
-    }
-  }, [data])
+  const router = useRouter()
 
   return (
-    <div className="rounded-md w-full">
+    <div className="rounded-md w-full overflow-hidden">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -84,22 +60,39 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
-              const isPaid = (row.original as { is_paid: boolean }).is_paid
+              const accepted =
+                (row.original as { status: string }).status !== 'accept'
 
               return (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={cn(isPaid && 'opacity-30 cursor-not-allowed')}
+                  className={cn(
+                    !accepted && 'bg-green-500/20 hover:bg-green-500/30',
+                  )}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const isClickable = cell.column.columnDef.meta?.clickable
+
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        onClick={() => {
+                          if (isClickable) {
+                            router.push(
+                              `purchases/deliveries/${(row.original as PurchaseType).id}`,
+                            )
+                          }
+                        }}
+                        className={cn(isClickable && 'cursor-pointer')}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               )
             })
@@ -112,11 +105,6 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-
-      <div className="pt-2 text-xs text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} produto(s)
-        selecionado(s).
-      </div>
     </div>
   )
 }

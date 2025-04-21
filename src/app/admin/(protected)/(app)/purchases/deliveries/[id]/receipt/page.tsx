@@ -39,7 +39,9 @@ export default async function PrintKitchenReceipt({
       className="hidden print:flex flex-col items-center justify-center text-[0.625rem]
         text-black print-container m-4"
     >
-      <h1 className="uppercase text-base">cozinha</h1>
+      <h1 className="uppercase text-base">
+        {reprint ? 'reimpressão - ' : ''}cozinha
+      </h1>
 
       <h2 className="uppercase">Pedido #{displayId}</h2>
 

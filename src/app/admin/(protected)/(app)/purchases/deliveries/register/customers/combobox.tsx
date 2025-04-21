@@ -13,7 +13,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import {
@@ -24,6 +23,7 @@ import {
 import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { StoreCustomerType } from '@/models/store-customer'
 import { ChevronsUpDown, Edit2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
@@ -41,6 +41,9 @@ export function CustomersCombobox({
   form,
   customerFormSheetState,
 }: CustomersComboboxProps) {
+  const searchParams = useSearchParams()
+  const purchaseId = searchParams.get('purchase_id')
+
   const [sheetState, setSheetState] = customerFormSheetState
   const [selectedCustomer, setSelectedCustomer] = useState<
     StoreCustomerType | undefined
@@ -52,8 +55,7 @@ export function CustomersCombobox({
       name="customer_id"
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Cliente</FormLabel>
-          <Popover>
+          <Popover defaultOpen={!purchaseId}>
             <PopoverTrigger asChild>
               <FormControl>
                 <div
@@ -92,7 +94,7 @@ export function CustomersCombobox({
                 </div>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[335px] p-0">
+            <PopoverContent align="start" className="w-full max-w-md p-0">
               <Command>
                 <CommandInput
                   placeholder="Pesquisar cliente..."
@@ -111,7 +113,7 @@ export function CustomersCombobox({
                   <CommandGroup>
                     {storeCustomers?.map((storeCustomer) => (
                       <CommandItem
-                        value={storeCustomer.customers.name}
+                        value={`${storeCustomer.customers.name} ${storeCustomer.customers.phone} ${storeCustomer.customers.address.street}`}
                         key={storeCustomer.id}
                         onSelect={() => {
                           form.setValue('customer_id', storeCustomer.id)

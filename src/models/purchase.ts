@@ -1,4 +1,9 @@
-import { AddressType } from './address'
+import { addressSchema } from '@/app/[public_store]/account/register/schemas'
+import {
+  paymentTypeEnum,
+  purchaseTypeEnum,
+} from '@/app/admin/(protected)/(app)/purchases/deliveries/register/schemas'
+import { z } from 'zod'
 import { CustomerType } from './customer'
 import { ExtraType } from './extras'
 import { ProductType, ProductVariationType } from './product'
@@ -47,8 +52,8 @@ export type PurchaseType = {
   customer_id: string
   status: string
   store_id: string
-  type: string
-  payment_type: string
+  type: z.infer<typeof purchaseTypeEnum>
+  payment_type: z.infer<typeof paymentTypeEnum>
   is_ifood: boolean
   ifood_order_data: any
   purchase_items: PurchaseItemsType[]
@@ -63,7 +68,7 @@ export type PurchaseType = {
     subtotal: number
   }
   delivery: {
-    time: number
-    address: AddressType
+    time: string
+    address: z.infer<typeof addressSchema>
   }
 }

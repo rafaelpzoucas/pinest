@@ -1,5 +1,6 @@
 'use client'
 
+import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import {
   SidebarGroup,
@@ -7,6 +8,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
+  SidebarTrigger,
   useSidebar,
 } from '../ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
@@ -34,6 +36,13 @@ export function SidebarButtons() {
 
   return (
     <>
+      <SidebarTrigger className="absolute top-1/2 -translate-y-1/2 -right-6">
+        <ChevronLeft
+          className="opacity-50 data-[collapsed=true]:rotate-180 transition-all duration-500"
+          data-collapsed={isCollapsed}
+        />
+      </SidebarTrigger>
+
       {groups.map((group) => (
         <SidebarGroup>
           <SidebarGroupLabel>{group.label}</SidebarGroupLabel>

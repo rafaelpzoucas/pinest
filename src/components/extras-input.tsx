@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
@@ -15,6 +14,7 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { Label } from './ui/label'
 
 interface ExtrasInputProps {
   availableExtras: ExtraType[]
@@ -69,33 +69,36 @@ export function ExtrasInput({
   }
 
   return (
-    <div className="space-y-2">
-      {value.length > 0 && <Label className="text-sm">Adicionais</Label>}
+    <div className="space-y-1">
+      <Label className="text-sm">Adicionais</Label>
 
       <ul className="space-y-1">
-        {value.map((extra, index) => (
-          <li
-            key={index}
-            className="flex items-center bg-muted px-2 py-1 rounded-lg text-sm uppercase"
-          >
-            <span>{extra.quantity} ad.</span>
-            {extra.name}
-            <button
-              type="button"
-              onClick={() => handleRemove(index)}
-              className="flex flex-row items-center gap-2 ml-auto"
+        {value.length > 0 &&
+          value.map((extra, index) => (
+            <li
+              key={index}
+              className="flex items-center gap-3 bg-muted px-2 py-1 rounded-lg text-xs uppercase"
             >
-              <span>{formatCurrencyBRL(extra.price)}</span>
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </li>
-        ))}
+              <div>
+                <span>{extra.quantity} ad.</span>
+                {extra.name}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemove(index)}
+                className="flex flex-row items-center gap-2 ml-auto"
+              >
+                <span>{formatCurrencyBRL(extra.price)}</span>
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </li>
+          ))}
       </ul>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
-          <Button variant="link" className="p-0">
-            <Plus className="w-4 h-4" /> Adicionais
+          <Button variant="outline" className="w-full">
+            <Plus className="w-4 h-4" /> Inserir adicionais
           </Button>
         </SheetTrigger>
         <SheetContent className="px-0">

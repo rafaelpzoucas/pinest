@@ -32,6 +32,12 @@ export function ProductsList({
   const searchStr = normalizeString(search)
 
   const selectedProducts = watch('purchase_items') ?? []
+  const purchaseType = watch('type')
+  const shippingPrice = watch('total.shipping_price') ?? 0
+
+  const deliveryFee = purchaseType === 'DELIVERY' ? shippingPrice : 0
+  const discount = watch('total.discount') || '0'
+  const parsedDiscount = parseFloat(discount)
 
   const handleAddItem = (product: ProductType, _change: number) => {
     append({
@@ -64,10 +70,14 @@ export function ProductsList({
   }
 
   // Calcula o valor total da compra
-  const totalAmount = selectedProducts.reduce((total, item) => {
-    const product = products?.find((p) => p.id === item.product_id)
-    return total + (product ? item.product_price * item.quantity : 0)
-  }, 0)
+  const selectedProductsAmount = selectedProducts
+    .filter((item) => item.product_id)
+    .reduce((total, item) => {
+      const product = products?.find((p) => p.id === item.product_id)
+      return total + (product ? item.product_price * item.quantity : 0)
+    }, 0)
+
+  const totalAmount = selectedProductsAmount + deliveryFee - parsedDiscount
 
   useEffect(() => {
     setValue('total.total_amount', totalAmount)
