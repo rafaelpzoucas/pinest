@@ -1,4 +1,3 @@
-import { AdminHeader } from '@/app/admin-header'
 import { Card } from '@/components/ui/card'
 import { PaymentType } from '@/models/payment'
 import { PurchaseItemsType } from '@/models/purchase'
@@ -45,8 +44,6 @@ export default async function CloseBill({
 
   return (
     <main className="space-y-6 p-4 lg:px-0">
-      <AdminHeader title="Fechar venda" />
-
       <div className="grid grid-cols-[3fr_2fr] gap-4 items-start">
         <section>
           <Card className="p-4">

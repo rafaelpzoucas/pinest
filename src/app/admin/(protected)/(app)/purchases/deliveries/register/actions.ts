@@ -125,10 +125,10 @@ export const updatePurchase = adminProcedure
               input.type !== 'TAKEOUT' ? input.total.shipping_price : 0,
             change_value: input.total.change_value
               ? stringToNumber(input.total.change_value)
-              : null,
+              : 0,
             discount: input.total.discount
               ? stringToNumber(input.total.discount)
-              : null,
+              : 0,
           },
           delivery: {
             time: input.type === 'DELIVERY' ? store?.delivery_time : null,
@@ -143,8 +143,17 @@ export const updatePurchase = adminProcedure
       return
     }
 
+    const alreadyHasDeliveryFee = input.purchase_items.some((item) => {
+      const isPossiblyDeliveryFee =
+        !item.product_id &&
+        item.product_price === input.total.shipping_price &&
+        (!item.extras || item.extras.length === 0)
+
+      return isPossiblyDeliveryFee
+    })
+
     const deliveryFee =
-      input.type === 'DELIVERY'
+      input.type === 'DELIVERY' && !alreadyHasDeliveryFee
         ? {
             purchase_id: createdPurchase[0].id,
             is_paid: false,

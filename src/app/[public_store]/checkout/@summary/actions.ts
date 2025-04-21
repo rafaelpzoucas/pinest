@@ -121,9 +121,10 @@ export const createPurchase = storeProcedure
       payment_type: input.payment_type,
       total: {
         subtotal,
+        discount: 0,
         total_amount: input.totalAmount,
         shipping_price: shippingPrice,
-        change_value: input.changeValue,
+        change_value: input.changeValue ?? 0,
       },
       delivery: {
         time: type === 'DELIVERY' ? input.shippingTime : null,

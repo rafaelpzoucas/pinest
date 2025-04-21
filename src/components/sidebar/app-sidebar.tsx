@@ -6,9 +6,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { GitCommitVertical, Home } from 'lucide-react'
+import { Home } from 'lucide-react'
 import Link from 'next/link'
 import { Footer } from './footer'
 import { Header } from './header'
@@ -20,10 +19,6 @@ export async function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="relative">
-      <SidebarTrigger className="absolute top-1/2 -translate-y-1/2 -right-6">
-        <GitCommitVertical className="opacity-50" />
-      </SidebarTrigger>
-
       <SidebarContent>
         <Header store={store} />
 
@@ -33,7 +28,7 @@ export async function AppSidebar() {
               <SidebarMenuButton asChild>
                 <Link href={'/admin/dashboard'}>
                   <Home />
-                  <span>Home</span>
+                  <span>Página inicial</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

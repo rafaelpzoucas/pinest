@@ -23,8 +23,8 @@ const statusEnum = z.enum([
 const totalSchema = z.object({
   subtotal: z.number(),
   shipping_price: z.number(),
-  discount: z.string(),
-  change_value: z.string(),
+  discount: z.string().optional(),
+  change_value: z.string().optional(),
   total_amount: z.number(),
 })
 
