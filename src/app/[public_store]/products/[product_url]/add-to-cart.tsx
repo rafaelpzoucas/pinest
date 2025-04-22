@@ -336,7 +336,7 @@ export function AddToCard({
 
           <FormField
             control={form.control}
-            name="observations"
+            name="observations.0"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Observações</FormLabel>
