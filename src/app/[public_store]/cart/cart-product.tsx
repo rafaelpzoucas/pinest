@@ -85,6 +85,8 @@ export function CartProduct({
     handleReadCartProductVariations()
   }, [])
 
+  console.log(cartProduct)
+
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0 w-full">
       <Link href="">
@@ -119,11 +121,12 @@ export function CartProduct({
                 </p>
               ))}
 
-            {cartProduct.observations && (
-              <p className="text-muted-foreground text-xs uppercase line-clamp-2">
-                obs: {cartProduct.observations}{' '}
-              </p>
-            )}
+            {cartProduct?.observations &&
+              cartProduct?.observations?.length > 0 && (
+                <p className="text-muted-foreground text-xs uppercase line-clamp-2">
+                  obs: {cartProduct?.observations[0]}{' '}
+                </p>
+              )}
 
             <div>
               {variations &&

@@ -31,6 +31,7 @@ export default async function CashRegisterPrint({
         DEBIT: 'Cartão de débito',
         CASH: 'Dinheiro',
         PIX: 'PIX',
+        DEFERRED: 'Prazo',
       } as const
 
       const key = typeMap[payment.payment_type as keyof typeof typeMap]
@@ -51,6 +52,7 @@ export default async function CashRegisterPrint({
         DEBIT: 'Cartão de débito',
         CASH: 'Dinheiro',
         PIX: 'PIX',
+        DEFERRED: 'Prazo',
       } as const
 
       const key = typeMap[payment.payment_type as keyof typeof typeMap]

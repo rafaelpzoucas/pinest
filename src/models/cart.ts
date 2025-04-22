@@ -11,6 +11,6 @@ export type CartProductType = {
     variation_id: string
   }[]
   product_price: number
-  observations?: string
+  observations?: string[]
   extras?: SelectedExtraType[]
 }

@@ -162,7 +162,7 @@ export const createPurchase = storeProcedure
           product_id: item?.product_id,
           quantity: item?.quantity,
           product_price: item?.product_price,
-          observations: [item?.observations],
+          observations: item?.observations,
           extras: item.extras,
         }))) ??
       []

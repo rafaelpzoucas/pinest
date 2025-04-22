@@ -12,28 +12,17 @@ import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ExtraType } from '@/models/extras'
-import { ProductType } from '@/models/product'
-import { StoreCustomerType } from '@/models/store-customer'
 import { useSearchParams } from 'next/navigation'
 
 export function Summary({
   form,
   isPending,
-  customers,
-  products,
-  extras,
 }: {
   form: any
   isPending: boolean
-  customers?: StoreCustomerType[]
-  products?: ProductType[]
-  extras?: ExtraType[]
 }) {
   const searchParams = useSearchParams()
   const purchaseId = searchParams.get('purchase_id')
-
-  const customerId = form.watch('customer_id')
 
   const subtotal = form.watch('total.subtotal') ?? 0
 

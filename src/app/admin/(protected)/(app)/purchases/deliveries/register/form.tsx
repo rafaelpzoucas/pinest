@@ -147,8 +147,6 @@ export function CreatePurchaseForm({
     return () => subscription.unsubscribe()
   }, [form.watch])
 
-  console.log(form.formState.errors)
-
   return (
     <Form {...form}>
       <form
@@ -192,13 +190,7 @@ export function CreatePurchaseForm({
         </ScrollArea>
 
         <div className="hidden lg:block w-full">
-          <Summary
-            isPending={isCreating || isUpdating}
-            form={form}
-            customers={customers}
-            extras={extras}
-            products={products}
-          />
+          <Summary isPending={isCreating || isUpdating} form={form} />
         </div>
       </form>
     </Form>

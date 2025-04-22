@@ -37,7 +37,7 @@ const formSchema = z.object({
     )
     .optional(),
   quantity: z.number(),
-  observations: z.string().optional(),
+  observations: z.array(z.string()).optional(),
 })
 
 export type SelectedExtraType = {
@@ -132,7 +132,7 @@ export function AddToCard({
     defaultValues: {
       variations: selectedVariations ?? defaultVariations,
       quantity: amount ?? 1,
-      observations: undefined,
+      observations: [],
     },
   })
 
@@ -164,9 +164,11 @@ export function AddToCard({
       quantity: amount,
       product_variations: values.variations ?? [],
       product_price: productPrice,
-      observations: values.observations,
+      observations: values.observations ?? [],
       extras: selectedExtras.filter((item) => item.quantity > 0),
     }
+
+    console.log({ newCartProduct })
 
     await addToCart({ newItem: newCartProduct })
 

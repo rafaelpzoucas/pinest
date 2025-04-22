@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
-import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Boxes, Minus, Plus, Trash2 } from 'lucide-react'
 import { useFieldArray, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { createTableSchema } from '../schemas'
@@ -71,44 +71,44 @@ export function SelectedProducts({
           return (
             <Card
               key={index}
-              className="space-y-1 bg-secondary/20 p-3 rounded-lg"
+              className="grid grid-cols-[1fr_1fr_2fr_2fr] gap-4 items-start justify-between
+                bg-secondary/20 p-3 rounded-lg"
             >
-              <header className="flex flex-row justify-between">
-                <div className="flex flex-col">
-                  <span>{product.name}</span>
-                  <strong className="text-xs text-muted-foreground">
-                    {formatCurrencyBRL(totalPrice)}
-                  </strong>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant={'secondary'}
-                    size={'icon'}
-                    onClick={() => handleQuantityChange(product, -1, index)}
-                    disabled={quantity === 0}
-                  >
-                    {quantity === 1 ? (
-                      <Trash2 className="w-4 h-4" />
-                    ) : (
-                      <Minus className="w-4 h-4" />
-                    )}
-                  </Button>
-                  <span className="w-6 text-center text-xs">{quantity}</span>
-                  <Button
-                    type="button"
-                    variant={'secondary'}
-                    size={'icon'}
-                    onClick={() => handleQuantityChange(product, 1, index)}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </header>
+              <div className="flex flex-col">
+                <span>{product.name}</span>
+                <strong className="text-xs text-muted-foreground">
+                  {formatCurrencyBRL(totalPrice)}
+                </strong>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant={'secondary'}
+                  size={'icon'}
+                  onClick={() => handleQuantityChange(product, -1, index)}
+                  disabled={quantity === 0}
+                >
+                  {quantity === 1 ? (
+                    <Trash2 className="w-4 h-4" />
+                  ) : (
+                    <Minus className="w-4 h-4" />
+                  )}
+                </Button>
+                <span className="w-6 text-center text-xs">{quantity}</span>
+                <Button
+                  type="button"
+                  variant={'secondary'}
+                  size={'icon'}
+                  onClick={() => handleQuantityChange(product, 1, index)}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
 
               {product.allows_extras && (
                 <ExtrasInput
-                  availableExtras={extras}
+                  availableExtras={extras || []}
                   value={item.extras}
                   onChange={(newExtras) =>
                     setValue(`purchase_items.${index}.extras`, newExtras)
@@ -126,20 +126,23 @@ export function SelectedProducts({
           )
         })
       ) : (
-        <div className="text-muted-foreground text-sm">
+        <div
+          className="flex flex-col gap-4 items-center justify-center text-muted-foreground text-sm
+            w-full"
+        >
+          <Boxes className="w-32 h-32" />
           <p>Nenhum produto selecionado.</p>
+          <FormField
+            control={form.control}
+            name="purchase_items"
+            render={() => (
+              <FormItem>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       )}
-
-      <FormField
-        control={form.control}
-        name="purchase_items"
-        render={() => (
-          <FormItem>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   )
 }
