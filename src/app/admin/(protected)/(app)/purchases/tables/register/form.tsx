@@ -5,25 +5,28 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
-import { X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
 import { checkTableExists, createTable, updateTable } from './actions'
 import { ProductsList } from './products/list'
+import { SelectedProducts } from './products/selected-products'
 import { createTableSchema } from './schemas'
 import { Summary } from './summary'
 
@@ -113,7 +116,7 @@ export function CreateSaleForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] items-start gap-4"
+        className="flex flex-col items-start gap-4 w-full h-full"
       >
         <Card className="flex lg:hidden flex-col gap-4 p-4 fixed bottom-2 left-2 right-2">
           <p>{purchaseItems.length} Produto(s) selecionado(s)</p>
@@ -146,7 +149,7 @@ export function CreateSaleForm({
           </Sheet>
         </Card>
 
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex w-full">
           <Summary
             extras={extras}
             form={form}
@@ -157,16 +160,35 @@ export function CreateSaleForm({
           />
         </div>
 
-        <aside className="sticky top-4">
-          <Card className="space-y-6 p-4 lg:h-[calc(100vh_-_1rem_-_5rem)]">
-            <h1 className="text-lg font-bold">Produtos</h1>
+        <Sheet>
+          <SheetTrigger className={cn(buttonVariants(), 'w-fit')}>
+            <Plus className="w-4 h-4" />
+            Adicionar produtos
+          </SheetTrigger>
+          <SheetContent className="!max-w-2xl">
+            <SheetHeader>
+              <SheetTitle>Produtos</SheetTitle>
+            </SheetHeader>
+
             <ProductsList
               form={form}
-              products={products}
               categories={categories}
+              products={products}
             />
+          </SheetContent>
+        </Sheet>
+
+        <ScrollArea className="w-full h-[calc(100vh_-_32px_-_77px_-_32px)]">
+          <Card className="flex flex-col h-full">
+            <CardContent className="p-4">
+              <SelectedProducts
+                form={form}
+                extras={extras}
+                products={products}
+              />
+            </CardContent>
           </Card>
-        </aside>
+        </ScrollArea>
       </form>
     </Form>
   )

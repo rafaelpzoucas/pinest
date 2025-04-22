@@ -1,4 +1,3 @@
-import { AdminHeader } from '@/app/admin-header'
 import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
@@ -19,9 +18,7 @@ export default async function CreateTablePage({
   const extras = store?.extras as unknown as ExtraType[]
 
   return (
-    <main className="space-y-6 p-4 lg:px-0">
-      <AdminHeader title="Nova mesa" withBackButton />
-
+    <main className="space-y-6 p-4 lg:px-0 h-screen">
       {store && (
         <CreateSaleForm
           categories={categories}

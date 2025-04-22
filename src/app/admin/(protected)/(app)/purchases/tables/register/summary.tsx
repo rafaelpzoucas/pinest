@@ -15,7 +15,6 @@ import { TableType } from '@/models/table'
 import { Loader2 } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import { SelectedProducts } from './products/selected-products'
 import { createTableSchema } from './schemas'
 
 export function Summary({
@@ -40,9 +39,7 @@ export function Summary({
     0,
   )
   return (
-    <Card className="space-y-6 p-4">
-      <h1 className="text-lg font-bold">Resumo da mesa</h1>
-
+    <Card className="flex flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full lg:border">
       {table?.id ? (
         <div className="flex flex-row items-center justify-between w-full">
           <strong className="text-xl">Mesa #{table.number}</strong>
@@ -84,29 +81,29 @@ export function Summary({
         </div>
       )}
 
-      <SelectedProducts form={form} products={products} extras={extras} />
-
-      <div className="flex flex-col w-full">
-        <div className="flex flex-row items-center justify-between w-full">
-          <span>Total da venda</span>
-          <strong>{formatCurrencyBRL(totalAmount ?? 0)}</strong>
+      <div className="w-full max-w-xs space-y-2">
+        <div className="flex flex-col w-full">
+          <div className="flex flex-row items-center justify-between w-full">
+            <span>Total da venda</span>
+            <strong>{formatCurrencyBRL(totalAmount ?? 0)}</strong>
+          </div>
         </div>
-      </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={isCreatePending || isUpdatePending}
-      >
-        {isCreatePending || isUpdatePending ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            <span>{table?.id ? 'Atualizando' : 'Criando'} mesa</span>
-          </>
-        ) : (
-          <span>{table?.id ? 'Atualizar' : 'Criar'} mesa</span>
-        )}
-      </Button>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isCreatePending || isUpdatePending}
+        >
+          {isCreatePending || isUpdatePending ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <span>{table?.id ? 'Atualizando' : 'Criando'} mesa</span>
+            </>
+          ) : (
+            <span>{table?.id ? 'Atualizar' : 'Criar'} mesa</span>
+          )}
+        </Button>
+      </div>
     </Card>
   )
 }

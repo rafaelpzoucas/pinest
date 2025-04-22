@@ -91,7 +91,7 @@ export function ProductsList({
           ))}
         </div>
 
-        <ScrollArea className="lg:h-[calc(100vh_-_1rem_-_68px_-_24px_-_12rem_-_1rem)]">
+        <ScrollArea className="lg:h-[calc(100vh_-_48px_-_28px_-_36px_-_58px_-_32px)]">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
             {filteredProducts.length > 0 &&
               filteredProducts.map((product) => (
