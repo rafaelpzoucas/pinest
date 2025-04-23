@@ -13,7 +13,7 @@ export function Items({ purchase }: { purchase?: PurchaseType }) {
   }
 
   return (
-    <section className="w-full border-b border-dashed last:border-0 py-4 space-y-1">
+    <section className="w-full border-b border-dashed last:border-0 py-2 space-y-1">
       <h3 className="mx-auto uppercase">Itens do pedido</h3>
 
       <ul>

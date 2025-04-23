@@ -41,9 +41,9 @@ export function Summary({
   return (
     <Card className="flex flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full lg:border">
       {table?.id ? (
-        <div className="flex flex-row items-center justify-between w-full">
+        <div className="flex flex-col w-full">
           <strong className="text-xl">Mesa #{table.number}</strong>
-          <p>{table.description}</p>
+          <p className="text-muted-foreground">{table.description}</p>
         </div>
       ) : (
         <div className="grid grid-cols-[1fr_4fr] gap-4">
