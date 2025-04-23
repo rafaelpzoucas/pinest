@@ -33,7 +33,7 @@ export function Info({ purchase }: { purchase?: PurchaseType }) {
   }
 
   return (
-    <section className="w-full">
+    <section className="w-full border-b border-dashed">
       <header className="flex flex-col items-center justify-center">
         <h1 className="uppercase">Pedido #{displayId}</h1>
 
@@ -63,7 +63,7 @@ export function Info({ purchase }: { purchase?: PurchaseType }) {
 
         {((isIfood && ifoodOrder.delivery.observations) ||
           purchase?.observations) && (
-          <p>
+          <p className="uppercase text-xs">
             Observações:{' '}
             {ifoodOrder?.delivery?.observations ?? purchase.observations}
           </p>

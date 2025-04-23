@@ -6,6 +6,7 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -109,9 +110,17 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                       <SheetClose>
                         <ArrowLeft className="mr-4" />
                       </SheetClose>
-                      <SheetTitle className="!mt-0">
-                        Mesa #{table.number}
-                      </SheetTitle>
+
+                      <div className="flex flex-col">
+                        <SheetTitle className="!mt-0">
+                          Mesa #{table.number}
+                        </SheetTitle>
+                        {table.description && (
+                          <SheetDescription>
+                            {table.description}
+                          </SheetDescription>
+                        )}
+                      </div>
                       <Link
                         href={`purchases/tables/register?id=${table.id}&edit=true`}
                         className={cn(
