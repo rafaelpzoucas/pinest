@@ -155,17 +155,6 @@ export function CloseCashSession({
               )}
             />
             <div className="flex flex-row gap-2">
-              <Button type="submit" disabled={isPending}>
-                {isClosing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    <span>Fechando caixa</span>
-                  </>
-                ) : (
-                  'Fechar caixa'
-                )}
-              </Button>
-
               <Button
                 type="button"
                 disabled={isPending}

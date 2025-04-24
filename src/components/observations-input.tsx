@@ -1,9 +1,30 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
+import {
+  insertObservation,
+  readObservations,
+} from '@/app/admin/(protected)/(app)/purchases/actions'
 import { Label } from '@/components/ui/label'
-import { Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { ObservationType } from '@/models/observation'
+import { Check, ChevronsUpDown, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useServerAction } from 'zsa-react'
+
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 interface ObservationsInputProps {
   value: string[]
@@ -16,11 +37,35 @@ export function ObservationsInput({
   onChange,
   label = 'Observações',
 }: ObservationsInputProps) {
+  const [observations, setObservations] = useState<ObservationType[]>([])
   const [inputValue, setInputValue] = useState('')
+  const [open, setOpen] = useState(false)
 
-  const handleAddObservation = () => {
-    const trimmed = inputValue.trim()
+  const { execute: executeInsert } = useServerAction(insertObservation, {
+    onSuccess: () => {
+      executeRead()
+    },
+  })
+
+  const { execute: executeRead, data: observationsData } = useServerAction(
+    readObservations,
+    {
+      onSuccess: () => {
+        if (observationsData?.observations) {
+          setObservations(observationsData?.observations)
+        }
+      },
+    },
+  )
+
+  const handleAddObservation = async (newObservation: string) => {
+    const trimmed = newObservation.trim()
     if (!trimmed) return
+
+    // Adiciona a observação no Supabase
+    executeInsert({ observation: trimmed })
+
+    // Atualiza o estado local após sucesso
     onChange([...value, trimmed])
     setInputValue('')
   }
@@ -30,6 +75,10 @@ export function ObservationsInput({
     updated.splice(index, 1)
     onChange(updated)
   }
+
+  useEffect(() => {
+    executeRead()
+  }, [onChange])
 
   return (
     <div className="space-y-1">
@@ -51,17 +100,75 @@ export function ObservationsInput({
           ))}
       </ul>
 
-      <Input
-        value={inputValue}
-        placeholder="Digite e aperte Enter..."
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault()
-            handleAddObservation()
-          }
-        }}
-      />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="justify-between"
+          >
+            Selecione observações...
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="p-0">
+          <Command>
+            <CommandInput
+              value={inputValue}
+              placeholder="Digite e aperte Enter..."
+              onValueChange={setInputValue}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  const filtered = observations.filter((obs) =>
+                    obs.observation
+                      .toLowerCase()
+                      .includes(inputValue.toLowerCase()),
+                  )
+
+                  if (filtered.length === 0) {
+                    handleAddObservation(inputValue) // Cria nova
+                  } else {
+                    const firstMatch = filtered[0].observation
+                    setInputValue(firstMatch)
+                    if (!value.includes(firstMatch)) {
+                      onChange([...value, firstMatch])
+                    }
+                    setInputValue('')
+                    setOpen(false)
+                  }
+                }
+              }}
+            />
+            <CommandList>
+              <CommandEmpty>Aperte Enter para criar.</CommandEmpty>
+              <CommandGroup>
+                {observations.map((observation) => (
+                  <CommandItem
+                    key={observation.id}
+                    value={observation.observation}
+                    onSelect={(currentValue) => {
+                      handleAddObservation(currentValue)
+                      setOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        inputValue === observation.observation
+                          ? 'opacity-100'
+                          : 'opacity-0',
+                      )}
+                    />
+                    {observation.observation}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }

@@ -15,7 +15,7 @@ export const getSalesReport = adminProcedure
       .from('purchases')
       .select(
         `
-          id, total_amount, payment_type, type, created_at, total,
+          id, payment_type, type, created_at, total,
           purchase_items (
             quantity,
             products ( id, name, price )
@@ -26,8 +26,9 @@ export const getSalesReport = adminProcedure
       .gte('created_at', startDate)
       .lte('created_at', endDate)
 
-    if (purchasesError || !purchases) {
-      throw new Error('Error fetching purchases report')
+    if (purchasesError) {
+      console.error('Error fetching purchases report', purchasesError)
+      return
     }
 
     const groupedPaymentTypes = purchases.reduce<Record<string, number>>(
