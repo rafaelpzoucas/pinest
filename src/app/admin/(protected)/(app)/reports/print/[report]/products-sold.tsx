@@ -8,7 +8,9 @@ export function ProductsSoldReportPrint({
 }) {
   return (
     <div className="w-full">
-      <h2 className="font-bold">Produtos vendidos</h2>
+      <header className="flex flex-col items-center justify-center w-full">
+        <h1 className="uppercase">Produtos vendidos</h1>
+      </header>
 
       {data && data.length > 0 ? (
         data.map((item, index) => (

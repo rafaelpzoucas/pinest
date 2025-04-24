@@ -24,7 +24,6 @@ export function SalesReport({
   startDate: string
   endDate: string
 }) {
-  console.log({ data })
   return (
     <Card className="h-auto max-w-full break-inside-avoid">
       <CardHeader className="flex flex-row items-center justify-between">
