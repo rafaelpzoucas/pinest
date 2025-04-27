@@ -6,6 +6,14 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname
   const url = request.nextUrl.clone()
 
+  // Verifica se o hostname começa com "www" e redireciona para o domínio sem o www
+  if (hostname.startsWith('www.')) {
+    const newHostname = hostname.replace('www.', '')
+    const newUrl = url.clone()
+    newUrl.hostname = newHostname
+    return NextResponse.redirect(newUrl)
+  }
+
   // 🔁 Redireciona /admin para /admin/dashboard
   if (url.pathname === '/admin') {
     url.pathname = '/admin/dashboard'
