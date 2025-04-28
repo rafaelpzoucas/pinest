@@ -37,7 +37,7 @@ const formSchema = z.object({
     )
     .optional(),
   quantity: z.number(),
-  observations: z.array(z.string()).optional(),
+  observations: z.array(z.string()).optional().nullable(),
 })
 
 export type SelectedExtraType = {
