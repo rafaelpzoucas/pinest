@@ -214,6 +214,13 @@ export const updateIfoodOrderStatus = adminProcedure
 
     const status: Status = input.newStatus as Status
 
+    console.log(
+      'OOOOOOOOOOO',
+      status,
+      input,
+      `${api}/order/v1.0/orders/${purchaseId}/${newStatusMap[status]}`,
+    )
+
     try {
       // Enviar a requisição para o iFood
       const response = await fetch(

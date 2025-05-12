@@ -72,25 +72,27 @@ const MetadataSchema = z.object({
   handshakeGroup: z.string(),
   message: z.string(),
   expiresAt: z.string().datetime(),
-  alternatives: z.array(AlternativeSchema),
-  metadata: z.object({
-    acceptCancellationReasons: z.array(z.string()),
-    evidences: z.array(EvidenceSchema),
-    items: z.array(ItemSchema),
-    garnishItems: z.array(GarnishItemSchema),
-  }),
+  alternatives: z.array(AlternativeSchema).optional(),
+  metadata: z
+    .object({
+      acceptCancellationReasons: z.array(z.string()),
+      evidences: z.array(EvidenceSchema),
+      items: z.array(ItemSchema),
+      garnishItems: z.array(GarnishItemSchema),
+    })
+    .optional(),
   createdAt: z.string().datetime(),
 })
 
 const IfoodHandshakeDisputeSchema = z.object({
-  id: z.string().uuid(),
-  orderId: z.string().uuid(),
   code: z.string(),
-  fullcode: z.string(),
-  merchantId: z.string().uuid(),
   createdAt: z.string().datetime(),
+  fullCode: z.string(),
+  id: z.string().uuid(),
+  merchantId: z.string().uuid(),
   metadata: MetadataSchema,
-  receivedAt: z.string().datetime(),
+  orderId: z.string().uuid(),
+  receivedAt: z.string().datetime().optional(),
 })
 
 export default IfoodHandshakeDisputeSchema
