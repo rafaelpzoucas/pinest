@@ -79,7 +79,7 @@ export const closeCashSession = cashProcedure
       .from('cash_sessions')
       .update({
         closing_balance: stringToNumber(input.closing_balance),
-        closing_balance_cash: stringToNumber(input.closing_balance_cash),
+        closing_balance_cash: stringToNumber(input.cash_balance),
         status: 'closed',
         closed_at: new Date().toISOString(),
       })

@@ -85,9 +85,11 @@ export function Items({ purchase }: { purchase?: PurchaseType }) {
               const itemTotal = item.price
 
               // Calculando o total dos extras
-              const extrasTotal = item.options.reduce((acc, extra) => {
-                return acc + extra.price * extra.quantity
-              }, 0)
+              const extrasTotal = item.options
+                ? item.options.reduce((acc, extra) => {
+                    return acc + extra.price * extra.quantity
+                  }, 0)
+                : 0
 
               // Somando o total do item com o total dos extras
               const total = (itemTotal + extrasTotal) * item.quantity
@@ -103,7 +105,8 @@ export function Items({ purchase }: { purchase?: PurchaseType }) {
                     </span>
                     <span>{formatCurrencyBRL(item.price)}</span>
                   </div>
-                  {item.options.length > 0 &&
+                  {item.options &&
+                    item.options.length > 0 &&
                     item.options.map((option) => (
                       <p
                         key={option.id}

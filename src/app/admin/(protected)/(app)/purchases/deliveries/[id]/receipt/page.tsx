@@ -120,7 +120,8 @@ export default async function PrintKitchenReceipt({
                     {item.quantity} {item.name}
                   </span>
 
-                  {item.options.length > 0 &&
+                  {item.options &&
+                    item.options.length > 0 &&
                     item.options.map((option) => (
                       <p
                         key={option.id}

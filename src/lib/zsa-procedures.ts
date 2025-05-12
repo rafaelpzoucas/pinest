@@ -90,7 +90,7 @@ export const storeProcedure = createServerActionProcedure().handler(
           store_hours (*),
           market_niches (*),
           addresses (*)
-          `,
+        `,
       )
       .eq('store_subdomain', subdomainCookie)
       .single()

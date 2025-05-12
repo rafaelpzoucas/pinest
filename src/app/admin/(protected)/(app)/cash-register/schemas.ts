@@ -6,7 +6,10 @@ export const openCashSessionSchema = z.object({
 
 export const closeCashSessionSchema = z.object({
   closing_balance: z.string(),
-  closing_balance_cash: z.string(),
+  cash_balance: z.string(),
+  credit_balance: z.string(),
+  debit_balance: z.string(),
+  pix_balance: z.string(),
 })
 
 export const createTransactionFormSchema = z.object({

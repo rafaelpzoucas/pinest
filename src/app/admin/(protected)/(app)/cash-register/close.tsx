@@ -31,10 +31,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { formatCurrencyBRL } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { closeCashSession } from './actions'
+import { CashForm } from './cash-form'
+import { PIXForm } from './pix-form'
 
 export function CloseCashSession({
   cashBalance,
@@ -56,7 +59,10 @@ export function CloseCashSession({
   const form = useForm<z.infer<typeof closeCashSessionSchema>>({
     resolver: zodResolver(closeCashSessionSchema),
     defaultValues: {
-      closing_balance_cash: cashBalance.toString() ?? '',
+      pix_balance: cashBalance.toString() ?? '',
+      credit_balance: cashBalance.toString() ?? '',
+      debit_balance: cashBalance.toString() ?? '',
+      cash_balance: cashBalance.toString() ?? '',
       closing_balance: totalBalance.toString() ?? '',
     },
   })
@@ -107,7 +113,7 @@ export function CloseCashSession({
       ) : (
         <SheetTrigger className={buttonVariants()}>Fechar caixa</SheetTrigger>
       )}
-      <SheetContent className="space-y-8">
+      <SheetContent className="space-y-4">
         <SheetHeader>
           <SheetTitle>Fechamento de caixa</SheetTitle>
           <SheetDescription>
@@ -116,13 +122,95 @@ export function CloseCashSession({
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
-              name="closing_balance_cash"
+              name="cash_balance"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Saldo (apenas dinheiro)</FormLabel>
+                  <div className="flex flex-row justify-between">
+                    <FormLabel>Dinheiro</FormLabel>
+                    <FormDescription>
+                      Computado: {formatCurrencyBRL(100)}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <div className="flex flex-row gap-2">
+                      <Input
+                        maskType="currency"
+                        placeholder="Insira o valor final..."
+                        {...field}
+                      />
+
+                      <CashForm />
+                    </div>
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="pix_balance"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-row justify-between">
+                    <FormLabel>PIX</FormLabel>
+
+                    <FormDescription>
+                      Computado: {formatCurrencyBRL(100)}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <div className="flex flex-row gap-2">
+                      <Input
+                        maskType="currency"
+                        placeholder="Insira o valor final..."
+                        {...field}
+                      />
+                      <PIXForm />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="credit_balance"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-row justify-between">
+                    <FormLabel>Cartão de crédito</FormLabel>
+
+                    <FormDescription>
+                      Computado: {formatCurrencyBRL(100)}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Input
+                      maskType="currency"
+                      placeholder="Insira o valor final..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="debit_balance"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex flex-row justify-between">
+                    <FormLabel>Cartão de débito</FormLabel>
+
+                    <FormDescription>
+                      Computado: {formatCurrencyBRL(100)}
+                    </FormDescription>
+                  </div>
                   <FormControl>
                     <Input
                       maskType="currency"
@@ -139,7 +227,12 @@ export function CloseCashSession({
               name="closing_balance"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Saldo final</FormLabel>
+                  <div className="flex flex-row justify-between">
+                    <FormLabel>Saldo final</FormLabel>
+                    <FormDescription>
+                      Computado: {formatCurrencyBRL(100)}
+                    </FormDescription>
+                  </div>
                   <FormControl>
                     <Input
                       maskType="currency"
