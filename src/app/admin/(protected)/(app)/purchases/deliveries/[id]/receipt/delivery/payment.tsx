@@ -19,9 +19,8 @@ export function Payment({ purchase }: { purchase?: PurchaseType }) {
         <strong className="uppercase border px-2 py-1">
           {isIfood && ifoodOrder.payments.prepaid
             ? 'pago online'
-            : ifoodOrder?.payments?.methods[0]?.card?.brand}
-          {!isIfood &&
-            PAYMENT_TYPES[purchase.payment_type as keyof typeof PAYMENT_TYPES]}
+            : ifoodOrder?.payments?.methods[0]?.card?.brand}{' '}
+          - {PAYMENT_TYPES[purchase.payment_type as keyof typeof PAYMENT_TYPES]}
         </strong>
       </div>
 

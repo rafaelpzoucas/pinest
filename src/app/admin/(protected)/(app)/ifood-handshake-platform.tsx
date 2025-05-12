@@ -57,7 +57,7 @@ export function IfoodHandshakePlatform({
   const supabase = createClient()
   const router = useRouter()
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(!!event)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
 
   const expiresAt = event.metadata.expiresAt
@@ -94,7 +94,8 @@ export function IfoodHandshakePlatform({
           schema: 'public',
           table: 'ifood_events',
         },
-        () => {
+        (payload) => {
+          console.log('Novo evento recebido', payload)
           router.refresh()
           setIsOpen(true)
         },

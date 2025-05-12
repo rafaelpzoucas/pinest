@@ -294,9 +294,9 @@ export const handleCancelOrder = webhookProcedure
   })
 
 export const keepAlive = createServerAction().handler(async () => {
-  console.info('Evento KEEPALIVE recebido. Webhook está ativo.')
-
-  return NextResponse.json({ message: 'Webhook está ativo.' })
+  return NextResponse.json({
+    message: 'Evento KEEPALIVE recebido.',
+  })
 })
 
 export const createHandshakeEvent = webhookProcedure
@@ -305,12 +305,9 @@ export const createHandshakeEvent = webhookProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
-    const { data, error } = await supabase
-      .from('ifood_events')
-      .upsert({ ...input })
-      .select()
+    const { error } = await supabase.from('ifood_events').upsert(input).select()
 
-    if (error || !data) {
+    if (error) {
       console.error('Erro ao salvar evento de handshake:', error)
     }
     return NextResponse.json({

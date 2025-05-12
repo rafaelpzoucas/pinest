@@ -26,18 +26,19 @@ export default async function OrderPage({
   }
 
   const displayId = params.id.substring(0, 4)
-
-  const purchaseItems = purchase?.purchase_items
-  const customer = purchase?.store_customers?.customers
-  const customerAddress = formatAddress(
-    purchase?.store_customers.customers.address,
-  )
-
-  const variations = purchase?.purchase_item_variations
-
   const isIfood = purchase?.is_ifood
   const ifoodOrderData: IfoodOrder = isIfood && purchase?.ifood_order_data
   const ifoodItems: IfoodItem[] = ifoodOrderData?.items
+  const ifoodAddress = ifoodOrderData.delivery.deliveryAddress
+
+  const purchaseItems = purchase?.purchase_items
+  const customer = purchase?.store_customers?.customers
+  const customerAddress = !isIfood
+    ? formatAddress(purchase?.store_customers.customers.address)
+    : `${ifoodAddress.streetName}, ${ifoodAddress.streetNumber}`
+
+  const variations = purchase?.purchase_item_variations
+
   const ifoodItemsTotal = (isIfood && ifoodOrderData?.total.subTotal) || 0
   const ifoodAdditionalFees = isIfood && ifoodOrderData?.total.additionalFees
   const PAYMENT_TYPES = {
@@ -194,6 +195,13 @@ export default async function OrderPage({
                   {formatCurrencyBRL(purchase?.total.total_amount ?? 0)}
                 </strong>
               </div>
+
+              {ifoodOrderData.customer.documentNumber && (
+                <strong className="text-sm w-full border-t pt-2">
+                  Incluir CPF na nota fiscal:{' '}
+                  {ifoodOrderData.customer.documentNumber}
+                </strong>
+              )}
             </footer>
           </Card>
 
@@ -282,9 +290,11 @@ export default async function OrderPage({
                     const itemTotal = item.totalPrice
 
                     // Calculando o total dos extras
-                    const optionsTotal = item.options.reduce((acc, option) => {
-                      return acc + option.price * option.quantity
-                    }, 0)
+                    const optionsTotal = item.options
+                      ? item.options.reduce((acc, option) => {
+                          return acc + option.price * option.quantity
+                        }, 0)
+                      : 0
 
                     // Somando o total do item com o total dos options
                     const total = (itemTotal + optionsTotal) * item.quantity
@@ -298,7 +308,8 @@ export default async function OrderPage({
                           <span>{formatCurrencyBRL(item?.price)}</span>
                         </header>
 
-                        {item.options.length > 0 &&
+                        {item.options &&
+                          item.options.length > 0 &&
                           item.options.map((option) => (
                             <p
                               key={option.id}

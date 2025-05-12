@@ -10,6 +10,7 @@ import {
 } from './actions'
 
 import { createRouteHandlersForAction } from 'zsa-openapi'
+import IfoodHandshakeDisputeSchema from './schemas'
 
 const webhookSchema = z.object({
   code: z.string(),
@@ -21,8 +22,6 @@ const webhookAction = createServerAction()
   .handler(async ({ request }) => {
     try {
       const body = await request?.json()
-
-      console.log('Recebido webhook do iFood:', body)
 
       switch (body.code) {
         case 'PLC': {
@@ -80,7 +79,16 @@ const webhookAction = createServerAction()
         }
 
         case 'HSD': {
-          await createHandshakeEvent(body)
+          try {
+            const validated = IfoodHandshakeDisputeSchema.parse(body)
+            await createHandshakeEvent(validated)
+          } catch (err) {
+            console.error('Erro ao validar schema do HSD:', err)
+          }
+          break
+        }
+        case 'CARF': {
+          console.log('Cancellation request failed.', body)
           break
         }
 
