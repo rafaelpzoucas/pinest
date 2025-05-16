@@ -84,7 +84,8 @@ export const handleDisputeAction = adminProcedure
   .input(
     z
       .object({
-        disputeId: z.string(),
+        eventId: z.string().optional(),
+        disputeId: z.string().optional(),
         action: z.enum(['accept', 'reject']),
         reason: z.string(),
       })
@@ -142,6 +143,17 @@ export const handleDisputeAction = adminProcedure
 
     if (!response.ok) {
       console.error('Erro ao solicitar cancelamento do pedido', responseData)
+
+      return null
+    }
+
+    const { error: deleteEventError } = await supabase
+      .from('ifood_events')
+      .delete()
+      .eq('id', input.eventId)
+
+    if (deleteEventError) {
+      console.error('Erro ao deletar o evento de handshake: ', deleteEventError)
     }
   })
 

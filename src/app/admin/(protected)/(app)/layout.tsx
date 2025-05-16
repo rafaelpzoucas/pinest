@@ -53,10 +53,7 @@ export default async function ProtectedLayout({
           </main>
         </ScrollArea>
 
-        {events.length > 0 &&
-          events.map((event) => (
-            <IfoodHandshakePlatform key={event.id} event={event} />
-          ))}
+        <IfoodHandshakePlatform event={events[0]} />
         <StoreStatus />
       </main>
     </SidebarProvider>
