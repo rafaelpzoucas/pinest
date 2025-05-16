@@ -77,40 +77,28 @@ export const storeProcedure = createServerActionProcedure().handler(
     const cookieStore = cookies()
     const subdomainCookie = cookieStore.get('public_store_subdomain')?.value
 
-    try {
-      // Garantir que temos um subdomínio válido
-      if (
-        !subdomainCookie ||
-        typeof subdomainCookie !== 'string' ||
-        subdomainCookie.trim() === ''
-      ) {
-        console.error('Nenhuma loja identificada pelo cookie.')
-        return { store: null, supabase, cookieStore }
-      }
-
-      // Buscar os dados da loja pelo subdomínio
-      const { data: store, error } = await supabase
-        .from('stores')
-        .select(
-          `
-            *,
-            store_hours (*),
-            market_niches (*),
-            addresses (*)
-          `,
-        )
-        .eq('store_subdomain', subdomainCookie)
-        .single()
-
-      if (error) {
-        console.error('Erro ao buscar dados da loja:', error)
-        return { store: null, supabase, cookieStore }
-      }
-
-      return { store: store as StoreType, supabase, cookieStore }
-    } catch (e) {
-      console.error('Erro inesperado ao processar a loja:', e)
-      return { store: null, supabase, cookieStore }
+    if (!subdomainCookie) {
+      console.error('Nenhuma loja identificada.')
+      return null
     }
+
+    const { data: store, error } = await supabase
+      .from('stores')
+      .select(
+        `
+          *,
+          store_hours (*),
+          market_niches (*),
+          addresses (*)
+        `,
+      )
+      .eq('store_subdomain', subdomainCookie)
+      .single()
+
+    if (error) {
+      console.error('Erro ao buscar dados da loja.', error)
+    }
+
+    return { store: store as StoreType, supabase, cookieStore }
   },
 )
