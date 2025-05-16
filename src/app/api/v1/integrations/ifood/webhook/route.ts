@@ -23,6 +23,8 @@ const webhookAction = createServerAction()
     try {
       const body = await request?.json()
 
+      console.info('[IFOOD EVENT]: ', body)
+
       switch (body.code) {
         case 'PLC': {
           await handleOrderPlaced({

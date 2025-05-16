@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { IfoodOrder } from '@/models/ifood'
+import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
@@ -310,6 +311,9 @@ export const createHandshakeEvent = webhookProcedure
     if (error) {
       console.error('Erro ao salvar evento de handshake:', error)
     }
+
+    revalidatePath('/')
+
     return NextResponse.json({
       message: 'Evento de handshake tratado com sucesso!',
     })
