@@ -94,58 +94,49 @@ export const refreshAccessToken = createServerAction()
     const clientSecret = process.env.IFOOD_CLIENT_SECRET
     const api = process.env.IFOOD_API_BASE_URL
 
-    console.log('[IFOOD_API]', { api, clientId, clientSecret })
-
-    if (!clientId || !clientSecret || !api) {
-      console.error('[REFRESH_TOKEN] Variáveis de ambiente faltando')
-      throw new Error('Configuração inválida para autenticação do iFood.')
-    }
-
     const body = new URLSearchParams()
-    body.append('grantType', 'client_credentials')
-    body.append('clientId', clientId)
-    body.append('clientSecret', clientSecret)
+    body.append('grant_type', 'client_credentials') // ⚠️ snake_case!
+    body.append('client_id', clientId ?? '')
+    body.append('client_secret', clientSecret ?? '')
 
-    let response: Response
-    try {
-      response = await fetch(`${api}/authentication/v1.0/oauth/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
-      })
-    } catch (err) {
+    const response = await fetch(`${api}/authentication/v1.0/oauth/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    })
+
+    const contentType = response.headers.get('content-type')
+    const raw = await response.text()
+
+    if (!response.ok || !contentType?.includes('application/json')) {
       console.error(
-        `[REFRESH_TOKEN] Erro de rede ao tentar autenticar com iFood para merchant ${merchantId}:`,
-        err,
+        '[REFRESH_TOKEN] Erro ao obter token: status',
+        response.status,
       )
-      throw new Error('Erro de rede na autenticação com o iFood.')
+      console.error(
+        '[REFRESH_TOKEN] Corpo (provavelmente HTML):',
+        raw.slice(0, 300),
+      )
+      throw new Error('Erro ao obter token do iFood')
     }
 
     let data: any
     try {
-      data = await response.json()
-    } catch (err) {
-      console.error('[REFRESH_TOKEN] Erro ao parsear resposta do iFood:', err)
-      throw new Error('Resposta inválida do iFood (JSON malformado).')
-    }
-
-    if (!response.ok) {
-      console.error(
-        `[REFRESH_TOKEN] Erro HTTP ${response.status} ao gerar token:`,
-        data,
-      )
-      throw new Error('Erro ao gerar token de acesso no iFood.')
+      data = JSON.parse(raw)
+    } catch (e) {
+      console.error('[REFRESH_TOKEN] Erro ao parsear JSON:', e)
+      throw new Error('Resposta inválida do iFood')
     }
 
     if (!data.accessToken) {
-      console.error('[REFRESH_TOKEN] Resposta sem accessToken:', data)
-      throw new Error('accessToken ausente na resposta do iFood.')
+      console.error('[REFRESH_TOKEN] Token ausente na resposta:', data)
+      throw new Error('Token não retornado pelo iFood')
     }
 
     const expiresAt = new Date()
     expiresAt.setSeconds(expiresAt.getSeconds() + data.expiresIn)
 
-    const { error: updateError } = await supabase
+    const { error } = await supabase
       .from('ifood_integrations')
       .update({
         access_token: data.accessToken,
@@ -153,18 +144,15 @@ export const refreshAccessToken = createServerAction()
       })
       .eq('merchant_id', merchantId)
 
-    if (updateError) {
-      console.error(
-        `[REFRESH_TOKEN] Erro ao atualizar token no banco para merchant ${merchantId}:`,
-        updateError,
-      )
-      throw new Error('Falha ao salvar novo token no banco.')
+    if (error) {
+      console.error('❌ Erro ao atualizar token no banco:', error)
+      throw new Error('Erro ao salvar token no banco')
     }
 
     console.log(
-      `[REFRESH_TOKEN] Token atualizado com sucesso para merchant ${merchantId}. Expira em: ${expiresAt.toISOString()}`,
+      '[REFRESH_TOKEN] Token atualizado com sucesso:',
+      data.accessToken,
     )
-
     return [data.accessToken]
   })
 
