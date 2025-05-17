@@ -94,6 +94,8 @@ export const refreshAccessToken = createServerAction()
     const clientSecret = process.env.IFOOD_CLIENT_SECRET
     const api = process.env.IFOOD_API_BASE_URL
 
+    console.log('[IFOOD_API]', { api, clientId, clientSecret })
+
     if (!clientId || !clientSecret || !api) {
       console.error('[REFRESH_TOKEN] Variáveis de ambiente faltando')
       throw new Error('Configuração inválida para autenticação do iFood.')
