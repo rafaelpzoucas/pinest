@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import {
   closeCashSessionSchema,
+  createCashReceiptsSchema,
   createTransactionFormSchema,
   openCashSessionSchema,
 } from './schemas'
@@ -187,4 +188,49 @@ export const readOpenTables = adminProcedure
     }
 
     return { openTables }
+  })
+
+export const upsertCashReceipts = adminProcedure
+  .createServerAction()
+  .input(createCashReceiptsSchema)
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const [cashSessionData] = await readCashSession()
+    const cashSession = cashSessionData?.cashSession
+
+    const { data, error } = await supabase
+      .from('cash_register_receipts')
+      .upsert(
+        input.map((receipt) => ({ ...receipt, session_id: cashSession.id })),
+      )
+
+    if (error) {
+      console.error('Não foi possível adicionar o(s) recibo(s)', error)
+      return
+    }
+
+    console.info('Recibo(s) adicionado(s) com sucesso!', data)
+
+    revalidatePath('/admin/cash-register')
+  })
+
+export const readCashReceipts = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase } = ctx
+
+    const [cashSessionData] = await readCashSession()
+    const cashSession = cashSessionData?.cashSession
+
+    const { data, error } = await supabase
+      .from('cash_register_receipts')
+      .select('*')
+      .eq('session_id', cashSession.id)
+
+    if (error) {
+      console.error('Não foi possível encontrar os recibos', error)
+    }
+
+    return { cashReceipts: data as z.infer<typeof createCashReceiptsSchema> }
   })

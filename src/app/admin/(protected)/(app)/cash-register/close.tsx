@@ -19,7 +19,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { closeCashSessionSchema } from './schemas'
+import { closeCashSessionSchema, createCashReceiptsSchema } from './schemas'
 
 import {
   Form,
@@ -32,11 +32,14 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { PaymentType } from '@/models/payment'
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { closeCashSession } from './actions'
 import { CashForm } from './cash-form'
+import { CreditForm } from './credit-form'
+import { DebitForm } from './debit-form'
 import { PIXForm } from './pix-form'
 
 export function CloseCashSession({
@@ -45,16 +48,72 @@ export function CloseCashSession({
   cashSessionId,
   hasOpenPurchases,
   hasOpenTables,
+  cashReceipts,
+  payments,
 }: {
   cashBalance: number
   totalBalance: number
   cashSessionId: string
   hasOpenPurchases: boolean
   hasOpenTables: boolean
+  cashReceipts?: z.infer<typeof createCashReceiptsSchema>
+  payments: PaymentType[]
 }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+
+  const cashReceiptsMoney =
+    cashReceipts?.filter((receipt) => receipt.type.startsWith('cash_')) || []
+  const pixReceipts =
+    cashReceipts?.filter((receipt) => receipt.type === 'pix') || []
+  const creditReceipts =
+    cashReceipts?.filter((receipt) => receipt.type === 'credit') || []
+  const debitReceipts =
+    cashReceipts?.filter((receipt) => receipt.type === 'debit') || []
+
+  const initialAmount = payments.find(
+    (payment) => payment.description === 'Abertura de caixa',
+  )?.amount
+
+  const computedTotals = payments.reduce(
+    (acc, payment) => {
+      const typeMap = {
+        CREDIT: 'Credito',
+        DEBIT: 'Debito',
+        CASH: 'Dinheiro',
+        PIX: 'PIX',
+        DEFERRED: 'Prazo',
+      } as const
+
+      const key = typeMap[payment.payment_type as keyof typeof typeMap]
+
+      if (key) {
+        acc[key] = (acc[key] || 0) + payment.amount
+      }
+
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+
+  const computedCash = (initialAmount || 0) + (computedTotals.Dinheiro || 0)
+  const computedPix = computedTotals.Pix || 0
+  const computedCredit = computedTotals.Credito || 0
+  const computedDebit = computedTotals.Debito || 0
+
+  const declaredCash = cashReceiptsMoney.reduce((acc, receipt) => {
+    return acc + receipt.total
+  }, 0)
+  const declaredPix = pixReceipts.reduce((acc, receipt) => {
+    return acc + receipt.total
+  }, 0)
+  const declaredCredit = creditReceipts.reduce((acc, receipt) => {
+    return acc + receipt.total
+  }, 0)
+  const declaredDebit = debitReceipts.reduce((acc, receipt) => {
+    return acc + receipt.total
+  }, 0)
 
   const form = useForm<z.infer<typeof closeCashSessionSchema>>({
     resolver: zodResolver(closeCashSessionSchema),
@@ -62,7 +121,7 @@ export function CloseCashSession({
       pix_balance: cashBalance.toString() ?? '',
       credit_balance: cashBalance.toString() ?? '',
       debit_balance: cashBalance.toString() ?? '',
-      cash_balance: cashBalance.toString() ?? '',
+      cash_balance: declaredCash.toString() ?? '',
       closing_balance: totalBalance.toString() ?? '',
     },
   })
@@ -94,6 +153,17 @@ export function CloseCashSession({
     )
     setIsPrinting(false)
   }
+
+  useEffect(() => {
+    form.setValue('cash_balance', declaredCash.toString())
+    form.setValue('pix_balance', declaredPix.toString())
+    form.setValue('credit_balance', declaredCredit.toString())
+    form.setValue('debit_balance', declaredDebit.toString())
+    form.setValue(
+      'closing_balance',
+      (declaredCash + declaredPix + declaredCredit + declaredDebit).toString(),
+    )
+  }, [declaredCash, declaredPix, declaredCredit, declaredDebit])
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -131,7 +201,7 @@ export function CloseCashSession({
                   <div className="flex flex-row justify-between">
                     <FormLabel>Dinheiro</FormLabel>
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(100)}
+                      Computado: {formatCurrencyBRL(computedCash)}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -142,7 +212,7 @@ export function CloseCashSession({
                         {...field}
                       />
 
-                      <CashForm />
+                      <CashForm receipts={cashReceiptsMoney} />
                     </div>
                   </FormControl>
 
@@ -159,7 +229,7 @@ export function CloseCashSession({
                     <FormLabel>PIX</FormLabel>
 
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(100)}
+                      Computado: {formatCurrencyBRL(computedPix)}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -185,15 +255,18 @@ export function CloseCashSession({
                     <FormLabel>Cartão de crédito</FormLabel>
 
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(100)}
+                      Computado: {formatCurrencyBRL(computedCredit)}
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Input
-                      maskType="currency"
-                      placeholder="Insira o valor final..."
-                      {...field}
-                    />
+                    <div className="flex flex-row gap-2">
+                      <Input
+                        maskType="currency"
+                        placeholder="Insira o valor final..."
+                        {...field}
+                      />
+                      <CreditForm />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -208,15 +281,19 @@ export function CloseCashSession({
                     <FormLabel>Cartão de débito</FormLabel>
 
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(100)}
+                      Computado: {formatCurrencyBRL(computedDebit)}
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Input
-                      maskType="currency"
-                      placeholder="Insira o valor final..."
-                      {...field}
-                    />
+                    <div className="flex flex-row gap-2">
+                      <Input
+                        maskType="currency"
+                        placeholder="Insira o valor final..."
+                        {...field}
+                      />
+
+                      <DebitForm />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -230,7 +307,13 @@ export function CloseCashSession({
                   <div className="flex flex-row justify-between">
                     <FormLabel>Saldo final</FormLabel>
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(100)}
+                      Computado:{' '}
+                      {formatCurrencyBRL(
+                        computedCash +
+                          computedPix +
+                          computedCredit +
+                          computedDebit,
+                      )}
                     </FormDescription>
                   </div>
                   <FormControl>

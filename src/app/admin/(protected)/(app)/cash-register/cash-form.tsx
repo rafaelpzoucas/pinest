@@ -1,4 +1,5 @@
 'use client'
+
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Sheet,
@@ -8,7 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Plus } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 
 import { z } from 'zod'
 
@@ -25,58 +26,110 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import { useServerAction } from 'zsa-react'
+import { upsertCashReceipts } from './actions'
+import { createCashReceiptsSchema } from './schemas'
+
+const MONEY_VALUES = {
+  cash_005: 0.05,
+  cash_010: 0.1,
+  cash_025: 0.25,
+  cash_050: 0.5,
+  cash_1: 1,
+  cash_2: 2,
+  cash_5: 5,
+  cash_10: 10,
+  cash_20: 20,
+  cash_50: 50,
+  cash_100: 100,
+  cash_200: 200,
+} as const
 
 const formSchema = z.object({
-  coins: z.object({
-    '5': z.number(),
-    '10': z.number(),
-    '25': z.number(),
-    '50': z.number(),
-    '100': z.number(),
-  }),
-  cedules: z.object({
-    '2': z.number(),
-    '5': z.number(),
-    '10': z.number(),
-    '20': z.number(),
-    '50': z.number(),
-    '100': z.number(),
-    '200': z.number(),
-  }),
+  cash_005: z.number(),
+  cash_010: z.number(),
+  cash_025: z.number(),
+  cash_050: z.number(),
+  cash_1: z.number(),
+  cash_2: z.number(),
+  cash_5: z.number(),
+  cash_10: z.number(),
+  cash_20: z.number(),
+  cash_50: z.number(),
+  cash_100: z.number(),
+  cash_200: z.number(),
 })
 
-export function CashForm() {
-  // 1. Define your form.
+export function CashForm({
+  receipts,
+}: {
+  receipts: z.infer<typeof createCashReceiptsSchema>
+}) {
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+
+  const cashTypes = [
+    'cash_005',
+    'cash_010',
+    'cash_025',
+    'cash_050',
+    'cash_1',
+    'cash_2',
+    'cash_5',
+    'cash_10',
+    'cash_20',
+    'cash_50',
+    'cash_100',
+    'cash_200',
+  ] as const
+
+  type CashType = (typeof cashTypes)[number]
+
+  const defaultValues = cashTypes.reduce(
+    (acc, type) => {
+      const match = receipts.find((r) => r.type === type)
+      acc[type] = match ? match.amount : 0
+      return acc
+    },
+    {} as Record<CashType, number>,
+  )
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      coins: {
-        '5': undefined,
-        '10': undefined,
-        '25': undefined,
-        '50': undefined,
-        '100': undefined,
-      },
-      cedules: {
-        '2': undefined,
-        '5': undefined,
-        '10': undefined,
-        '20': undefined,
-        '50': undefined,
-        '100': undefined,
-        '200': undefined,
-      },
-    },
+    defaultValues,
   })
 
-  // 2. Define a submit handler.
+  const { execute: createReceipts, isPending: isCreating } = useServerAction(
+    upsertCashReceipts,
+    {
+      onSuccess: () => {
+        setIsSheetOpen(false)
+      },
+    },
+  )
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // salvar notas e moedas no banco
-    // fechar ao sucesso
-    console.log(values)
+    const cashReceipts = (
+      Object.keys(values) as (keyof typeof MONEY_VALUES)[]
+    ).map((key) => {
+      const typedKey = key as keyof typeof MONEY_VALUES
+      const value = Number(MONEY_VALUES[typedKey] || 0)
+      const amount = Number(values[key] ?? 0) || 0
+
+      return {
+        id: receipts.find((receipt) => receipt.type === key)?.id,
+        type: key,
+        value,
+        amount,
+        total: Number((value * amount).toFixed(2)),
+      }
+    })
+
+    createReceipts(cashReceipts)
   }
+
   return (
-    <Sheet>
+    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger
         className={buttonVariants({ variant: 'secondary', size: 'icon' })}
       >
@@ -97,12 +150,12 @@ export function CashForm() {
               <div className="grid grid-cols-3 gap-2">
                 <FormField
                   control={form.control}
-                  name="coins.5"
+                  name="cash_005"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 0,05</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -110,12 +163,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="coins.10"
+                  name="cash_010"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 0,10</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -123,12 +176,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="coins.25"
+                  name="cash_025"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 0,25</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -136,12 +189,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="coins.50"
+                  name="cash_050"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 0,50</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -149,12 +202,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="coins.100"
+                  name="cash_1"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 1,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -167,12 +220,12 @@ export function CashForm() {
               <div className="grid grid-cols-3 gap-2">
                 <FormField
                   control={form.control}
-                  name="cedules.2"
+                  name="cash_2"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 2,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,12 +233,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="cedules.5"
+                  name="cash_5"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 5,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -193,12 +246,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="cedules.10"
+                  name="cash_10"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 10,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -206,12 +259,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="cedules.20"
+                  name="cash_20"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 20,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -219,12 +272,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="cedules.50"
+                  name="cash_50"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 50,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -232,12 +285,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="cedules.100"
+                  name="cash_100"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 100,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -245,12 +298,12 @@ export function CashForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="cedules.200"
+                  name="cash_200"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>R$ 200,00</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -259,7 +312,20 @@ export function CashForm() {
               </div>
             </Card>
 
-            <Button type="submit">Salvar cédulas e moedas</Button>
+            <Button
+              type="button"
+              onClick={() => onSubmit(form.getValues())}
+              disabled={isCreating}
+            >
+              {isCreating ? (
+                <>
+                  <Loader2 className="animate-spin w-4 h-4" />
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <span>Salvar cédulas e moedas</span>
+              )}
+            </Button>
           </form>
         </Form>
       </SheetContent>

@@ -1,7 +1,7 @@
-import { AdminHeader } from '@/app/admin-header'
 import { PaymentType } from '@/models/payment'
 import { DollarSign } from 'lucide-react'
 import {
+  readCashReceipts,
   readCashSession,
   readCashSessionPayments,
   readOpenPurchases,
@@ -15,13 +15,23 @@ import { OpenCashSession } from './open'
 import { CashRegisterSummary } from './summary'
 
 export default async function CashRegister() {
-  const [cashSessionData] = await readCashSession()
-  const [paymentsData] = await readCashSessionPayments()
-  const [openPurchasesData] = await readOpenPurchases()
-  const [openTablesData] = await readOpenTables()
+  const [
+    [cashSessionData],
+    [paymentsData],
+    [openPurchasesData],
+    [openTablesData],
+    [cashReceiptsData],
+  ] = await Promise.all([
+    readCashSession(),
+    readCashSessionPayments(),
+    readOpenPurchases(),
+    readOpenTables(),
+    readCashReceipts(),
+  ])
 
   const cashSession = cashSessionData?.cashSession
   const payments: PaymentType[] = paymentsData?.payments || []
+  const cashReceipts = cashReceiptsData?.cashReceipts
 
   const hasOpenPurchases =
     (openPurchasesData?.openPurchases?.length as number) > 0
@@ -94,8 +104,6 @@ export default async function CashRegister() {
 
   return (
     <div className="space-y-6 p-4 lg:px-0">
-      <AdminHeader title="Financeiro" />
-
       <div>
         {!cashSession && (
           <section className="space-y-6">
@@ -122,6 +130,8 @@ export default async function CashRegister() {
                 cashSessionId={cashSession.id}
                 hasOpenPurchases={hasOpenPurchases}
                 hasOpenTables={hasOpenTables}
+                cashReceipts={cashReceipts}
+                payments={payments}
               />
 
               <CreateTransactionForm />
