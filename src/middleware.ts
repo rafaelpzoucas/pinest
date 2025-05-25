@@ -1,90 +1,79 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 
+const IMAGE_EXTENSIONS = ['.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp']
+
 export async function middleware(request: NextRequest) {
-  const response = await updateSession(request)
-  const hostname = request.nextUrl.hostname
-  const url = request.nextUrl.clone()
+  const { pathname, hostname } = request.nextUrl
 
-  // Evita processar URLs de recursos estáticos
+  // Ignorar caminhos específicos
   if (
-    url.pathname.includes('/_next') ||
-    url.pathname.includes('/favicon.ico') ||
-    url.pathname.match(/\.(svg|png|jpg|jpeg|gif|webp)$/)
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico' ||
+    IMAGE_EXTENSIONS.some((ext) => pathname.endsWith(ext))
   ) {
-    return response
+    return NextResponse.next()
   }
 
-  // // Verifica se o hostname começa com "www" e redireciona para o domínio sem o www
-  // if (hostname.startsWith('www.')) {
-  //   const newHostname = hostname.replace('www.', '')
-  //   const newUrl = url.clone()
-  //   newUrl.hostname = newHostname
-  //   return NextResponse.redirect(newUrl, { status: 301 })
-  // }
-
-  // 🔁 Redireciona /admin para /admin/dashboard
-  if (url.pathname === '/admin') {
-    url.pathname = '/admin/dashboard'
-    return NextResponse.redirect(url)
+  // Redirecionar /admin → /admin/dashboard
+  if (pathname === '/admin') {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
   }
 
-  // ⚠️ Ignora rotas que começam com /admin ou /api
-  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
-    return response
+  // Ignorar reescrita para /admin e /api
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api')) {
+    return updateSession(request)
   }
 
-  let subdomain: string | null = null
+  // Subdomínio dinâmico
+  const processed = request.cookies.get('processed_request')
+  let storeSubdomain: string | null = null
 
-  if (process.env.NODE_ENV !== 'production') {
-    // Em ambiente local, o subdomínio é extraído do caminho (localhost:3000/nomedaloja)
-    const segments = url.pathname.split('/').filter(Boolean)
-    subdomain = segments[0] || null
+  if (!processed) {
+    const isProd = process.env.NODE_ENV === 'production'
 
-    if (subdomain) {
-      // Remove o primeiro segmento (nome da loja) e mantém o resto do caminho
-      const remainingPath = segments.slice(1).join('/')
-      url.pathname = remainingPath
-        ? `/${subdomain}/${remainingPath}`
-        : `/${subdomain}`
+    if (isProd) {
+      const domainParts = hostname.split('.')
+      if (domainParts.length >= 3 && !['www'].includes(domainParts[0])) {
+        storeSubdomain = domainParts[0]
+      }
+    } else {
+      const segments = pathname.split('/')
+      if (segments.length > 1 && segments[1]) {
+        storeSubdomain = segments[1]
+      }
     }
-  } else {
-    // Em produção, captura o subdomínio de "nomedaloja.pinest.com.br"
-    const parts = hostname.split('.')
-    if (parts.length > 2) {
-      subdomain = parts[0]
 
-      // Verifica se já estamos manipulando esta requisição para evitar loop
-      const isProcessed = request.cookies.get('processed_request')?.value
-      if (isProcessed) {
-        return response
+    if (storeSubdomain) {
+      const newPathname = isProd ? `/${storeSubdomain}${pathname}` : pathname // já está com o subdomínio no path
+
+      const rewrittenUrl = request.nextUrl.clone()
+      rewrittenUrl.pathname = newPathname
+
+      const response = await updateSession(request)
+      const updated = NextResponse.rewrite(rewrittenUrl)
+
+      // Copiar cookies da sessão
+      for (const cookie of response.cookies.getAll()) {
+        updated.cookies.set(cookie.name, cookie.value, {
+          path: cookie.path,
+          httpOnly: cookie.httpOnly,
+          maxAge: cookie.maxAge,
+          secure: cookie.secure,
+          sameSite: cookie.sameSite,
+        })
       }
 
-      // Mantém o pathname original, mas adiciona o subdomínio como primeiro segmento
-      url.pathname =
-        url.pathname === '/' ? `/${subdomain}` : `/${subdomain}${url.pathname}`
+      // Setar cookies auxiliares
+      updated.cookies.set('public_store_subdomain', storeSubdomain)
+      updated.cookies.set('processed_request', 'true', {
+        httpOnly: true,
+        maxAge: 5,
+      })
+
+      return updated
     }
   }
 
-  if (subdomain) {
-    // Define um cookie para armazenar a loja acessada
-    response.cookies.set(`public_store_subdomain`, subdomain, { path: '/' })
-
-    // Marca esta requisição como já processada para evitar loops
-    response.cookies.set('processed_request', 'true', {
-      path: '/',
-      maxAge: 5, // Expira em 5 segundos para não afetar navegações futuras
-      httpOnly: true,
-    })
-
-    return NextResponse.rewrite(url, response)
-  }
-
-  return response
-}
-
-export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  return updateSession(request)
 }
