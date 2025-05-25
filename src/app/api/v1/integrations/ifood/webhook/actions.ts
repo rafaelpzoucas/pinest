@@ -95,9 +95,9 @@ export const refreshAccessToken = createServerAction()
     const api = process.env.IFOOD_API_BASE_URL
 
     const body = new URLSearchParams()
-    body.append('grant_type', 'client_credentials') // ⚠️ snake_case!
-    body.append('client_id', clientId ?? '')
-    body.append('client_secret', clientSecret ?? '')
+    body.append('grantType', 'client_credentials')
+    body.append('clientId', clientId ?? '')
+    body.append('clientSecret', clientSecret ?? '')
 
     const response = await fetch(`${api}/authentication/v1.0/oauth/token`, {
       method: 'POST',
@@ -105,55 +105,28 @@ export const refreshAccessToken = createServerAction()
       body,
     })
 
-    const contentType = response.headers.get('content-type')
-    const raw = await response.text()
+    const data = await response.json()
 
-    if (!response.ok || !contentType?.includes('application/json')) {
-      console.error(
-        '[REFRESH_TOKEN] Erro ao obter token: status',
-        response.status,
-      )
-      console.error(
-        '[REFRESH_TOKEN] Corpo (provavelmente HTML):',
-        raw.slice(0, 300),
-      )
-      throw new Error('Erro ao obter token do iFood')
+    if (data.accessToken) {
+      const expiresAt = new Date()
+      expiresAt.setSeconds(expiresAt.getSeconds() + data.expiresIn)
+
+      // 🔹 4. Atualizar token no banco
+      const { error } = await supabase
+        .from('ifood_integrations')
+        .update({
+          access_token: data.accessToken,
+          expires_at: expiresAt.toISOString(),
+        })
+        .eq('merchant_id', merchantId)
+
+      if (error) {
+        console.error('❌ Erro ao atualizar token no banco:', error)
+        return
+      }
+
+      return data.accessToken
     }
-
-    let data: any
-    try {
-      data = JSON.parse(raw)
-    } catch (e) {
-      console.error('[REFRESH_TOKEN] Erro ao parsear JSON:', e)
-      throw new Error('Resposta inválida do iFood')
-    }
-
-    if (!data.accessToken) {
-      console.error('[REFRESH_TOKEN] Token ausente na resposta:', data)
-      throw new Error('Token não retornado pelo iFood')
-    }
-
-    const expiresAt = new Date()
-    expiresAt.setSeconds(expiresAt.getSeconds() + data.expiresIn)
-
-    const { error } = await supabase
-      .from('ifood_integrations')
-      .update({
-        access_token: data.accessToken,
-        expires_at: expiresAt.toISOString(),
-      })
-      .eq('merchant_id', merchantId)
-
-    if (error) {
-      console.error('❌ Erro ao atualizar token no banco:', error)
-      throw new Error('Erro ao salvar token no banco')
-    }
-
-    console.log(
-      '[REFRESH_TOKEN] Token atualizado com sucesso:',
-      data.accessToken,
-    )
-    return [data.accessToken]
   })
 
 export const getAccessToken = webhookProcedure
@@ -163,62 +136,30 @@ export const getAccessToken = webhookProcedure
     const { merchantId } = input
     const { supabase } = ctx
 
-    console.log(`[TOKEN] Iniciando busca do token para merchant: ${merchantId}`)
-
     const { data, error } = await supabase
       .from('ifood_integrations')
       .select('access_token, expires_at')
       .eq('merchant_id', merchantId)
       .single()
 
-    if (error) {
-      console.error(
-        `[TOKEN] Erro ao buscar token do banco para ${merchantId}:`,
-        error,
-      )
-    }
-
-    if (!data?.access_token) {
-      console.warn(
-        `[TOKEN] Token não encontrado para ${merchantId}, tentando gerar novo...`,
-      )
-      try {
-        const [newToken] = await refreshAccessToken({ merchantId })
-        console.log(
-          `[TOKEN] Novo token gerado com sucesso para ${merchantId}: ${newToken?.slice(0, 10)}...`,
-        )
-        return newToken
-      } catch (err) {
-        console.error(
-          `[TOKEN] Falha ao gerar novo token para ${merchantId}:`,
-          err,
-        )
-        throw new Error('Erro ao gerar novo token.')
-      }
+    if (error || !data?.access_token) {
+      console.error('🔄 Token não encontrado, gerando um novo...')
+      return await refreshAccessToken({ merchantId })
     }
 
     const now = new Date()
     const expiresAt = new Date(data.expires_at)
 
     if (now >= expiresAt) {
-      console.warn(
-        `[TOKEN] Token expirado para ${merchantId}. Tentando renovação...`,
+      console.error(
+        '🔄 Token expirado, tentando gerar um novo para',
+        merchantId,
       )
-      try {
-        const [newToken] = await refreshAccessToken({ merchantId })
-        console.log(
-          `[TOKEN] Token renovado com sucesso para ${merchantId}: ${newToken?.slice(0, 10)}...`,
-        )
-        return newToken
-      } catch (err) {
-        console.error(`[TOKEN] Falha ao renovar token para ${merchantId}:`, err)
-        throw new Error('Erro ao renovar token expirado.')
-      }
+      const [newToken] = await refreshAccessToken({ merchantId })
+      console.error('Novo token gerado:', newToken)
+      return newToken
     }
 
-    console.log(
-      `[TOKEN] Token válido encontrado para ${merchantId}. Expira em ${data.expires_at}`,
-    )
     return data.access_token
   })
 

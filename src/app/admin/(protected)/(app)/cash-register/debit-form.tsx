@@ -35,7 +35,7 @@ const formSchema = z.object({
   transactions: z.array(z.number()),
 })
 
-export function PIXForm() {
+export function DebitForm() {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -76,7 +76,7 @@ export function PIXForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const cashReceipts = values.transactions.map((transaction) => ({
-      type: 'pix',
+      type: 'debit',
       value: transaction,
       amount: 1,
       total: transaction,
@@ -95,8 +95,10 @@ export function PIXForm() {
       <SheetContent className="space-y-4 px-0">
         <ScrollArea className="relative h-[calc(100vh_-_48px)] pb-28 px-5">
           <SheetHeader>
-            <SheetTitle>PIX</SheetTitle>
-            <SheetDescription>Insira cada transação de PIX</SheetDescription>
+            <SheetTitle>Cartão de débito</SheetTitle>
+            <SheetDescription>
+              Insira cada transação de Cartão de débito
+            </SheetDescription>
           </SheetHeader>
 
           {transactions.length > 0 && (
@@ -156,7 +158,7 @@ export function PIXForm() {
                       <span>Salvando...</span>
                     </>
                   ) : (
-                    <span>Salvar PIX</span>
+                    <span>Salvar cartão de débito</span>
                   )}
                 </Button>
               </form>
