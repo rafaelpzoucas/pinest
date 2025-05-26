@@ -28,11 +28,11 @@ import { Dispatch, SetStateAction, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { CustomersForm } from '../../deliveries/register/customers/form'
-import { closeBillFormSchema } from '../schemas'
+import { createPaymentSchema } from '../schemas'
 
 type CustomersComboboxProps = {
   storeCustomers?: StoreCustomerType[]
-  form: UseFormReturn<z.infer<typeof closeBillFormSchema>>
+  form: UseFormReturn<z.infer<typeof createPaymentSchema>>
   customerFormSheetState: [boolean, Dispatch<SetStateAction<boolean>>]
 }
 

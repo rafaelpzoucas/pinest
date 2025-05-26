@@ -28,7 +28,7 @@ import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { closeBills, createPayment } from './actions'
 import { CustomersCombobox } from './customers/combobox'
-import { closeBillFormSchema } from './schemas'
+import { createPaymentSchema } from './schemas'
 
 export function CloseBillForm({
   payments,
@@ -53,8 +53,8 @@ export function CloseBillForm({
   const selectedItems = items.filter((_, index) => rowSelection[index])
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof closeBillFormSchema>>({
-    resolver: zodResolver(closeBillFormSchema),
+  const form = useForm<z.infer<typeof createPaymentSchema>>({
+    resolver: zodResolver(createPaymentSchema),
     defaultValues: {
       amount: '',
       discount: '',
@@ -100,7 +100,7 @@ export function CloseBillForm({
     useServerAction(closeBills)
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof closeBillFormSchema>) {
+  async function onSubmit(values: z.infer<typeof createPaymentSchema>) {
     const [data, err] = await executeCreatePayment(values)
 
     if (err && !data) {
