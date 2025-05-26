@@ -31,9 +31,6 @@ export default async function CloseBill({
 
   const storeCustomers = customersData?.customers
 
-  // const isIfood = sale.is_ifood
-  // const ifoodItems = sale.ifood_order_data.items as IfoodItem[]
-
   const purchaseItems: PurchaseItemsType[] = sale.purchase_items
   const purchasePayments = paymentsData?.payments as unknown as PaymentType[]
 

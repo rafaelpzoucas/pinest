@@ -1,6 +1,6 @@
 'use client'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 
 import {
   Tooltip,
@@ -9,9 +9,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useCashRegister } from '@/stores/cashRegisterStore'
-import { BadgeDollarSign, Edit, Printer } from 'lucide-react'
+import { BadgeDollarSign, Edit, Loader2, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useServerAction } from 'zsa-react'
+import { closeBills } from '../../close/actions'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
@@ -35,6 +37,9 @@ export function PurchaseOptions({
 
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
+
+  const { execute: executeCloseBill, isPending: isCloseBillPending } =
+    useServerAction(closeBills)
 
   return (
     <>
@@ -69,19 +74,35 @@ export function PurchaseOptions({
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
-                <Link
-                  href={
-                    isCashOpen
-                      ? `/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`
-                      : '/admin/cash-register'
-                  }
-                  className={buttonVariants({
-                    variant: 'ghost',
-                    size: 'icon',
-                  })}
-                >
-                  <BadgeDollarSign className="w-5 h-5" />
-                </Link>
+                {isIfood ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      executeCloseBill({ purchase_id: purchaseId })
+                    }
+                  >
+                    {isCloseBillPending ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <BadgeDollarSign className="w-5 h-5" />
+                    )}
+                  </Button>
+                ) : (
+                  <Link
+                    href={
+                      isCashOpen
+                        ? `/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`
+                        : '/admin/cash-register'
+                    }
+                    className={buttonVariants({
+                      variant: 'ghost',
+                      size: 'icon',
+                    })}
+                  >
+                    <BadgeDollarSign className="w-5 h-5" />
+                  </Link>
+                )}
               </TooltipTrigger>
 
               <TooltipContent>
@@ -120,12 +141,14 @@ export function PurchaseOptions({
           </TooltipProvider>
         )}
 
-        <CancelPurchaseButton
-          accepted={accepted}
-          currentStatus={currentStatus}
-          purchaseId={purchaseId}
-          isIfood={isIfood}
-        />
+        {!delivered && (
+          <CancelPurchaseButton
+            accepted={accepted}
+            currentStatus={currentStatus}
+            purchaseId={purchaseId}
+            isIfood={isIfood}
+          />
+        )}
       </div>
     </>
   )

@@ -7,7 +7,7 @@ import { IfoodOrder } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { ColumnDef } from '@tanstack/react-table'
-import { addHours, format } from 'date-fns'
+import { format } from 'date-fns'
 import Image from 'next/image'
 import { PurchaseOptions } from './options'
 
@@ -29,14 +29,8 @@ export const columns: ColumnDef<PurchaseType>[] = [
       const isIfood = row.original.is_ifood
       const ifoodOrderData: IfoodOrder =
         isIfood && row.original.ifood_order_data
-      const deliveryDateTime = addHours(
-        ifoodOrderData?.delivery?.deliveryDateTime,
-        3,
-      )
-      const preparationStartDateTime = addHours(
-        ifoodOrderData?.preparationStartDateTime,
-        3,
-      )
+      const deliveryDateTime = ifoodOrderData?.delivery?.deliveryDateTime
+      const preparationStartDateTime = ifoodOrderData?.preparationStartDateTime
 
       return (
         <div className="flex flex-col gap-3 items-center justify-center">
@@ -60,7 +54,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
                   <span>AGENDADO</span>
                   <span>{format(deliveryDateTime, 'dd/MM HH:mm')}</span>
                 </Badge>
-                <Badge className="flex flex-col w-fit bg-secondary text-secondary-foreground">
+                <Badge className="flex flex-col w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
                   <span>INICIAR PREPARO</span>
                   <span>{format(preparationStartDateTime, 'dd/MM HH:mm')}</span>
                 </Badge>
