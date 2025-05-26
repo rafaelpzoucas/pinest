@@ -13,18 +13,33 @@ export async function middleware(request: NextRequest) {
   if (!isIgnored) {
     const subdomain = hostname.split('.')[0]
 
-    // Protege contra www ou outros subdomínios inválidos
+    // Protege contra www ou subdomínios inválidos
     if (subdomain && subdomain !== 'www' && subdomain !== 'pinest') {
       const pathname = nextUrl.pathname === '/' ? '' : nextUrl.pathname
 
-      const url = request.nextUrl.clone()
-      url.pathname = `/${subdomain}${pathname}`
+      const rewrittenUrl = request.nextUrl.clone()
+      rewrittenUrl.pathname = `/${subdomain}${pathname}`
 
-      return NextResponse.rewrite(url)
+      const res = NextResponse.rewrite(rewrittenUrl)
+
+      // Seta o cookie com o subdomínio para ser usado no servidor
+      res.cookies.set('public_store_subdomain', subdomain, {
+        path: '/',
+        httpOnly: false, // se quiser acessar do client também
+      })
+
+      return res
     }
   }
 
-  return response
+  // mesmo se não fizer rewrite, salva um cookie nulo para evitar estado antigo
+  const res = response || NextResponse.next()
+  res.cookies.set('public_store_subdomain', '', {
+    path: '/',
+    maxAge: 0, // remove o cookie se não for subdomínio válido
+  })
+
+  return res
 }
 
 export const config = {
