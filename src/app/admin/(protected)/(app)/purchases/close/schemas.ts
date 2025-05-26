@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const closeBillFormSchema = z.object({
+export const createPaymentSchema = z.object({
   customer_id: z.string().optional(),
   amount: z.string({ message: 'Insira o valor a ser pago.' }),
   payment_type: z.enum(['CASH', 'PIX', 'CREDIT', 'DEBIT', 'DEFERRED']),
@@ -13,6 +13,11 @@ export const closeBillFormSchema = z.object({
       }),
     )
     .optional(),
+  table_id: z.string().optional(),
+  purchase_id: z.string().optional(),
+})
+
+export const closeSaleSchema = z.object({
   table_id: z.string().optional(),
   purchase_id: z.string().optional(),
 })

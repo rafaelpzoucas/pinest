@@ -4,7 +4,7 @@ import { stringToNumber } from '@/lib/utils'
 import { adminProcedure, cashProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { closeBillFormSchema } from './schemas'
+import { closeSaleSchema, createPaymentSchema } from './schemas'
 
 export const readPayments = adminProcedure
   .createServerAction()
@@ -39,7 +39,7 @@ export const readPayments = adminProcedure
 
 export const createPayment = cashProcedure
   .createServerAction()
-  .input(closeBillFormSchema)
+  .input(createPaymentSchema)
   .handler(async ({ ctx, input }) => {
     const { supabase, store, cashSession } = ctx
 
@@ -114,7 +114,7 @@ export const createPayment = cashProcedure
 
 export const closeBills = adminProcedure
   .createServerAction()
-  .input(closeBillFormSchema)
+  .input(closeSaleSchema)
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 

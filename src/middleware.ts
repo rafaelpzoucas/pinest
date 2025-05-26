@@ -1,79 +1,35 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 
-const IMAGE_EXTENSIONS = ['.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp']
+const IGNORED_HOSTS = ['localhost:3000', 'pinest.com.br']
 
 export async function middleware(request: NextRequest) {
-  const { pathname, hostname } = request.nextUrl
+  const response = await updateSession(request)
 
-  // Ignorar caminhos específicos
-  if (
-    pathname.startsWith('/_next') ||
-    pathname === '/favicon.ico' ||
-    IMAGE_EXTENSIONS.some((ext) => pathname.endsWith(ext))
-  ) {
-    return NextResponse.next()
-  }
+  const { nextUrl, headers } = request
+  const hostname = headers.get('host') || ''
+  const isIgnored = IGNORED_HOSTS.includes(hostname)
 
-  // Redirecionar /admin → /admin/dashboard
-  if (pathname === '/admin') {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-  }
+  if (!isIgnored) {
+    const subdomain = hostname.split('.')[0]
 
-  // Ignorar reescrita para /admin e /api
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api')) {
-    return updateSession(request)
-  }
+    // Protege contra www ou outros subdomínios inválidos
+    if (subdomain && subdomain !== 'www' && subdomain !== 'pinest') {
+      const pathname = nextUrl.pathname === '/' ? '' : nextUrl.pathname
 
-  // Subdomínio dinâmico
-  const processed = request.cookies.get('processed_request')
-  let storeSubdomain: string | null = null
+      const url = request.nextUrl.clone()
+      url.pathname = `/${subdomain}${pathname}`
 
-  if (!processed) {
-    const isProd = process.env.NODE_ENV === 'production'
-
-    if (isProd) {
-      const domainParts = hostname.split('.')
-      if (domainParts.length >= 3 && !['www'].includes(domainParts[0])) {
-        storeSubdomain = domainParts[0]
-      }
-    } else {
-      const segments = pathname.split('/')
-      if (segments.length > 1 && segments[1]) {
-        storeSubdomain = segments[1]
-      }
-    }
-
-    if (storeSubdomain) {
-      const newPathname = isProd ? `/${storeSubdomain}${pathname}` : pathname // já está com o subdomínio no path
-
-      const rewrittenUrl = request.nextUrl.clone()
-      rewrittenUrl.pathname = newPathname
-
-      const response = await updateSession(request)
-      const updated = NextResponse.rewrite(rewrittenUrl)
-
-      // Copiar cookies da sessão
-      for (const cookie of response.cookies.getAll()) {
-        updated.cookies.set(cookie.name, cookie.value, {
-          path: cookie.path,
-          httpOnly: cookie.httpOnly,
-          maxAge: cookie.maxAge,
-          secure: cookie.secure,
-          sameSite: cookie.sameSite,
-        })
-      }
-
-      // Setar cookies auxiliares
-      updated.cookies.set('public_store_subdomain', storeSubdomain)
-      updated.cookies.set('processed_request', 'true', {
-        httpOnly: true,
-        maxAge: 5,
-      })
-
-      return updated
+      return NextResponse.rewrite(url)
     }
   }
 
-  return updateSession(request)
+  return response
+}
+
+export const config = {
+  matcher: [
+    // ignora arquivos estáticos
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
