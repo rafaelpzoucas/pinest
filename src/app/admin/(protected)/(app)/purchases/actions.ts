@@ -41,7 +41,10 @@ export async function readPurchases(): Promise<{
     .select(
       `
       *,
-      purchase_items (*),
+      purchase_items (
+        *,  
+        products (*)
+      ),
       store_customers (
         *,
         customers (*)

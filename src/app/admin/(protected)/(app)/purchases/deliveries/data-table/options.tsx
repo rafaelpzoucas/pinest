@@ -8,6 +8,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { buildReceiptDeliveryText } from '@/lib/receipts'
+import { PurchaseType } from '@/models/purchase'
 import { useCashRegister } from '@/stores/cashRegisterStore'
 import { BadgeDollarSign, Edit, Loader2, Printer } from 'lucide-react'
 import Link from 'next/link'
@@ -17,23 +19,29 @@ import { closeBills } from '../../close/actions'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
-export function PurchaseOptions({
-  purchaseId,
-  currentStatus,
-  type,
-  isDetailsPage,
-  isIfood,
-}: {
-  purchaseId: string
-  currentStatus: string
-  type: string
-  isDetailsPage?: boolean
-  isIfood: boolean
-}) {
+async function sendToPrint(purchase: PurchaseType, reprint = false) {
+  const textToPrint = buildReceiptDeliveryText(purchase, reprint)
+
+  const body = JSON.stringify({
+    text: textToPrint,
+    printerName: 'G250',
+  })
+
+  await fetch('/api/v1/admin/print', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+  })
+}
+
+export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
   const searchParams = useSearchParams()
   const { isCashOpen } = useCashRegister()
 
   const tab = searchParams.get('tab')
+
+  const currentStatus = purchase.status
+  const isIfood = purchase.is_ifood
 
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
@@ -49,7 +57,7 @@ export function PurchaseOptions({
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`purchases/deliveries/register?purchase_id=${purchaseId}`}
+                  href={`purchases/deliveries/register?purchase_id=${purchase.id}`}
                   className={buttonVariants({ variant: 'ghost', size: 'icon' })}
                 >
                   <Edit className="w-5 h-5" />
@@ -62,13 +70,7 @@ export function PurchaseOptions({
           </TooltipProvider>
         )}
 
-        <UpdateStatusButton
-          accepted={accepted}
-          currentStatus={currentStatus}
-          purchaseId={purchaseId}
-          type={type}
-          isIfood={isIfood}
-        />
+        <UpdateStatusButton purchase={purchase} />
 
         {accepted && delivered && (
           <TooltipProvider>
@@ -79,7 +81,7 @@ export function PurchaseOptions({
                     variant="ghost"
                     size="icon"
                     onClick={() =>
-                      executeCloseBill({ purchase_id: purchaseId })
+                      executeCloseBill({ purchase_id: purchase.id })
                     }
                   >
                     {isCloseBillPending ? (
@@ -92,7 +94,7 @@ export function PurchaseOptions({
                   <Link
                     href={
                       isCashOpen
-                        ? `/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`
+                        ? `/admin/purchases/close?purchase_id=${purchase.id}&tab=${tab}`
                         : '/admin/cash-register'
                     }
                     className={buttonVariants({
@@ -123,16 +125,13 @@ export function PurchaseOptions({
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
-                <Link
-                  href={`/admin/purchases/deliveries/${purchaseId}/receipt?reprint=true`}
-                  target="_blank"
-                  className={buttonVariants({
-                    variant: 'ghost',
-                    size: 'icon',
-                  })}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => sendToPrint(purchase, true)}
                 >
                   <Printer className="w-5 h-5" />
-                </Link>
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Imprimir</p>
@@ -145,7 +144,7 @@ export function PurchaseOptions({
           <CancelPurchaseButton
             accepted={accepted}
             currentStatus={currentStatus}
-            purchaseId={purchaseId}
+            purchaseId={purchase.id}
             isIfood={isIfood}
           />
         )}

@@ -1,7 +1,9 @@
 'use server'
 
+import { buildReceiptKitchenText } from '@/lib/receipts'
 import { createClient } from '@/lib/supabase/server'
 import { CancellationReasonsType } from '@/models/ifood'
+import { PurchaseType } from '@/models/purchase'
 
 export const refreshIfoodAccessToken = async (storeId: string) => {
   const supabase = createClient()
@@ -178,4 +180,14 @@ export async function requestCancellation(
       message: 'Erro ao solicitar cancelamento do pedido',
     }
   }
+}
+
+export async function sendToPrint(purchase: PurchaseType, reprint = false) {
+  const textToPrint = buildReceiptKitchenText(purchase, reprint)
+
+  await fetch('http://localhost:53281/print', {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: textToPrint,
+  })
 }
