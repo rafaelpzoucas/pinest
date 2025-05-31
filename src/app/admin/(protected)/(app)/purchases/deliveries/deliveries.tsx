@@ -17,6 +17,14 @@ import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
 import { PurchaseCard } from './purchase-card'
 
+type PurchaseStatus =
+  | 'accept'
+  | 'pending'
+  | 'preparing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+
 export function Deliveries({
   deliveries,
 }: {
@@ -32,6 +40,15 @@ export function Deliveries({
   const normalizeString = (str: string | undefined) => str?.toLowerCase() || ''
 
   const searchStr = normalizeString(search)
+
+  const statusPriority: Record<PurchaseStatus, number> = {
+    accept: 1,
+    pending: 2,
+    preparing: 3,
+    shipped: 4,
+    delivered: 5,
+    cancelled: 6,
+  }
 
   const statusFilters = [
     {
@@ -78,18 +95,24 @@ export function Deliveries({
     return statusLength?.length
   }
 
-  const filteredDeliveries =
-    deliveries &&
-    deliveries.filter((delivery) => {
-      const { store_customers: storeCustomers, status, id } = delivery
+  const sortedDeliveries = deliveries
+    ? [...deliveries].sort(
+        (a, b) =>
+          statusPriority[a.status as PurchaseStatus] -
+          statusPriority[b.status as PurchaseStatus],
+      )
+    : []
 
-      const matchesSearch =
-        normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
-        id.includes(searchStr)
-      const matchesStatus = statusFilter ? status === statusFilter : true
+  const filteredDeliveries = sortedDeliveries.filter((delivery) => {
+    const { store_customers: storeCustomers, status, id } = delivery
 
-      return matchesSearch && matchesStatus
-    })
+    const matchesSearch =
+      normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
+      id.includes(searchStr)
+    const matchesStatus = statusFilter ? status === statusFilter : true
+
+    return matchesSearch && matchesStatus
+  })
 
   function handleStatusClick(status: string) {
     setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
