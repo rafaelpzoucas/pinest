@@ -47,10 +47,10 @@ async function sendToPrint(purchase: PurchaseType, reprint = false) {
 }
 
 export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
-  const purchaseId = purchase.id
-  const currentStatus = purchase.status
-  const isIfood = purchase.is_ifood
-  const type = purchase.type
+  const purchaseId = purchase?.id
+  const currentStatus = purchase?.status
+  const isIfood = purchase?.is_ifood
+  const type = purchase?.type
 
   const accepted = currentStatus !== 'accept'
 
@@ -117,7 +117,7 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
           <p>
             {!accepted
               ? 'Aceitar pedido'
-              : (statuses[currentStatus as StatusKey].action_text as string)}
+              : (statuses[currentStatus as StatusKey]?.action_text as string)}
           </p>
         </TooltipContent>
       </Tooltip>

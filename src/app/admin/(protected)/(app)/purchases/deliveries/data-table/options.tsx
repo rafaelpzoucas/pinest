@@ -40,8 +40,8 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
 
   const tab = searchParams.get('tab')
 
-  const currentStatus = purchase.status
-  const isIfood = purchase.is_ifood
+  const currentStatus = purchase?.status
+  const isIfood = purchase?.is_ifood
 
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
@@ -57,7 +57,7 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`purchases/deliveries/register?purchase_id=${purchase.id}`}
+                  href={`purchases/deliveries/register?purchase_id=${purchase?.id}`}
                   className={buttonVariants({ variant: 'ghost', size: 'icon' })}
                 >
                   <Edit className="w-5 h-5" />
@@ -144,7 +144,7 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
           <CancelPurchaseButton
             accepted={accepted}
             currentStatus={currentStatus}
-            purchaseId={purchase.id}
+            purchaseId={purchase?.id}
             isIfood={isIfood}
           />
         )}
