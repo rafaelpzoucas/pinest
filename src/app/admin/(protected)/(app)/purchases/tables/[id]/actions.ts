@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 export const readTableById = adminProcedure
   .createServerAction()
-  .input(z.object({ id: z.string() }))
+  .input(z.object({ id: z.string().optional() }))
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 

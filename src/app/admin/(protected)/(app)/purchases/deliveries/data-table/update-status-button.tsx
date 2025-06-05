@@ -7,44 +7,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {
-  buildReceiptDeliveryText,
-  buildReceiptKitchenText,
-} from '@/lib/receipts'
 import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { Check, FastForward, Loader2 } from 'lucide-react'
 import { useServerAction } from 'zsa-react'
+import { printPurchaseReceipt } from '../../../config/printing/actions'
 import { acceptPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
-
-async function sendToPrint(purchase: PurchaseType, reprint = false) {
-  const kitchenPrint = buildReceiptKitchenText(purchase, reprint)
-  const deliveryPrint = buildReceiptDeliveryText(purchase, reprint)
-
-  const kitchenBody = JSON.stringify({
-    text: kitchenPrint,
-    printerName: 'G250',
-  })
-
-  const deliveryBody = JSON.stringify({
-    text: deliveryPrint,
-    printerName: 'G250',
-  })
-
-  await fetch('/api/v1/admin/print', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: kitchenBody,
-  })
-
-  await fetch('/api/v1/admin/print', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: deliveryBody,
-  })
-}
 
 export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
   const purchaseId = purchase?.id
@@ -54,10 +24,16 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
 
   const accepted = currentStatus !== 'accept'
 
+  const { execute: executePrintReceipt } = useServerAction(printPurchaseReceipt)
+
   const { execute: executeAccept, isPending: isAcceptPending } =
     useServerAction(acceptPurchase, {
       onSuccess: () => {
-        sendToPrint(purchase)
+        executePrintReceipt({
+          printerName: 'G250',
+          purchaseId: purchase.id,
+          reprint: false,
+        })
       },
     })
 

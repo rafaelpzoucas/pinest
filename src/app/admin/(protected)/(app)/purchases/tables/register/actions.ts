@@ -4,6 +4,7 @@ import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { printTableReceipt } from '../../../config/printing/actions'
 import { createTableSchema, updateTableSchema } from './schemas'
 
 export const checkTableExists = adminProcedure
@@ -77,6 +78,12 @@ export const createTable = adminProcedure
         await updateAmountSoldAndStock(item.product_id, item.quantity)
       }
     }
+
+    await printTableReceipt({
+      printerName: 'G250',
+      tableId: createdTable.id,
+      reprint: false,
+    })
 
     revalidatePath('/admin/purchases')
 
@@ -155,6 +162,12 @@ export const updateTable = adminProcedure
     for (const [productId, diff] of Object.entries(quantityDiffByProduct)) {
       await updateAmountSoldAndStock(productId, diff)
     }
+
+    await printTableReceipt({
+      printerName: 'G250',
+      tableId: input.id,
+      reprint: true,
+    })
 
     revalidatePath('/admin/purchases')
   })

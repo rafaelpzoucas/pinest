@@ -75,30 +75,18 @@ export function CreatePurchaseForm({
     },
   })
 
-  const {
-    execute: executeCreate,
-    isPending: isCreating,
-    data: createdPurchase,
-  } = useServerAction(createPurchase, {
-    onSuccess: () => {
-      const purchase = createdPurchase?.createdPurchase[0]
-      window.open(
-        `/admin/purchases/deliveries/${purchase?.id}/receipt`,
-        '_blank',
-      )
-
-      router.push('/admin/purchases?tab=deliveries')
+  const { execute: executeCreate, isPending: isCreating } = useServerAction(
+    createPurchase,
+    {
+      onSuccess: () => {
+        router.push('/admin/purchases?tab=deliveries')
+      },
     },
-  })
+  )
   const { execute: executeUpdate, isPending: isUpdating } = useServerAction(
     updatePurchase,
     {
       onSuccess: () => {
-        window.open(
-          `/admin/purchases/deliveries/${purchase?.id}/receipt`,
-          '_blank',
-        )
-
         router.push('/admin/purchases?tab=deliveries')
       },
     },
