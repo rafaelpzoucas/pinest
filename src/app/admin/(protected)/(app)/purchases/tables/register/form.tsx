@@ -77,11 +77,6 @@ export function CreateSaleForm({
         return null
       }
 
-      window.open(
-        `/admin/purchases/tables/${table?.id}/receipt${isEdit ? '?reprint=true' : ''}`,
-        '_blank',
-      )
-
       router.push('/admin/purchases?tab=tables')
     }
 
@@ -101,13 +96,6 @@ export function CreateSaleForm({
       console.error({ err })
       return null
     }
-
-    const createdPurchase = data?.createdTable
-
-    window.open(
-      `/admin/purchases/tables/${createdPurchase.id}/receipt`,
-      '_blank',
-    )
 
     router.push('/admin/purchases?tab=tables')
   }

@@ -3,6 +3,8 @@
 import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary/actions'
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { PurchaseType } from '@/models/purchase'
+import { printPurchaseReceipt } from '../../../config/printing/actions'
 import { createPurchaseFormSchema, updatePurchaseFormSchema } from './schemas'
 
 export const createPurchase = adminProcedure
@@ -39,7 +41,24 @@ export const createPurchase = adminProcedure
             address: input.delivery.address,
           },
         })
-        .select()
+        .select(
+          `
+            *,
+            purchase_items (
+              *,
+              products (*)
+            ),
+            purchase_item_variations (
+              *,
+              product_variations (*)
+            ),
+            store_customers (
+              *,
+              customers (*)
+            )
+          `,
+        )
+        .single()
 
     if (createdPurchaseError) {
       console.error('Não foi possível criar o pedido.', createdPurchaseError)
@@ -49,7 +68,7 @@ export const createPurchase = adminProcedure
     const deliveryFee =
       input.type === 'DELIVERY'
         ? {
-            purchase_id: createdPurchase[0].id,
+            purchase_id: createdPurchase.id,
             is_paid: false,
             description: 'Taxa de entrega',
             product_price: input.total.shipping_price,
@@ -61,7 +80,7 @@ export const createPurchase = adminProcedure
 
     const purchaseItemsArray = [
       ...input.purchase_items.map((item) => ({
-        purchase_id: createdPurchase[0].id,
+        purchase_id: createdPurchase.id,
         product_id: item?.product_id,
         quantity: item?.quantity,
         product_price: item?.product_price,
@@ -90,7 +109,13 @@ export const createPurchase = adminProcedure
       }
     }
 
-    return { createdPurchase }
+    await printPurchaseReceipt({
+      printerName: 'G250',
+      purchaseId: createdPurchase.id,
+      reprint: false,
+    })
+
+    return { createdPurchase: createdPurchase as PurchaseType }
   })
 
 export const updatePurchase = adminProcedure
@@ -109,7 +134,7 @@ export const updatePurchase = adminProcedure
       return
     }
 
-    const { data: createdPurchase, error: createdPurchaseError } =
+    const { data: updatedPurchase, error: updatedPurchaseError } =
       await supabase
         .from('purchases')
         .update({
@@ -136,10 +161,27 @@ export const updatePurchase = adminProcedure
           },
         })
         .eq('id', input.id)
-        .select()
+        .select(
+          `
+            *,
+            purchase_items (
+              *,
+              products (*)
+            ),
+            purchase_item_variations (
+              *,
+              product_variations (*)
+            ),
+            store_customers (
+              *,
+              customers (*)
+            )
+          `,
+        )
+        .single()
 
-    if (createdPurchaseError) {
-      console.error('Não foi possível criar o pedido.', createdPurchaseError)
+    if (updatedPurchaseError) {
+      console.error('Não foi possível criar o pedido.', updatedPurchaseError)
       return
     }
 
@@ -155,7 +197,7 @@ export const updatePurchase = adminProcedure
     const deliveryFee =
       input.type === 'DELIVERY' && !alreadyHasDeliveryFee
         ? {
-            purchase_id: createdPurchase[0].id,
+            purchase_id: updatedPurchase.id,
             is_paid: false,
             description: 'Taxa de entrega',
             product_price: input.total.shipping_price,
@@ -167,7 +209,7 @@ export const updatePurchase = adminProcedure
 
     const purchaseItemsArray = [
       ...input.purchase_items.map((item) => ({
-        purchase_id: createdPurchase[0].id,
+        purchase_id: updatedPurchase.id,
         product_id: item?.product_id,
         quantity: item?.quantity,
         product_price: item?.product_price,
@@ -196,5 +238,16 @@ export const updatePurchase = adminProcedure
       }
     }
 
-    return { createdPurchase }
+    await printPurchaseReceipt({
+      printerName: 'G250',
+      purchaseId: updatedPurchase.id,
+      reprint: true,
+    })
+
+    return {
+      updatedPurchase: {
+        ...updatedPurchase,
+        purchase_items: purchaseItems,
+      } as PurchaseType,
+    }
   })

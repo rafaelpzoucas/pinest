@@ -55,6 +55,7 @@ export type PurchaseType = {
   type: z.infer<typeof purchaseTypeEnum>
   payment_type: z.infer<typeof paymentTypeEnum>
   is_ifood: boolean
+  is_paid: boolean
   ifood_order_data: any
   purchase_items: PurchaseItemsType[]
   purchase_item_variations: PurchaseItemVariations[]

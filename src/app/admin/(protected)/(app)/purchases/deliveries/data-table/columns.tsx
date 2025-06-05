@@ -96,9 +96,10 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status')
+      const isPaid = row.original.is_paid
       return (
         <Badge className={cn(statuses[status as StatusKey].color)}>
-          {statuses[status as StatusKey].status}
+          {statuses[status as StatusKey].status} {isPaid ? ' - Pago' : ''}
         </Badge>
       )
     },

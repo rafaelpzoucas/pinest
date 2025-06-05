@@ -44,13 +44,13 @@ export function SidebarButtons() {
       </SidebarTrigger>
 
       {groups.map((group) => (
-        <SidebarGroup>
+        <SidebarGroup key={group.label}>
           <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {group.items.map((item) =>
                 isCollapsed ? (
-                  <Tooltip delayDuration={0}>
+                  <Tooltip delayDuration={0} key={item.url}>
                     <TooltipTrigger asChild>
                       <SidebarMenuButton>
                         <Link href={item.url}>
@@ -62,7 +62,7 @@ export function SidebarButtons() {
                     <TooltipContent side="right">{item.title}</TooltipContent>
                   </Tooltip>
                 ) : (
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild key={item.url}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

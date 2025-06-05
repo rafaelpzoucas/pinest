@@ -8,31 +8,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { buildReceiptDeliveryText } from '@/lib/receipts'
 import { PurchaseType } from '@/models/purchase'
 import { useCashRegister } from '@/stores/cashRegisterStore'
 import { BadgeDollarSign, Edit, Loader2, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
+import { printPurchaseReceipt } from '../../../config/printing/actions'
 import { closeBills } from '../../close/actions'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
-
-async function sendToPrint(purchase: PurchaseType, reprint = false) {
-  const textToPrint = buildReceiptDeliveryText(purchase, reprint)
-
-  const body = JSON.stringify({
-    text: textToPrint,
-    printerName: 'G250',
-  })
-
-  await fetch('/api/v1/admin/print', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-  })
-}
 
 export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
   const searchParams = useSearchParams()
@@ -45,14 +30,17 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
 
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
+  const isPaid = purchase.is_paid
 
   const { execute: executeCloseBill, isPending: isCloseBillPending } =
     useServerAction(closeBills)
+  const { execute: executePrintReceipt, isPending: isPrinting } =
+    useServerAction(printPurchaseReceipt)
 
   return (
     <>
       <div className="hidden lg:flex flex-row justify-end">
-        {accepted && (
+        {accepted && !isPaid && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -72,7 +60,7 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
 
         <UpdateStatusButton purchase={purchase} />
 
-        {accepted && delivered && (
+        {accepted && delivered && !isPaid && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -128,9 +116,20 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => sendToPrint(purchase, true)}
+                  onClick={() =>
+                    executePrintReceipt({
+                      printerName: 'G250',
+                      purchaseId: purchase.id,
+                      reprint: true,
+                    })
+                  }
+                  disabled={isPrinting}
                 >
-                  <Printer className="w-5 h-5" />
+                  {isPrinting ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Printer className="w-5 h-5" />
+                  )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

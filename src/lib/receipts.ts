@@ -6,16 +6,19 @@ import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 
 export function buildReceiptKitchenText(
-  purchase: PurchaseType,
+  purchase?: PurchaseType,
   reprint = false,
 ) {
   if (!purchase) return ''
 
   const displayId = purchase.id.substring(0, 4)
-  const isIfood = purchase.is_ifood
+  const isIfood = purchase?.is_ifood
+
   const customer = isIfood
-    ? purchase.ifood_order_data.customer
-    : purchase.store_customers.customers
+    ? purchase?.ifood_order_data.customer
+    : purchase?.store_customers.customers
+
+  const customerName = customer.name
 
   const itemsList = reprint
     ? purchase.purchase_items
@@ -28,7 +31,7 @@ export function buildReceiptKitchenText(
   text += `${purchase.type}\n\n` // aqui você pode adaptar para DELIVERY_TYPES
 
   text += `Data: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
-  text += `Cliente: ${customer.name}\n`
+  text += `Cliente: ${customerName}\n`
 
   if (purchase.observations) {
     text += `OBS: ${purchase.observations.toUpperCase()}\n`
@@ -73,26 +76,29 @@ export function buildReceiptKitchenText(
 }
 
 export function buildReceiptDeliveryText(
-  purchase: PurchaseType,
+  purchase?: PurchaseType,
   reprint = false,
 ) {
   if (!purchase) return ''
 
-  const isIfood = purchase.is_ifood
-  const ifoodOrder = isIfood && purchase.ifood_order_data
-  const customer = isIfood
-    ? purchase.ifood_order_data.customer
-    : purchase.store_customers.customers
+  const isIfood = purchase?.is_ifood
+  const ifoodOrder: IfoodOrder = isIfood && purchase.ifood_order_data
 
+  const customer = isIfood
+    ? purchase?.ifood_order_data.customer
+    : purchase?.store_customers.customers
+
+  const customerName = customer.name
   const customerPhone = isIfood
     ? `${customer.phone.number} ID: ${customer.phone.localizer}`
     : customer.phone
-
   const customerAddress = isIfood
     ? (purchase.delivery.address as unknown as string)
-    : formatAddress(purchase.store_customers.customers.address)
+    : formatAddress(purchase?.store_customers.customers.address)
 
-  const displayId = isIfood ? ifoodOrder.displayId : purchase.id.substring(0, 4)
+  const displayId = isIfood
+    ? ifoodOrder.displayId
+    : purchase?.id.substring(0, 4)
 
   const deliveryType = {
     TAKEOUT: 'RETIRAR NA LOJA',
@@ -110,7 +116,7 @@ export function buildReceiptDeliveryText(
     text += `Entrega: ${format(new Date(ifoodOrder.delivery.deliveryDateTime), 'dd/MM HH:mm:ss')}\n`
   }
 
-  text += `Cliente: ${customer.name.toUpperCase()}\n`
+  text += `Cliente: ${customerName.toUpperCase()}\n`
   text += `Telefone: ${customerPhone}\n`
   text += `Endereço: ${customerAddress?.toUpperCase()}\n`
 
