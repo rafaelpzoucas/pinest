@@ -1,6 +1,7 @@
 import { readPrinters, readPrintingSettings } from './actions'
 import { AutoPrint } from './auto-print'
 import { Extension } from './extension'
+import { FontSizeSelector } from './font-size'
 import { Printers } from './printers'
 
 export default async function PrintingPage() {
@@ -17,6 +18,7 @@ export default async function PrintingPage() {
       <Extension />
       <AutoPrint printSettings={printSettings} />
       <Printers printers={printers} />
+      <FontSizeSelector printSettings={printSettings} />
     </div>
   )
 }

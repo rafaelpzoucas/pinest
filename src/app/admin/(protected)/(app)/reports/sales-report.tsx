@@ -1,11 +1,13 @@
 'use client'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { buildSalesReportText } from '@/lib/receipts'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { PAYMENT_TYPES } from '@/models/purchase'
-import { Printer } from 'lucide-react'
-import Link from 'next/link'
+import { Loader2, Printer } from 'lucide-react'
+import { useServerAction } from 'zsa-react'
+import { printReportReceipt } from '../config/printing/actions'
 
 export type SalesReportType =
   | {
@@ -15,28 +17,32 @@ export type SalesReportType =
     }
   | undefined
 
-export function SalesReport({
-  data,
-  startDate,
-  endDate,
-}: {
-  data: SalesReportType
-  startDate: string
-  endDate: string
-}) {
+export function SalesReport({ data }: { data: SalesReportType }) {
+  const { execute: executePrintReceipt, isPending: isPrinting } =
+    useServerAction(printReportReceipt)
   return (
     <Card className="h-auto max-w-full break-inside-avoid">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Relatório de Vendas</CardTitle>
 
         {data?.totalAmount && data?.totalAmount > 0 ? (
-          <Link
-            href={`reports/print/sales?start_date=${startDate}&end_date=${endDate}`}
-            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-            target="_blank"
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              executePrintReceipt({
+                printerName: 'G250',
+                text: buildSalesReportText(data),
+              })
+            }
+            disabled={isPrinting}
           >
-            <Printer className="w-4 h-4" />
-          </Link>
+            {isPrinting ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Printer className="w-4 h-4" />
+            )}
+          </Button>
         ) : null}
       </CardHeader>
       <CardContent className="flex flex-col gap-6">

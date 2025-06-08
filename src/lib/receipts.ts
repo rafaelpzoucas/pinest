@@ -2,6 +2,8 @@ import { PAYMENT_TYPES, PurchaseType } from '@/models/purchase'
 import { TableType } from '@/models/table'
 import { format } from 'date-fns'
 
+import { ProductsSoldReportType } from '@/app/admin/(protected)/(app)/reports/products-sold'
+import { SalesReportType } from '@/app/admin/(protected)/(app)/reports/sales-report'
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 
@@ -207,7 +209,6 @@ export function buildReceiptTableText(
   table: TableType,
   reprint = false,
 ): string {
-  console.log({ table })
   const displayId = table.number
   const itemsList = reprint
     ? table.purchase_items
@@ -233,6 +234,55 @@ export function buildReceiptTableText(
     }
 
     text += `----------------------\n`
+  }
+
+  return text.trim()
+}
+
+export function buildProductsSoldReportText(
+  data: ProductsSoldReportType,
+): string {
+  let text = ''
+  text += `\n=== PRODUTOS VENDIDOS ===\n\n`
+
+  if (!data || data.length === 0) {
+    text += 'Nenhum resultado encontrado para o período selecionado.'
+    return text
+  }
+
+  for (const item of data) {
+    const name = item.name.toUpperCase()
+    const quantity = item.quantity
+    const total = formatCurrencyBRL(item.totalAmount)
+
+    text += `${name}\n`
+    text += `  ${quantity} un.   ${total}\n`
+    text += `----------------------\n`
+  }
+
+  return text.trim()
+}
+
+export function buildSalesReportText(data: SalesReportType): string {
+  let text = ''
+  text += `\n=== RELATÓRIO DE VENDAS ===\n\n`
+
+  if (!data?.totalAmount) {
+    text += 'Nenhum resultado encontrado para o período selecionado.'
+    return text
+  }
+
+  // Entregas
+  text += `-- ENTREGAS --\n`
+  text += `Total de entregas: ${data.deliveriesCount}\n\n`
+
+  // Métodos de pagamento
+  text += `-- MÉTODOS DE PAGAMENTO --\n`
+  text += `Total de vendas: ${formatCurrencyBRL(data.totalAmount)}\n`
+
+  for (const [key, value] of Object.entries(data.paymentTypes || {})) {
+    const paymentLabel = PAYMENT_TYPES[key as keyof typeof PAYMENT_TYPES] || key
+    text += `${paymentLabel}: ${formatCurrencyBRL(value)}\n`
   }
 
   return text.trim()

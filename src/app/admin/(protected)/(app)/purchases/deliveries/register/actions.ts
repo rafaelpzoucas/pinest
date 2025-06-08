@@ -4,7 +4,10 @@ import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
-import { printPurchaseReceipt } from '../../../config/printing/actions'
+import {
+  printPurchaseReceipt,
+  readPrintingSettings,
+} from '../../../config/printing/actions'
 import { createPurchaseFormSchema, updatePurchaseFormSchema } from './schemas'
 
 export const createPurchase = adminProcedure
@@ -108,12 +111,16 @@ export const createPurchase = adminProcedure
         await updateAmountSoldAndStock(item.product_id, item.quantity)
       }
     }
+    const [printSettingsData] = await readPrintingSettings()
+    const printSettings = printSettingsData?.printingSettings
 
-    await printPurchaseReceipt({
-      printerName: 'G250',
-      purchaseId: createdPurchase.id,
-      reprint: false,
-    })
+    if (printSettings?.auto_print) {
+      await printPurchaseReceipt({
+        printerName: 'G250',
+        purchaseId: createdPurchase.id,
+        reprint: false,
+      })
+    }
 
     return { createdPurchase: createdPurchase as PurchaseType }
   })
@@ -238,11 +245,16 @@ export const updatePurchase = adminProcedure
       }
     }
 
-    await printPurchaseReceipt({
-      printerName: 'G250',
-      purchaseId: updatedPurchase.id,
-      reprint: true,
-    })
+    const [printSettingsData] = await readPrintingSettings()
+    const printSettings = printSettingsData?.printingSettings
+
+    if (printSettings?.auto_print) {
+      await printPurchaseReceipt({
+        printerName: 'G250',
+        purchaseId: updatedPurchase.id,
+        reprint: true,
+      })
+    }
 
     return {
       updatedPurchase: {

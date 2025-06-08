@@ -1,10 +1,12 @@
 'use client'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { buildProductsSoldReportText } from '@/lib/receipts'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { Printer } from 'lucide-react'
-import Link from 'next/link'
+import { useServerAction } from 'zsa-react'
+import { printReportReceipt } from '../config/printing/actions'
 
 export type ProductsSoldReportType =
   | {
@@ -14,28 +16,29 @@ export type ProductsSoldReportType =
     }[]
   | undefined
 
-export function ProductsSoldReport({
-  data,
-  startDate,
-  endDate,
-}: {
-  data: ProductsSoldReportType
-  startDate: string
-  endDate: string
-}) {
+export function ProductsSoldReport({ data }: { data: ProductsSoldReportType }) {
+  const { execute: executePrintReceipt, isPending: isPrinting } =
+    useServerAction(printReportReceipt)
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Produtos vendidos</CardTitle>
 
         {data && data.length > 0 && (
-          <Link
-            href={`reports/print/products-sold?start_date=${startDate}&end_date=${endDate}`}
-            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-            target="_blank"
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              executePrintReceipt({
+                printerName: 'G250',
+                text: buildProductsSoldReportText(data),
+              })
+            }
+            disabled={isPrinting}
           >
             <Printer className="w-4 h-4" />
-          </Link>
+          </Button>
         )}
       </CardHeader>
 

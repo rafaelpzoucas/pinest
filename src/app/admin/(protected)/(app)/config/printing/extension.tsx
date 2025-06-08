@@ -18,8 +18,8 @@ export function Extension() {
   const [isExtensionActive, setIsExtensionActive] = useState(false)
 
   const { execute } = useServerAction(checkPrinterExtension, {
-    onSuccess: () => {
-      setIsExtensionActive(true)
+    onSuccess: ({ data }) => {
+      setIsExtensionActive(data.success)
     },
     onError: () => {
       setIsExtensionActive(false)
@@ -27,12 +27,30 @@ export function Extension() {
   })
 
   useEffect(() => {
+    let isMounted = true
+    let isExecuting = false
+
+    const check = async () => {
+      if (isExecuting) return
+      isExecuting = true
+      try {
+        await execute()
+      } finally {
+        isExecuting = false
+      }
+    }
+
+    check() // chamada inicial
+
     const interval = setInterval(() => {
-      execute()
+      if (isMounted) check()
     }, 30000)
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+  }, [execute])
 
   return (
     <Card>
@@ -53,9 +71,11 @@ export function Extension() {
             </span>
           </div>
         ) : (
-          <Button variant="secondary">
-            <Download className="w-4 h-4" />
-            Baixar extensão
+          <Button asChild variant="secondary">
+            <a href="/PinestPrinter_Setup.exe" download>
+              <Download className="w-4 h-4" />
+              Baixar extensão
+            </a>
           </Button>
         )}
       </CardContent>

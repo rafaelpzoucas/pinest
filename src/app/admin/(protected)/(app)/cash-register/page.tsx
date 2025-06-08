@@ -125,8 +125,6 @@ export default async function CashRegister() {
           <section className="space-y-6">
             <header className="flex flex-row gap-4">
               <CloseCashSession
-                cashBalance={cashBalance}
-                totalBalance={totalBalance}
                 cashSessionId={cashSession.id}
                 hasOpenPurchases={hasOpenPurchases}
                 hasOpenTables={hasOpenTables}

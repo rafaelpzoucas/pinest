@@ -31,7 +31,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { formatCurrencyBRL } from '@/lib/utils'
+import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { PaymentType } from '@/models/payment'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -43,16 +43,12 @@ import { DebitForm } from './debit-form'
 import { PIXForm } from './pix-form'
 
 export function CloseCashSession({
-  cashBalance,
-  totalBalance,
   cashSessionId,
   hasOpenPurchases,
   hasOpenTables,
   cashReceipts,
   payments,
 }: {
-  cashBalance: number
-  totalBalance: number
   cashSessionId: string
   hasOpenPurchases: boolean
   hasOpenTables: boolean
@@ -61,7 +57,6 @@ export function CloseCashSession({
 }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
 
   const cashReceiptsMoney =
     cashReceipts?.filter((receipt) => receipt.type.startsWith('cash_')) || []
@@ -98,7 +93,7 @@ export function CloseCashSession({
   )
 
   const computedCash = (initialAmount || 0) + (computedTotals.Dinheiro || 0)
-  const computedPix = computedTotals.Pix || 0
+  const computedPix = computedTotals.PIX || 0
   const computedCredit = computedTotals.Credito || 0
   const computedDebit = computedTotals.Debito || 0
 
@@ -115,16 +110,29 @@ export function CloseCashSession({
     return acc + receipt.total
   }, 0)
 
+  const totalDeclaredInitial =
+    declaredCash + declaredPix + declaredCredit + declaredDebit
+
   const form = useForm<z.infer<typeof closeCashSessionSchema>>({
     resolver: zodResolver(closeCashSessionSchema),
     defaultValues: {
-      pix_balance: cashBalance.toString() ?? '',
-      credit_balance: cashBalance.toString() ?? '',
-      debit_balance: cashBalance.toString() ?? '',
-      cash_balance: declaredCash.toString() ?? '',
-      closing_balance: totalBalance.toString() ?? '',
+      pix_balance: declaredPix.toString(),
+      credit_balance: declaredCredit.toString(),
+      debit_balance: declaredDebit.toString(),
+      cash_balance: declaredCash.toString(),
+      closing_balance: totalDeclaredInitial.toString(),
     },
   })
+
+  const totalComputed =
+    computedCash + computedPix + computedCredit + computedDebit
+  const totalDeclared =
+    stringToNumber(form.watch('cash_balance')) +
+    stringToNumber(form.watch('pix_balance')) +
+    stringToNumber(form.watch('credit_balance')) +
+    stringToNumber(form.watch('debit_balance'))
+
+  const difference = totalDeclared - totalComputed
 
   const { execute, isPending } = useServerAction(closeCashSession, {
     onSuccess: () => {
@@ -136,15 +144,7 @@ export function CloseCashSession({
     },
   })
 
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof closeCashSessionSchema>) {
-    setIsClosing(true)
-    execute(values)
-    setIsClosing(false)
-  }
-
-  function handleCloseAndPrint() {
-    const values = form.getValues()
     setIsPrinting(true)
     execute(values)
     window.open(
@@ -159,11 +159,29 @@ export function CloseCashSession({
     form.setValue('pix_balance', declaredPix.toString())
     form.setValue('credit_balance', declaredCredit.toString())
     form.setValue('debit_balance', declaredDebit.toString())
-    form.setValue(
-      'closing_balance',
-      (declaredCash + declaredPix + declaredCredit + declaredDebit).toString(),
-    )
+    form.setValue('closing_balance', totalDeclared.toString())
   }, [declaredCash, declaredPix, declaredCredit, declaredDebit])
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (
+        name === 'cash_balance' ||
+        name === 'pix_balance' ||
+        name === 'credit_balance' ||
+        name === 'debit_balance'
+      ) {
+        const newTotal =
+          stringToNumber(value.cash_balance) +
+          stringToNumber(value.pix_balance) +
+          stringToNumber(value.credit_balance) +
+          stringToNumber(value.debit_balance)
+
+        form.setValue('closing_balance', newTotal.toString())
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form])
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -201,7 +219,7 @@ export function CloseCashSession({
                   <div className="flex flex-row justify-between">
                     <FormLabel>Dinheiro</FormLabel>
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(computedCash)}
+                      Esperado: {formatCurrencyBRL(computedCash)}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -229,7 +247,7 @@ export function CloseCashSession({
                     <FormLabel>PIX</FormLabel>
 
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(computedPix)}
+                      Esperado: {formatCurrencyBRL(computedPix)}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -239,7 +257,7 @@ export function CloseCashSession({
                         placeholder="Insira o valor final..."
                         {...field}
                       />
-                      <PIXForm />
+                      <PIXForm receipts={pixReceipts} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -255,7 +273,7 @@ export function CloseCashSession({
                     <FormLabel>Cartão de crédito</FormLabel>
 
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(computedCredit)}
+                      Esperado: {formatCurrencyBRL(computedCredit)}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -265,7 +283,7 @@ export function CloseCashSession({
                         placeholder="Insira o valor final..."
                         {...field}
                       />
-                      <CreditForm />
+                      <CreditForm receipts={creditReceipts} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -281,7 +299,7 @@ export function CloseCashSession({
                     <FormLabel>Cartão de débito</FormLabel>
 
                     <FormDescription>
-                      Computado: {formatCurrencyBRL(computedDebit)}
+                      Esperado: {formatCurrencyBRL(computedDebit)}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -292,7 +310,7 @@ export function CloseCashSession({
                         {...field}
                       />
 
-                      <DebitForm />
+                      <DebitForm receipts={debitReceipts} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -307,7 +325,7 @@ export function CloseCashSession({
                   <div className="flex flex-row justify-between">
                     <FormLabel>Saldo final</FormLabel>
                     <FormDescription>
-                      Computado:{' '}
+                      Esperado:{' '}
                       {formatCurrencyBRL(
                         computedCash +
                           computedPix +
@@ -320,22 +338,22 @@ export function CloseCashSession({
                     <Input
                       maskType="currency"
                       placeholder="Insira o valor final..."
+                      readOnly
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
                     Dinheiro + Recibos de cartão + PIX - Saídas
                   </FormDescription>
+                  {difference !== 0 ? (
+                    <FormMessage>Diferença: {difference}</FormMessage>
+                  ) : null}
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex flex-row gap-2">
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={handleCloseAndPrint}
-              >
+              <Button type="submit" disabled={isPending || difference !== 0}>
                 {isPrinting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

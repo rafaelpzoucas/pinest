@@ -100,8 +100,8 @@ export function normalizeString(str: string) {
     .trim() // Remove espaços no início e no final
 }
 
-export function stringToNumber(string: string) {
-  if (string === '') {
+export function stringToNumber(string?: string) {
+  if (string === '' || !string) {
     return 0
   }
 
