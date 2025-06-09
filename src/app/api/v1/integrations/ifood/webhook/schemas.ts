@@ -29,7 +29,7 @@ const AmountSchema = z.object({
 
 const EvidenceSchema = z.object({
   url: z.string().url(),
-  contentType: z.string(),
+  contentType: z.string().optional(),
 })
 
 const ItemSchema = z.object({

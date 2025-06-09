@@ -56,6 +56,7 @@ export function IfoodHandshakePlatform({
   const router = useRouter()
 
   const expiresAt = event?.metadata.expiresAt ?? new Date()
+  const evidences = event?.metadata?.metadata?.evidences ?? []
 
   const [isOpen, setIsOpen] = useState(!!event)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
@@ -158,6 +159,15 @@ export function IfoodHandshakePlatform({
                 </CardHeader>
                 <CardContent>
                   <strong>{event?.metadata.message}</strong>
+
+                  {evidences.length > 0 ? (
+                    <>
+                      <p>Imagens: ({evidences.length})</p>
+                      <span className="text-muted-foreground text-sm">
+                        Veja no Gestor de Pedidos do Ifood.
+                      </span>
+                    </>
+                  ) : null}
                 </CardContent>
               </Card>
               <section className="text-center">

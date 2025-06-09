@@ -29,7 +29,7 @@ export default async function OrderPage({
   const isIfood = purchase?.is_ifood
   const ifoodOrderData: IfoodOrder = isIfood && purchase?.ifood_order_data
   const ifoodItems: IfoodItem[] = ifoodOrderData?.items
-  const ifoodAddress = ifoodOrderData.delivery.deliveryAddress
+  const ifoodAddress = ifoodOrderData?.delivery?.deliveryAddress
 
   const purchaseItems = purchase?.purchase_items
   const customer = purchase?.store_customers?.customers
@@ -191,7 +191,7 @@ export default async function OrderPage({
                 </strong>
               </div>
 
-              {ifoodOrderData.customer.documentNumber && (
+              {ifoodOrderData?.customer?.documentNumber && (
                 <strong className="text-sm w-full border-t pt-2">
                   Incluir CPF na nota fiscal:{' '}
                   {ifoodOrderData.customer.documentNumber}

@@ -212,15 +212,17 @@ export const handleOrderPlaced = webhookProcedure
       return
     }
 
+    console.log({ orderData })
+
     const { id, createdAt, orderType, payments, total, delivery } = orderData
 
-    const newPurchaseValues: z.infer<typeof createIfoodPurchaseSchema> = {
+    const newPurchaseValues = {
       id,
       created_at: createdAt,
       status: 'accept',
       type: orderType,
       payment_type: payments?.methods?.[0]?.method ?? 'unknown',
-      is_paid: false,
+      is_paid: payments?.pending === 0,
       is_ifood: true,
       total: {
         shipping_price: total.deliveryFee,
@@ -229,10 +231,16 @@ export const handleOrderPlaced = webhookProcedure
         subtotal: total.subTotal,
         total_amount: total.orderAmount,
       },
-      delivery: {
-        time: delivery.deliveryDateTime,
-        address: delivery.deliveryAddress.formattedAddress,
-      },
+      delivery:
+        orderType === 'DELIVERY'
+          ? {
+              time: delivery?.deliveryDateTime ?? undefined,
+              address: delivery?.deliveryAddress?.formattedAddress ?? '',
+            }
+          : {
+              time: undefined,
+              address: '',
+            },
       ifood_order_data: orderData,
     }
 
@@ -307,6 +315,28 @@ export const createHandshakeEvent = webhookProcedure
     const { supabase } = ctx
 
     const { error } = await supabase.from('ifood_events').upsert(input).select()
+
+    if (error) {
+      console.error('Erro ao salvar evento de handshake:', error)
+    }
+
+    revalidatePath('/')
+
+    return NextResponse.json({
+      message: 'Evento de handshake tratado com sucesso!',
+    })
+  })
+
+export const deleteHandshakeEvent = webhookProcedure
+  .createServerAction()
+  .input(z.object({ order_id: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const { error } = await supabase
+      .from('ifood_events')
+      .delete()
+      .eq('orderId', input.order_id)
 
     if (error) {
       console.error('Erro ao salvar evento de handshake:', error)
