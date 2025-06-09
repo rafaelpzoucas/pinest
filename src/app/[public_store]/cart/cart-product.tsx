@@ -122,11 +122,14 @@ export function CartProduct({
               ))}
 
             {cartProduct?.observations &&
-              cartProduct?.observations?.length > 0 && (
-                <p className="text-muted-foreground text-xs uppercase line-clamp-2">
-                  obs: {cartProduct?.observations[0]}{' '}
-                </p>
-              )}
+              cartProduct?.observations?.length > 0 &&
+              cartProduct.observations
+                .filter((obs) => obs !== '')
+                .map((obs) => (
+                  <p className="text-muted-foreground text-xs uppercase line-clamp-2">
+                    obs: {obs}{' '}
+                  </p>
+                ))}
 
             <div>
               {variations &&
