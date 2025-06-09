@@ -51,7 +51,7 @@ export default async function OrderPage({
   type PaymentTypes = keyof typeof PAYMENT_TYPES
 
   const ifoodPaymentType: PaymentTypes = ifoodOrderData?.payments?.methods[0]
-    ?.type as PaymentTypes
+    ?.method as PaymentTypes
   const ifoodCashChangeAmount =
     ifoodOrderData?.payments?.methods[0]?.cash?.changeFor &&
     ifoodOrderData?.payments?.methods[0]?.cash?.changeFor -
@@ -87,13 +87,7 @@ export default async function OrderPage({
                 {statuses[purchase?.status as StatusKey].status}
               </Badge>
 
-              <PurchaseOptions
-                currentStatus={purchase?.status}
-                purchaseId={params.id}
-                type={purchase.type}
-                isIfood={purchase.is_ifood}
-                isDetailsPage
-              />
+              <PurchaseOptions purchase={purchase} />
             </header>
 
             <p>{statuses[purchase?.status as StatusKey].next_step}</p>
@@ -131,8 +125,9 @@ export default async function OrderPage({
               <p>
                 <span>
                   {PAYMENT_TYPES[ifoodPaymentType ?? purchase?.payment_type]}
-                  {isIfood &&
-                    ` - ${ifoodOrderData.payments.methods[0].card?.brand}`}
+                  {isIfood && ifoodOrderData.payments.methods[0].card?.brand
+                    ? ` - ${ifoodOrderData.payments.methods[0].card?.brand}`
+                    : ''}
                 </span>
               </p>
             </div>

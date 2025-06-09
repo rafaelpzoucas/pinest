@@ -4,6 +4,7 @@ import {
   ChartPie,
   CircleDollarSign,
   LayoutList,
+  Printer,
   ReceiptText,
   Store,
   User,
@@ -47,6 +48,11 @@ export const settings = [
     title: 'Entrega',
     url: '/admin/config/shipping',
     icon: Bike,
+  },
+  {
+    title: 'Impressão',
+    url: '/admin/config/printing',
+    icon: Printer,
   },
   {
     title: 'Integrações',

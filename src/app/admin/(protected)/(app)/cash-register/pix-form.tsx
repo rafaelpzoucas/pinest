@@ -35,14 +35,20 @@ const formSchema = z.object({
   transactions: z.array(z.number()),
 })
 
-export function PIXForm() {
+export function PIXForm({
+  receipts,
+}: {
+  receipts: z.infer<typeof createCashReceiptsSchema>
+}) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+
+  const defaultValues = {
+    transactions: receipts.map((receipt) => receipt.value) || [],
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      transactions: [],
-    },
+    defaultValues,
   })
 
   const { execute: createReceipts, isPending: isCreating } = useServerAction(

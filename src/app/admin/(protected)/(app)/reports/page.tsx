@@ -26,16 +26,8 @@ export default async function ReportsPage({
 
       <DatePicker />
       <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-4">
-        <SalesReport
-          data={reports?.salesReport}
-          startDate={startDate}
-          endDate={endDate}
-        />
-        <ProductsSoldReport
-          data={reports?.productsSold}
-          startDate={startDate}
-          endDate={endDate}
-        />
+        <SalesReport data={reports?.salesReport} />
+        <ProductsSoldReport data={reports?.productsSold} />
       </div>
     </main>
   )

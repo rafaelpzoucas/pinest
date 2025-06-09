@@ -8,48 +8,44 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { PurchaseType } from '@/models/purchase'
 import { useCashRegister } from '@/stores/cashRegisterStore'
 import { BadgeDollarSign, Edit, Loader2, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
+import { printPurchaseReceipt } from '../../../config/printing/actions'
 import { closeBills } from '../../close/actions'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { UpdateStatusButton } from './update-status-button'
 
-export function PurchaseOptions({
-  purchaseId,
-  currentStatus,
-  type,
-  isDetailsPage,
-  isIfood,
-}: {
-  purchaseId: string
-  currentStatus: string
-  type: string
-  isDetailsPage?: boolean
-  isIfood: boolean
-}) {
+export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
   const searchParams = useSearchParams()
   const { isCashOpen } = useCashRegister()
 
   const tab = searchParams.get('tab')
 
+  const currentStatus = purchase?.status
+  const isIfood = purchase?.is_ifood
+
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
+  const isPaid = purchase.is_paid
 
   const { execute: executeCloseBill, isPending: isCloseBillPending } =
     useServerAction(closeBills)
+  const { execute: executePrintReceipt, isPending: isPrinting } =
+    useServerAction(printPurchaseReceipt)
 
   return (
     <>
       <div className="hidden lg:flex flex-row justify-end">
-        {accepted && (
+        {accepted && !isPaid && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`purchases/deliveries/register?purchase_id=${purchaseId}`}
+                  href={`purchases/deliveries/register?purchase_id=${purchase?.id}`}
                   className={buttonVariants({ variant: 'ghost', size: 'icon' })}
                 >
                   <Edit className="w-5 h-5" />
@@ -62,15 +58,9 @@ export function PurchaseOptions({
           </TooltipProvider>
         )}
 
-        <UpdateStatusButton
-          accepted={accepted}
-          currentStatus={currentStatus}
-          purchaseId={purchaseId}
-          type={type}
-          isIfood={isIfood}
-        />
+        <UpdateStatusButton purchase={purchase} />
 
-        {accepted && delivered && (
+        {accepted && delivered && !isPaid && (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -79,7 +69,7 @@ export function PurchaseOptions({
                     variant="ghost"
                     size="icon"
                     onClick={() =>
-                      executeCloseBill({ purchase_id: purchaseId })
+                      executeCloseBill({ purchase_id: purchase.id })
                     }
                   >
                     {isCloseBillPending ? (
@@ -92,7 +82,7 @@ export function PurchaseOptions({
                   <Link
                     href={
                       isCashOpen
-                        ? `/admin/purchases/close?purchase_id=${purchaseId}&tab=${tab}`
+                        ? `/admin/purchases/close?purchase_id=${purchase.id}&tab=${tab}`
                         : '/admin/cash-register'
                     }
                     className={buttonVariants({
@@ -123,16 +113,24 @@ export function PurchaseOptions({
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
-                <Link
-                  href={`/admin/purchases/deliveries/${purchaseId}/receipt?reprint=true`}
-                  target="_blank"
-                  className={buttonVariants({
-                    variant: 'ghost',
-                    size: 'icon',
-                  })}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() =>
+                    executePrintReceipt({
+                      printerName: 'G250',
+                      purchaseId: purchase.id,
+                      reprint: true,
+                    })
+                  }
+                  disabled={isPrinting}
                 >
-                  <Printer className="w-5 h-5" />
-                </Link>
+                  {isPrinting ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Printer className="w-5 h-5" />
+                  )}
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Imprimir</p>
@@ -145,7 +143,7 @@ export function PurchaseOptions({
           <CancelPurchaseButton
             accepted={accepted}
             currentStatus={currentStatus}
-            purchaseId={purchaseId}
+            purchaseId={purchase?.id}
             isIfood={isIfood}
           />
         )}

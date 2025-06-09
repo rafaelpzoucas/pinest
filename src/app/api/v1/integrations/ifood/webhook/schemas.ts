@@ -55,13 +55,17 @@ const GarnishItemSchema = z.object({
 const AlternativeSchema = z.object({
   id: z.string().uuid(),
   type: z.string(),
-  metadata: z.union([
-    z.object({ maxAmount: AmountSchema }),
-    z.object({
-      allowedsAdditionalTimeInMinutes: z.array(z.number()),
-      allowedsAdditionalTimeReasons: z.array(z.string()),
-    }),
-  ]),
+  metadata: z
+    .union([
+      z.object({ maxAmount: AmountSchema }).partial(),
+      z
+        .object({
+          allowedsAdditionalTimeInMinutes: z.array(z.number()).optional(),
+          allowedsAdditionalTimeReasons: z.array(z.string()).optional(),
+        })
+        .partial(),
+    ])
+    .optional(),
 })
 
 const MetadataSchema = z.object({
@@ -75,10 +79,10 @@ const MetadataSchema = z.object({
   alternatives: z.array(AlternativeSchema).optional(),
   metadata: z
     .object({
-      acceptCancellationReasons: z.array(z.string()),
-      evidences: z.array(EvidenceSchema),
-      items: z.array(ItemSchema),
-      garnishItems: z.array(GarnishItemSchema),
+      acceptCancellationReasons: z.array(z.string()).optional(),
+      evidences: z.array(EvidenceSchema).optional(),
+      items: z.array(ItemSchema).optional(),
+      garnishItems: z.array(GarnishItemSchema).optional(),
     })
     .optional(),
   createdAt: z.string().datetime(),

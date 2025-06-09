@@ -96,9 +96,10 @@ export const columns: ColumnDef<PurchaseType>[] = [
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status')
+      const isPaid = row.original.is_paid
       return (
         <Badge className={cn(statuses[status as StatusKey].color)}>
-          {statuses[status as StatusKey].status}
+          {statuses[status as StatusKey].status} {isPaid ? ' - Pago' : ''}
         </Badge>
       )
     },
@@ -156,18 +157,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
     accessorKey: 'id',
     header: 'Ações',
     cell: ({ row }) => {
-      const currentStatus = row.original.status as string
-      const type = row.original.type
-      const isIfood = row.original.is_ifood ?? false
-
-      return (
-        <PurchaseOptions
-          purchaseId={row.getValue('id')}
-          currentStatus={currentStatus}
-          type={type}
-          isIfood={isIfood}
-        />
-      )
+      return <PurchaseOptions purchase={row.original as PurchaseType} />
     },
   },
 ]

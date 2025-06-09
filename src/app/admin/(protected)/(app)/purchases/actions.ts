@@ -41,7 +41,10 @@ export async function readPurchases(): Promise<{
     .select(
       `
       *,
-      purchase_items (*),
+      purchase_items (
+        *,  
+        products (*)
+      ),
       store_customers (
         *,
         customers (*)
@@ -49,8 +52,6 @@ export async function readPurchases(): Promise<{
     `,
     )
     .eq('store_id', store?.id)
-    .neq('is_paid', true)
-    .neq('status', 'cancelled')
     .order('created_at', { ascending: false })
 
   return { purchases, purchasesError }

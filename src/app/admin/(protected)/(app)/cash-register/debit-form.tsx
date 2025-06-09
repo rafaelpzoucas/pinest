@@ -35,14 +35,20 @@ const formSchema = z.object({
   transactions: z.array(z.number()),
 })
 
-export function DebitForm() {
+export function DebitForm({
+  receipts,
+}: {
+  receipts: z.infer<typeof createCashReceiptsSchema>
+}) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+
+  const defaultValues = {
+    transactions: receipts.map((receipt) => receipt.value) || [],
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      transactions: [],
-    },
+    defaultValues,
   })
 
   const { execute: createReceipts, isPending: isCreating } = useServerAction(
@@ -75,6 +81,7 @@ export function DebitForm() {
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log({ values })
     const cashReceipts = values.transactions.map((transaction) => ({
       type: 'debit',
       value: transaction,

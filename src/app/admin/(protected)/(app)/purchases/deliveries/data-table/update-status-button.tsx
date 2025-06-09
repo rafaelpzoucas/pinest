@@ -7,33 +7,33 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { Check, FastForward, Loader2 } from 'lucide-react'
 import { useServerAction } from 'zsa-react'
+import { printPurchaseReceipt } from '../../../config/printing/actions'
 import { acceptPurchase, updatePurchaseStatus } from '../[id]/actions'
 
 type StatusKey = keyof typeof statuses
 
-export function UpdateStatusButton({
-  accepted,
-  currentStatus,
-  purchaseId,
-  type,
-  isIfood,
-}: {
-  accepted: boolean
-  currentStatus: string
-  purchaseId: string
-  type: string
-  isIfood: boolean
-}) {
+export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
+  const purchaseId = purchase?.id
+  const currentStatus = purchase?.status
+  const isIfood = purchase?.is_ifood
+  const type = purchase?.type
+
+  const accepted = currentStatus !== 'accept'
+
+  const { execute: executePrintReceipt } = useServerAction(printPurchaseReceipt)
+
   const { execute: executeAccept, isPending: isAcceptPending } =
     useServerAction(acceptPurchase, {
       onSuccess: () => {
-        window.open(
-          `/admin/purchases/deliveries/${purchaseId}/receipt`,
-          '_blank',
-        )
+        executePrintReceipt({
+          printerName: 'G250',
+          purchaseId: purchase.id,
+          reprint: false,
+        })
       },
     })
 
@@ -93,7 +93,7 @@ export function UpdateStatusButton({
           <p>
             {!accepted
               ? 'Aceitar pedido'
-              : (statuses[currentStatus as StatusKey].action_text as string)}
+              : (statuses[currentStatus as StatusKey]?.action_text as string)}
           </p>
         </TooltipContent>
       </Tooltip>
