@@ -34,11 +34,7 @@ export default async function DashboardPage() {
 
         <FirstSteps />
         <TodaySummary />
-        <SalesReport
-          data={reports?.salesReport}
-          startDate={new Date().toISOString()}
-          endDate={new Date().toISOString()}
-        />
+        <SalesReport data={reports?.salesReport} />
         <PendingBalances />
         {/* <TotalSales /> */}
       </section>

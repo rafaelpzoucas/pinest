@@ -1,9 +1,54 @@
 import { updateSession } from '@/lib/supabase/middleware'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+
+const IGNORED_HOSTS = ['pinest.com.br']
+const IGNORED_PATHS = ['/admin', '/api']
 
 export async function middleware(request: NextRequest) {
-  const response = await updateSession(request)
+  const url = request.nextUrl.clone()
+  const hostname = request.headers.get('host') || ''
+  const pathname = url.pathname
 
+  const isLocalhost = hostname.startsWith('localhost')
+
+  // Ignora hosts específicos em produção
+  if (!isLocalhost && IGNORED_HOSTS.includes(hostname)) {
+    return await updateSession(request)
+  }
+
+  // Ignora paths específicos
+  if (IGNORED_PATHS.some((p) => pathname.startsWith(p))) {
+    return await updateSession(request)
+  }
+
+  let subdomain: string | null = null
+
+  if (isLocalhost) {
+    // Extrai o primeiro segmento da rota (ex: /sanduba/...)
+    const segments = pathname.split('/').filter(Boolean)
+    subdomain = segments[0] || null
+  } else {
+    // Extrai subdomínio do host (excluindo www)
+    const parts = hostname.split('.')
+    subdomain =
+      parts.length > 2 ? (parts[0] === 'www' ? parts[1] : parts[0]) : null
+  }
+
+  if (!subdomain) {
+    return await updateSession(request)
+  }
+
+  // Reescreve a URL apenas se não estiver no localhost
+  const response = isLocalhost
+    ? NextResponse.next()
+    : NextResponse.rewrite(new URL(`/${subdomain}${pathname}`, request.url))
+
+  // Seta cookie com subdomínio
+  response.cookies.set('public_store_subdomain', subdomain, {
+    path: '/',
+  })
+
+  await updateSession(request)
   return response
 }
 
@@ -12,29 +57,3 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
-
-// ✅ Executa updateSession para manter a sessão do Supabase atualizada
-
-// ✅ Ignora o middleware se o host for:
-//    - localhost:3000
-//    - pinest.com.br
-
-// ✅ Ignora o middleware se o path começar com:
-//    - /admin
-//    - /api
-
-// ✅ Extrai o subdomínio do host (ex: 'sanduba' em 'sanduba.pinest.com.br')
-
-// ✅ Valida o subdomínio (ignora 'www')
-
-// ✅ Reescreve a URL para incluir o subdomínio como prefixo no path:
-//    - Ex: sanduba.pinest.com.br/menu → pinest.com.br/sanduba/menu
-//    - A URL visível no navegador continua sendo sanduba.pinest.com.br/menu
-
-// ✅ Define um cookie chamado 'public_store_subdomain' com o valor do subdomínio:
-//    - path: '/'
-//    - httpOnly: false (acessível pelo client)
-
-// ✅ Middleware só é executado em rotas que não são:
-//    - Arquivos estáticos (_next/static, _next/image, favicon.ico)
-//    - Arquivos de imagem (.svg, .png, .jpg, etc.)
