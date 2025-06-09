@@ -37,7 +37,7 @@ const formSchema = z.object({
     )
     .optional(),
   quantity: z.number(),
-  observations: z.array(z.string().optional()).optional(),
+  observations: z.array(z.string()).optional().nullable(),
 })
 
 export type SelectedExtraType = {
@@ -135,8 +135,6 @@ export function AddToCard({
       observations: [],
     },
   })
-
-  console.log(form.formState.errors)
 
   const maxPrice = cartProduct?.product_price
     ? cartProduct.product_price
