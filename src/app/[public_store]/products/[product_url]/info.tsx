@@ -6,7 +6,7 @@ import { CartProductType } from '@/models/cart'
 import { ExtraType } from '@/models/extras'
 import { ProductType, ProductVariationType } from '@/models/product'
 import { useProduct } from '@/stores/productStore'
-import { AddToCard } from './add-to-cart'
+import { AddToCart } from './add-to-cart'
 import { ShippingForm } from './shipping/form'
 
 export function ProductInfo({
@@ -63,7 +63,7 @@ export function ProductInfo({
         <p className="text-sm text-muted-foreground">{product.description}</p>
       </div>
 
-      <AddToCard
+      <AddToCart
         isOpen={isOpen}
         product={product}
         variations={variations}

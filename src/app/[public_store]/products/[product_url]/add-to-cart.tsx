@@ -37,7 +37,7 @@ const formSchema = z.object({
     )
     .optional(),
   quantity: z.number(),
-  observations: z.array(z.string()).optional().nullable(),
+  observations: z.string().optional(),
 })
 
 export type SelectedExtraType = {
@@ -55,7 +55,7 @@ type AddToCardDrawerProps = {
   extras?: ExtraType[]
 }
 
-export function AddToCard({
+export function AddToCart({
   isOpen,
   product,
   variations,
@@ -132,7 +132,7 @@ export function AddToCard({
     defaultValues: {
       variations: selectedVariations ?? defaultVariations,
       quantity: amount ?? 1,
-      observations: [],
+      observations: '',
     },
   })
 
@@ -164,11 +164,9 @@ export function AddToCard({
       quantity: amount,
       product_variations: values.variations ?? [],
       product_price: productPrice,
-      observations: values.observations ?? [],
+      observations: Array(values.observations || '') || [],
       extras: selectedExtras.filter((item) => item.quantity > 0),
     }
-
-    console.log({ newCartProduct })
 
     await addToCart({ newItem: newCartProduct })
 
@@ -336,7 +334,7 @@ export function AddToCard({
 
           <FormField
             control={form.control}
-            name="observations.0"
+            name="observations"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Observações</FormLabel>

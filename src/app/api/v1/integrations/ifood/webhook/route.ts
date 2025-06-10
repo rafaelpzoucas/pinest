@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import {
   createHandshakeEvent,
+  deleteHandshakeEvent,
   handleCancelOrder,
   handleOrderNewStatus,
   handleOrderPlaced,
@@ -23,7 +24,7 @@ const webhookAction = createServerAction()
     try {
       const body = await request?.json()
 
-      console.info('[IFOOD EVENT]: ', body)
+      console.log('[IFOOD EVENT]: ', body)
 
       switch (body.code) {
         case 'PLC': {
@@ -91,6 +92,7 @@ const webhookAction = createServerAction()
         }
         case 'CARF': {
           console.log('Cancellation request failed.', body)
+          await deleteHandshakeEvent({ order_id: body.orderId })
           break
         }
 
