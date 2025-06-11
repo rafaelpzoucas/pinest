@@ -32,14 +32,6 @@ export default async function Summary({
   const pickup = searchParams.pickup
   const changeValue = parseFloat(searchParams.changeValue)
 
-  console.log('Debug searchParams:', {
-    pickup,
-    payment,
-    shippingCost,
-    transp,
-    changeValue,
-  })
-
   const [[storeData], [cartData], [ownShippingData], [customerData]] =
     await Promise.all([
       readStore(),
@@ -110,8 +102,6 @@ export default async function Summary({
     shippingTime: shipping && shipping.status ? shipping.delivery_time : 0,
     changeValue: parseFloat(searchParams.changeValue ?? 0),
   }
-
-  console.log('Debug createPurchaseValues:', createPurchaseValues)
 
   return (
     <div className="flex flex-col w-full">
