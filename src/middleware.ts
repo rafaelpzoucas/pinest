@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   let subdomain: string | null = null
 
   if (isLocalhost) {
-    // Extrai o primeiro segmento da rota (ex: /sanduba/...)
+    // Extrai o primeiro segmento da rota (ex: /sanduba/checkout)
     const segments = pathname.split('/').filter(Boolean)
     subdomain = segments[0] || null
   } else {
@@ -38,10 +38,14 @@ export async function middleware(request: NextRequest) {
     return await updateSession(request)
   }
 
-  // Reescreve a URL apenas se não estiver no localhost
+  // Reescreve a URL com os searchParams preservados
   const response = isLocalhost
     ? NextResponse.next()
-    : NextResponse.rewrite(new URL(`/${subdomain}${pathname}`, request.url))
+    : (() => {
+        const newUrl = request.nextUrl.clone()
+        newUrl.pathname = `/${subdomain}${pathname}`
+        return NextResponse.rewrite(newUrl)
+      })()
 
   // Seta cookie com subdomínio
   response.cookies.set('public_store_subdomain', subdomain, {
