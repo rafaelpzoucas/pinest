@@ -12,6 +12,8 @@ export function CheckoutButton({
 }: {
   values: z.infer<typeof createPurchaseSchema>
 }) {
+  console.log('Values: ', values)
+
   const { execute, isPending } = useServerAction(createPurchase)
   async function handleCreatePurchase() {
     execute(values)
