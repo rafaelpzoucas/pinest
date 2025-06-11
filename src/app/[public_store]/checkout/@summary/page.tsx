@@ -26,10 +26,12 @@ export default async function Summary({
     changeValue: string
   }
 }) {
+  console.log('searchParams:', searchParams)
+
   const shippingCost = searchParams.shippingPrice
   const transp = searchParams.transp
-  const payment = searchParams.payment
-  const pickup = searchParams.pickup
+  const pickup = searchParams.pickup?.toUpperCase()
+  const payment = searchParams.payment?.toUpperCase()
   const changeValue = parseFloat(searchParams.changeValue)
 
   const [[storeData], [cartData], [ownShippingData], [customerData]] =
@@ -95,8 +97,8 @@ export default async function Summary({
   const formattedAddress = storeAddress && formatAddress(storeAddress)
 
   const createPurchaseValues = {
-    type: searchParams.pickup,
-    payment_type: searchParams.payment,
+    type: pickup,
+    payment_type: payment,
     totalAmount: totalPrice,
     shippingPrice,
     shippingTime: shipping && shipping.status ? shipping.delivery_time : 0,
