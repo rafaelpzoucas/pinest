@@ -12,28 +12,12 @@ export function CheckoutButton({
 }: {
   values: z.infer<typeof createPurchaseSchema>
 }) {
-  console.log('CheckoutButton renderizado com valores:', values)
-
   const { execute, isPending } = useServerAction(createPurchase)
-
   async function handleCreatePurchase() {
-    console.log('Botão de checkout clicado')
-    console.log('Valores do pedido:', values)
-    try {
-      console.log('Tentando executar server action')
-      const result = await execute(values)
-      console.log('Server action executada com sucesso:', result)
-    } catch (error) {
-      console.error('Erro ao criar pedido:', error)
-    }
+    execute(values)
   }
-
   return (
-    <Button
-      onClick={handleCreatePurchase}
-      disabled={isPending}
-      className="w-full"
-    >
+    <Button onClick={handleCreatePurchase} disabled={isPending}>
       {isPending ? (
         <>
           <Loader2 className="w-4 h-4 animate-spin" />
