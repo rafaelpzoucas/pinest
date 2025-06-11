@@ -97,21 +97,12 @@ export const createPurchase = storeProcedure
   .createServerAction()
   .input(createPurchaseSchema)
   .handler(async ({ ctx, input }) => {
-    console.log('Iniciando criação de pedido:', {
-      input,
-      storeId: ctx.store?.id,
-    })
     const { store, supabase } = ctx
 
     const [[cartData], [customerData]] = await Promise.all([
       readCart(),
       readStoreCustomer(),
     ])
-
-    console.log('Dados carregados:', {
-      cart: cartData?.cart?.length,
-      customer: customerData?.storeCustomer?.id,
-    })
 
     const cart = cartData?.cart
     const storeCustomer = customerData?.storeCustomer
@@ -141,8 +132,6 @@ export const createPurchase = storeProcedure
       },
     }
 
-    console.log('Tentando criar pedido com valores:', newPurchaseValues)
-
     const { data: createdPurchase, error: purchaseError } = await supabase
       .from('purchases')
       .insert(newPurchaseValues)
@@ -151,10 +140,7 @@ export const createPurchase = storeProcedure
 
     if (purchaseError || !createdPurchase) {
       console.error('Erro ao criar compra: ', purchaseError)
-      throw new Error(`Falha ao criar pedido: ${purchaseError?.message}`)
     }
-
-    console.log('Pedido criado com sucesso:', createdPurchase.id)
 
     const deliveryFee =
       type === 'DELIVERY'
@@ -186,11 +172,6 @@ export const createPurchase = storeProcedure
       ...(deliveryFee ? [deliveryFee] : []),
     ]
 
-    console.log(
-      'Tentando adicionar itens ao pedido:',
-      purchaseItemsArray.length,
-    )
-
     const { data: purchaseItems, error: purchaseItemsError } = await supabase
       .from('purchase_items')
       .insert(purchaseItemsArray)
@@ -198,12 +179,7 @@ export const createPurchase = storeProcedure
 
     if (purchaseItemsError || !purchaseItems) {
       console.error('Erro ao adicionar itens da compra: ', purchaseItemsError)
-      throw new Error(
-        `Falha ao adicionar itens: ${purchaseItemsError?.message}`,
-      )
     }
-
-    console.log('Itens adicionados com sucesso:', purchaseItems.length)
 
     if (purchaseItems) {
       for (const item of purchaseItems) {
@@ -213,14 +189,10 @@ export const createPurchase = storeProcedure
       }
     }
 
-    console.log('Iniciando processamento de pagamento')
     await handlePayment({ purchaseId: createdPurchase.id })
-    console.log('Pagamento processado')
-
     await updateStoreCustomerPurchasesQuantity({
       customerId: storeCustomer?.customers?.id,
     })
-    console.log('Quantidade de compras atualizada')
 
     return redirect(
       createPath(
