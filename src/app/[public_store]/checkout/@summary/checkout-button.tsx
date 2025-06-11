@@ -13,11 +13,7 @@ export function CheckoutButton({
   values: z.infer<typeof createPurchaseSchema>
 }) {
   const { execute, isPending } = useServerAction(createPurchase)
-
-  console.log('Debug CheckoutButton values:', values)
-
   async function handleCreatePurchase() {
-    console.log('Debug handleCreatePurchase values:', values)
     execute(values)
   }
   return (
