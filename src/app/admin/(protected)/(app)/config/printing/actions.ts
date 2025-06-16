@@ -31,13 +31,15 @@ export const addToPrintQueue = adminProcedure
         store_id: store.id,
         text: item.text,
         font_size: item.font_size,
-        sectors: item.sectors,
+        printer_name: item.printer_name,
       })),
     )
 
     if (error) {
       throw new Error('Erro ao adicionar itens à fila de impressão: ', error)
     }
+
+    return { success: true }
   })
 
 export const checkPrinterExtension = createServerAction().handler(async () => {
@@ -87,36 +89,60 @@ export const printTableReceipt = createServerAction()
     }),
   )
   .handler(async ({ input }) => {
-    const [[tableData], [printerData]] = await Promise.all([
-      readTableById({ id: input.tableId }),
-      readPrinterByName({ name: input.printerName }),
-    ])
+    const [[tableData], [printSettingsData], [printersData]] =
+      await Promise.all([
+        readTableById({ id: input.tableId }),
+        readPrintingSettings(),
+        readPrinters(),
+      ])
 
     const table = tableData?.table
-    const printer = printerData?.printer
+    const printers = printersData?.printers || []
+    const printingSettings = printSettingsData?.printingSettings
+    const fontSize = printSettingsData?.printingSettings?.font_size
 
-    if (!printer) {
-      return new Response('Impressora não encontrada', { status: 404 })
+    if (!printingSettings?.auto_print) {
+      return
     }
 
-    // Se setores definidos e "kitchen" não incluso, não imprime
-    if (printer.sectors.length > 0 && !printer.sectors.includes('kitchen')) {
-      return { success: false, skipped: true }
+    if (!printers.length) {
+      return new Response('Nenhuma impressora encontrada', { status: 404 })
     }
 
-    const textKitchen = buildReceiptTableText(table, input.reprint)
+    const result = {
+      kitchenPrinted: false,
+      deliveryPrinted: false,
+      errors: [] as string[],
+    }
 
-    try {
-      await addToPrintQueue([
-        {
-          text: textKitchen,
-          font_size: 2,
-          sectors: ['kitchen'],
-        },
-      ])
-    } catch (error) {
-      console.error('Erro ao verificar extensão', error)
-      return { success: false, error: (error as Error).message }
+    for (const printer of printers) {
+      try {
+        if (
+          printer.sectors.length === 0 ||
+          printer.sectors.includes('kitchen')
+        ) {
+          const textKitchen = buildReceiptTableText(table, input.reprint)
+
+          await addToPrintQueue([
+            {
+              text: textKitchen,
+              font_size: fontSize,
+              printer_name: printer.name,
+            },
+          ])
+
+          result.kitchenPrinted = true
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err)
+        result.errors.push(`Erro na impressora "${printer.name}": ${errorMsg}`)
+        console.error(errorMsg)
+      }
+    }
+
+    return {
+      success: result.kitchenPrinted || result.deliveryPrinted,
+      ...result,
     }
   })
 
@@ -137,7 +163,12 @@ export const printPurchaseReceipt = createServerAction()
 
     const purchase = purchaseData?.purchase ?? purchaseTest
     const printers = printersData?.printers || []
+    const printingSettings = printSettingsData?.printingSettings
     const fontSize = printSettingsData?.printingSettings?.font_size
+
+    if (!printingSettings?.auto_print) {
+      return
+    }
 
     if (!printers.length) {
       return new Response('Nenhuma impressora encontrada', { status: 404 })
@@ -149,21 +180,47 @@ export const printPurchaseReceipt = createServerAction()
       errors: [] as string[],
     }
 
-    const textKitchen = buildReceiptKitchenText(purchase, input.reprint)
-    const textDelivery = buildReceiptDeliveryText(purchase, input.reprint)
+    for (const printer of printers) {
+      try {
+        if (
+          printer.sectors.length === 0 ||
+          printer.sectors.includes('kitchen')
+        ) {
+          const textKitchen = buildReceiptKitchenText(purchase, input.reprint)
 
-    await addToPrintQueue([
-      {
-        text: textKitchen,
-        font_size: fontSize,
-        sectors: ['kitchen'],
-      },
-      {
-        text: textDelivery,
-        font_size: fontSize,
-        sectors: ['delivery'],
-      },
-    ])
+          await addToPrintQueue([
+            {
+              text: textKitchen,
+              font_size: fontSize,
+              printer_name: printer.name,
+            },
+          ])
+
+          result.kitchenPrinted = true
+        }
+
+        if (
+          printer.sectors.length === 0 ||
+          printer.sectors.includes('delivery')
+        ) {
+          const textDelivery = buildReceiptDeliveryText(purchase, input.reprint)
+
+          await addToPrintQueue([
+            {
+              text: textDelivery,
+              font_size: fontSize,
+              printer_name: printer.name,
+            },
+          ])
+
+          result.deliveryPrinted = true
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err)
+        result.errors.push(`Erro na impressora "${printer.name}": ${errorMsg}`)
+        console.error(errorMsg)
+      }
+    }
 
     return {
       success: result.kitchenPrinted || result.deliveryPrinted,
@@ -190,13 +247,25 @@ export const printReportReceipt = createServerAction()
       return new Response('Impressora não encontrada', { status: 404 })
     }
 
-    await addToPrintQueue([
-      {
-        text: input.text,
-        font_size: fontSize,
-        sectors: ['balcony'],
-      },
-    ])
+    for (const printer of printers) {
+      if (printer.sectors.length > 0 && !printer.sectors.includes('balcony')) {
+        return { success: false, skipped: true }
+      }
+
+      try {
+        await addToPrintQueue([
+          {
+            text: input.text,
+            font_size: fontSize,
+            printer_name: printer.name,
+          },
+        ])
+      } catch (error) {
+        console.error('Erro ao verificar extensão', error)
+        return { success: false, error: (error as Error).message }
+      }
+    }
+    // Se setores definidos e "kitchen" não incluso, não imprime
   })
 
 export const readPrintingSettings = adminProcedure

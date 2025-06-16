@@ -22,7 +22,7 @@ export const printQueueSchema = z.object({
   text: z.string(),
   printed: z.boolean().optional(),
   font_size: z.number().optional().default(1),
-  sectors: z.array(z.string()).optional(),
+  printer_name: z.string(),
 })
 
 export type PrintingSettingsType = z.infer<typeof printingSettingsSchema>
