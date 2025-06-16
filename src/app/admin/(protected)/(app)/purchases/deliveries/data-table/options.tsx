@@ -118,7 +118,6 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
                   size="icon"
                   onClick={() =>
                     executePrintReceipt({
-                      printerName: 'G250',
                       purchaseId: purchase.id,
                       reprint: true,
                     })

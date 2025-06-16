@@ -31,7 +31,6 @@ export function SalesReport({ data }: { data: SalesReportType }) {
             size="icon"
             onClick={() =>
               executePrintReceipt({
-                printerName: 'G250',
                 text: buildSalesReportText(data),
               })
             }

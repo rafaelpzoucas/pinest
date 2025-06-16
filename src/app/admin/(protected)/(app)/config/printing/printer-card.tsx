@@ -58,7 +58,7 @@ export function PrinterCard({ printer }: { printer: PrinterType }) {
       <div className="space-x-3">
         <Button
           variant="secondary"
-          onClick={() => executePrintReceipt({ printerName: printer.name })}
+          onClick={() => executePrintReceipt({})}
           disabled={isPrinting}
         >
           {isPrinting ? (

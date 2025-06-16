@@ -17,7 +17,28 @@ import {
   PrinterType,
   printingSettingsSchema,
   PrintingSettingsType,
+  printQueueSchema,
 } from './schemas'
+
+export const addToPrintQueue = adminProcedure
+  .createServerAction()
+  .input(z.array(printQueueSchema))
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase } = ctx
+
+    const { error } = await supabase.from('print_queue').insert(
+      input.map((item) => ({
+        store_id: store.id,
+        text: item.text,
+        font_size: item.font_size,
+        sectors: item.sectors,
+      })),
+    )
+
+    if (error) {
+      throw new Error('Erro ao adicionar itens à fila de impressão: ', error)
+    }
+  })
 
 export const checkPrinterExtension = createServerAction().handler(async () => {
   try {
@@ -73,6 +94,7 @@ export const printTableReceipt = createServerAction()
 
     const table = tableData?.table
     const printer = printerData?.printer
+
     if (!printer) {
       return new Response('Impressora não encontrada', { status: 404 })
     }
@@ -85,18 +107,13 @@ export const printTableReceipt = createServerAction()
     const textKitchen = buildReceiptTableText(table, input.reprint)
 
     try {
-      const resKitchen = await fetch('http://localhost:53281/print', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await addToPrintQueue([
+        {
           text: textKitchen,
-          printerName: input.printerName,
-        }),
-      })
-
-      if (!resKitchen.ok) {
-        return new Response('Erro ao enviar para impressora', { status: 500 })
-      }
+          font_size: 2,
+          sectors: ['kitchen'],
+        },
+      ])
     } catch (error) {
       console.error('Erro ao verificar extensão', error)
       return { success: false, error: (error as Error).message }
@@ -107,74 +124,50 @@ export const printPurchaseReceipt = createServerAction()
   .input(
     z.object({
       purchaseId: z.string().optional(),
-      printerName: z.string(),
-      reprint: z.boolean().optional(),
+      reprint: z.boolean().optional().default(false),
     }),
   )
   .handler(async ({ input }) => {
-    const [[purchaseData], [printSettingsData], [printerData]] =
+    const [[purchaseData], [printSettingsData], [printersData]] =
       await Promise.all([
         readPurchaseById({ id: input.purchaseId ?? '' }),
         readPrintingSettings(),
-        readPrinterByName({ name: input.printerName }),
+        readPrinters(),
       ])
 
     const purchase = purchaseData?.purchase ?? purchaseTest
-    const printer = printerData?.printer
+    const printers = printersData?.printers || []
     const fontSize = printSettingsData?.printingSettings?.font_size
 
-    if (!printer) {
-      return new Response('Impressora não encontrada', { status: 404 })
+    if (!printers.length) {
+      return new Response('Nenhuma impressora encontrada', { status: 404 })
     }
 
-    // Resultado parcial
     const result = {
       kitchenPrinted: false,
       deliveryPrinted: false,
+      errors: [] as string[],
     }
 
-    try {
-      if (printer.sectors.length === 0 || printer.sectors.includes('kitchen')) {
-        const textKitchen = buildReceiptKitchenText(purchase, input.reprint)
+    const textKitchen = buildReceiptKitchenText(purchase, input.reprint)
+    const textDelivery = buildReceiptDeliveryText(purchase, input.reprint)
 
-        const resKitchen = await fetch('http://localhost:53281/print', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: textKitchen,
-            printerName: input.printerName,
-            fontSize,
-          }),
-        })
+    await addToPrintQueue([
+      {
+        text: textKitchen,
+        font_size: fontSize,
+        sectors: ['kitchen'],
+      },
+      {
+        text: textDelivery,
+        font_size: fontSize,
+        sectors: ['delivery'],
+      },
+    ])
 
-        if (!resKitchen.ok) throw new Error('Erro ao imprimir na cozinha')
-        result.kitchenPrinted = true
-      }
-
-      if (
-        printer.sectors.length === 0 ||
-        printer.sectors.includes('delivery')
-      ) {
-        const textDelivery = buildReceiptDeliveryText(purchase, input.reprint)
-
-        const resDelivery = await fetch('http://localhost:53281/print', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: textDelivery,
-            printerName: input.printerName,
-            fontSize,
-          }),
-        })
-
-        if (!resDelivery.ok) throw new Error('Erro ao imprimir delivery')
-        result.deliveryPrinted = true
-      }
-
-      return { success: true, ...result }
-    } catch (error) {
-      console.error('Erro ao verificar extensão', error)
-      return { success: false, error: (error as Error).message, ...result }
+    return {
+      success: result.kitchenPrinted || result.deliveryPrinted,
+      ...result,
     }
   })
 
@@ -182,41 +175,28 @@ export const printReportReceipt = createServerAction()
   .input(
     z.object({
       text: z.string(),
-      printerName: z.string(),
     }),
   )
   .handler(async ({ input }) => {
-    const [[printerData]] = await Promise.all([
-      readPrinterByName({ name: input.printerName }),
+    const [[printerData], [printSettingsData]] = await Promise.all([
+      readPrinters(),
+      readPrintingSettings(),
     ])
 
-    const printer = printerData?.printer
-    if (!printer) {
+    const printers = printerData?.printers
+    const fontSize = printSettingsData?.printingSettings?.font_size
+
+    if (!printers) {
       return new Response('Impressora não encontrada', { status: 404 })
     }
 
-    // Se setores definidos e "kitchen" não incluso, não imprime
-    if (printer.sectors.length > 0 && !printer.sectors.includes('balcony')) {
-      return { success: false, skipped: true }
-    }
-
-    try {
-      const resKitchen = await fetch('http://localhost:53281/print', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: input.text,
-          printerName: input.printerName,
-        }),
-      })
-
-      if (!resKitchen.ok) {
-        return new Response('Erro ao enviar para impressora', { status: 500 })
-      }
-    } catch (error) {
-      console.error('Erro ao verificar extensão', error)
-      return { success: false, error: (error as Error).message }
-    }
+    await addToPrintQueue([
+      {
+        text: input.text,
+        font_size: fontSize,
+        sectors: ['balcony'],
+      },
+    ])
   })
 
 export const readPrintingSettings = adminProcedure

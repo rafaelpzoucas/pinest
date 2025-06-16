@@ -1,5 +1,7 @@
 import { PaymentType } from '@/models/payment'
+import { endOfDay, startOfDay } from 'date-fns'
 import { DollarSign } from 'lucide-react'
+import { getSalesReport } from '../reports/actions'
 import {
   readCashReceipts,
   readCashSession,
@@ -15,18 +17,25 @@ import { OpenCashSession } from './open'
 import { CashRegisterSummary } from './summary'
 
 export default async function CashRegister() {
+  const today = new Date()
+
   const [
     [cashSessionData],
     [paymentsData],
     [openPurchasesData],
     [openTablesData],
     [cashReceiptsData],
+    [reportsData],
   ] = await Promise.all([
     readCashSession(),
     readCashSessionPayments(),
     readOpenPurchases(),
     readOpenTables(),
     readCashReceipts(),
+    getSalesReport({
+      start_date: startOfDay(today).toISOString(),
+      end_date: endOfDay(today).toISOString(),
+    }),
   ])
 
   const cashSession = cashSessionData?.cashSession
@@ -130,6 +139,7 @@ export default async function CashRegister() {
                 hasOpenTables={hasOpenTables}
                 cashReceipts={cashReceipts}
                 payments={payments}
+                reports={reportsData}
               />
 
               <CreateTransactionForm />

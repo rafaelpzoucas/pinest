@@ -31,11 +31,16 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  buildProductsSoldReportText,
+  buildSalesReportText,
+} from '@/lib/receipts'
 import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { PaymentType } from '@/models/payment'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
+import { printReportReceipt } from '../config/printing/actions'
 import { closeCashSession } from './actions'
 import { CashForm } from './cash-form'
 import { CreditForm } from './credit-form'
@@ -48,12 +53,14 @@ export function CloseCashSession({
   hasOpenTables,
   cashReceipts,
   payments,
+  reports,
 }: {
   cashSessionId: string
   hasOpenPurchases: boolean
   hasOpenTables: boolean
   cashReceipts?: z.infer<typeof createCashReceiptsSchema>
   payments: PaymentType[]
+  reports: any
 }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isPrinting, setIsPrinting] = useState(false)
@@ -138,19 +145,25 @@ export function CloseCashSession({
     onSuccess: () => {
       setIsSheetOpen(false)
       form.reset()
+
+      executePrintReceipt({
+        text: buildSalesReportText(reports.salesReport),
+      })
+
+      executePrintReceipt({
+        text: buildProductsSoldReportText(reports.productsSold),
+      })
     },
     onError: (error) => {
       console.error(error)
     },
   })
 
+  const { execute: executePrintReceipt } = useServerAction(printReportReceipt)
+
   function onSubmit(values: z.infer<typeof closeCashSessionSchema>) {
     setIsPrinting(true)
     execute(values)
-    window.open(
-      `/admin/cash-register/print?cash_session_id=${cashSessionId}`,
-      '_blank',
-    )
     setIsPrinting(false)
   }
 
