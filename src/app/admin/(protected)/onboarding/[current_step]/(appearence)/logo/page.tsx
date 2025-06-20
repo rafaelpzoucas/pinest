@@ -1,12 +1,14 @@
+import { readStore } from '@/app/admin/(protected)/(app)/config/(options)/layout/actions'
 import { AppearenceForm } from '@/app/admin/(protected)/(app)/config/(options)/layout/appearence'
 import { LogoAvatar } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/logo-avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { readStore } from '../../../actions'
 
 export default async function AddLogo() {
-  const { store } = await readStore()
+  const [storeData] = await readStore()
+
+  const store = storeData?.store
 
   return (
     <div className="flex flex-col justify-center items-center gap-8 pb-16">

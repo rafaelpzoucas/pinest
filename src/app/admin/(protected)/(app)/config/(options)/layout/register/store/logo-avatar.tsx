@@ -9,7 +9,7 @@ import { removeStoreLogo } from './actions'
 import { uploadLogo } from './client-actions'
 import { FileType, LogoUploader } from './logo-uploader'
 
-export function LogoAvatar({ store }: { store: StoreType | null }) {
+export function LogoAvatar({ store }: { store?: StoreType }) {
   const [file, setFile] = useState<FileType[]>([])
 
   async function handleDeleteLogo() {

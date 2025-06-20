@@ -26,8 +26,8 @@ export function SwitchStoreStatus({
   isOpen,
   storeId,
 }: {
-  isOpen: boolean
-  storeId: string
+  isOpen?: boolean
+  storeId?: string
 }) {
   const supabase = createClient()
   const router = useRouter()

@@ -17,7 +17,7 @@ import { CheckCircle2, ChevronsUpDown, Clock } from 'lucide-react'
 import { Card } from '../ui/card'
 import { useSidebar } from '../ui/sidebar'
 
-export function StoreStatus({ store }: { store: StoreType }) {
+export function StoreStatus({ store }: { store?: StoreType }) {
   const { state } = useSidebar()
 
   const isCollapsed = state === 'collapsed'
@@ -32,7 +32,7 @@ export function StoreStatus({ store }: { store: StoreType }) {
                 className="flex items-center justify-center w-8 h-8 data-[collapsed=false]:hidden"
                 data-collapsed={isCollapsed}
               >
-                {store.is_open ? (
+                {store?.is_open ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 ) : (
                   <Clock className="w-4 h-4 text-amber-600" />
@@ -41,7 +41,7 @@ export function StoreStatus({ store }: { store: StoreType }) {
             </TooltipTrigger>
             <TooltipContent side="right">
               <div>
-                {store.is_open ? (
+                {store?.is_open ? (
                   <>
                     <strong className="flex flex-row items-center text-sm text-emerald-600">
                       <CheckCircle2 className="w-4 h-4 mr-2" /> Loja aberta
@@ -71,7 +71,7 @@ export function StoreStatus({ store }: { store: StoreType }) {
           data-collapsed={isCollapsed}
         >
           <div>
-            {store.is_open ? (
+            {store?.is_open ? (
               <>
                 <strong className="flex flex-row items-center text-sm text-emerald-600">
                   <CheckCircle2 className="w-4 h-4 mr-2" /> Loja aberta
@@ -96,7 +96,7 @@ export function StoreStatus({ store }: { store: StoreType }) {
         </Card>
       </PopoverTrigger>
       <PopoverContent align="start">
-        <SwitchStoreStatus isOpen={store.is_open} storeId={store.id} />
+        <SwitchStoreStatus isOpen={store?.is_open} storeId={store?.id} />
       </PopoverContent>
     </Popover>
   )

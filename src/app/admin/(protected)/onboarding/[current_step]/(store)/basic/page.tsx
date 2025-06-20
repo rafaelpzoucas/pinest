@@ -12,7 +12,7 @@ export default async function StoreBasicInformations() {
     <div className="flex flex-col gap-4 pb-16">
       <h1 className="text-3xl font-bold">Informações básicas da loja</h1>
 
-      <StoreForm store={null} marketNiches={marketNiches} />
+      <StoreForm marketNiches={marketNiches} />
     </div>
   )
 }

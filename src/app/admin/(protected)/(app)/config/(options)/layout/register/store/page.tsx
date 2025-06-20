@@ -1,18 +1,17 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readMarketNiches, readStoreById } from './actions'
+import { readStore } from '../../actions'
+import { readMarketNiches } from './actions'
 import { StoreForm } from './form'
 import { LogoAvatar } from './logo-avatar'
 
-export default async function StoreRegister({
-  searchParams,
-}: {
-  searchParams: { id: string }
-}) {
-  const { store, storeError } = await readStoreById(searchParams?.id)
+export default async function StoreRegister() {
+  const [storeData] = await readStore()
   const { marketNiches, readNichesError } = await readMarketNiches()
 
-  if (storeError) {
-    console.error(storeError)
+  const store = storeData?.store
+
+  if (!storeData) {
+    console.error('Erro ao buscar informações da loja.')
   }
 
   if (readNichesError) {
