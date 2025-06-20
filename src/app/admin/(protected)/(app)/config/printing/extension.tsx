@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { checkPrinterExtension } from './actions'
 
-export function Extension() {
+export function Extension({ storeId }: { storeId?: string }) {
   const [isExtensionActive, setIsExtensionActive] = useState(false)
 
   const { execute } = useServerAction(checkPrinterExtension, {
@@ -25,6 +25,29 @@ export function Extension() {
       setIsExtensionActive(false)
     },
   })
+
+  const handleDownload = async () => {
+    console.log({ storeId })
+    try {
+      const response = await fetch(
+        `/api/v1/admin/print/installer?storeId=${storeId}`,
+      )
+      if (!response.ok) throw new Error('Erro ao baixar instalador')
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'PinestPrinter_Setup.exe'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Erro:', error)
+      alert('Erro ao baixar o instalador. Tente novamente.')
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -71,11 +94,9 @@ export function Extension() {
             </span>
           </div>
         ) : (
-          <Button asChild variant="secondary">
-            <a href="/PinestPrinter_Setup.exe" download>
-              <Download className="w-4 h-4" />
-              Baixar extensão
-            </a>
+          <Button variant="secondary" onClick={handleDownload}>
+            <Download className="w-4 h-4" />
+            Baixar extensão
           </Button>
         )}
       </CardContent>

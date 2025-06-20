@@ -30,7 +30,6 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
     useServerAction(acceptPurchase, {
       onSuccess: () => {
         executePrintReceipt({
-          printerName: 'G250',
           purchaseId: purchase.id,
           reprint: false,
         })

@@ -116,7 +116,6 @@ export const createPurchase = adminProcedure
 
     if (printSettings?.auto_print) {
       await printPurchaseReceipt({
-        printerName: 'G250',
         purchaseId: createdPurchase.id,
         reprint: false,
       })
@@ -250,7 +249,6 @@ export const updatePurchase = adminProcedure
 
     if (printSettings?.auto_print) {
       await printPurchaseReceipt({
-        printerName: 'G250',
         purchaseId: updatedPurchase.id,
         reprint: true,
       })
