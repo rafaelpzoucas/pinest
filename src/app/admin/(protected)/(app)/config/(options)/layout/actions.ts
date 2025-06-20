@@ -1,6 +1,7 @@
 'use server'
 
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { StoreType } from '@/models/store'
 import { appearenceFormSchema } from './schemas'
 
 export const readStore = adminProcedure
@@ -8,7 +9,7 @@ export const readStore = adminProcedure
   .handler(async ({ ctx }) => {
     const { store } = ctx
 
-    return { store }
+    return { store: store as StoreType }
   })
 
 export const readStoreHours = adminProcedure
