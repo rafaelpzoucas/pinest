@@ -53,7 +53,7 @@ export function StoreForm({
   store,
   marketNiches,
 }: {
-  store: StoreType | null
+  store?: StoreType
   marketNiches: MarketNicheType[] | null
 }) {
   const router = useRouter()

@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { SidebarHeader, useSidebar } from '../ui/sidebar'
 import { StoreStatus } from './store-status'
 
-export function Header({ store }: { store: StoreType }) {
+export function Header({ store }: { store?: StoreType }) {
   const { state } = useSidebar()
 
   const isCollapsed = state === 'collapsed'

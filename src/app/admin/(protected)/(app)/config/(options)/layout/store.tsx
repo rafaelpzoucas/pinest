@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-export async function Store({ store }: { store: StoreType | null }) {
+export async function Store({ store }: { store?: StoreType }) {
   return (
     <Card className="relative flex flex-col gap-4 p-4">
       <div className="flex flex-row items-center gap-3">

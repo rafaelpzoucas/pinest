@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { readStoreHours } from './actions'
 import { HoursList } from './register/hours/hours-list'
 
-export async function Hours({ store }: { store: StoreType | null }) {
+export async function Hours({ store }: { store?: StoreType }) {
   if (!store) {
     return null
   }

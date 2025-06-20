@@ -32,7 +32,7 @@ const availableThemeColors = [
   { name: 'Green', light: 'bg-green-900', dark: 'bg-green-700' },
 ]
 
-export function AppearenceForm({ store }: { store: StoreType | null }) {
+export function AppearenceForm({ store }: { store?: StoreType }) {
   const { theme } = useTheme()
 
   const form = useForm<z.infer<typeof appearenceFormSchema>>({
