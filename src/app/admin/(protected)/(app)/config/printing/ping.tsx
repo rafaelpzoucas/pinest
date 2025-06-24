@@ -13,7 +13,7 @@ export default function PingButton() {
     setResponse(null)
 
     try {
-      const res = await fetch('http://localhost:53281/ping')
+      const res = await fetch('http://127.0.0.1:53281/ping')
       if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`)
       const data = await res.json()
       setResponse(data.message)

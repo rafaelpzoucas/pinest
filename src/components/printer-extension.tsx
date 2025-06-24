@@ -1,22 +1,32 @@
 'use client'
 
-import { checkPrinterExtension } from '@/app/admin/(protected)/(app)/config/printing/actions'
 import { usePrinterExtensionStore } from '@/stores/printerExtensionStore'
 import { useEffect } from 'react'
-import { useServerAction } from 'zsa-react'
 
 export function PrinterExtensionStatusPoller() {
   const { setIsActive } = usePrinterExtensionStore()
 
-  const { execute } = useServerAction(checkPrinterExtension, {
-    onSuccess: ({ data }) => {
-      setIsActive(data.success)
-    },
-    onError: ({ err }) => {
+  async function checkPrinterExtension() {
+    try {
+      const res = await fetch('http://127.0.0.1:53281/ping', {
+        method: 'GET',
+      })
+
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(`Erro HTTP ${res.status}: ${text}`)
+      }
+
+      setIsActive(true)
+      return { success: true }
+    } catch (error) {
       setIsActive(false)
-      console.log('Erro ao verificar extensão: ', err)
-    },
-  })
+
+      console.error('Erro ao verificar extensão', error)
+
+      return { success: false, error: (error as Error).message }
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -26,7 +36,7 @@ export function PrinterExtensionStatusPoller() {
       if (isExecuting) return
       isExecuting = true
       try {
-        await execute()
+        await checkPrinterExtension()
       } finally {
         isExecuting = false
       }
@@ -42,7 +52,7 @@ export function PrinterExtensionStatusPoller() {
       isMounted = false
       clearInterval(interval)
     }
-  }, [execute])
+  }, [checkPrinterExtension])
 
   return null
 }
