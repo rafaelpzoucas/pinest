@@ -101,7 +101,6 @@ export const readPrintPendingItems = adminProcedure
   })
 
 export const checkPrinterExtension = createServerAction().handler(async () => {
-  console.log('executou')
   try {
     const res = await fetch('http://localhost:53281/ping', {
       method: 'GET',
