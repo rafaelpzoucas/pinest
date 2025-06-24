@@ -59,31 +59,6 @@ export const updatePrintQueueItem = adminProcedure
     }
   })
 
-export const printQueueItem = adminProcedure
-  .createServerAction()
-  .input(printQueueSchema)
-  .handler(async ({ input }) => {
-    try {
-      const response = await fetch('http://localhost:53281/print', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: input.text,
-          printerName: input.printer_name,
-          fontSize: input.font_size,
-        }),
-      })
-
-      if (response.ok && input.id) {
-        updatePrintQueueItem({ id: input.id })
-      }
-    } catch (error) {
-      throw new Error('Erro ao imprimir: ', error as Error)
-    }
-  })
-
 export const readPrintPendingItems = adminProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
@@ -99,24 +74,6 @@ export const readPrintPendingItems = adminProcedure
 
     return { pendingItems: data as PrintQueueType[] }
   })
-
-export const checkPrinterExtension = createServerAction().handler(async () => {
-  try {
-    const res = await fetch('http://localhost:53281/ping', {
-      method: 'GET',
-    })
-
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(`Erro HTTP ${res.status}: ${text}`)
-    }
-
-    return { success: true }
-  } catch (error) {
-    console.error('Erro ao verificar extensão', error)
-    return { success: false, error: (error as Error).message }
-  }
-})
 
 export const readPrinterByName = adminProcedure
   .createServerAction()
@@ -365,7 +322,7 @@ export const upsertPrintingSettings = adminProcedure
 
 export const readAvailablePrinters = createServerAction().handler(async () => {
   try {
-    const res = await fetch('http://localhost:53281/printers', {
+    const res = await fetch('http://127.0.0.1:53281/printers', {
       method: 'GET',
     })
 

@@ -1,8 +1,8 @@
 'use client'
 
 import {
-  printQueueItem,
   readPrintPendingItems,
+  updatePrintQueueItem,
 } from '@/app/admin/(protected)/(app)/config/printing/actions'
 import { PrintQueueType } from '@/app/admin/(protected)/(app)/config/printing/schemas'
 import { createClient } from '@/lib/supabase/client'
@@ -11,20 +11,33 @@ import { useEffect, useRef } from 'react'
 import { useServerAction } from 'zsa-react'
 import { PrinterExtensionStatusPoller } from './printer-extension'
 
+async function printQueueItem(input: PrintQueueType) {
+  try {
+    const response = await fetch('http://127.0.0.1:53281/print', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: input.text,
+        printerName: input.printer_name,
+        fontSize: input.font_size,
+      }),
+    })
+
+    if (response.ok && input.id) {
+      updatePrintQueueItem({ id: input.id })
+    }
+  } catch (error) {
+    throw new Error('Erro ao imprimir: ', error as Error)
+  }
+}
+
 export default function PrintQueueListener() {
   const supabase = createClient()
 
   const { isActive } = usePrinterExtensionStore()
   const wasActive = useRef(false)
-
-  const { execute: executePrintItem } = useServerAction(printQueueItem, {
-    onError: (error) => {
-      console.error(
-        '[PrintQueueListener] Falha ao processar item da fila de impressão:',
-        error,
-      )
-    },
-  })
 
   const { execute: executeReadPendingItems } = useServerAction(
     readPrintPendingItems,
@@ -32,7 +45,7 @@ export default function PrintQueueListener() {
       onSuccess: ({ data }) => {
         if (data) {
           for (const item of data.pendingItems as PrintQueueType[]) {
-            executePrintItem({
+            printQueueItem({
               id: item.id,
               printer_name: item.printer_name,
               text: item.text,
@@ -63,7 +76,7 @@ export default function PrintQueueListener() {
         (payload) => {
           try {
             const newItem = payload.new as PrintQueueType
-            executePrintItem({
+            printQueueItem({
               id: newItem.id,
               printer_name: newItem.printer_name,
               text: newItem.text,

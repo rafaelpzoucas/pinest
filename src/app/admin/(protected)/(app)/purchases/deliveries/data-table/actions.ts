@@ -185,7 +185,7 @@ export async function requestCancellation(
 export async function sendToPrint(purchase: PurchaseType, reprint = false) {
   const textToPrint = buildReceiptKitchenText(purchase, reprint)
 
-  await fetch('http://localhost:53281/print', {
+  await fetch('http://127.0.0.1:53281/print', {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
     body: textToPrint,
