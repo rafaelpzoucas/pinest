@@ -1,12 +1,12 @@
 'use client'
 
 import { usePrinterExtensionStore } from '@/stores/printerExtensionStore'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 export function PrinterExtensionStatusPoller() {
   const { setIsActive } = usePrinterExtensionStore()
 
-  async function checkPrinterExtension() {
+  const checkPrinterExtension = useCallback(async () => {
     try {
       const res = await fetch('http://127.0.0.1:53281/ping', {
         method: 'GET',
@@ -21,12 +21,10 @@ export function PrinterExtensionStatusPoller() {
       return { success: true }
     } catch (error) {
       setIsActive(false)
-
       console.error('Erro ao verificar extensão', error)
-
       return { success: false, error: (error as Error).message }
     }
-  }
+  }, [setIsActive])
 
   useEffect(() => {
     let isMounted = true
@@ -52,7 +50,7 @@ export function PrinterExtensionStatusPoller() {
       isMounted = false
       clearInterval(interval)
     }
-  }, [checkPrinterExtension])
+  }, [checkPrinterExtension]) // agora é memoizada
 
   return null
 }
