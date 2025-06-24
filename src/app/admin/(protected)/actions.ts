@@ -18,6 +18,7 @@ export const createPlanCheckout = adminProcedure
         line_items: [{ price: input.price_id, quantity: 1 }],
         subscription_data: {
           metadata: { store_id: store.id, plan_id: input.plan_id },
+          trial_period_days: 14, // Trial de 14 dias
         },
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/dashboard`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/dashboard`,

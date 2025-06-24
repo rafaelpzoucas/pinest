@@ -57,7 +57,7 @@ export function SubscriptionPlansButton({
         }
         disabled={isPendingCreate}
       >
-        {isPendingCreate ? 'Aguarde...' : 'Assinar agora'}
+        {isPendingCreate ? 'Aguarde...' : 'Começar teste grátis'}
       </Button>
     )
   }
