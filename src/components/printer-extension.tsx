@@ -12,8 +12,9 @@ export function PrinterExtensionStatusPoller() {
     onSuccess: ({ data }) => {
       setIsActive(data.success)
     },
-    onError: () => {
+    onError: ({ err }) => {
       setIsActive(false)
+      console.log('Erro ao verificar extensão: ', err)
     },
   })
 
@@ -35,7 +36,7 @@ export function PrinterExtensionStatusPoller() {
 
     const interval = setInterval(() => {
       if (isMounted) check()
-    }, 15000)
+    }, 30000)
 
     return () => {
       isMounted = false
