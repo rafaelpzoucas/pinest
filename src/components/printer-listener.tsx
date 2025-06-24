@@ -18,19 +18,15 @@ export default function PrintQueueListener() {
   const wasActive = useRef(false)
 
   const { execute: executePrintItem } = useServerAction(printQueueItem, {
-    onSuccess: () => {
-      console.log('Impresso com sucesso!')
-    },
     onError: () => {
       console.error('Erro na impressão.')
     },
   })
+
   const { execute: executeReadPendingItems } = useServerAction(
     readPrintPendingItems,
     {
       onSuccess: ({ data }) => {
-        console.log('Impresso com sucesso!')
-
         if (data) {
           for (const item of data.pendingItems as PrintQueueType[]) {
             executePrintItem({

@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 
@@ -26,9 +27,9 @@ export default function PingButton() {
 
   return (
     <Card className="p-8">
-      <button onClick={handlePing} disabled={loading}>
+      <Button onClick={handlePing} disabled={loading}>
         {loading ? 'Pingando...' : 'Ping'}
-      </button>
+      </Button>
       {response && <p>Resposta: {response}</p>}
     </Card>
   )
