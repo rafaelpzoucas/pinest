@@ -2,7 +2,6 @@ import { readPrinters, readPrintingSettings } from './actions'
 import { AutoPrint } from './auto-print'
 import { Extension } from './extension'
 import { FontSizeSelector } from './font-size'
-import PingButton from './ping'
 import { Printers } from './printers'
 
 export default async function PrintingPage() {
@@ -16,7 +15,6 @@ export default async function PrintingPage() {
 
   return (
     <div className="py-8 space-y-6">
-      <PingButton />
       <Extension />
       <AutoPrint printSettings={printSettings} />
       <Printers printers={printers} />
