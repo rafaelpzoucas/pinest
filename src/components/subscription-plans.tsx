@@ -38,13 +38,15 @@ export async function SubscriptionPlans() {
   return (
     <section id="pricing" className="p-8 py-16 space-y-8">
       <h2 className="text-3xl font-bold text-center">
-        {currentPlan ? 'Faça Upgrade' : 'Assine agora'}
+        {currentPlan
+          ? 'Faça Upgrade de Plano'
+          : 'Experimente a Pinest grátis por 14 dias'}
       </h2>
 
       <p className="text-center mt-4 text-muted-foreground">
         {currentPlan
-          ? 'Esta funcionalidade não está disponível no seu plano atual. Para utilizar faça upgrade.'
-          : 'Assine agora para poder utilizar as funcionalidades da pinest.'}
+          ? 'Esta funcionalidade não está disponível no seu plano atual. Faça upgrade para desbloquear.'
+          : 'Teste todas as funcionalidades da Pinest sem compromisso. Não cobramos nada nos primeiros 14 dias.'}
       </p>
 
       <Tabs defaultValue="annualy" className="flex flex-col items-center">
@@ -89,7 +91,7 @@ export async function SubscriptionPlans() {
                     <CardTitle className="text-2xl">
                       {formatCurrencyBRL(plan.price)}{' '}
                       <span className="text-base text-muted-foreground">
-                        (2 meses grátis)
+                        (2 meses grátis + 14 dias de teste)
                       </span>
                     </CardTitle>
                   </CardHeader>
@@ -155,7 +157,10 @@ export async function SubscriptionPlans() {
                       {plan.name}
                     </CardDescription>
                     <CardTitle className="text-2xl">
-                      {formatCurrencyBRL(plan.price)}
+                      {formatCurrencyBRL(plan.price)}{' '}
+                      <span className="text-base text-muted-foreground">
+                        (14 dias grátis)
+                      </span>
                     </CardTitle>
                   </CardHeader>
 
