@@ -18,8 +18,11 @@ export default function PrintQueueListener() {
   const wasActive = useRef(false)
 
   const { execute: executePrintItem } = useServerAction(printQueueItem, {
-    onError: () => {
-      console.error('Erro na impressão.')
+    onError: (error) => {
+      console.error(
+        '[PrintQueueListener] Falha ao processar item da fila de impressão:',
+        error,
+      )
     },
   })
 
@@ -38,8 +41,11 @@ export default function PrintQueueListener() {
           }
         }
       },
-      onError: () => {
-        console.error('Erro na impressão.')
+      onError: (error) => {
+        console.error(
+          '[PrintQueueListener] Erro ao buscar itens pendentes da fila de impressão:',
+          error,
+        )
       },
     },
   )
@@ -55,14 +61,20 @@ export default function PrintQueueListener() {
           table: 'print_queue',
         },
         (payload) => {
-          const newItem = payload.new as PrintQueueType
-
-          executePrintItem({
-            id: newItem.id,
-            printer_name: newItem.printer_name,
-            text: newItem.text,
-            font_size: newItem.font_size,
-          })
+          try {
+            const newItem = payload.new as PrintQueueType
+            executePrintItem({
+              id: newItem.id,
+              printer_name: newItem.printer_name,
+              text: newItem.text,
+              font_size: newItem.font_size,
+            })
+          } catch (error) {
+            console.error(
+              '[PrintQueueListener] Erro ao processar evento INSERT do Supabase:',
+              error,
+            )
+          }
         },
       )
       .subscribe()
@@ -75,7 +87,14 @@ export default function PrintQueueListener() {
   // Buscar pendentes sempre que a extensão "voltar a ficar ativa"
   useEffect(() => {
     const fetchPendingItems = async () => {
-      executeReadPendingItems()
+      try {
+        executeReadPendingItems()
+      } catch (error) {
+        console.error(
+          '[PrintQueueListener] Erro ao buscar itens pendentes após reativação da extensão:',
+          error,
+        )
+      }
     }
 
     // Detecta transição de offline -> online
