@@ -18,6 +18,7 @@ import {
   printingSettingsSchema,
   PrintingSettingsType,
   printQueueSchema,
+  PrintQueueType,
 } from './schemas'
 
 export const addToPrintQueue = adminProcedure
@@ -42,6 +43,63 @@ export const addToPrintQueue = adminProcedure
     return { success: true }
   })
 
+export const updatePrintQueueItem = adminProcedure
+  .createServerAction()
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const { error } = await supabase
+      .from('print_queue')
+      .update({ printed: true, printed_at: new Date().toISOString() })
+      .eq('id', input.id)
+
+    if (error) {
+      throw new Error('Erro ao atualizar item da fila de impressão', error)
+    }
+  })
+
+export const printQueueItem = adminProcedure
+  .createServerAction()
+  .input(printQueueSchema)
+  .handler(async ({ input }) => {
+    try {
+      const response = await fetch('http://localhost:53281/print', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: input.text,
+          printerName: input.printer_name,
+          fontSize: input.font_size,
+        }),
+      })
+
+      if (response.ok && input.id) {
+        updatePrintQueueItem({ id: input.id })
+      }
+    } catch (error) {
+      throw new Error('Erro ao imprimir: ', error as Error)
+    }
+  })
+
+export const readPrintPendingItems = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data, error } = await supabase
+      .from('print_queue')
+      .select('*')
+      .eq('printed', false)
+      .eq('store_id', store.id)
+
+    if (error) throw new Error('Erro ao buscar itens pendentes: ', error)
+
+    return { pendingItems: data as PrintQueueType[] }
+  })
+
 export const checkPrinterExtension = createServerAction().handler(async () => {
   try {
     const res = await fetch('http://localhost:53281/printers', {
@@ -49,7 +107,7 @@ export const checkPrinterExtension = createServerAction().handler(async () => {
     })
 
     if (!res.ok) {
-      const text = await res.text() // tenta capturar erro bruto
+      const text = await res.text()
       throw new Error(`Erro HTTP ${res.status}: ${text}`)
     }
 

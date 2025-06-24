@@ -1,5 +1,6 @@
 import IfoodHandshakeDisputeSchema from '@/app/api/v1/integrations/ifood/webhook/schemas'
 import { StoreStatus } from '@/app/store-status'
+import PrintQueueListener from '@/components/printer-listener'
 import { AppSidebar } from '@/components/sidebar/app-sidebar'
 import { SubscriptionPlans } from '@/components/subscription-plans'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -55,6 +56,7 @@ export default async function ProtectedLayout({
 
         <IfoodHandshakePlatform event={events[0]} />
         <StoreStatus />
+        <PrintQueueListener />
       </main>
     </SidebarProvider>
   )
