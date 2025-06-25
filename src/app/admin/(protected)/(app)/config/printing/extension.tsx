@@ -35,7 +35,7 @@ export function Extension() {
           </div>
         ) : (
           <Button variant="secondary" asChild>
-            <a href="/Impressora%20Pinest.exe" download>
+            <a href="/impressora-pinest.exe" download>
               <Download className="w-4 h-4" />
               Baixar extensão
             </a>
