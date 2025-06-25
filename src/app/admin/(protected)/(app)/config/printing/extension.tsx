@@ -36,7 +36,8 @@ export function Extension() {
         ) : (
           <Button variant="secondary" asChild>
             <a
-              href="https://drive.google.com/uc?export=download&id=1jSmBm14-QBPPb37rFvwLIAyEffBptXpu"
+              href="https://uguiyoavathssoqpzxrq.supabase.co/storage/v1/object/public/printer//impressora-pinest.exe"
+              download
               target="_blank"
               rel="noopener noreferrer"
             >

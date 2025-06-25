@@ -35,7 +35,7 @@ export function Deliveries({
   const router = useRouter()
 
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('in_progress')
 
   const normalizeString = (str: string | undefined) => str?.toLowerCase() || ''
 
@@ -52,34 +52,24 @@ export function Deliveries({
 
   const statusFilters = [
     {
-      status: 'accept',
-      title: 'aguardando',
-      status_length: getStatusLengths('accept'),
-    },
-    {
-      status: 'pending',
-      title: 'pendente(s)',
-      status_length: getStatusLengths('pending'),
-    },
-    {
-      status: 'preparing',
-      title: 'em preparo',
-      status_length: getStatusLengths('preparing'),
-    },
-    {
-      status: 'shipped',
-      title: 'enviado(s)',
-      status_length: getStatusLengths('shipped'),
+      status: 'in_progress',
+      title: 'em andamento',
+      status_length: getStatusLengths([
+        'accept',
+        'pending',
+        'preparing',
+        'shipped',
+      ]),
     },
     {
       status: 'delivered',
-      title: 'entregue(s)',
-      status_length: getStatusLengths('delivered'),
+      title: 'finalizada(s)',
+      status_length: getStatusLengths(['delivered']),
     },
     {
       status: 'cancelled',
-      title: 'cancelado(s)',
-      status_length: getStatusLengths('cancelled'),
+      title: 'cancelada(s)',
+      status_length: getStatusLengths(['cancelled']),
     },
   ]
 
@@ -87,12 +77,11 @@ export function Deliveries({
     (delivery) => delivery.status === 'accept',
   )
 
-  function getStatusLengths(status: string) {
-    const statusLength = deliveries?.filter(
-      (delivery) => delivery.status === status,
+  function getStatusLengths(statuses: string[]) {
+    return (
+      deliveries?.filter((delivery) => statuses.includes(delivery.status))
+        .length || 0
     )
-
-    return statusLength?.length
   }
 
   const sortedDeliveries = deliveries
@@ -109,7 +98,13 @@ export function Deliveries({
     const matchesSearch =
       normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
       id.includes(searchStr)
-    const matchesStatus = statusFilter ? status === statusFilter : true
+
+    const matchesStatus =
+      statusFilter === 'in_progress'
+        ? ['accept', 'pending', 'preparing', 'shipped'].includes(status)
+        : statusFilter
+          ? status === statusFilter
+          : true
 
     return matchesSearch && matchesStatus
   })
@@ -217,7 +212,7 @@ export function Deliveries({
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}
-            className={`p-2 px-4 flex flex-col text-xl
+            className={`p-2 px-4 flex flex-col text-xl select-none cursor-pointer
             ${statusFilter === filter.status ? 'border-primary' : ''}`}
             onClick={() => handleStatusClick(filter.status)}
           >
