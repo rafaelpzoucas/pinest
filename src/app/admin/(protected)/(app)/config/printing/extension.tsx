@@ -35,7 +35,11 @@ export function Extension() {
           </div>
         ) : (
           <Button variant="secondary" asChild>
-            <a href="/impressora-pinest.exe" download>
+            <a
+              href="https://drive.google.com/uc?export=download&id=1jSmBm14-QBPPb37rFvwLIAyEffBptXpu"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download className="w-4 h-4" />
               Baixar extensão
             </a>
