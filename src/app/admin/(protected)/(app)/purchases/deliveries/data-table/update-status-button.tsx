@@ -77,20 +77,20 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
           >
             {!accepted ? (
               <>
-                <span>Aceitar pedido</span>
                 <Check className="w-5 h-5" />
+                <span>Aceitar pedido</span>
               </>
             ) : isPending || isAcceptPending ? (
               <>
-                <span>Carregando</span>
                 <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Carregando</span>
               </>
             ) : (
               <>
+                <FastForward className="w-5 h-5" />
                 <span>
                   {statuses[currentStatus as StatusKey]?.action_text as string}
                 </span>
-                <FastForward className="w-5 h-5" />
               </>
             )}
           </Button>

@@ -97,9 +97,12 @@ export const columns: ColumnDef<PurchaseType>[] = [
     cell: ({ row }) => {
       const status = row.getValue('status')
       const isPaid = row.original.is_paid
+      const cancelled = status === 'cancelled'
+
       return (
         <Badge className={cn(statuses[status as StatusKey].color)}>
-          {statuses[status as StatusKey].status} {isPaid ? ' - Pago' : ''}
+          {statuses[status as StatusKey].status}{' '}
+          {!cancelled && isPaid ? ' - Pago' : ''}
         </Badge>
       )
     },
