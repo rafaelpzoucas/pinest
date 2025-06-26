@@ -36,11 +36,7 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
       },
     })
 
-  const { execute, isPending } = useServerAction(updatePurchaseStatus, {
-    onSuccess: () => {
-      console.log('Status updated.')
-    },
-  })
+  const { execute, isPending } = useServerAction(updatePurchaseStatus)
 
   async function handleUpdateStatus(status: string) {
     if (!accepted) {
