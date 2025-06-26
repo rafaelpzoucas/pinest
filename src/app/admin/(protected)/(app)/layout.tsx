@@ -1,5 +1,6 @@
 import IfoodHandshakeDisputeSchema from '@/app/api/v1/integrations/ifood/webhook/schemas'
 import { StoreStatus } from '@/app/store-status'
+import { OpenCashSessionToast } from '@/components/open-cash-session-toast'
 import PrintQueueListener from '@/components/printer-listener'
 import { AppSidebar } from '@/components/sidebar/app-sidebar'
 import { SubscriptionPlans } from '@/components/subscription-plans'
@@ -9,6 +10,7 @@ import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { readLastEvents, readStoreSubscriptionStatus } from './actions'
+import { readCashSession } from './cash-register/actions'
 import { IfoodHandshakePlatform } from './ifood-handshake-platform'
 import { MobileNavigation } from './navigation'
 import { SoundNotification } from './sound-notification'
@@ -28,8 +30,11 @@ export default async function ProtectedLayout({
     public_store: string
   }
 }>) {
-  const [data] = await readLastEvents()
-  const [subscription] = await readStoreSubscriptionStatus()
+  const [[data], [subscription], [cashSessionData]] = await Promise.all([
+    readLastEvents(),
+    readStoreSubscriptionStatus(),
+    readCashSession(),
+  ])
 
   const events: z.infer<typeof IfoodHandshakeDisputeSchema>[] =
     (data && data.events && data.events) ?? []
@@ -37,6 +42,8 @@ export default async function ProtectedLayout({
   const isSubscriptionActive = subscription?.subscriptionStatus === 'active'
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true'
+
+  const cashSession = cashSessionData?.cashSession
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
@@ -57,6 +64,8 @@ export default async function ProtectedLayout({
         <IfoodHandshakePlatform event={events[0]} />
         <StoreStatus />
         <PrintQueueListener />
+
+        <OpenCashSessionToast cashSession={cashSession} />
       </main>
     </SidebarProvider>
   )
