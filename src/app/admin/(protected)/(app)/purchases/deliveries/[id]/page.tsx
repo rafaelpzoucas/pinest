@@ -35,7 +35,7 @@ export default async function OrderPage({
   const customer = purchase?.store_customers?.customers
   const customerAddress = !isIfood
     ? formatAddress(purchase?.store_customers.customers.address)
-    : `${ifoodAddress.streetName}, ${ifoodAddress.streetNumber}`
+    : `${ifoodAddress?.streetName}, ${ifoodAddress?.streetNumber}`
 
   const variations = purchase?.purchase_item_variations
 
@@ -371,9 +371,9 @@ export default async function OrderPage({
             </div>
           </header>
 
-          {isIfood && ifoodOrderData.delivery.observations && (
+          {isIfood && ifoodOrderData?.delivery?.observations && (
             <div>
-              <p>OBS: {ifoodOrderData.delivery.observations}</p>
+              <p>OBS: {ifoodOrderData?.delivery?.observations}</p>
             </div>
           )}
 
@@ -383,9 +383,9 @@ export default async function OrderPage({
             </div>
           )}
 
-          {isIfood && ifoodOrderData?.delivery.pickupCode && (
+          {isIfood && ifoodOrderData?.delivery?.pickupCode && (
             <div>
-              <p>Código de coleta: {ifoodOrderData?.delivery.pickupCode}</p>
+              <p>Código de coleta: {ifoodOrderData?.delivery?.pickupCode}</p>
             </div>
           )}
 

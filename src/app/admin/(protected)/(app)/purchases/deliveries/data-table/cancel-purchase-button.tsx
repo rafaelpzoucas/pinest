@@ -39,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 import { CancellationReasonsType } from '@/models/ifood'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -98,10 +99,16 @@ export function CancelPurchaseButton({
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <AlertDialogTrigger
-              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              className={cn(
+                buttonVariants({
+                  variant: !accepted ? 'destructive' : 'ghost',
+                  size: !accepted ? 'default' : 'icon',
+                }),
+              )}
               onClick={handleGetCancellationReasons}
             >
               <X className="w-5 h-5" />
+              {!accepted && <span>Recusar pedido</span>}
             </AlertDialogTrigger>
           </TooltipTrigger>
           <TooltipContent>

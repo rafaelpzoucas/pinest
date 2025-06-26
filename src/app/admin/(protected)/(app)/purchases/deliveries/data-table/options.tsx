@@ -39,25 +39,7 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
 
   return (
     <>
-      <div className="hidden lg:flex flex-row justify-end">
-        {accepted && !isPaid && (
-          <TooltipProvider>
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={`purchases/deliveries/register?purchase_id=${purchase?.id}`}
-                  className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-                >
-                  <Edit className="w-5 h-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Editar pedido</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-
+      <div className="hidden lg:flex flex-row justify-end gap-1">
         <UpdateStatusButton purchase={purchase} />
 
         {accepted && delivered && !isPaid && (
@@ -66,16 +48,21 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
               <TooltipTrigger asChild>
                 {isIfood ? (
                   <Button
-                    variant="ghost"
-                    size="icon"
+                    variant="secondary"
                     onClick={() =>
                       executeCloseBill({ purchase_id: purchase.id })
                     }
                   >
                     {isCloseBillPending ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Fechando...</span>
+                      </>
                     ) : (
-                      <BadgeDollarSign className="w-5 h-5" />
+                      <>
+                        <BadgeDollarSign className="w-5 h-5" />
+                        <span>Fechar venda</span>
+                      </>
                     )}
                   </Button>
                 ) : (
@@ -86,11 +73,11 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
                         : '/admin/cash-register'
                     }
                     className={buttonVariants({
-                      variant: 'ghost',
-                      size: 'icon',
+                      variant: 'secondary',
                     })}
                   >
                     <BadgeDollarSign className="w-5 h-5" />
+                    <span>Fechar venda</span>
                   </Link>
                 )}
               </TooltipTrigger>
@@ -104,6 +91,24 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
                     <p>Para fechar a venda, é necessário abrir o caixa.</p>
                   </div>
                 )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {accepted && !isPaid && (
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={`purchases/deliveries/register?purchase_id=${purchase?.id}`}
+                  className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+                >
+                  <Edit className="w-5 h-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Editar pedido</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

@@ -36,11 +36,7 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
       },
     })
 
-  const { execute, isPending } = useServerAction(updatePurchaseStatus, {
-    onSuccess: () => {
-      console.log('Status updated.')
-    },
-  })
+  const { execute, isPending } = useServerAction(updatePurchaseStatus)
 
   async function handleUpdateStatus(status: string) {
     if (!accepted) {
@@ -71,8 +67,8 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <Button
-            variant="ghost"
-            size="icon"
+            variant={!accepted ? 'default' : 'secondary'}
+            // size="icon"
             onClick={() =>
               handleUpdateStatus(
                 statuses[currentStatus as StatusKey].next_status as string,
@@ -80,11 +76,22 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
             }
           >
             {!accepted ? (
-              <Check className="w-5 h-5" />
+              <>
+                <Check className="w-5 h-5" />
+                <span>Aceitar pedido</span>
+              </>
             ) : isPending || isAcceptPending ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Carregando</span>
+              </>
             ) : (
-              <FastForward className="w-5 h-5" />
+              <>
+                <FastForward className="w-5 h-5" />
+                <span>
+                  {statuses[currentStatus as StatusKey]?.action_text as string}
+                </span>
+              </>
             )}
           </Button>
         </TooltipTrigger>

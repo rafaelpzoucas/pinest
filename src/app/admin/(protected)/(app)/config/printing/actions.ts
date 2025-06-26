@@ -179,11 +179,7 @@ export const printPurchaseReceipt = createServerAction()
     const purchase = purchaseData?.purchase ?? purchaseTest
     const printers = printersData?.printers || []
     const printingSettings = printSettingsData?.printingSettings
-    const fontSize = printSettingsData?.printingSettings?.font_size
-
-    if (!printingSettings?.auto_print) {
-      return
-    }
+    const fontSize = printingSettings?.font_size
 
     if (!printers.length) {
       return new Response('Nenhuma impressora encontrada', { status: 404 })

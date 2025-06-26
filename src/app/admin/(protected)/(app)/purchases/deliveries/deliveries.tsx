@@ -59,6 +59,7 @@ export function Deliveries({
         'pending',
         'preparing',
         'shipped',
+        'readyToPickup',
       ]),
     },
     {
@@ -79,8 +80,31 @@ export function Deliveries({
 
   function getStatusLengths(statuses: string[]) {
     return (
-      deliveries?.filter((delivery) => statuses.includes(delivery.status))
-        .length || 0
+      deliveries?.filter((delivery) => {
+        const isDelivered = statuses.includes('delivered')
+        const isInProgress =
+          statuses.includes('accept') ||
+          statuses.includes('pending') ||
+          statuses.includes('preparing') ||
+          statuses.includes('shipped') ||
+          statuses.includes('readyToPickup')
+
+        if (isDelivered && !isInProgress) {
+          // contagem para "Finalizadas"
+          return delivery.status === 'delivered' && delivery.is_paid === true
+        }
+
+        if (isInProgress) {
+          // contagem para "Em andamento", incluindo delivered não pago
+          return (
+            statuses.includes(delivery.status) ||
+            (delivery.status === 'delivered' && delivery.is_paid === false)
+          )
+        }
+
+        // fallback
+        return statuses.includes(delivery.status)
+      }).length || 0
     )
   }
 
@@ -101,10 +125,19 @@ export function Deliveries({
 
     const matchesStatus =
       statusFilter === 'in_progress'
-        ? ['accept', 'pending', 'preparing', 'shipped'].includes(status)
-        : statusFilter
-          ? status === statusFilter
-          : true
+        ? [
+            'accept',
+            'pending',
+            'preparing',
+            'shipped',
+            'readyToPickup',
+          ].includes(status) ||
+          (status === 'delivered' && delivery.is_paid === false)
+        : statusFilter === 'delivered'
+          ? status === 'delivered' && delivery.is_paid === true
+          : statusFilter
+            ? status === statusFilter
+            : true
 
     return matchesSearch && matchesStatus
   })
