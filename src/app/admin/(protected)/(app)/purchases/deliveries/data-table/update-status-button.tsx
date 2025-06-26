@@ -67,8 +67,8 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <Button
-            variant="ghost"
-            size="icon"
+            variant={!accepted ? 'default' : 'secondary'}
+            // size="icon"
             onClick={() =>
               handleUpdateStatus(
                 statuses[currentStatus as StatusKey].next_status as string,
@@ -76,11 +76,22 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
             }
           >
             {!accepted ? (
-              <Check className="w-5 h-5" />
+              <>
+                <span>Aceitar pedido</span>
+                <Check className="w-5 h-5" />
+              </>
             ) : isPending || isAcceptPending ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <>
+                <span>Carregando</span>
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </>
             ) : (
-              <FastForward className="w-5 h-5" />
+              <>
+                <span>
+                  {statuses[currentStatus as StatusKey]?.action_text as string}
+                </span>
+                <FastForward className="w-5 h-5" />
+              </>
             )}
           </Button>
         </TooltipTrigger>
