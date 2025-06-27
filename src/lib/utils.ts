@@ -173,8 +173,10 @@ export async function isSameCity(cep1: string, cep2: string) {
   }
 }
 
-export const getRootPath = (storeSubdomain: string | undefined | null) =>
-  process.env.NODE_ENV !== 'production' ? `${storeSubdomain}` : ''
+export const getRootPath = (storeSubdomain: string | undefined | null) => {
+  if (!storeSubdomain) return ''
+  return `${storeSubdomain}`
+}
 
 export const createPath = (
   path: string,

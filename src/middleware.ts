@@ -1,13 +1,8 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 
-const IGNORED_HOSTS = [
-  'staging-pinest.vercel.app',
-  'staging.pinest.com.br',
-  'pinest.vercel.app',
-  'pinest.com.br',
-  'www.pinest.com.br',
-]
+const STAGING_DOMAINS = ['staging.pinest.com.br', 'staging-pinest.vercel.app']
+const PRODUCTION_DOMAINS = ['pinest.com.br', 'www.pinest.com.br']
 const IGNORED_PATHS = ['/admin', '/api']
 
 export async function middleware(request: NextRequest) {
@@ -16,50 +11,55 @@ export async function middleware(request: NextRequest) {
   const pathname = url.pathname
 
   const isLocalhost = hostname.startsWith('localhost')
-
-  // Ignora hosts específicos em produção
-  if (!isLocalhost && IGNORED_HOSTS.includes(hostname)) {
-    return await updateSession(request)
-  }
+  const isStaging = STAGING_DOMAINS.includes(hostname)
+  const isProduction = PRODUCTION_DOMAINS.includes(hostname)
 
   // Ignora paths específicos
   if (IGNORED_PATHS.some((p) => pathname.startsWith(p))) {
     return await updateSession(request)
   }
 
-  let subdomain: string | null = null
-
-  if (isLocalhost) {
-    // Extrai o primeiro segmento da rota (ex: /sanduba/checkout)
+  // Caso localhost ou staging: extrai subdomínio da pathname
+  if (isLocalhost || isStaging) {
     const segments = pathname.split('/').filter(Boolean)
-    subdomain = segments[0] || null
-  } else {
-    // Extrai subdomínio do host (excluindo www)
+    const subdomain = segments[0] || null
+
+    if (!subdomain) {
+      return await updateSession(request)
+    }
+
+    const newUrl = request.nextUrl.clone()
+    newUrl.pathname = `/${subdomain}${pathname.slice(subdomain.length + 1)}`
+
+    const response = NextResponse.rewrite(newUrl)
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
+    await updateSession(request)
+    return response
+  }
+
+  // Produção
+  if (isProduction) {
     const parts = hostname.split('.')
-    subdomain =
+    const subdomain =
       parts.length > 2 ? (parts[0] === 'www' ? parts[1] : parts[0]) : null
+
+    if (!subdomain) {
+      // Dominio raiz => renderiza landing page
+      return await updateSession(request)
+    }
+
+    // Subdomínio de produção (ex: sanduba.pinest.com.br)
+    const newUrl = request.nextUrl.clone()
+    newUrl.pathname = `/${subdomain}${pathname}`
+
+    const response = NextResponse.rewrite(newUrl)
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
+    await updateSession(request)
+    return response
   }
 
-  if (!subdomain) {
-    return await updateSession(request)
-  }
-
-  // Reescreve a URL com os searchParams preservados
-  const response = isLocalhost
-    ? NextResponse.next()
-    : (() => {
-        const newUrl = request.nextUrl.clone()
-        newUrl.pathname = `/${subdomain}${pathname}`
-        return NextResponse.rewrite(newUrl)
-      })()
-
-  // Seta cookie com subdomínio
-  response.cookies.set('public_store_subdomain', subdomain, {
-    path: '/',
-  })
-
-  await updateSession(request)
-  return response
+  // Caso nenhum domínio conhecido (fallback)
+  return await updateSession(request)
 }
 
 export const config = {
