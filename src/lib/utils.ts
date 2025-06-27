@@ -175,7 +175,24 @@ export async function isSameCity(cep1: string, cep2: string) {
 
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
   if (!storeSubdomain) return ''
-  return `${storeSubdomain}`
+
+  const isLocalhost =
+    typeof window !== 'undefined'
+      ? window.location.hostname.startsWith('localhost')
+      : process.env.NODE_ENV !== 'production'
+
+  const isStaging =
+    typeof window !== 'undefined'
+      ? ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
+          window.location.hostname,
+        )
+      : false // assume false no server, ou ajuste conforme necessário
+
+  if (isLocalhost || isStaging) {
+    return `${storeSubdomain}`
+  }
+
+  return '' // produção usa reescrita, não precisa prefixar
 }
 
 export const createPath = (
