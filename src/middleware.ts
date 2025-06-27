@@ -1,7 +1,13 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 
-const IGNORED_HOSTS = ['pinest.com.br', 'www.pinest.com.br']
+const IGNORED_HOSTS = [
+  'staging-pinest.vercel.app',
+  'staging.pinest.com.br',
+  'pinest.vercel.app',
+  'pinest.com.br',
+  'www.pinest.com.br',
+]
 const IGNORED_PATHS = ['/admin', '/api']
 
 export async function middleware(request: NextRequest) {
