@@ -16,6 +16,7 @@ export function ProductInfo({
   storeAddress,
   cartProduct,
   extras,
+  observations,
 }: {
   isOpen?: boolean
   product?: ProductType
@@ -23,6 +24,7 @@ export function ProductInfo({
   storeAddress: AddressType
   cartProduct?: CartProductType
   extras?: ExtraType[]
+  observations?: string[]
 }) {
   if (!product) {
     return null
@@ -69,6 +71,7 @@ export function ProductInfo({
         variations={variations}
         cartProduct={cartProduct}
         extras={extras}
+        observations={observations}
       />
 
       {productHasDimensions && (

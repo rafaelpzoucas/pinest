@@ -103,7 +103,7 @@ async function updateCartProduct(
       extras: newItem.extras,
     })
     .eq('session_id', cartSession)
-    .eq('product_id', newItem.product_id)
+    .eq('id', newItem.id)
     .select()
 
   if (updatedCartProductError) {
