@@ -23,8 +23,10 @@ import { Input } from '@/components/ui/input'
 import { ExtraType } from '@/models/extras'
 import { useProduct } from '@/stores/productStore'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 import { addToCart } from '../../cart/actions'
 import { ExtrasSection } from './extras'
 
@@ -53,6 +55,7 @@ type AddToCardDrawerProps = {
   variations?: ProductVariationType[]
   cartProduct?: CartProductType
   extras?: ExtraType[]
+  observations?: string[]
 }
 
 export function AddToCart({
@@ -61,7 +64,11 @@ export function AddToCart({
   variations,
   cartProduct,
   extras,
+  observations,
 }: AddToCardDrawerProps) {
+  const searchParams = useSearchParams()
+  const cartProductId = searchParams.get('cart_product_id')
+
   const selectedVariations = cartProduct?.product_variations
 
   const {
@@ -132,7 +139,7 @@ export function AddToCart({
     defaultValues: {
       variations: selectedVariations ?? defaultVariations,
       quantity: amount ?? 1,
-      observations: '',
+      observations: observations ? observations[0] : '',
     },
   })
 
@@ -153,8 +160,28 @@ export function AddToCart({
       return total + extra.price * extra.quantity // Corrige a multiplicação de preço e quantidade do extra
     }, 0)
 
-  const formState = form.formState
-  const isFormSubmitting = formState.isSubmitting
+  const { execute: executeAddToCart, isPending: isAddToCartPending } =
+    useServerAction(addToCart, {
+      onSuccess: () => {
+        toast(
+          cartProductId
+            ? 'Produto atualizado no carrinho.'
+            : 'Produto(s) adicionado(s) ao carrinho.',
+        )
+        if (!cartProductId) {
+          form.reset({
+            variations: selectedVariations ?? defaultVariations,
+            quantity: amount ?? 1,
+            observations: '',
+          })
+        }
+        setSelectedExtras(getMergedExtras())
+      },
+      onError: ({ err }) => {
+        toast(`Ocorreu um erro, tente novamente`)
+        console.error(err)
+      },
+    })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const newCartProduct: CartProductType = {
@@ -168,12 +195,7 @@ export function AddToCart({
       extras: selectedExtras.filter((item) => item.quantity > 0),
     }
 
-    await addToCart({ newItem: newCartProduct })
-
-    toast(`Produto(s) adicionado(s) ao carrinho.`)
-
-    form.reset()
-    setSelectedExtras(getMergedExtras())
+    executeAddToCart({ newItem: newCartProduct })
   }
 
   useEffect(() => {
@@ -314,9 +336,9 @@ export function AddToCart({
               <Button
                 className="flex flex-row items-center justify-between w-full max-w-md"
                 type="submit"
-                disabled={isFormSubmitting || product.stock === 0 || !isOpen}
+                disabled={isAddToCartPending || product.stock === 0 || !isOpen}
               >
-                {isFormSubmitting ? (
+                {isAddToCartPending ? (
                   <span className="flex flex-row items-center gap-1">
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     {cartProduct ? 'Atualizando' : 'Adicionando'}

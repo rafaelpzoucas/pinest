@@ -104,6 +104,7 @@ export default async function ProductPage({
               storeAddress={storeAddress}
               cartProduct={cartProduct}
               extras={extras}
+              observations={cartProduct?.observations}
             />
           )}
         </div>
