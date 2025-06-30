@@ -35,8 +35,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
+import Image from 'next/image'
 import { useServerAction } from 'zsa-react'
-import { handleDisputeAction } from './actions'
+import { handleDisputeAction, readIfoodIntegration } from './actions'
 
 const FormSchema = z.object({
   reason: z
@@ -46,6 +47,19 @@ const FormSchema = z.object({
     })
     .max(250, { message: 'Limite de caracteres excedido. (max. 250)' }),
 })
+
+function extractIfoodIds(url: string) {
+  const parts = url.split('/')
+  const orderIndex = parts.indexOf('orders')
+  const evidenceIndex = parts.indexOf('cancellationEvidences')
+
+  if (orderIndex === -1 || evidenceIndex === -1) return null
+
+  return {
+    orderId: parts[orderIndex + 1],
+    evidenceId: parts[evidenceIndex + 1],
+  }
+}
 
 export function IfoodHandshakePlatform({
   event,
@@ -60,10 +74,23 @@ export function IfoodHandshakePlatform({
 
   const [isOpen, setIsOpen] = useState(!!event)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
+  const [accessToken, setAccessToken] = useState('')
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
 
   const [timeLeft, setTimeLeft] = useState<string>('00:00:00')
 
   const { execute } = useServerAction(handleDisputeAction)
+  const { execute: executeReadIfoodIntegration } = useServerAction(
+    readIfoodIntegration,
+    {
+      onSuccess: ({ data }) => {
+        setAccessToken(data.ifoodIntegration.access_token)
+      },
+    },
+  )
+
+  const orderId = event?.orderId
 
   function handleHandshakeAction(action: 'accept' | 'reject', reason: string) {
     execute({
@@ -143,6 +170,10 @@ export function IfoodHandshakePlatform({
     return () => clearInterval(interval)
   }, [expiresAt])
 
+  useEffect(() => {
+    executeReadIfoodIntegration()
+  }, [])
+
   return (
     <>
       <Sheet open={isOpen}>
@@ -161,12 +192,35 @@ export function IfoodHandshakePlatform({
                   <strong>{event?.metadata.message}</strong>
 
                   {evidences.length > 0 ? (
-                    <>
-                      <p>Imagens: ({evidences.length})</p>
-                      <span className="text-muted-foreground text-sm">
-                        Veja no Gestor de Pedidos do Ifood.
-                      </span>
-                    </>
+                    <ul className="mt-4 grid grid-cols-3 gap-2">
+                      {evidences.map((evidence) => {
+                        const evidenceId = extractIfoodIds(
+                          evidence.url,
+                        )?.evidenceId
+                        const imageUrl = `/api/v1/integrations/ifood/evidence-image?id=${evidenceId}&orderId=${orderId}&accessToken=${accessToken}`
+
+                        return (
+                          <li key={evidence.url}>
+                            <button
+                              onClick={() => {
+                                setSelectedImageUrl(imageUrl)
+                                setIsImageDialogOpen(true)
+                              }}
+                              className="overflow-hidden rounded-md border transition-all hover:ring-2 hover:ring-ring
+                                hover:ring-offset-2"
+                            >
+                              <Image
+                                src={imageUrl}
+                                alt="Evidência do cancelamento"
+                                width={100}
+                                height={100}
+                                className="aspect-square object-cover"
+                              />
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
                   ) : null}
                 </CardContent>
               </Card>
@@ -235,6 +289,31 @@ export function IfoodHandshakePlatform({
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Visualizar Evidência</DialogTitle>
+          </DialogHeader>
+          {selectedImageUrl && (
+            <div className="relative mt-4 h-[70vh]">
+              <Image
+                src={selectedImageUrl}
+                alt="Evidência do cancelamento em tamanho ampliado"
+                fill
+                className="object-contain"
+              />
+            </div>
+          )}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Fechar
+              </Button>
+            </DialogClose>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
