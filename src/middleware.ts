@@ -1,4 +1,4 @@
-import { updateSession } from '@/lib/supabase/middleware'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 
 const STAGING_DOMAINS = ['staging.pinest.com.br', 'staging-pinest.vercel.app']
@@ -6,6 +6,60 @@ const PRODUCTION_ROOT_DOMAINS = ['pinest.com.br', 'www.pinest.com.br']
 const IGNORED_PATHS = ['/admin', '/api']
 
 export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    },
+  )
+
+  await supabase.auth.getUser()
+
   const url = request.nextUrl.clone()
   const hostname = request.headers.get('host') || ''
   const pathname = url.pathname
@@ -18,7 +72,7 @@ export async function middleware(request: NextRequest) {
 
   // Ignora paths específicos
   if (IGNORED_PATHS.some((p) => pathname.startsWith(p))) {
-    return await updateSession(request)
+    return response
   }
 
   // localhost ou staging → subdomínio no path
@@ -27,16 +81,23 @@ export async function middleware(request: NextRequest) {
     const subdomain = segments[0] || null
 
     if (!subdomain) {
-      return await updateSession(request)
+      return response
     }
 
     const newUrl = url.clone()
     newUrl.pathname = `/${subdomain}${pathname.slice(subdomain.length + 1)}`
 
-    const response = NextResponse.rewrite(newUrl)
-    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
-    await updateSession(request)
-    return response
+    const rewriteResponse = NextResponse.rewrite(newUrl)
+
+    response.cookies
+      .getAll()
+      .forEach((cookie) => rewriteResponse.cookies.set(cookie))
+
+    rewriteResponse.cookies.set('public_store_subdomain', subdomain, {
+      path: '/',
+    })
+
+    return rewriteResponse
   }
 
   // produção com subdomínio (ex: nomedaloja.pinest.com.br)
@@ -47,14 +108,20 @@ export async function middleware(request: NextRequest) {
     const newUrl = url.clone()
     newUrl.pathname = `/${subdomain}${pathname}`
 
-    const response = NextResponse.rewrite(newUrl)
-    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
-    await updateSession(request)
-    return response
+    const rewriteResponse = NextResponse.rewrite(newUrl)
+
+    response.cookies
+      .getAll()
+      .forEach((cookie) => rewriteResponse.cookies.set(cookie))
+
+    rewriteResponse.cookies.set('public_store_subdomain', subdomain, {
+      path: '/',
+    })
+    return rewriteResponse
   }
 
   // produção sem subdomínio (landing page)
-  return await updateSession(request)
+  return response
 }
 
 export const config = {

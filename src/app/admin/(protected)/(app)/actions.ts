@@ -28,6 +28,26 @@ export async function readOwner(): Promise<{
   return { owner, ownerError }
 }
 
+export const readIfoodIntegration = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { supabase, store } = ctx
+
+    const { data: ifood, error: ifoodError } = await supabase
+      .from('ifood_integrations')
+      .select('*')
+      .eq('store_id', store.id)
+      .single()
+
+    if (ifoodError) {
+      throw new Error('Erro ao buscar integração com Ifood: ', ifoodError)
+    }
+
+    return {
+      ifoodIntegration: ifood,
+    }
+  })
+
 export const updateStoreStatus = adminProcedure
   .createServerAction()
   .input(z.object({ isOpen: z.boolean() }))
@@ -155,6 +175,8 @@ export const handleDisputeAction = adminProcedure
     if (deleteEventError) {
       console.error('Erro ao deletar o evento de handshake: ', deleteEventError)
     }
+
+    return { accessToken: ifood.access_token }
   })
 
 export const readStoreSubscriptionStatus = adminProcedure

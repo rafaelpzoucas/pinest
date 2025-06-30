@@ -2,6 +2,7 @@
 
 import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { buttonVariants } from '@/components/ui/button'
 import {
@@ -19,10 +20,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-
 import { cn } from '@/lib/utils'
 import { LinkType } from '@/models/nav-links'
-import { usePathname } from 'next/navigation'
 
 interface NavProps {
   isCollapsed: boolean
@@ -30,49 +29,49 @@ interface NavProps {
 }
 
 function Collapsed({ link, pathname }: { link: LinkType; pathname: string }) {
-  return (
-    <HoverCard openDelay={0}>
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          <HoverCardTrigger asChild>
-            <Link
-              href={link.route ?? '#'}
-              className={cn(
-                `${buttonVariants({ variant:
-                pathname.startsWith(link.route)
-                    ? 'default'
-                    : 'ghost',
-                size: 'icon', })} h-9 w-9`,
-                link.variant === 'default' &&
-                  `dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted
-                  dark:hover:text-white`,
-              )}
-            >
-              <link.icon className="h-4 w-4" />
-              <span className="sr-only">{link.title}</span>
-            </Link>
-          </HoverCardTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="right" className="flex items-center gap-4">
-          {link.title}
-        </TooltipContent>
-      </Tooltip>
-      {link.subLinks && link.subLinks.length > 0 && (
+  const linkContent = (
+    <>
+      <link.icon className="h-4 w-4" />
+      <span className="sr-only">{link.title}</span>
+    </>
+  )
+
+  const linkClasses = cn(
+    buttonVariants({
+      variant: pathname.startsWith(link.route ?? '') ? 'default' : 'ghost',
+      size: 'icon',
+    }),
+    'h-9 w-9',
+    link.variant === 'default' &&
+      'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white',
+  )
+
+  if (link.subLinks && link.subLinks.length > 0) {
+    return (
+      <HoverCard openDelay={0}>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <HoverCardTrigger asChild>
+              <div className={linkClasses}>{linkContent}</div>
+            </HoverCardTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="flex items-center gap-4">
+            {link.title}
+          </TooltipContent>
+        </Tooltip>
         <HoverCardContent side="right" className="flex flex-col p-1">
-          <header className="p-2 border-b mb-1">
+          <header className="mb-1 border-b p-2">
             <h1 className="font-bold">{link.title}</h1>
           </header>
           <div className="flex flex-col gap-1">
-            {link.subLinks.map((subLink, index2) => (
+            {link.subLinks.map((subLink, index) => (
               <Link
-                key={index2}
+                key={index}
                 href={subLink.route ?? '#'}
                 className={cn(
                   buttonVariants({
                     variant: pathname === subLink.route ? 'default' : 'ghost',
                   }),
-                  link.variant === 'default' &&
-                    'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
                   'justify-start',
                 )}
               >
@@ -81,8 +80,21 @@ function Collapsed({ link, pathname }: { link: LinkType; pathname: string }) {
             ))}
           </div>
         </HoverCardContent>
-      )}
-    </HoverCard>
+      </HoverCard>
+    )
+  }
+
+  return (
+    <Tooltip delayDuration={0}>
+      <TooltipTrigger asChild>
+        <Link href={link.route ?? '#'} className={linkClasses}>
+          {linkContent}
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="flex items-center gap-4">
+        {link.title}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -99,17 +111,17 @@ function NotCollapsed({
         <CollapsibleTrigger
           className={cn(
             buttonVariants({ variant: 'ghost' }),
-            'w-full justify-start min-w-[250px]',
+            'w-full min-w-[250px] justify-start',
             'last:[&[data-state=open]>svg]:rotate-180',
           )}
         >
-          <link.icon className="h-4 w-4 mr-2" />
+          <link.icon className="mr-2 h-4 w-4" />
           {link.title}
 
-          <ChevronDown className="w-4 h-4 ml-auto text-muted-foreground" />
+          <ChevronDown className="text-muted-foreground ml-auto h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pl-5">
-          <div className="flex flex-col border-l-2 pl-4 gap-1">
+          <div className="flex flex-col gap-1 border-l-2 pl-4">
             {link.subLinks.map((subLink, index2) => (
               <Link
                 key={index2}
@@ -128,25 +140,24 @@ function NotCollapsed({
         </CollapsibleContent>
       </Collapsible>
     )
-  } else {
-    return (
-      <Link
-        href={link.route ?? '#'}
-        className={cn(
-          buttonVariants({
-            variant: pathname.startsWith(link.route) ? 'default' : 'ghost',
-          }),
-          link.variant === 'default' &&
-            'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
-          'justify-start min-w-[250px]',
-          pathname === link.route,
-        )}
-      >
-        <link.icon className="mr-2 h-4 w-4" />
-        {link.title}
-      </Link>
-    )
   }
+
+  return (
+    <Link
+      href={link.route ?? '#'}
+      className={cn(
+        buttonVariants({
+          variant: pathname.startsWith(link.route ?? '') ? 'default' : 'ghost',
+        }),
+        link.variant === 'default' &&
+          'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
+        'min-w-[250px] justify-start',
+      )}
+    >
+      <link.icon className="mr-2 h-4 w-4" />
+      {link.title}
+    </Link>
+  )
 }
 
 export function Nav({ links, isCollapsed }: NavProps) {
