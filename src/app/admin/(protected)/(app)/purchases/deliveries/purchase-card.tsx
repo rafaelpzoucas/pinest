@@ -6,6 +6,7 @@ import { statuses } from '@/models/statuses'
 import { ChevronRight } from 'lucide-react'
 
 import Link from 'next/link'
+import { PurchaseOptions } from './data-table/options'
 
 type PurchaseCardPropsType = {
   purchase: PurchaseType
@@ -25,47 +26,55 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
   const displayId = purchase.id.substring(0, 4)
 
   return (
-    <Link href={`purchases/deliveries/${purchase.id}`}>
-      <Card key={purchase.id} className={cn('flex flex-col gap-2 p-4')}>
-        <header className="flex flex-row">
-          <Badge className={cn(statuses[purchase.status as StatusKey].color)}>
-            {statuses[purchase.status as StatusKey].status}
-          </Badge>
+    <Card key={purchase.id} className={cn('flex flex-col gap-2 p-4')}>
+      <Link
+        href={`purchases/deliveries/${purchase.id}`}
+        className="flex flex-col gap-2"
+      >
+        <>
+          <header className="flex flex-row">
+            <Badge className={cn(statuses[purchase.status as StatusKey].color)}>
+              {statuses[purchase.status as StatusKey].status}
+            </Badge>
 
-          <span className="text-muted-foreground ml-2">#{displayId}</span>
+            <span className="text-muted-foreground ml-2">#{displayId}</span>
 
-          <span
+            <span
+              className={cn(
+                'text-xs text-muted-foreground ml-auto whitespace-nowrap',
+                purchase.status === 'waiting' && 'text-muted',
+              )}
+            >
+              {formatDate(purchase.created_at, 'dd/MM hh:mm')}
+            </span>
+
+            <ChevronRight className="w-4 h-4 ml-2" />
+          </header>
+
+          <strong>{`${firstName}`}</strong>
+
+          <section
             className={cn(
-              'text-xs text-muted-foreground ml-auto whitespace-nowrap',
-              purchase.status === 'waiting' && 'text-muted',
+              'pr-1 text-xs space-y-1 text-muted-foreground',
+              purchase.status === 'waiting' &&
+                'bg-primary text-primary-foreground',
             )}
           >
-            {formatDate(purchase.created_at, 'dd/MM hh:mm')}
-          </span>
-
-          <ChevronRight className="w-4 h-4 ml-2" />
-        </header>
-
-        <strong>{`${firstName}`}</strong>
-
-        <section
-          className={cn(
-            'pr-1 text-xs space-y-1 text-muted-foreground',
-            purchase.status === 'waiting' &&
-              'bg-primary text-primary-foreground',
-          )}
-        >
-          <div className="flex flex-row justify-between">
-            <span>{purchase.purchase_items.length} produto(s)</span>
-            <strong>
-              {new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-              }).format(purchase?.total?.total_amount ?? 0)}
-            </strong>
-          </div>
-        </section>
-      </Card>
-    </Link>
+            <div className="flex flex-row justify-between">
+              <span>{purchase.purchase_items.length} produto(s)</span>
+              <strong>
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(purchase?.total?.total_amount ?? 0)}
+              </strong>
+            </div>
+          </section>
+        </>
+      </Link>
+      <footer className="flex justify-end mt-2 border-t pt-2">
+        <PurchaseOptions purchase={purchase} />
+      </footer>
+    </Card>
   )
 }

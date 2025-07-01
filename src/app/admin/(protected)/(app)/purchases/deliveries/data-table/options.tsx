@@ -1,156 +1,115 @@
 'use client'
 
-import { Button, buttonVariants } from '@/components/ui/button'
-
+import { buttonVariants } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
 import { useCashRegister } from '@/stores/cashRegisterStore'
-import { BadgeDollarSign, Edit, Loader2, Printer } from 'lucide-react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import { useServerAction } from 'zsa-react'
-import { printPurchaseReceipt } from '../../../config/printing/actions'
-import { closeBills } from '../../close/actions'
+import { MoreVertical } from 'lucide-react'
 import { CancelPurchaseButton } from './cancel-purchase-button'
+import { CloseSaleButton } from './close-sale-button'
+import { EditButton } from './edit-button'
+import { Printbutton } from './print-button'
 import { UpdateStatusButton } from './update-status-button'
 
 export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
-  const searchParams = useSearchParams()
-  const { isCashOpen } = useCashRegister()
-
-  const tab = searchParams.get('tab')
-
   const currentStatus = purchase?.status
-  const isIfood = purchase?.is_ifood
+
+  const isPaid = purchase.is_paid
 
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
-  const isPaid = purchase.is_paid
 
-  const { execute: executeCloseBill, isPending: isCloseBillPending } =
-    useServerAction(closeBills)
-  const { execute: executePrintReceipt, isPending: isPrinting } =
-    useServerAction(printPurchaseReceipt)
+  const { isCashOpen } = useCashRegister()
+
+  const options = [
+    {
+      name: 'edit',
+      component: <EditButton purchase={purchase} />,
+      title: 'Editar pedido',
+    },
+    {
+      name: 'print',
+      component: <Printbutton purchase={purchase} />,
+      title: 'Imprimir',
+    },
+  ]
 
   return (
     <>
-      <div className="hidden lg:flex flex-row justify-end gap-1">
+      <div className="flex flex-row w-fit gap-1">
         <UpdateStatusButton purchase={purchase} />
 
-        {accepted && delivered && !isPaid && (
+        <div className="hidden lg:flex flex-row justify-end">
           <TooltipProvider>
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                {isIfood ? (
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      executeCloseBill({ purchase_id: purchase.id })
-                    }
-                  >
-                    {isCloseBillPending ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Fechando...</span>
-                      </>
-                    ) : (
-                      <>
-                        <BadgeDollarSign className="w-5 h-5" />
-                        <span>Fechar venda</span>
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Link
-                    href={
-                      isCashOpen
-                        ? `/admin/purchases/close?purchase_id=${purchase.id}&tab=${tab}`
-                        : '/admin/cash-register'
-                    }
-                    className={buttonVariants({
-                      variant: 'secondary',
-                    })}
-                  >
-                    <BadgeDollarSign className="w-5 h-5" />
-                    <span>Fechar venda</span>
-                  </Link>
-                )}
-              </TooltipTrigger>
-
-              <TooltipContent>
-                {isCashOpen ? (
-                  <p>Fechar venda</p>
-                ) : (
-                  <div>
-                    <strong>Fechar venda</strong>
-                    <p>Para fechar a venda, é necessário abrir o caixa.</p>
-                  </div>
-                )}
-              </TooltipContent>
-            </Tooltip>
+            {options.map((option, index) => (
+              <Tooltip delayDuration={0} key={index}>
+                <TooltipTrigger asChild>
+                  <div>{option.component}</div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{option.title}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
           </TooltipProvider>
-        )}
+        </div>
 
-        {accepted && !isPaid && (
-          <TooltipProvider>
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={`purchases/deliveries/register?purchase_id=${purchase?.id}`}
-                  className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-                >
-                  <Edit className="w-5 h-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Editar pedido</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <div>
+                <CloseSaleButton purchase={purchase} />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Fechar venda</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        {accepted && (
-          <TooltipProvider>
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    executePrintReceipt({
-                      purchaseId: purchase.id,
-                      reprint: true,
-                    })
-                  }
-                  disabled={isPrinting}
-                >
-                  {isPrinting ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Printer className="w-5 h-5" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Imprimir</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <div>
+                <CancelPurchaseButton purchase={purchase} />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Cancelar pedido</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        {!delivered && (
-          <CancelPurchaseButton
-            accepted={accepted}
-            currentStatus={currentStatus}
-            purchaseId={purchase?.id}
-            isIfood={isIfood}
-          />
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              buttonVariants({ variant: 'ghost', size: 'icon' }),
+              !accepted && 'hidden',
+              'lg:hidden',
+            )}
+          >
+            <MoreVertical />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {options.map((option, index) => (
+              <DropdownMenuItem key={index} className="">
+                {option.component}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </>
   )

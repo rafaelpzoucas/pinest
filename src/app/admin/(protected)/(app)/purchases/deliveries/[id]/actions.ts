@@ -70,11 +70,11 @@ export const acceptPurchase = adminProcedure
     const { supabase } = ctx
     const { purchaseId } = input
 
-    await updateIfoodOrderStatus({ purchaseId, newStatus: 'pending' })
+    await updateIfoodOrderStatus({ purchaseId, newStatus: 'preparing' })
 
     const { error: updateStatusError } = await supabase
       .from('purchases')
-      .update({ status: 'pending' })
+      .update({ status: 'preparing' })
       .eq('id', purchaseId)
 
     if (updateStatusError) {
@@ -213,13 +213,6 @@ export const updateIfoodOrderStatus = adminProcedure
     type Status = keyof typeof newStatusMap
 
     const status: Status = input.newStatus as Status
-
-    console.log(
-      'OOOOOOOOOOO',
-      status,
-      input,
-      `${api}/order/v1.0/orders/${purchaseId}/${newStatusMap[status]}`,
-    )
 
     try {
       // Enviar a requisição para o iFood

@@ -12,12 +12,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { buttonVariants } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { X } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -39,8 +33,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { CancellationReasonsType } from '@/models/ifood'
+import { PurchaseType } from '@/models/purchase'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
@@ -48,17 +44,17 @@ const FormSchema = z.object({
   code: z.string(),
 })
 
-export function CancelPurchaseButton({
-  accepted,
-  currentStatus,
-  purchaseId,
-  isIfood,
-}: {
-  accepted: boolean
-  currentStatus: string
-  purchaseId: string
-  isIfood: boolean
-}) {
+export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
+  const purchaseId = purchase.id
+
+  const currentStatus = purchase?.status
+  const isIfood = purchase?.is_ifood
+
+  const accepted = currentStatus !== 'accept'
+  const delivered = currentStatus === 'delivered'
+
+  const isMobile = useIsMobile()
+
   const [cancellationReasons, setCancellationReasons] = useState<
     CancellationReasonsType[]
   >([])
@@ -93,29 +89,26 @@ export function CancelPurchaseButton({
     return null
   }
 
+  if (delivered) {
+    return null
+  }
+
   return (
     <AlertDialog>
-      <TooltipProvider>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <AlertDialogTrigger
-              className={cn(
-                buttonVariants({
-                  variant: !accepted ? 'destructive' : 'ghost',
-                  size: !accepted ? 'default' : 'icon',
-                }),
-              )}
-              onClick={handleGetCancellationReasons}
-            >
-              <X className="w-5 h-5" />
-              {!accepted && <span>Recusar pedido</span>}
-            </AlertDialogTrigger>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{accepted ? 'Cancelar' : 'Recusar'} pedido</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <AlertDialogTrigger
+        className={cn(
+          buttonVariants({
+            variant: !accepted ? 'destructive' : 'ghost',
+            size: !accepted ? 'default' : isMobile ? 'default' : 'icon',
+          }),
+        )}
+        onClick={handleGetCancellationReasons}
+      >
+        <X className="w-5 h-5" />
+        {!accepted && <span>Recusar</span>}
+        {accepted && isMobile && 'Cancelar'}
+      </AlertDialogTrigger>
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
