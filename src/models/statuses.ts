@@ -7,14 +7,6 @@ export const statuses = {
     next_status: 'preparing',
     action_text: 'Aprovar pedido',
   },
-  pending: {
-    status: 'Pendente',
-    next_step: 'Aguardando iniciar o preparo.',
-    delivery_address: 'O seu pedido será entregue',
-    color: 'bg-blue-500',
-    next_status: 'preparing',
-    action_text: 'Iniciar preparo',
-  },
   preparing: {
     status: 'Em preparo',
     next_step: 'Preparando o pedido.',

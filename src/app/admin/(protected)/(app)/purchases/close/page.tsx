@@ -41,7 +41,7 @@ export default async function CloseBill({
 
   return (
     <main className="space-y-6 p-4 lg:px-0">
-      <div className="grid grid-cols-[3fr_2fr] gap-4 items-start">
+      <div className="flex flex-col lg:grid grid-cols-[3fr_2fr] gap-4 items-start">
         <section>
           <Card className="p-4">
             <section className="flex flex-col gap-2">

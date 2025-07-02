@@ -74,11 +74,11 @@ export default async function OrderPage({
   const change = purchase?.total?.change_value - purchase?.total?.total_amount
 
   return (
-    <section className="flex flex-col gap-4 p-4 lg:px-0">
+    <section className="flex flex-col gap-4 p-4 lg:px-0 pb-16">
       <AdminHeader title={`Detalhes: #${displayId}`} withBackButton />
 
       <div className="flex flex-col lg:grid grid-cols-2 items-start gap-6">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 w-full">
           <Card className="flex flex-col items-start w-full gap-4 p-4">
             <header className="flex flex-row items-center justify-between w-full">
               <Badge
@@ -87,7 +87,9 @@ export default async function OrderPage({
                 {statuses[purchase?.status as StatusKey].status}
               </Badge>
 
-              <PurchaseOptions purchase={purchase} />
+              <div className="hidden lg:block">
+                <PurchaseOptions purchase={purchase} />
+              </div>
             </header>
 
             <p>{statuses[purchase?.status as StatusKey].next_step}</p>
@@ -197,6 +199,10 @@ export default async function OrderPage({
                   {ifoodOrderData.customer.documentNumber}
                 </strong>
               )}
+
+              <div className="lg:hidden flex justify-end mt-2 pt-2 border-t w-full">
+                <PurchaseOptions purchase={purchase} />
+              </div>
             </footer>
           </Card>
 

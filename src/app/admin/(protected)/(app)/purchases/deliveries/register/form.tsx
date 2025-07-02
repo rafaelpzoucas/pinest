@@ -10,6 +10,7 @@ import { Form } from '@/components/ui/form'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -22,7 +23,7 @@ import { ProductType } from '@/models/product'
 import { PurchaseType } from '@/models/purchase'
 import { ShippingConfigType } from '@/models/shipping'
 import { StoreCustomerType } from '@/models/store-customer'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
@@ -155,6 +156,9 @@ export function CreatePurchaseForm({
           <SheetContent className="!max-w-2xl">
             <SheetHeader>
               <SheetTitle>Produtos</SheetTitle>
+              <SheetClose>
+                <X />
+              </SheetClose>
             </SheetHeader>
 
             <ProductsList
