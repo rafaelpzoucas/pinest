@@ -13,13 +13,17 @@ import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useSearchParams } from 'next/navigation'
+import { z } from 'zod'
+import { createPurchaseFormSchema } from './schemas'
 
 export function Summary({
   form,
   isPending,
+  onSubmit,
 }: {
   form: any
   isPending: boolean
+  onSubmit: (values: z.infer<typeof createPurchaseFormSchema>) => void
 }) {
   const searchParams = useSearchParams()
   const purchaseId = searchParams.get('purchase_id')
@@ -29,7 +33,10 @@ export function Summary({
   const totalAmount = form.watch('total.total_amount')
 
   return (
-    <Card className="flex flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full lg:border">
+    <Card
+      className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
+        lg:border"
+    >
       <FormField
         control={form.control}
         name="status"
@@ -161,7 +168,7 @@ export function Summary({
         />
       </div>
 
-      <div className="w-full max-w-xs space-y-4">
+      <div className="w-full lg:max-w-xs space-y-4">
         <div className="flex flex-col gap-4 w-full">
           {form.watch('payment_type') === 'CASH' && (
             <FormField
@@ -201,7 +208,12 @@ export function Summary({
           </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isPending}>
+        <Button
+          type="button"
+          className="w-full"
+          disabled={isPending}
+          onClick={() => form.handleSubmit(onSubmit)()}
+        >
           {isPending ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />

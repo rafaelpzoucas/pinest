@@ -46,6 +46,12 @@ export const columns: ColumnDef<PurchaseItemsType>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: 'split',
+    header: 'Dividir',
+    cell: ({ row }) =>
+      !row.original.is_paid && <SplitTitem item={row.original} />,
+  },
+  {
     accessorKey: 'created_at',
     header: 'Data',
     cell: ({ row }) => {
@@ -87,11 +93,5 @@ export const columns: ColumnDef<PurchaseItemsType>[] = [
           <Check className="w-4 h-4" /> Pago
         </div>
       ),
-  },
-  {
-    accessorKey: 'split',
-    header: 'Dividir',
-    cell: ({ row }) =>
-      !row.original.is_paid && <SplitTitem item={row.original} />,
   },
 ]

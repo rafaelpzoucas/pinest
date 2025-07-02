@@ -3,12 +3,13 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Loader2, Plus } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -58,8 +59,13 @@ export function CreateTransactionForm() {
         Criar transação
       </SheetTrigger>
       <SheetContent>
-        <SheetHeader>
-          <SheetTitle>Criar transação</SheetTitle>
+        <SheetHeader className="flex flex-row items-center">
+          <SheetClose
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+          >
+            <ArrowLeft />
+          </SheetClose>
+          <SheetTitle className="!mt-0">Criar transação</SheetTitle>
         </SheetHeader>
 
         <Form {...form}>

@@ -199,18 +199,53 @@ export const upsertCashReceipts = adminProcedure
     const [cashSessionData] = await readCashSession()
     const cashSession = cashSessionData?.cashSession
 
-    const { data, error } = await supabase
-      .from('cash_register_receipts')
-      .upsert(
-        input.map((receipt) => ({ ...receipt, session_id: cashSession.id })),
-      )
+    if (!cashSession) {
+      throw new Error('Sessão de caixa não encontrada')
+    }
 
-    if (error) {
-      console.error('Não foi possível adicionar o(s) recibo(s)', error)
+    if (!input.length) {
+      // Se não há recibos enviados, não faz nada
+      revalidatePath('/admin/cash-register')
       return
     }
 
-    console.info('Recibo(s) adicionado(s) com sucesso!', data)
+    // Todos os recibos enviados devem ser do mesmo tipo
+    const receiptType = input[0].type
+
+    if (receiptType.startsWith('cash_')) {
+      // Remove todos os recibos de dinheiro da sessão
+      await supabase
+        .from('cash_register_receipts')
+        .delete()
+        .eq('session_id', cashSession.id)
+        .like('type', 'cash_%')
+    } else {
+      // Remove todos os recibos do mesmo tipo da sessão
+      await supabase
+        .from('cash_register_receipts')
+        .delete()
+        .eq('session_id', cashSession.id)
+        .eq('type', receiptType)
+    }
+
+    // Insere os novos recibos
+    const { data, error } = await supabase
+      .from('cash_register_receipts')
+      .insert(
+        input.map((receipt) => ({
+          ...receipt,
+          session_id: cashSession.id,
+          value: Number(receipt.value),
+          amount: Number(receipt.amount),
+          total: Number(receipt.total),
+        })),
+      )
+
+    if (error) {
+      throw new Error('Não foi possível adicionar o(s) recibo(s)', error)
+    }
+
+    console.log('Recibo(s) atualizado(s) com sucesso!', data)
 
     revalidatePath('/admin/cash-register')
   })

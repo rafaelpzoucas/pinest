@@ -311,8 +311,7 @@ export function CloseBillForm({
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 <span>
-                  Confirmando pagamento{' '}
-                  {isCloseBill ? 'e fechando a venda' : ''}
+                  Confirmando pagamento {isCloseBill ? 'e fechando' : ''}
                 </span>
               </>
             ) : (

@@ -54,14 +54,14 @@ export function CustomersCombobox({
       control={form.control}
       name="customer_id"
       render={({ field }) => (
-        <FormItem className="flex flex-col">
+        <FormItem className="flex flex-col w-full max-w-md">
           <Popover defaultOpen={!purchaseId}>
             <PopoverTrigger asChild>
               <FormControl>
                 <div
                   className={cn(
                     buttonVariants({ variant: 'outline' }),
-                    'w-full justify-between h-fit cursor-pointer',
+                    'justify-between h-fit cursor-pointer',
                     !field.value && 'text-muted-foreground',
                   )}
                 >
@@ -79,7 +79,7 @@ export function CustomersCombobox({
                           )?.customers.phone
                         }
                       </p>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground text-wrap">
                         {formatAddress(
                           storeCustomers?.find(
                             (storeCustomer) => storeCustomer.id === field.value,
@@ -94,7 +94,10 @@ export function CustomersCombobox({
                 </div>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-full max-w-md p-0">
+            <PopoverContent
+              align="start"
+              className="w-full max-w-xs lg:max-w-md p-0"
+            >
               <Command>
                 <CommandInput
                   placeholder="Pesquisar cliente..."
