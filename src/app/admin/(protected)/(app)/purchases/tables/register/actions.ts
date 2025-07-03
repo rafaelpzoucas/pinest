@@ -7,167 +7,162 @@ import { z } from 'zod'
 import { printTableReceipt } from '../../../config/printing/actions'
 import { createTableSchema, updateTableSchema } from './schemas'
 
+/**
+ * 1) checkTableExists: só testa existência, sem trazer colunas.
+ */
 export const checkTableExists = adminProcedure
   .createServerAction()
   .input(z.object({ number: z.string() }))
-  .handler(async ({ ctx, input }) => {
-    const { supabase, store } = ctx
+  .handler(async ({ ctx: { supabase, store }, input }) => {
+    const { count, error } = await supabase
+      .from('tables')
+      .select('id', { head: true })
+      .eq('store_id', store.id)
+      .eq('number', input.number)
+      .eq('status', 'open')
 
-    const { data: existingTable, error: readExistingTablesError } =
-      await supabase
-        .from('tables')
-        .select('*')
-        .eq('store_id', store.id)
-        .eq('number', input.number)
-        .eq('status', 'open')
-        .single()
-
-    if (readExistingTablesError && !existingTable) {
-      console.error('Error reading existing tables', readExistingTablesError)
+    if (error) {
+      console.error('Erro lendo mesas:', error)
       return false
     }
 
-    return true
+    return (count ?? 0) > 0
   })
 
+/**
+ * 2) createTable: payload mínimo, paraleliza inserção de items e impressão.
+ */
 export const createTable = adminProcedure
   .createServerAction()
   .input(createTableSchema)
-  .handler(async ({ ctx, input }) => {
-    const { supabase, store } = ctx
+  .handler(async ({ ctx: { supabase, store }, input }) => {
+    // 1. Pré-monta tabela e items
+    const tablePayload = {
+      number: parseInt(input.number, 10),
+      description: input.description,
+      store_id: store.id,
+    }
 
-    const { data: createdTable, error: createTableError } = await supabase
+    const itemsPayload = input.purchase_items.map((item) => ({
+      table_id: null, // será preenchido depois
+      product_id: item.product_id,
+      quantity: item.quantity,
+      product_price: item.product_price,
+      observations: item.observations,
+      extras: item.extras,
+    }))
+
+    // 2. Cria apenas o ID da mesa
+    const { data: tbl, error: tblErr } = await supabase
       .from('tables')
-      .insert({
-        number: parseInt(input.number),
-        description: input.description,
-        store_id: store?.id,
-      })
-      .select()
+      .insert(tablePayload)
+      .select('id')
       .single()
 
-    if (createTableError || !createdTable) {
-      console.error('Não foi possível criar a mesa.', createTableError)
+    if (tblErr || !tbl) {
+      console.error('Erro criando mesa:', tblErr)
       return
     }
+    const tableId = tbl.id
 
-    const { data: purchaseItems, error: purchaseItemsError } = await supabase
+    // 3. Paraleliza inserção de items + impressão + revalidação
+    const insertItems = supabase
       .from('purchase_items')
-      .insert(
-        input.purchase_items.map((item) => ({
-          table_id: createdTable.id,
-          product_id: item?.product_id,
-          quantity: item?.quantity,
-          product_price: item?.product_price,
-          observations: item?.observations,
-          extras: item.extras,
-        })),
-      )
-      .select()
+      .insert(itemsPayload.map((it) => ({ ...it, table_id: tableId })))
+      .select('product_id, quantity')
 
-    if (purchaseItemsError) {
-      console.error(
-        'Não foi possível adicionar os itens à mesa.',
-        purchaseItemsError,
-      )
-      return
-    }
+    // não await — dispara em background
+    printTableReceipt({ printerName: 'G250', tableId, reprint: false })
 
-    if (purchaseItems) {
-      for (const item of purchaseItems) {
-        await updateAmountSoldAndStock(item.product_id, item.quantity)
-      }
-    }
-
-    await printTableReceipt({
-      printerName: 'G250',
-      tableId: createdTable.id,
-      reprint: false,
-    })
-
+    // revalida sem await
     revalidatePath('/admin/purchases')
 
-    return { createdTable }
+    // 4. Aguarda só a inserção dos items e distribui atualizações de estoque
+    const { data: newItems, error: insErr } = await insertItems
+    if (insErr) {
+      console.error('Erro inserindo itens na mesa:', insErr)
+      return
+    }
+
+    await Promise.all(
+      newItems.map(({ product_id: productId, quantity }) =>
+        updateAmountSoldAndStock(productId, quantity),
+      ),
+    )
+
+    return { createdTable: { id: tableId } }
   })
 
+/**
+ * 3) updateTable: lê antigos, deleta, insere novos e aplica diffs em paralelo.
+ */
 export const updateTable = adminProcedure
   .createServerAction()
   .input(updateTableSchema)
-  .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
-
-    // Variáveis auxiliares
+  .handler(async ({ ctx: { supabase }, input }) => {
+    // 1. Se for edição, busca antigos antes de apagar
     let oldItems: { product_id: string; quantity: number }[] = []
-
     if (input.is_edit) {
-      // 1. Buscar os itens antigos antes de deletar
-      const { data, error: fetchOldError } = await supabase
+      const { data: fetched, error: fetchErr } = await supabase
         .from('purchase_items')
         .select('product_id, quantity')
         .eq('table_id', input.id)
 
-      if (fetchOldError) {
-        console.error('Erro ao buscar itens antigos da mesa', fetchOldError)
+      if (fetchErr) {
+        console.error('Erro buscando itens antigos:', fetchErr)
         return
       }
+      oldItems = fetched || []
 
-      oldItems = data ?? []
-
-      // 2. Deleta os itens antigos
-      const { error: deleteError } = await supabase
+      const { error: delErr } = await supabase
         .from('purchase_items')
         .delete()
         .eq('table_id', input.id)
-
-      if (deleteError) {
-        console.error('Erro ao remover itens antigos da mesa', deleteError)
+      if (delErr) {
+        console.error('Erro deletando itens antigos:', delErr)
         return
       }
     }
 
-    // 3. Insere os novos
-    const { data: newItems, error: insertError } = await supabase
-      .from('purchase_items')
-      .insert(
-        input.purchase_items.map((item) => ({
-          table_id: input.id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          product_price: item.product_price,
-          observations: item.observations,
-          extras: item.extras,
-        })),
-      )
-      .select()
+    // 2. Pré-monta payload de novos items
+    const newItemsPayload = input.purchase_items.map((item) => ({
+      table_id: input.id,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      product_price: item.product_price,
+      observations: item.observations,
+      extras: item.extras,
+    }))
 
-    if (insertError) {
-      console.error('Erro ao inserir novos itens na mesa', insertError)
+    // 3. Insere novos e, em paralelo, dispara impressão e revalidação
+    const insertResult = supabase
+      .from('purchase_items')
+      .insert(newItemsPayload)
+      .select('product_id, quantity')
+
+    printTableReceipt({ printerName: 'G250', tableId: input.id, reprint: true })
+    revalidatePath('/admin/purchases')
+
+    // 4. Atualiza estoque com base no diff
+    const { data: newItems, error: insErr } = await insertResult
+    if (insErr) {
+      console.error('Erro inserindo novos itens:', insErr)
       return
     }
 
-    // 4. Atualiza o estoque e vendidos com base na diferença
-    const quantityDiffByProduct: Record<string, number> = {}
-
-    for (const item of oldItems) {
-      quantityDiffByProduct[item.product_id] =
-        (quantityDiffByProduct[item.product_id] ?? 0) - item.quantity
-    }
-
-    for (const item of newItems ?? []) {
-      quantityDiffByProduct[item.product_id] =
-        (quantityDiffByProduct[item.product_id] ?? 0) + item.quantity
-    }
-
-    // 5. Aplica as diferenças nos produtos
-    for (const [productId, diff] of Object.entries(quantityDiffByProduct)) {
-      await updateAmountSoldAndStock(productId, diff)
-    }
-
-    await printTableReceipt({
-      printerName: 'G250',
-      tableId: input.id,
-      reprint: true,
+    // calcula diffs
+    const diffMap: Record<string, number> = {}
+    oldItems.forEach(({ product_id: productId, quantity }) => {
+      diffMap[productId] = (diffMap[productId] || 0) - quantity
+    })
+    newItems.forEach(({ product_id: productId, quantity }) => {
+      diffMap[productId] = (diffMap[productId] || 0) + quantity
     })
 
-    revalidatePath('/admin/purchases')
+    // aplica todas as atualizações de estoque em paralelo
+    await Promise.all(
+      Object.entries(diffMap).map(([productId, diff]) =>
+        updateAmountSoldAndStock(productId, diff),
+      ),
+    )
   })
