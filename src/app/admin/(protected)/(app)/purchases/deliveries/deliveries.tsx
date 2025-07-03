@@ -53,7 +53,7 @@ export function Deliveries({
   const statusFilters = [
     {
       status: 'in_progress',
-      title: 'em andamento',
+      title: 'andamento',
       status_length: getStatusLengths([
         'accept',
         'pending',
@@ -241,7 +241,7 @@ export function Deliveries({
         </div>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+      <section className="grid grid-cols-3 lg:grid-cols-6 gap-4">
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}

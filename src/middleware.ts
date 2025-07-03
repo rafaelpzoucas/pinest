@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
   // Ignora paths específicos incluindo callbacks de autenticação
   if (
     IGNORED_PATHS.some((p) => pathname.startsWith(p)) ||
-    pathname.includes('/auth/callback')
+    /\/auth\/callback$/.test(pathname)
   ) {
     return response
   }
@@ -83,7 +83,8 @@ export async function middleware(request: NextRequest) {
     const segments = pathname.split('/').filter(Boolean)
     const subdomain = segments[0] || null
 
-    if (!subdomain) {
+    // Não reescrever se for callback de auth
+    if (!subdomain || /\/auth\/callback$/.test(pathname)) {
       return response
     }
 
@@ -107,6 +108,11 @@ export async function middleware(request: NextRequest) {
   if (isProductionSubdomain) {
     const parts = hostname.split('.')
     const subdomain = parts[0] // nomedaloja
+
+    // Não reescrever se for callback de auth
+    if (/\/auth\/callback$/.test(pathname)) {
+      return response
+    }
 
     const newUrl = url.clone()
     newUrl.pathname = `/${subdomain}${pathname}`
