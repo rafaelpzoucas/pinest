@@ -83,7 +83,7 @@ export const createPurchase = adminProcedure
     const [{ data: createdItems, error: itemsError }, [printSettingsData]] =
       await Promise.all([insertItems, readPrintSettings])
 
-    if (itemsError) {
+    if (itemsError || !createdItems) {
       console.error('Erro inserindo items', itemsError)
       return
     }
@@ -198,7 +198,7 @@ export const updatePurchase = adminProcedure
     const [{ data: newItems, error: itemsErr }, [settingsData]] =
       await Promise.all([insertItems, readSettings])
 
-    if (itemsErr) {
+    if (itemsErr || !newItems) {
       console.error('Erro ao inserir novos itens:', itemsErr)
       return
     }
