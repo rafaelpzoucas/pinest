@@ -20,6 +20,7 @@ import { PhoneInput } from '@/components/ui/input-phone'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -27,7 +28,7 @@ import {
 } from '@/components/ui/sheet'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { StoreCustomerType } from '@/models/store-customer'
-import { Loader2, Plus } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useServerAction } from 'zsa-react'
@@ -116,8 +117,13 @@ export function CustomersForm({
 
       <SheetContent className="!p-0">
         <ScrollArea className="space-y-6 h-dvh px-5">
-          <SheetHeader>
-            <SheetTitle>
+          <SheetHeader className="flex flex-row items-center gap-2">
+            <SheetClose
+              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            >
+              <ArrowLeft />
+            </SheetClose>
+            <SheetTitle className="!mt-0">
               {selectedCustomer ? 'Editando' : 'Novo'} cliente
             </SheetTitle>
           </SheetHeader>
@@ -125,7 +131,7 @@ export function CustomersForm({
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col w-full space-y-6"
+              className="flex flex-col w-full space-y-4 mt-2"
             >
               <FormField
                 control={form.control}

@@ -24,6 +24,7 @@ export function Summary({
   table,
   isCreatePending,
   isUpdatePending,
+  onSubmit,
 }: {
   products: ProductType[]
   extras: ExtraType[]
@@ -31,6 +32,7 @@ export function Summary({
   table: TableType
   isCreatePending: boolean
   isUpdatePending: boolean
+  onSubmit: (values: z.infer<typeof createTableSchema>) => void
 }) {
   const purchaseItems = form.watch('purchase_items')
 
@@ -39,14 +41,17 @@ export function Summary({
     0,
   )
   return (
-    <Card className="flex flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full lg:border">
+    <Card
+      className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
+        lg:border"
+    >
       {table?.id ? (
         <div className="flex flex-col w-full">
           <strong className="text-xl">Mesa #{table.number}</strong>
           <p className="text-muted-foreground">{table.description}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-[1fr_4fr] gap-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_4fr] gap-4">
           <FormField
             control={form.control}
             name="number"
@@ -81,7 +86,7 @@ export function Summary({
         </div>
       )}
 
-      <div className="w-full max-w-xs space-y-2">
+      <div className="w-full lg:max-w-xs space-y-2">
         <div className="flex flex-col w-full">
           <div className="flex flex-row items-center justify-between w-full">
             <span>Total da venda</span>
@@ -90,9 +95,10 @@ export function Summary({
         </div>
 
         <Button
-          type="submit"
+          type="button"
           className="w-full"
           disabled={isCreatePending || isUpdatePending}
+          onClick={() => form.handleSubmit(onSubmit)()}
         >
           {isCreatePending || isUpdatePending ? (
             <>

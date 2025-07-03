@@ -3,13 +3,13 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
-import { Loader2, Plus } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 
 import { z } from 'zod'
 
@@ -26,7 +26,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { upsertCashReceipts } from './actions'
 import { createCashReceiptsSchema } from './schemas'
@@ -63,11 +62,13 @@ const formSchema = z.object({
 
 export function CashForm({
   receipts,
+  open,
+  setOpen,
 }: {
   receipts: z.infer<typeof createCashReceiptsSchema>
+  open: boolean
+  setOpen: (open: boolean) => void
 }) {
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-
   const cashTypes = [
     'cash_005',
     'cash_010',
@@ -103,42 +104,53 @@ export function CashForm({
     upsertCashReceipts,
     {
       onSuccess: () => {
-        setIsSheetOpen(false)
+        setOpen(false)
+      },
+      onError: ({ err }) => {
+        console.log('Erro ao salvar cédulas e moedas: ', err)
       },
     },
   )
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const cashReceipts = (
-      Object.keys(values) as (keyof typeof MONEY_VALUES)[]
-    ).map((key) => {
-      const typedKey = key as keyof typeof MONEY_VALUES
-      const value = Number(MONEY_VALUES[typedKey] || 0)
-      const amount = Number(values[key] ?? 0) || 0
+    try {
+      const cashReceipts = (
+        Object.keys(values) as (keyof typeof MONEY_VALUES)[]
+      ).map((key) => {
+        const typedKey = key as keyof typeof MONEY_VALUES
+        const value = Number(MONEY_VALUES[typedKey] || 0)
+        const amount = Number(values[key] ?? 0) || 0
 
-      return {
-        id: receipts.find((receipt) => receipt.type === key)?.id,
-        type: key,
-        value,
-        amount,
-        total: Number((value * amount).toFixed(2)),
-      }
-    })
+        return {
+          type: key,
+          value,
+          amount,
+          total: Number((value * amount).toFixed(2)),
+        }
+      })
 
-    createReceipts(cashReceipts)
+      const validated = createCashReceiptsSchema.parse(cashReceipts)
+      console.log({ validated })
+
+      createReceipts(cashReceipts)
+    } catch (err) {
+      console.error('Erro de validação:', err)
+    }
   }
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <SheetTrigger
-        className={buttonVariants({ variant: 'secondary', size: 'icon' })}
-      >
-        <Plus />
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="space-y-4">
-        <SheetHeader>
-          <SheetTitle>Cédulas e moedas</SheetTitle>
-          <SheetDescription>
+        <SheetHeader className="items-start mb-4">
+          <div className="flex flex-row items-center gap-2">
+            <SheetClose
+              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            >
+              <ArrowLeft />
+            </SheetClose>
+            <SheetTitle className="!mt-0">Cédulas e moedas</SheetTitle>
+          </div>
+          <SheetDescription className="!mt-0">
             Insira a quantidade de cada moeda ou cédula.
           </SheetDescription>
         </SheetHeader>

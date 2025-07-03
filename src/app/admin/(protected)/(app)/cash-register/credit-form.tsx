@@ -2,13 +2,13 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
-import { Loader2, Plus, Trash } from 'lucide-react'
+import { ArrowLeft, Loader2, Trash } from 'lucide-react'
 
 import { z } from 'zod'
 
@@ -37,11 +37,13 @@ const formSchema = z.object({
 
 export function CreditForm({
   receipts,
+  open,
+  setOpen,
 }: {
   receipts: z.infer<typeof createCashReceiptsSchema>
+  open: boolean
+  setOpen: (open: boolean) => void
 }) {
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-
   const defaultValues = {
     transactions: receipts.map((receipt) => receipt.value) || [],
   }
@@ -55,7 +57,7 @@ export function CreditForm({
     upsertCashReceipts,
     {
       onSuccess: () => {
-        setIsSheetOpen(false)
+        setOpen(false)
       },
     },
   )
@@ -92,17 +94,19 @@ export function CreditForm({
   }
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <SheetTrigger
-        className={buttonVariants({ variant: 'secondary', size: 'icon' })}
-      >
-        <Plus />
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="space-y-4 px-0">
         <ScrollArea className="relative h-[calc(100vh_-_48px)] pb-28 px-5">
-          <SheetHeader>
-            <SheetTitle>Cartão de crédito</SheetTitle>
-            <SheetDescription>
+          <SheetHeader className="items-start mb-4">
+            <div className="flex flex-row items-center gap-2">
+              <SheetClose
+                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              >
+                <ArrowLeft />
+              </SheetClose>
+              <SheetTitle className="!mt-0">Cartão de crédito</SheetTitle>
+            </div>
+            <SheetDescription className="!mt-0">
               Insira cada transação de Cartão de crédito
             </SheetDescription>
           </SheetHeader>

@@ -2,13 +2,13 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
-import { Loader2, Plus, Trash } from 'lucide-react'
+import { ArrowLeft, Loader2, Trash } from 'lucide-react'
 
 import { z } from 'zod'
 
@@ -26,7 +26,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { formatCurrencyBRL } from '@/lib/utils'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { upsertCashReceipts } from './actions'
 import { createCashReceiptsSchema } from './schemas'
@@ -37,11 +37,13 @@ const formSchema = z.object({
 
 export function PIXForm({
   receipts,
+  open,
+  setOpen,
 }: {
   receipts: z.infer<typeof createCashReceiptsSchema>
+  open: boolean
+  setOpen: (open: boolean) => void
 }) {
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-
   const defaultValues = {
     transactions: receipts.map((receipt) => receipt.value) || [],
   }
@@ -55,13 +57,24 @@ export function PIXForm({
     upsertCashReceipts,
     {
       onSuccess: () => {
-        setIsSheetOpen(false)
+        setOpen(false)
+      },
+      onError: ({ err }) => {
+        console.log('Erro ao salvar transações PIX.', err)
       },
     },
   )
 
   const [inputValue, setInputValue] = useState('') // <- novo estado para o valor atual
   const transactions = form.watch('transactions')
+
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [open])
 
   const addTransaction = () => {
     const parsedValue = parseFloat(inputValue)
@@ -83,30 +96,34 @@ export function PIXForm({
   function onSubmit(values: z.infer<typeof formSchema>) {
     const cashReceipts = values.transactions.map((transaction) => ({
       type: 'pix',
-      value: transaction,
+      value: Number(transaction),
       amount: 1,
-      total: transaction,
+      total: Number(transaction),
     })) as z.infer<typeof createCashReceiptsSchema>
 
     createReceipts(cashReceipts)
   }
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <SheetTrigger
-        className={buttonVariants({ variant: 'secondary', size: 'icon' })}
-      >
-        <Plus />
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="space-y-4 px-0">
         <ScrollArea className="relative h-[calc(100vh_-_48px)] pb-28 px-5">
-          <SheetHeader>
-            <SheetTitle>PIX</SheetTitle>
-            <SheetDescription>Insira cada transação de PIX</SheetDescription>
+          <SheetHeader className="items-start mb-4">
+            <div className="flex flex-row items-center gap-2">
+              <SheetClose
+                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              >
+                <ArrowLeft />
+              </SheetClose>
+              <SheetTitle className="!mt-0">PIX</SheetTitle>
+            </div>
+            <SheetDescription className="!mt-0">
+              Insira cada transação de PIX
+            </SheetDescription>
           </SheetHeader>
 
           {transactions.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-2 pb-8">
               {transactions.map((transaction, index) => (
                 <Card
                   key={index}
@@ -137,6 +154,7 @@ export function PIXForm({
                   <FormLabel>Valor</FormLabel>
                   <FormControl>
                     <Input
+                      ref={inputRef}
                       placeholder="Insira o valor da transação..."
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}

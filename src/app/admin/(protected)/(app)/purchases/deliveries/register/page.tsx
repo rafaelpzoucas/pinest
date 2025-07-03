@@ -22,7 +22,7 @@ export default async function CreatePurchasePage({
   const purchase = purchaseData?.purchase
 
   return (
-    <main className="space-y-6 p-4 lg:px-0">
+    <main className="space-y-6 p-4 lg:px-0 w-full">
       {customersData && data && (
         <CreatePurchaseForm
           customers={customers}

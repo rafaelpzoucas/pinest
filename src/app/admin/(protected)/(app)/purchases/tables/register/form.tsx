@@ -21,7 +21,7 @@ import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
-import { Plus, X } from 'lucide-react'
+import { ArrowLeft, Plus, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
 import { checkTableExists, createTable, updateTable } from './actions'
@@ -131,6 +131,7 @@ export function CreateSaleForm({
                   isUpdatePending={isUpdatePending}
                   products={products}
                   table={table}
+                  onSubmit={onSubmit}
                 />
               </ScrollArea>
             </SheetContent>
@@ -145,6 +146,7 @@ export function CreateSaleForm({
             isUpdatePending={isUpdatePending}
             products={products}
             table={table}
+            onSubmit={onSubmit}
           />
         </div>
 
@@ -153,9 +155,14 @@ export function CreateSaleForm({
             <Plus className="w-4 h-4" />
             Adicionar produtos
           </SheetTrigger>
-          <SheetContent className="!max-w-2xl">
-            <SheetHeader>
-              <SheetTitle>Produtos</SheetTitle>
+          <SheetContent className="!max-w-2xl space-y-2">
+            <SheetHeader className="flex flex-row items-center gap-2">
+              <SheetClose
+                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              >
+                <ArrowLeft />
+              </SheetClose>
+              <SheetTitle className="!mt-0">Produtos</SheetTitle>
             </SheetHeader>
 
             <ProductsList
@@ -166,7 +173,7 @@ export function CreateSaleForm({
           </SheetContent>
         </Sheet>
 
-        <ScrollArea className="w-full h-[calc(100vh_-_32px_-_77px_-_32px)]">
+        <ScrollArea className="w-full h-[calc(100vh_-_32px_-_130px_-_32px)]">
           <Card className="flex flex-col h-full">
             <CardContent className="p-4">
               <SelectedProducts

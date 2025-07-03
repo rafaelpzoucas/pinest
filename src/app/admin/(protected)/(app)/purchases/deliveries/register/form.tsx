@@ -23,7 +23,7 @@ import { ProductType } from '@/models/product'
 import { PurchaseType } from '@/models/purchase'
 import { ShippingConfigType } from '@/models/shipping'
 import { StoreCustomerType } from '@/models/store-customer'
-import { Plus, X } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
@@ -51,6 +51,7 @@ export function CreatePurchaseForm({
 }) {
   const router = useRouter()
   const customerFormSheetState = useState(false)
+  const [isFinishOpen, setIsFinishOpen] = useState(false)
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof createPurchaseFormSchema>>({
@@ -81,6 +82,7 @@ export function CreatePurchaseForm({
     {
       onSuccess: () => {
         router.push('/admin/purchases?tab=deliveries')
+        setIsFinishOpen(false)
       },
     },
   )
@@ -89,6 +91,7 @@ export function CreatePurchaseForm({
     {
       onSuccess: () => {
         router.push('/admin/purchases?tab=deliveries')
+        setIsFinishOpen(false)
       },
     },
   )
@@ -153,12 +156,14 @@ export function CreatePurchaseForm({
             <Plus className="w-4 h-4" />
             Adicionar produtos
           </SheetTrigger>
-          <SheetContent className="!max-w-2xl">
-            <SheetHeader>
-              <SheetTitle>Produtos</SheetTitle>
-              <SheetClose>
-                <X />
+          <SheetContent className="!max-w-2xl space-y-2">
+            <SheetHeader className="flex flex-row items-center gap-2">
+              <SheetClose
+                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              >
+                <ArrowLeft />
               </SheetClose>
+              <SheetTitle className="!mt-0">Produtos</SheetTitle>
             </SheetHeader>
 
             <ProductsList
@@ -182,8 +187,34 @@ export function CreatePurchaseForm({
         </ScrollArea>
 
         <div className="hidden lg:block w-full">
-          <Summary isPending={isCreating || isUpdating} form={form} />
+          <Summary
+            isPending={isCreating || isUpdating}
+            form={form}
+            onSubmit={onSubmit}
+          />
         </div>
+
+        <Sheet open={isFinishOpen} onOpenChange={setIsFinishOpen}>
+          <SheetTrigger className={cn(buttonVariants(), 'lg:hidden w-full')}>
+            Finalizar pedido
+          </SheetTrigger>
+          <SheetContent className="space-y-2">
+            <SheetHeader className="flex flex-row items-center gap-2">
+              <SheetClose
+                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              >
+                <ArrowLeft />
+              </SheetClose>
+              <SheetTitle className="!mt-0">Finalizar pedido</SheetTitle>
+            </SheetHeader>
+
+            <Summary
+              isPending={isCreating || isUpdating}
+              form={form}
+              onSubmit={onSubmit}
+            />
+          </SheetContent>
+        </Sheet>
       </form>
     </Form>
   )

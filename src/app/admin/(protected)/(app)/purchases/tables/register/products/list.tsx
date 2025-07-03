@@ -8,6 +8,7 @@ import { ProductType } from '@/models/product'
 import { Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { UseFormReturn, useFieldArray } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { createTableSchema } from '../schemas'
 
@@ -38,6 +39,8 @@ export function ProductsList({
       observations: [],
       extras: [],
     })
+
+    toast(`${product.name} adicionado.`)
   }
 
   const filteredProducts =
@@ -74,27 +77,28 @@ export function ProductsList({
           />
         </div>
 
-        <div className="flex flex-row flex-wrap gap-4">
-          {categories.map((category) => (
-            <Card
-              key={category.id}
-              className={cn(
-                'p-4 select-none cursor-pointer',
-                categoryFilter === category.id
-                  ? 'bg-primary text-primary-foreground'
-                  : '',
-              )}
-              onClick={() => handleStatusClick(category.id)}
-            >
-              {category.name}
-            </Card>
-          ))}
-        </div>
+        <ScrollArea className="h-[calc(100vh_-_48px_-_28px_-_36px_-_32px)]">
+          <div className="flex flex-row flex-wrap gap-4">
+            {categories?.map((category) => (
+              <Card
+                key={category.id}
+                className={cn(
+                  'p-4 select-none cursor-pointer',
+                  categoryFilter === category.id
+                    ? 'bg-primary text-primary-foreground'
+                    : '',
+                )}
+                onClick={() => handleStatusClick(category.id)}
+              >
+                {category.name}
+              </Card>
+            ))}
+          </div>
 
-        <ScrollArea className="lg:h-[calc(100vh_-_48px_-_28px_-_36px_-_58px_-_32px)]">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
-            {filteredProducts.length > 0 &&
-              filteredProducts.map((product) => (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full mt-4">
+            {filteredProducts &&
+              filteredProducts.length > 0 &&
+              filteredProducts?.map((product) => (
                 <Card
                   key={product.id}
                   className="flex flex-row justify-between p-4 cursor-pointer hover:bg-secondary/30"
@@ -117,18 +121,6 @@ export function ProductsList({
                 </Card>
               ))}
           </div>
-
-          {filteredProducts.length === 0 && (
-            <div
-              className="flex flex-col items-center justify-center gap-4 text-muted-foreground mx-auto
-                w-fit"
-            >
-              <Search className="w-32 h-32" />
-              <p className="text-center">
-                Nenhum produto &quot;{search}&quot; encontrado.
-              </p>
-            </div>
-          )}
         </ScrollArea>
       </div>
     </div>

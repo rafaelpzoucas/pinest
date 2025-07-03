@@ -112,7 +112,7 @@ export default async function CashRegister() {
   const totalBalance = totalIncome - totalExpense
 
   return (
-    <div className="space-y-6 p-4 lg:px-0">
+    <div className="space-y-6 p-4 pb-16 lg:px-0 w-screen lg:w-full">
       <div>
         {!cashSession && (
           <section className="space-y-6">
@@ -145,10 +145,10 @@ export default async function CashRegister() {
               <CreateTransactionForm />
             </header>
 
-            <div className="grid grid-cols-[2fr_1fr] items-start gap-4">
+            <div className="flex flex-col-reverse lg:grid lg:grid-cols-[2fr_1fr] items-start gap-4">
               <DataTable data={payments} columns={columns} />
 
-              <aside className="sticky top-4">
+              <aside className="lg:sticky top-4 w-full lg:w-auto">
                 <CashRegisterSummary payments={payments} />
               </aside>
             </div>

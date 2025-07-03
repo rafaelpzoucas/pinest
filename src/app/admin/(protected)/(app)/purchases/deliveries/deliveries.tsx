@@ -219,7 +219,7 @@ export function Deliveries({
   }, [])
 
   return (
-    <section className="flex flex-col gap-4 text-sm">
+    <section className="flex flex-col gap-4 text-sm pb-16">
       <header className="flex flex-col lg:flex-row gap-4">
         <Link
           href="purchases/deliveries/register"

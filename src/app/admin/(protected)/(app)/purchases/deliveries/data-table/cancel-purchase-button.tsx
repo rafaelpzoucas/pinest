@@ -33,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { CancellationReasonsType } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
@@ -52,8 +51,6 @@ export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
 
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
-
-  const isMobile = useIsMobile()
 
   const [cancellationReasons, setCancellationReasons] = useState<
     CancellationReasonsType[]
@@ -98,15 +95,14 @@ export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
       <AlertDialogTrigger
         className={cn(
           buttonVariants({
-            variant: !accepted ? 'destructive' : 'ghost',
-            size: !accepted ? 'default' : isMobile ? 'default' : 'icon',
+            variant: !accepted ? 'destructive' : 'outline',
+            size: !accepted ? 'default' : 'icon',
           }),
         )}
         onClick={handleGetCancellationReasons}
       >
         <X className="w-5 h-5" />
         {!accepted && <span>Recusar</span>}
-        {accepted && isMobile && 'Cancelar'}
       </AlertDialogTrigger>
 
       <AlertDialogContent>

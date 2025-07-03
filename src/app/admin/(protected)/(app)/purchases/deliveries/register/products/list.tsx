@@ -9,6 +9,7 @@ import { ProductType } from '@/models/product'
 import { Plus, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { UseFormReturn, useFieldArray } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { createPurchaseFormSchema } from '../schemas'
 
@@ -47,6 +48,8 @@ export function ProductsList({
       observations: [],
       extras: [],
     })
+
+    toast(`${product.name} adicionado.`)
   }
 
   const filteredProducts =
@@ -97,25 +100,25 @@ export function ProductsList({
           />
         </div>
 
-        <div className="flex flex-row flex-wrap gap-4">
-          {categories?.map((category) => (
-            <Card
-              key={category.id}
-              className={cn(
-                'p-4 select-none cursor-pointer',
-                categoryFilter === category.id
-                  ? 'bg-primary text-primary-foreground'
-                  : '',
-              )}
-              onClick={() => handleStatusClick(category.id)}
-            >
-              {category.name}
-            </Card>
-          ))}
-        </div>
+        <ScrollArea className="h-[calc(100vh_-_48px_-_28px_-_36px_-_32px)]">
+          <div className="flex flex-row flex-wrap gap-4">
+            {categories?.map((category) => (
+              <Card
+                key={category.id}
+                className={cn(
+                  'p-4 select-none cursor-pointer',
+                  categoryFilter === category.id
+                    ? 'bg-primary text-primary-foreground'
+                    : '',
+                )}
+                onClick={() => handleStatusClick(category.id)}
+              >
+                {category.name}
+              </Card>
+            ))}
+          </div>
 
-        <ScrollArea className="lg:h-[calc(100vh_-_48px_-_28px_-_36px_-_58px_-_32px)]">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full mt-4">
             {filteredProducts &&
               filteredProducts.length > 0 &&
               filteredProducts?.map((product) => (

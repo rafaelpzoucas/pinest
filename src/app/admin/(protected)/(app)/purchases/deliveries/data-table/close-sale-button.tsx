@@ -22,6 +22,8 @@ export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
 
   const { isCashOpen } = useCashRegister()
 
+  console.log(isCashOpen)
+
   const { execute: executeCloseBill, isPending: isCloseBillPending } =
     useServerAction(closeBills)
 

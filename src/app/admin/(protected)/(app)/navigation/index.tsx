@@ -1,6 +1,6 @@
 'use client'
 
-import { HomeIcon, Layers, LayoutList } from 'lucide-react'
+import { CircleDollarSign, HomeIcon, Layers, LayoutList } from 'lucide-react'
 
 import { LinkType } from '@/models/nav-links'
 import { MobileNav } from './mobile'
@@ -15,6 +15,11 @@ export const navLinks: LinkType[] = [
     route: '/admin/purchases',
     title: 'Pedidos',
     icon: Layers,
+  },
+  {
+    route: '/admin/cash-register',
+    title: 'Financeiro',
+    icon: CircleDollarSign,
   },
   {
     route: '/admin/catalog',

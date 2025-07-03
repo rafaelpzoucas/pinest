@@ -2,6 +2,7 @@
 
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -24,7 +25,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { createCashSession } from './actions'
@@ -58,9 +59,16 @@ export function OpenCashSession() {
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger className={buttonVariants()}>Abrir caixa</SheetTrigger>
       <SheetContent className="space-y-8">
-        <SheetHeader>
-          <SheetTitle>Abertura de caixa</SheetTitle>
-          <SheetDescription>
+        <SheetHeader className="items-start mb-4">
+          <div className="flex flex-row items-center gap-2">
+            <SheetClose
+              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            >
+              <ArrowLeft />
+            </SheetClose>
+            <SheetTitle className="!mt-0">Abertura de caixa</SheetTitle>
+          </div>
+          <SheetDescription className="!mt-0">
             Insira o valor inicial do seu caixa.
           </SheetDescription>
         </SheetHeader>

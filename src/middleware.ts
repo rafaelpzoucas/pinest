@@ -12,6 +12,18 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  const url = request.nextUrl.clone()
+  const hostname = request.headers.get('host') || ''
+  const pathname = url.pathname
+
+  // Ignora paths específicos incluindo callbacks de autenticação
+  if (
+    IGNORED_PATHS.some((p) => pathname.startsWith(p)) ||
+    pathname.includes('/auth/callback')
+  ) {
+    return response
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -60,20 +72,11 @@ export async function middleware(request: NextRequest) {
 
   await supabase.auth.getUser()
 
-  const url = request.nextUrl.clone()
-  const hostname = request.headers.get('host') || ''
-  const pathname = url.pathname
-
   const isLocalhost = hostname.startsWith('localhost')
   const isStaging = STAGING_DOMAINS.includes(hostname)
   const isProductionRoot = PRODUCTION_ROOT_DOMAINS.includes(hostname)
   const isProductionSubdomain =
     hostname.endsWith('.pinest.com.br') && !isProductionRoot
-
-  // Ignora paths específicos
-  if (IGNORED_PATHS.some((p) => pathname.startsWith(p))) {
-    return response
-  }
 
   // localhost ou staging → subdomínio no path
   if (isLocalhost || isStaging) {
