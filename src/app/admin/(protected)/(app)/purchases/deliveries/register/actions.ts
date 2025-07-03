@@ -3,7 +3,7 @@
 import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary/actions'
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
-import { PurchaseType } from '@/models/purchase'
+import { redirect } from 'next/navigation'
 import {
   printPurchaseReceipt,
   readPrintingSettings,
@@ -121,7 +121,7 @@ export const createPurchase = adminProcedure
       })
     }
 
-    return { createdPurchase: createdPurchase as PurchaseType }
+    redirect('/admin/purchases?tab=deliveries')
   })
 
 export const updatePurchase = adminProcedure
@@ -254,10 +254,5 @@ export const updatePurchase = adminProcedure
       })
     }
 
-    return {
-      updatedPurchase: {
-        ...updatedPurchase,
-        purchase_items: purchaseItems,
-      } as PurchaseType,
-    }
+    redirect('/admin/purchases?tab=deliveries')
   })

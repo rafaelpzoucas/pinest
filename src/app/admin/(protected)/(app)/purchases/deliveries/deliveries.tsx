@@ -262,13 +262,15 @@ export function Deliveries({
       </span>
 
       <div className="lg:hidden flex flex-col gap-2">
-        {filteredDeliveries && filteredDeliveries.length > 0 ? (
-          filteredDeliveries?.map((purchase) => (
-            <PurchaseCard key={purchase.id} purchase={purchase} />
-          ))
-        ) : (
-          <div>Não encontramos nenhum resultado para &apos;{search}&apos;</div>
-        )}
+        {filteredDeliveries && filteredDeliveries.length > 0
+          ? filteredDeliveries?.map((purchase) => (
+              <PurchaseCard key={purchase.id} purchase={purchase} />
+            ))
+          : search !== '' && (
+              <div>
+                Não encontramos nenhum resultado para &apos;{search}&apos;
+              </div>
+            )}
       </div>
 
       <div className="hidden lg:flex w-full">

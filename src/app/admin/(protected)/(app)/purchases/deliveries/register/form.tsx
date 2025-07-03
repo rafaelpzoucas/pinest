@@ -77,24 +77,10 @@ export function CreatePurchaseForm({
     },
   })
 
-  const { execute: executeCreate, isPending: isCreating } = useServerAction(
-    createPurchase,
-    {
-      onSuccess: () => {
-        router.push('/admin/purchases?tab=deliveries')
-        setIsFinishOpen(false)
-      },
-    },
-  )
-  const { execute: executeUpdate, isPending: isUpdating } = useServerAction(
-    updatePurchase,
-    {
-      onSuccess: () => {
-        router.push('/admin/purchases?tab=deliveries')
-        setIsFinishOpen(false)
-      },
-    },
-  )
+  const { execute: executeCreate, isPending: isCreating } =
+    useServerAction(createPurchase)
+  const { execute: executeUpdate, isPending: isUpdating } =
+    useServerAction(updatePurchase)
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createPurchaseFormSchema>) {
