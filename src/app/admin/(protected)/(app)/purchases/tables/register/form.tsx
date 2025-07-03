@@ -173,7 +173,7 @@ export function CreateSaleForm({
           </SheetContent>
         </Sheet>
 
-        <ScrollArea className="w-full h-[calc(100vh_-_32px_-_130px_-_32px)]">
+        <ScrollArea className="w-full h-[calc(100dvh_-_32px_-_130px_-_32px)]">
           <Card className="flex flex-col h-full">
             <CardContent className="p-4">
               <SelectedProducts

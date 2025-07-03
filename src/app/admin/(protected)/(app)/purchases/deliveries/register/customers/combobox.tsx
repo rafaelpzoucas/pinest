@@ -48,6 +48,7 @@ export function CustomersCombobox({
   const [selectedCustomer, setSelectedCustomer] = useState<
     StoreCustomerType | undefined
   >()
+  const [open, setOpen] = useState(!purchaseId) // inicia aberto se não tiver purchaseId
 
   return (
     <FormField
@@ -55,7 +56,7 @@ export function CustomersCombobox({
       name="customer_id"
       render={({ field }) => (
         <FormItem className="flex flex-col w-full max-w-md">
-          <Popover defaultOpen={!purchaseId}>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
                 <div
@@ -140,6 +141,7 @@ export function CustomersCombobox({
                             'delivery.address.observations',
                             storeCustomer.customers.address.observations,
                           )
+                          setOpen(false) // FECHA O POPOVER AQUI
                         }}
                       >
                         <div className="flex flex-col w-full">
