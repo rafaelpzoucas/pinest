@@ -143,7 +143,7 @@ export function CreatePurchaseForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="relative flex flex-col items-start gap-4 h-[calc(100vh_-_2rem)] lg:pb-0"
+        className="relative flex flex-col items-start gap-4 h-[calc(100dvh_-_2rem)] lg:pb-0"
       >
         <CustomersCombobox
           storeCustomers={customers}
