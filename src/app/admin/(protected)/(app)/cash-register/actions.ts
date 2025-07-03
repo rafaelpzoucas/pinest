@@ -162,7 +162,7 @@ export const readOpenPurchases = adminProcedure
       .from('purchases')
       .select('*')
       .eq('store_id', store.id)
-      .neq('status', 'delivered')
+      .eq('is_paid', false)
       .neq('status', 'cancelled')
 
     if (error) {
