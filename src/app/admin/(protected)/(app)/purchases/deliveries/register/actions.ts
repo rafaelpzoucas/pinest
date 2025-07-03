@@ -4,10 +4,7 @@ import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { redirect } from 'next/navigation'
-import {
-  printPurchaseReceipt,
-  readPrintingSettings,
-} from '../../../config/printing/actions'
+import { readPrintingSettings } from '../../../config/printing/actions'
 import { createPurchaseFormSchema, updatePurchaseFormSchema } from './schemas'
 
 export const createPurchase = adminProcedure
@@ -16,111 +13,97 @@ export const createPurchase = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase, store } = ctx
 
-    const { data: createdPurchase, error: createdPurchaseError } =
-      await supabase
-        .from('purchases')
-        .insert({
-          customer_id: input.customer_id,
-          status: input.status,
-          updated_at: new Date().toISOString(),
-          store_id: store?.id,
-          type: input.type,
-          payment_type: input.payment_type,
-          observations: input.observations,
-          total: {
-            subtotal: input.total.subtotal,
-            total_amount: input.total.total_amount,
-            shipping_price:
-              input.type !== 'TAKEOUT' ? input.total.shipping_price : 0,
-            change_value: input.total.change_value
-              ? stringToNumber(input.total.change_value)
-              : null,
-            discount: input.total.discount
-              ? stringToNumber(input.total.discount)
-              : null,
-          },
-          delivery: {
-            time: input.type === 'DELIVERY' ? store?.delivery_time : null,
-            address: input.delivery.address,
-          },
-        })
-        .select(
-          `
-            *,
-            purchase_items (
-              *,
-              products (*)
-            ),
-            purchase_item_variations (
-              *,
-              product_variations (*)
-            ),
-            store_customers (
-              *,
-              customers (*)
-            )
-          `,
-        )
-        .single()
-
-    if (createdPurchaseError) {
-      console.error('Não foi possível criar o pedido.', createdPurchaseError)
-      return
+    // 1. Monte total e itens **antes** de tocar no DB
+    const total = {
+      subtotal: input.total.subtotal,
+      total_amount: input.total.total_amount,
+      shipping_price: input.type !== 'TAKEOUT' ? input.total.shipping_price : 0,
+      change_value: input.total.change_value
+        ? stringToNumber(input.total.change_value)
+        : null,
+      discount: input.total.discount
+        ? stringToNumber(input.total.discount)
+        : null,
     }
 
     const deliveryFee =
       input.type === 'DELIVERY'
         ? {
-            purchase_id: createdPurchase.id,
-            is_paid: false,
-            description: 'Taxa de entrega',
-            product_price: input.total.shipping_price,
+            product_id: null, // sinalizador interno de delivery
             quantity: 1,
+            product_price: input.total.shipping_price,
             observations: [],
             extras: [],
           }
         : null
 
-    const purchaseItemsArray = [
-      ...input.purchase_items.map((item) => ({
-        purchase_id: createdPurchase.id,
-        product_id: item?.product_id,
-        quantity: item?.quantity,
-        product_price: item?.product_price,
-        observations: item?.observations,
+    const items = input.purchase_items
+      .map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product_price: item.product_price,
+        observations: item.observations,
         extras: item.extras,
-      })),
-      ...(deliveryFee ? [deliveryFee] : []),
-    ]
+      }))
+      .concat(deliveryFee ? [deliveryFee] : [])
 
-    const { data: purchaseItems, error: purchaseItemsError } = await supabase
+    // 2. Crie o pedido, buscando *só* o id
+    const { data: purchaseData, error: purchaseError } = await supabase
+      .from('purchases')
+      .insert({
+        customer_id: input.customer_id,
+        status: input.status,
+        store_id: store.id,
+        type: input.type,
+        payment_type: input.payment_type,
+        observations: input.observations,
+        total,
+        delivery: {
+          time: input.type === 'DELIVERY' ? store.delivery_time : null,
+          address: input.delivery.address,
+        },
+      })
+      .select('id') // ← só precisamos do ID aqui
+      .single()
+
+    if (purchaseError || !purchaseData) {
+      console.error('Erro criando purchase', purchaseError)
+      return
+    }
+    const purchaseId = purchaseData.id
+
+    // 3. Dispare em paralelo: inserção de itens + leitura de printSettings
+    const insertItems = supabase
       .from('purchase_items')
-      .insert(purchaseItemsArray)
-      .select()
+      .insert(items.map((it) => ({ ...it, purchase_id: purchaseId })))
+      .select('id,product_id,quantity')
 
-    if (purchaseItemsError) {
-      console.error(
-        'Não foi possível adicionar os itens ao pedido.',
-        purchaseItemsError,
-      )
+    const readPrintSettings = readPrintingSettings()
+
+    const [{ data: createdItems, error: itemsError }, [printSettingsData]] =
+      await Promise.all([insertItems, readPrintSettings])
+
+    if (itemsError || !createdItems) {
+      console.error('Erro inserindo items', itemsError)
       return
     }
 
-    if (purchaseItems) {
-      for (const item of purchaseItems) {
-        await updateAmountSoldAndStock(item.product_id, item.quantity)
-      }
-    }
-    const [printSettingsData] = await readPrintingSettings()
-    const printSettings = printSettingsData?.printingSettings
+    // 4. Atualize estoque **concor­rentemente**
+    await Promise.all(
+      createdItems.map(({ product_id: productId, quantity }) =>
+        updateAmountSoldAndStock(productId, quantity),
+      ),
+    )
 
-    if (printSettings?.auto_print) {
-      await printPurchaseReceipt({
-        purchaseId: createdPurchase.id,
-        reprint: false,
-      })
+    // 5. Se auto_print, só enfileire sem bloquear o fluxo
+    const autoPrint = printSettingsData?.printingSettings.auto_print
+    if (autoPrint) {
+      supabase
+        .from('print_queue')
+        .insert({ purchase_id: purchaseId, reprint: false })
     }
 
+    // 6. Redirect final
     redirect('/admin/purchases?tab=deliveries')
   })
 
@@ -130,129 +113,111 @@ export const updatePurchase = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase, store } = ctx
 
-    const { error: deleteItemsError } = await supabase
-      .from('purchase_items')
-      .delete()
-      .eq('purchase_id', input.id)
-
-    if (deleteItemsError) {
-      console.error('Erro ao deletar itens do pedido.', deleteItemsError)
-      return
+    // 1. Monte total e itens antes de tocar no banco
+    const total = {
+      subtotal: input.total.subtotal,
+      total_amount: input.total.total_amount,
+      shipping_price: input.type !== 'TAKEOUT' ? input.total.shipping_price : 0,
+      change_value: input.total.change_value
+        ? stringToNumber(input.total.change_value)
+        : 0,
+      discount: input.total.discount ? stringToNumber(input.total.discount) : 0,
     }
 
-    const { data: updatedPurchase, error: updatedPurchaseError } =
-      await supabase
-        .from('purchases')
-        .update({
-          updated_at: new Date().toISOString(),
-          store_id: store?.id,
-          type: input.type,
-          payment_type: input.payment_type,
-          observations: input.observations,
-          total: {
-            subtotal: input.total.subtotal,
-            total_amount: input.total.total_amount,
-            shipping_price:
-              input.type !== 'TAKEOUT' ? input.total.shipping_price : 0,
-            change_value: input.total.change_value
-              ? stringToNumber(input.total.change_value)
-              : 0,
-            discount: input.total.discount
-              ? stringToNumber(input.total.discount)
-              : 0,
-          },
-          delivery: {
-            time: input.type === 'DELIVERY' ? store?.delivery_time : null,
-            address: input.delivery.address,
-          },
-        })
-        .eq('id', input.id)
-        .select(
-          `
-            *,
-            purchase_items (
-              *,
-              products (*)
-            ),
-            purchase_item_variations (
-              *,
-              product_variations (*)
-            ),
-            store_customers (
-              *,
-              customers (*)
-            )
-          `,
-        )
-        .single()
-
-    if (updatedPurchaseError) {
-      console.error('Não foi possível criar o pedido.', updatedPurchaseError)
-      return
-    }
-
-    const alreadyHasDeliveryFee = input.purchase_items.some((item) => {
-      const isPossiblyDeliveryFee =
+    const alreadyHasDeliveryFee = input.purchase_items.some(
+      (item) =>
         !item.product_id &&
         item.product_price === input.total.shipping_price &&
-        (!item.extras || item.extras.length === 0)
-
-      return isPossiblyDeliveryFee
-    })
+        (!item.extras || item.extras.length === 0),
+    )
 
     const deliveryFee =
       input.type === 'DELIVERY' && !alreadyHasDeliveryFee
         ? {
-            purchase_id: updatedPurchase.id,
-            is_paid: false,
-            description: 'Taxa de entrega',
-            product_price: input.total.shipping_price,
+            // identificador interno de delivery fee
+            product_id: null,
             quantity: 1,
+            product_price: input.total.shipping_price,
             observations: [],
             extras: [],
           }
         : null
 
-    const purchaseItemsArray = [
-      ...input.purchase_items.map((item) => ({
-        purchase_id: updatedPurchase.id,
-        product_id: item?.product_id,
-        quantity: item?.quantity,
-        product_price: item?.product_price,
-        observations: item?.observations,
+    const itemsPayload = input.purchase_items
+      .map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product_price: item.product_price,
+        observations: item.observations,
         extras: item.extras,
-      })),
-      ...(deliveryFee ? [deliveryFee] : []),
-    ]
+      }))
+      .concat(deliveryFee ? [deliveryFee] : [])
 
-    const { data: purchaseItems, error: purchaseItemsError } = await supabase
+    // 2. Delete antigo e, em sequência, faça o update de purchase pegando só o ID
+    const { error: deleteErr } = await supabase
       .from('purchase_items')
-      .insert(purchaseItemsArray)
-      .select()
+      .delete()
+      .eq('purchase_id', input.id)
 
-    if (purchaseItemsError) {
-      console.error(
-        'Não foi possível adicionar os itens ao pedido.',
-        purchaseItemsError,
-      )
+    if (deleteErr) {
+      console.error('Erro ao deletar itens:', deleteErr)
       return
     }
 
-    if (purchaseItems) {
-      for (const item of purchaseItems) {
-        await updateAmountSoldAndStock(item.product_id, item.quantity)
-      }
-    }
-
-    const [printSettingsData] = await readPrintingSettings()
-    const printSettings = printSettingsData?.printingSettings
-
-    if (printSettings?.auto_print) {
-      await printPurchaseReceipt({
-        purchaseId: updatedPurchase.id,
-        reprint: true,
+    const { data: updated, error: updateErr } = await supabase
+      .from('purchases')
+      .update({
+        store_id: store.id,
+        type: input.type,
+        payment_type: input.payment_type,
+        observations: input.observations,
+        total,
+        delivery: {
+          time: input.type === 'DELIVERY' ? store.delivery_time : null,
+          address: input.delivery.address,
+        },
       })
+      .eq('id', input.id)
+      .select('id') // ← só precisamos do ID aqui
+      .single()
+
+    if (updateErr || !updated) {
+      console.error('Erro ao atualizar purchase:', updateErr)
+      return
+    }
+    const purchaseId = updated.id
+
+    // 3. Dispare em paralelo: insert de itens e leitura de printSettings
+    const insertItems = supabase
+      .from('purchase_items')
+      .insert(itemsPayload.map((it) => ({ ...it, purchase_id: purchaseId })))
+      .select('product_id,quantity')
+
+    const readSettings = readPrintingSettings()
+
+    const [{ data: newItems, error: itemsErr }, [settingsData]] =
+      await Promise.all([insertItems, readSettings])
+
+    if (itemsErr || !newItems) {
+      console.error('Erro ao inserir novos itens:', itemsErr)
+      return
     }
 
+    // 4. Atualize estoque e vendas em paralelo
+    await Promise.all(
+      newItems.map(({ product_id: productId, quantity }) =>
+        updateAmountSoldAndStock(productId, quantity),
+      ),
+    )
+
+    // 5. Se auto_print, enfileire sem await
+    const autoPrint = settingsData?.printingSettings.auto_print
+    if (autoPrint) {
+      supabase
+        .from('print_queue')
+        .insert({ purchase_id: purchaseId, reprint: true })
+    }
+
+    // 6. Redirect final
     redirect('/admin/purchases?tab=deliveries')
   })
