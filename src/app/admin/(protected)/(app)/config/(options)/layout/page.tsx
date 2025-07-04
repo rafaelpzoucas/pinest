@@ -13,7 +13,7 @@ export default async function Layout() {
   const store = storeData?.store
 
   return (
-    <div className="space-y-4 lg:px-0">
+    <div className="space-y-4 pb-16 lg:px-0">
       <AdminHeader title="Organização da loja" />
 
       <section className="space-y-6">

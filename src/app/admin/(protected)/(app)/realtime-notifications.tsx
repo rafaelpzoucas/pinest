@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { PurchaseType } from '@/models/purchase'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function RealtimeNotifications({
   purchases,
@@ -12,23 +12,29 @@ export function RealtimeNotifications({
 }) {
   const supabase = createClient()
   const router = useRouter()
+  const [canPlay, setCanPlay] = useState(true)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const hasPending = purchases.some(
       (purchase) => purchase.status === 'accept',
     )
 
+    // Função que toca o som com debounce
+    const playAudio = () => {
+      if (!canPlay) return
+      const sound = new Audio('/new-order-notification.mp3')
+      sound.play()
+      setCanPlay(false)
+      timeoutRef.current = setTimeout(() => {
+        setCanPlay(true)
+      }, 10000)
+    }
+
     let interval: NodeJS.Timeout | null = null
 
     if (hasPending) {
-      // Função que toca o som
-      const playAudio = () => {
-        const sound = new Audio('/new-order-notification.mp3')
-        sound.play()
-      }
-
-      interval = setInterval(playAudio, 5000)
-
+      interval = setInterval(playAudio, 10000)
       playAudio()
     }
 
@@ -36,8 +42,11 @@ export function RealtimeNotifications({
       if (interval) {
         clearInterval(interval)
       }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
     }
-  }, [purchases])
+  }, [purchases, canPlay])
 
   useEffect(() => {
     const channel = supabase

@@ -10,7 +10,7 @@ import { useCashRegister } from '@/stores/cashRegisterStore'
 import { Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { readCashSession } from '../../cash-register/actions'
 import { columns } from './data-table/columns'
@@ -147,12 +147,22 @@ export function Deliveries({
   }
 
   function showNotification() {
+    const now = Date.now()
+    if (
+      lastNotificationTimeRef.current &&
+      now - lastNotificationTimeRef.current < 10000
+    ) {
+      // Se não passaram 10 segundos desde a última notificação, não exibe outra
+      return
+    }
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {
         const notification = new Notification('Novo Pedido Recebido', {
           body: 'Clique aqui para visualizar o pedido.',
           icon: '/icon-dark.svg',
         })
+
+        lastNotificationTimeRef.current = now
 
         notification.onclick = () => {
           const myWindow = window.open(
@@ -172,6 +182,9 @@ export function Deliveries({
       }
     }
   }
+
+  // Ref para controlar o debounce das notificações
+  const lastNotificationTimeRef = useRef<number | null>(null)
 
   useEffect(() => {
     const channel = supabase

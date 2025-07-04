@@ -15,6 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { NewPrinterForm } from './new-printer-form'
@@ -27,6 +28,16 @@ export function Printers({ printers }: { printers?: PrinterType[] }) {
   }
 
   const [isOpen, setIsOpen] = useState(false)
+
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <Card>
+        <CardHeader>Configure as impressoras pelo app desktop.</CardHeader>
+      </Card>
+    )
+  }
 
   return (
     <div>

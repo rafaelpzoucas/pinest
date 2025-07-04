@@ -13,7 +13,7 @@ export default async function PrintingPage() {
   const printers = printersData?.printers
 
   return (
-    <div className="py-8 space-y-6">
+    <div className="pb-16 p-4 lg:px-0 space-y-6">
       <Extension />
       {/* <AutoPrint printSettings={printSettings} /> */}
       <Printers printers={printers} />
