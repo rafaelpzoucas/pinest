@@ -117,7 +117,12 @@ export async function GET(request: Request) {
       checkout === 'true'
         ? `${domain}/account?checkout=pickup`
         : `${domain}/purchases`
-  } else if (isStagingHost || process.env.NODE_ENV !== 'production') {
+  } else if (
+    isStagingHost ||
+    process.env.NODE_ENV !== 'production' ||
+    process.env.VERCEL_ENV === 'preview' ||
+    process.env.VERCEL_GIT_COMMIT_REF === 'staging'
+  ) {
     // Em ambiente de desenvolvimento ou staging utilizamos createPath
     const accountPath =
       checkout === 'true' ? '/account?checkout=pickup' : '/purchases'

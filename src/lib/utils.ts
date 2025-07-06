@@ -180,11 +180,14 @@ const isStagingEnvironment = () => {
     )
   }
 
-  // Detecção no servidor - simplificada
+  // Detecção no servidor - melhorada
   const hostname =
     process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || ''
   const isStaging =
-    hostname.includes('staging') || hostname.includes('staging-pinest')
+    hostname.includes('staging') ||
+    hostname.includes('staging-pinest') ||
+    process.env.VERCEL_ENV === 'preview' ||
+    process.env.VERCEL_GIT_COMMIT_REF === 'staging'
 
   // Debug logs
   console.log('isStagingEnvironment debug:', {
@@ -201,6 +204,13 @@ const isStagingEnvironment = () => {
 }
 
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
+  console.log('getRootPath debug:', {
+    storeSubdomain,
+    isWindow: typeof window !== 'undefined',
+    NODE_ENV: process.env.NODE_ENV,
+    isStaging: isStagingEnvironment(),
+  })
+
   if (!storeSubdomain) return ''
 
   const isLocalhost =
