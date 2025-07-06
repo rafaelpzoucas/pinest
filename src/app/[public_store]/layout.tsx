@@ -69,10 +69,7 @@ export default async function PublicStoreLayout({
       disableTransitionOnChange
     >
       <ThemeDataProvider>
-        <div
-          className="flex lg:flex-row items-center justify-center p-4 pb-20 min-h-screen
-            bg-background"
-        >
+        <div className="flex lg:flex-row items-center justify-center p-4 pb-20 bg-background">
           <div className="w-full lg:max-w-7xl">
             {children}
 
