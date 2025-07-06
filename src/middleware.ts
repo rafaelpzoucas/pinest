@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const IGNORED_PREFIXES = ['/_next', '/api', '/favicon.ico']
+const IGNORED_PREFIXES = ['/_next', '/api', '/favicon.ico', '/admin']
 const STAGING_HOSTS = [
   'staging.pinest.com.br',
   'staging-pinest.vercel.app',
@@ -10,7 +10,7 @@ const STAGING_HOSTS = [
 export function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl
 
-  // Ignora assets e APIs
+  // Ignorar rotas específicas
   if (IGNORED_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.next()
   }
@@ -19,10 +19,10 @@ export function middleware(request: NextRequest) {
 
   let subdomain: string | undefined
 
-  // Se estiver em produção (não é staging)
+  // Produção (subdomínio válido)
   const prodMatch = hostname.match(/^(?<store>[^.]+)\.pinest\.com\.br$/)
 
-  if (prodMatch && prodMatch.groups && !isStagingHost) {
+  if (prodMatch?.groups && !isStagingHost) {
     subdomain = prodMatch.groups.store
 
     const url = request.nextUrl.clone()
@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
     return response
   }
 
-  // Em staging/local, define subdomínio como o primeiro segmento do path
+  // Staging/local: usa primeiro segmento como subdomínio
   const segments = pathname.split('/').filter(Boolean)
   if (segments.length > 0) {
     subdomain = segments[0]
