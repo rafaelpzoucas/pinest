@@ -173,20 +173,28 @@ export async function isSameCity(cep1: string, cep2: string) {
   }
 }
 
+const isStagingEnvironment = () => {
+  if (typeof window !== 'undefined') {
+    return ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
+      window.location.hostname,
+    )
+  }
+
+  // Detecção no servidor
+  const hostname =
+    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || ''
+  return hostname.includes('staging') || hostname.includes('staging-pinest')
+}
+
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
   if (!storeSubdomain) return ''
 
   const isLocalhost =
     typeof window !== 'undefined'
       ? window.location.hostname.startsWith('localhost')
-      : process.env.NODE_ENV !== 'production'
+      : process.env.NODE_ENV === 'development'
 
-  const isStaging =
-    typeof window !== 'undefined'
-      ? ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
-          window.location.hostname,
-        )
-      : false // assume false no server, ou ajuste conforme necessário
+  const isStaging = isStagingEnvironment()
 
   if (isLocalhost || isStaging) {
     return `${storeSubdomain}`

@@ -107,8 +107,13 @@ export async function GET(request: Request) {
       checkout === 'true'
         ? `${domain}/account?checkout=pickup`
         : `${domain}/purchases`
-  } else if (process.env.NODE_ENV !== 'production') {
-    // Em ambiente de desenvolvimento utilizamos createPath
+  } else if (
+    process.env.NODE_ENV !== 'production' ||
+    process.env.VERCEL_URL?.includes('staging') ||
+    process.env.NEXT_PUBLIC_VERCEL_URL?.includes('staging') ||
+    origin.includes('staging')
+  ) {
+    // Em ambiente de desenvolvimento ou staging utilizamos createPath
     const accountPath =
       checkout === 'true' ? '/account?checkout=pickup' : '/purchases'
     redirectURL = `${origin}${createPath(accountPath, subdomain)}`
