@@ -47,13 +47,7 @@ const nextConfig = {
           { type: 'host', value: 'staging-pinest.vercel.app' },
           { type: 'host', value: 'localhost:3000' },
         ],
-        destination: '/[public_store]/:path*',
-      },
-      // Fallback para localhost sem subpath
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'localhost:3000' }],
-        destination: '/[public_store]/:path*',
+        destination: '/:store/:path*',
       },
     ]
   },
