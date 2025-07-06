@@ -86,10 +86,8 @@ export const storeProcedure = createServerActionProcedure().handler(
     })
 
     if (!subdomainCookie) {
-      console.error(
-        'Nenhuma loja identificada - cookie public_store_subdomain não encontrado.',
-      )
-      return { store: null, supabase, cookieStore }
+      console.error('Nenhuma loja identificada.')
+      return null
     }
 
     const { data: store, error } = await supabase
@@ -106,13 +104,7 @@ export const storeProcedure = createServerActionProcedure().handler(
       .single()
 
     if (error) {
-      console.error('Erro ao buscar dados da loja:', error)
-      return { store: null, supabase, cookieStore }
-    }
-
-    if (!store) {
-      console.error('Loja não encontrada para subdomain:', subdomainCookie)
-      return { store: null, supabase, cookieStore }
+      console.error('Erro ao buscar dados da loja.', error)
     }
 
     console.log('storeProcedure store debug:', {

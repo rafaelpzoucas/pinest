@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const IGNORED_PREFIXES = ['/_next', '/api', '/favicon.ico']
 const STAGING_HOSTS = [
@@ -11,69 +10,43 @@ const STAGING_HOSTS = [
 export function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl
 
-  console.log('Middleware executando para:', { hostname, pathname })
-
-  // Ignora estáticos e APIs
+  // Ignora assets e APIs
   if (IGNORED_PREFIXES.some((p) => pathname.startsWith(p))) {
-    console.log('Middleware: Ignorando path:', pathname)
     return NextResponse.next()
   }
 
-  let subdomain: string | undefined
-
-  // Tentativa de capturar subdomínio em produção, mas não em staging
-  const prodMatch = hostname.match(/^(?<store>[^.]+)\.pinest\.com\.br$/)
   const isStagingHost = STAGING_HOSTS.includes(hostname)
 
-  console.log('Middleware: Análise do hostname:', {
-    hostname,
-    prodMatch: prodMatch?.groups,
-    isStagingHost,
-  })
+  let subdomain: string | undefined
+
+  // Se estiver em produção (não é staging)
+  const prodMatch = hostname.match(/^(?<store>[^.]+)\.pinest\.com\.br$/)
 
   if (prodMatch && prodMatch.groups && !isStagingHost) {
-    // Produção real - subdomínio como loja.pinest.com.br
     subdomain = prodMatch.groups.store
-    console.log('Middleware: Subdomínio detectado em produção:', subdomain)
-  } else if (isStagingHost || hostname.includes('localhost')) {
-    // Localhost ou staging: primeiro segmento de path
-    const segments = pathname.split('/').filter(Boolean)
-    if (segments.length > 0) {
-      subdomain = segments[0]
-      console.log('Middleware: Subdomínio detectado em staging/dev:', subdomain)
-    }
-  }
 
-  if (subdomain) {
-    const response = NextResponse.next()
-    response.cookies.set('public_store_subdomain', subdomain, {
-      path: '/',
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    })
-    console.log('Middleware: Cookie definido para subdomain:', subdomain)
+    const url = request.nextUrl.clone()
+    url.pathname = `/${subdomain}${pathname === '/' ? '' : pathname}`
+
+    const response = NextResponse.rewrite(url)
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
     return response
   }
 
-  console.log(
-    'Middleware: Nenhum subdomínio detectado para:',
-    hostname,
-    pathname,
-  )
+  // Em staging/local, define subdomínio como o primeiro segmento do path
+  const segments = pathname.split('/').filter(Boolean)
+  if (segments.length > 0) {
+    subdomain = segments[0]
+    const response = NextResponse.next()
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
+    return response
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - static files (images, etc.)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/:path((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
