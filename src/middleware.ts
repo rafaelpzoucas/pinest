@@ -11,11 +11,8 @@ const STAGING_HOSTS = [
 export function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl
 
-  console.log('Middleware executando para:', { hostname, pathname })
-
   // Ignora estáticos e APIs
   if (IGNORED_PREFIXES.some((p) => pathname.startsWith(p))) {
-    console.log('Middleware: Ignorando path:', pathname)
     return NextResponse.next()
   }
 
@@ -25,55 +22,26 @@ export function middleware(request: NextRequest) {
   const prodMatch = hostname.match(/^(?<store>[^.]+)\.pinest\.com\.br$/)
   const isStagingHost = STAGING_HOSTS.includes(hostname)
 
-  console.log('Middleware: Análise do hostname:', {
-    hostname,
-    prodMatch: prodMatch?.groups,
-    isStagingHost,
-  })
-
   if (prodMatch && prodMatch.groups && !isStagingHost) {
-    // Produção real - subdomínio como loja.pinest.com.br
+    // Produção real
     subdomain = prodMatch.groups.store
-    console.log('Middleware: Subdomínio detectado em produção:', subdomain)
-  } else if (isStagingHost || hostname.includes('localhost')) {
+  } else {
     // Localhost ou staging: primeiro segmento de path
     const segments = pathname.split('/').filter(Boolean)
-    if (segments.length > 0) {
-      subdomain = segments[0]
-      console.log('Middleware: Subdomínio detectado em staging/dev:', subdomain)
-    }
+    subdomain = segments[0]
   }
 
   if (subdomain) {
     const response = NextResponse.next()
-    response.cookies.set('public_store_subdomain', subdomain, {
-      path: '/',
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    })
-    console.log('Middleware: Cookie definido para subdomain:', subdomain)
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
     return response
   }
 
-  console.log(
-    'Middleware: Nenhum subdomínio detectado para:',
-    hostname,
-    pathname,
-  )
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - static files (images, etc.)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/:path((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
