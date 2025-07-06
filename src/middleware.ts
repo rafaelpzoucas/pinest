@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const IGNORED_PREFIXES = ['/_next', '/api', '/favicon.ico']
 const STAGING_HOSTS = [
@@ -11,27 +10,33 @@ const STAGING_HOSTS = [
 export function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl
 
-  // Ignora estáticos e APIs
+  // Ignora assets e APIs
   if (IGNORED_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.next()
   }
 
-  let subdomain: string | undefined
-
-  // Tentativa de capturar subdomínio em produção, mas não em staging
-  const prodMatch = hostname.match(/^(?<store>[^.]+)\.pinest\.com\.br$/)
   const isStagingHost = STAGING_HOSTS.includes(hostname)
 
+  let subdomain: string | undefined
+
+  // Se estiver em produção (não é staging)
+  const prodMatch = hostname.match(/^(?<store>[^.]+)\.pinest\.com\.br$/)
+
   if (prodMatch && prodMatch.groups && !isStagingHost) {
-    // Produção real
     subdomain = prodMatch.groups.store
-  } else {
-    // Localhost ou staging: primeiro segmento de path
-    const segments = pathname.split('/').filter(Boolean)
-    subdomain = segments[0]
+
+    const url = request.nextUrl.clone()
+    url.pathname = `/${subdomain}${pathname === '/' ? '' : pathname}`
+
+    const response = NextResponse.rewrite(url)
+    response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
+    return response
   }
 
-  if (subdomain) {
+  // Em staging/local, define subdomínio como o primeiro segmento do path
+  const segments = pathname.split('/').filter(Boolean)
+  if (segments.length > 0) {
+    subdomain = segments[0]
     const response = NextResponse.next()
     response.cookies.set('public_store_subdomain', subdomain, { path: '/' })
     return response
