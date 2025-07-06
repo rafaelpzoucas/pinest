@@ -24,9 +24,6 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
-  experimental: {
-    middlewareHost: true,
-  },
   async rewrites() {
     return [
       // Produção: foo.pinest.com.br/* → /foo/*
@@ -53,11 +50,6 @@ const nextConfig = {
         destination: '/:store/:path*',
       },
     ]
-  },
-  middleware: {
-    matcher: [
-      '/:path((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-    ],
   },
 }
 

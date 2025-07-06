@@ -41,5 +41,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // O matcher do next.config.js já aplica as rotas relevantes
+  matcher: [
+    '/:path((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
