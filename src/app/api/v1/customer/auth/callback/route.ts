@@ -12,6 +12,11 @@ export async function GET(request: Request) {
   const customDomain = requestUrl.searchParams.get('custom_domain')
   const origin = requestUrl.origin
 
+  // Detectar se é staging baseado no hostname da requisição
+  const isStagingHost =
+    origin.includes('staging.pinest.com.br') ||
+    origin.includes('staging-pinest.vercel.app')
+
   console.log('Callback recebido:', {
     code: code ? 'presente' : 'ausente',
     error,
@@ -20,8 +25,13 @@ export async function GET(request: Request) {
     checkout,
     customDomain,
     origin,
+    isStagingHost,
     url: request.url,
     nodeEnv: process.env.NODE_ENV,
+    VERCEL_URL: process.env.VERCEL_URL,
+    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,
     hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   })
@@ -107,16 +117,19 @@ export async function GET(request: Request) {
       checkout === 'true'
         ? `${domain}/account?checkout=pickup`
         : `${domain}/purchases`
-  } else if (
-    process.env.NODE_ENV !== 'production' ||
-    process.env.VERCEL_URL?.includes('staging') ||
-    process.env.NEXT_PUBLIC_VERCEL_URL?.includes('staging') ||
-    origin.includes('staging')
-  ) {
+  } else if (isStagingHost || process.env.NODE_ENV !== 'production') {
     // Em ambiente de desenvolvimento ou staging utilizamos createPath
     const accountPath =
       checkout === 'true' ? '/account?checkout=pickup' : '/purchases'
     redirectURL = `${origin}${createPath(accountPath, subdomain)}`
+
+    console.log('Redirecionamento staging/dev:', {
+      condition: 'staging_or_dev',
+      accountPath,
+      subdomain,
+      createPathResult: createPath(accountPath, subdomain),
+      redirectURL,
+    })
   } else {
     // Em produção utilizamos o formato subdomínio.pinest.com.br
     if (!subdomain) {
@@ -128,6 +141,12 @@ export async function GET(request: Request) {
       checkout === 'true'
         ? `https://${subdomain}.pinest.com.br/account?checkout=pickup`
         : `https://${subdomain}.pinest.com.br/purchases`
+
+    console.log('Redirecionamento produção:', {
+      condition: 'production',
+      subdomain,
+      redirectURL,
+    })
   }
 
   console.log('Redirecionamento final para:', redirectURL)
