@@ -28,9 +28,5 @@ export const readStore = storeProcedure
   .handler(async ({ ctx }) => {
     const { store } = ctx
 
-    if (!store) {
-      return { store: null }
-    }
-
     return { store }
   })

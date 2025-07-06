@@ -24,22 +24,33 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
-  async rewrites() {
+  rewrites() {
     return [
-      // Produção: foo.pinest.com.br/* → /[public_store]/*
+      // Produção: root → /store
+      {
+        source: '/',
+        has: [
+          {
+            type: 'host',
+            value:
+              '(?!staging(?:-pinest)?.vercel.app|staging.pinest.com.br)(?<store>[^.]+)\\.pinest\\.com\\.br',
+          },
+        ],
+        destination: '/:store',
+      },
+      // Produção: subpaths → /store/path
       {
         source: '/:path*',
         has: [
           {
             type: 'host',
-            // Captura o subdomínio em um grupo nomeado, excluindo hosts de staging
             value:
-              '(?!staging(?:-pinest)?.vercel.app|staging.pinest.com.br)(?<store>[^.]+).pinest.com.br',
+              '(?!staging(?:-pinest)?.vercel.app|staging.pinest.com.br)(?<store>[^.]+)\\.pinest\\.com\\.br',
           },
         ],
-        destination: '/[public_store]/:path*',
+        destination: '/:store/:path*',
       },
-      // Staging (subpath) em staging.pinest.com.br ou staging-pinest.vercel.app e localhost
+      // Staging e localhost (já cobre root e paths)
       {
         source: '/:store/:path*',
         has: [
@@ -47,13 +58,7 @@ const nextConfig = {
           { type: 'host', value: 'staging-pinest.vercel.app' },
           { type: 'host', value: 'localhost:3000' },
         ],
-        destination: '/[public_store]/:path*',
-      },
-      // Fallback para localhost sem subpath
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'localhost:3000' }],
-        destination: '/[public_store]/:path*',
+        destination: '/:store/:path*',
       },
     ]
   },
