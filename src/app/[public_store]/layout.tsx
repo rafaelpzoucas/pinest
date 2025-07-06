@@ -54,6 +54,7 @@ export default async function PublicStoreLayout({
   const store = response?.store
 
   if (!store) {
+    console.error('Layout: Loja não encontrada, retornando NotFound')
     return <NotFound />
   }
 
