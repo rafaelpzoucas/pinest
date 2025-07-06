@@ -6,7 +6,14 @@ import setGlobalColorTheme from '@/lib/theme-colors'
 import { StoreType } from '@/models/store'
 import { useTheme } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
-import { createContext, useContext, useEffect, useState } from 'react'
+import Image from 'next/image'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useServerAction } from 'zsa-react'
 
 const ThemeContext = createContext<ThemeColorStateParams>(
@@ -18,6 +25,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
   const [themeColor, setThemeColor] = useState<ThemeColors>('Zinc')
   const [themeMode, setThemeMode] = useState<ThemeModes>('light')
   const [isMounted, setIsMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const { setTheme } = useTheme()
 
   const { execute, data } = useServerAction(readStore, {
@@ -28,7 +36,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
 
   const storeSubdomain = store?.store_subdomain
 
-  const getSavedTheme = async () => {
+  const getSavedTheme = useCallback(async () => {
     try {
       if (!storeSubdomain) {
         return { color: 'Zinc' as ThemeColors, mode: 'system' as ThemeModes }
@@ -44,7 +52,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     } catch (err) {
       return { color: 'Zinc' as ThemeColors, mode: 'dark' as ThemeModes }
     }
-  }
+  }, [storeSubdomain])
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -54,8 +62,10 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
       setTheme(mode) // Define o tema inicial com next-themes
     }
 
-    loadTheme()
-  }, [storeSubdomain, setTheme])
+    if (storeSubdomain) {
+      loadTheme()
+    }
+  }, [getSavedTheme, setTheme])
 
   useEffect(() => {
     if (!storeSubdomain) {
@@ -70,14 +80,28 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     if (!isMounted) {
       setIsMounted(true)
     }
-  }, [themeColor, themeMode]) // eslint-disable-line
+
+    setIsLoading(false)
+  }, [themeColor, themeMode, storeSubdomain, isMounted])
 
   useEffect(() => {
     execute()
-  }, [])
+  }, [execute])
 
-  if (!isMounted) {
-    return null
+  // Mostra loading apenas se ainda estiver carregando e não estiver montado
+  if (isLoading || !isMounted) {
+    return (
+      <div className="w-full h-dvh flex flex-col items-center justify-center bg-background">
+        <div className="relative w-16 h-16 animate-bounce">
+          <Image
+            src="/icon-dark.svg"
+            fill
+            alt="Carregando..."
+            className="object-fill"
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
