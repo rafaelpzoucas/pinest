@@ -173,20 +173,52 @@ export async function isSameCity(cep1: string, cep2: string) {
   }
 }
 
+const isStagingEnvironment = () => {
+  if (typeof window !== 'undefined') {
+    return ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
+      window.location.hostname,
+    )
+  }
+
+  // Detecção no servidor - melhorada
+  const hostname =
+    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || ''
+  const isStaging =
+    hostname.includes('staging') ||
+    hostname.includes('staging-pinest') ||
+    process.env.VERCEL_ENV === 'preview' ||
+    process.env.VERCEL_GIT_COMMIT_REF === 'staging'
+
+  // Debug logs
+  console.log('isStagingEnvironment debug:', {
+    VERCEL_URL: process.env.VERCEL_URL,
+    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,
+    NODE_ENV: process.env.NODE_ENV,
+    hostname,
+    isStaging,
+  })
+
+  return isStaging
+}
+
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
+  console.log('getRootPath debug:', {
+    storeSubdomain,
+    isWindow: typeof window !== 'undefined',
+    NODE_ENV: process.env.NODE_ENV,
+    isStaging: isStagingEnvironment(),
+  })
+
   if (!storeSubdomain) return ''
 
   const isLocalhost =
     typeof window !== 'undefined'
       ? window.location.hostname.startsWith('localhost')
-      : process.env.NODE_ENV !== 'production'
+      : process.env.NODE_ENV === 'development'
 
-  const isStaging =
-    typeof window !== 'undefined'
-      ? ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
-          window.location.hostname,
-        )
-      : false // assume false no server, ou ajuste conforme necessário
+  const isStaging = isStagingEnvironment()
 
   if (isLocalhost || isStaging) {
     return `${storeSubdomain}`

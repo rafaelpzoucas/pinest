@@ -32,7 +32,13 @@ export default async function PurchasesPage() {
   )
 
   if (!storeCustomerPhone) {
-    return redirect(createPath('/account', store?.store_subdomain))
+    const redirectPath = createPath('/account', store?.store_subdomain)
+    console.log('Purchases page redirect debug:', {
+      storeSubdomain: store?.store_subdomain,
+      redirectPath,
+      createPathResult: createPath('/account', store?.store_subdomain),
+    })
+    return redirect(redirectPath)
   }
 
   return (
