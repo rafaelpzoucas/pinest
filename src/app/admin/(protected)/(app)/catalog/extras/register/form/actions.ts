@@ -24,7 +24,6 @@ export async function createExtra(values: z.infer<typeof newExtraFormSchema>) {
   })
 
   if (error) {
-    console.log(error)
     throw new Error('Não foi possível inserir um novo adicional!', error)
   }
 

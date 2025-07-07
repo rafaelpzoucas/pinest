@@ -33,14 +33,6 @@ export function SignInWithGoogle({
         window.location.origin
       }/api/v1/customer/auth/callback?${callbackParams.toString()}`
 
-      console.log('Iniciando login Google:', {
-        subdomain,
-        customDomain,
-        isCheckout,
-        redirectURL,
-        origin: window.location.origin,
-      })
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

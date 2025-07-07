@@ -129,9 +129,6 @@ export function CashForm({
         }
       })
 
-      const validated = createCashReceiptsSchema.parse(cashReceipts)
-      console.log({ validated })
-
       createReceipts(cashReceipts)
     } catch (err) {
       console.error('Erro de validação:', err)

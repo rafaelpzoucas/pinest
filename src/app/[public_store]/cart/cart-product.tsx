@@ -85,8 +85,6 @@ export function CartProduct({
     handleReadCartProductVariations()
   }, [])
 
-  console.log(cartProduct)
-
   return (
     <div className="flex flex-col gap-2 py-2 border-b last:border-0 w-full">
       <Link href="">

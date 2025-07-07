@@ -46,7 +46,6 @@ export function ReadCustomerForm() {
 
   async function onSubmit(values: z.infer<typeof readAccountSchema>) {
     execute(values)
-    console.log(values)
   }
 
   return (

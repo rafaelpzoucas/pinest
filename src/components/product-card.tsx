@@ -66,8 +66,6 @@ export function ProductCard({
     observations.length > 0 &&
     observations?.filter((obs) => obs !== '')
 
-  console.log(filteredObservations)
-
   if (!data) {
     return (
       <div className={cn(productCardVariants({ variant }))}>

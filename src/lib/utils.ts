@@ -204,13 +204,6 @@ const isStagingEnvironment = () => {
 }
 
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
-  console.log('getRootPath debug:', {
-    storeSubdomain,
-    isWindow: typeof window !== 'undefined',
-    NODE_ENV: process.env.NODE_ENV,
-    isStaging: isStagingEnvironment(),
-  })
-
   if (!storeSubdomain) return ''
 
   const isLocalhost =
