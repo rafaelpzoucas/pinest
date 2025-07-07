@@ -48,8 +48,34 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
 
   return (
     <>
-      <div className="flex flex-row w-fit gap-1">
+      <div className="flex flex-row justify-end w-full gap-1">
         <UpdateStatusButton purchase={purchase} />
+
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <div>
+                <CancelPurchaseButton purchase={purchase} />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Cancelar pedido</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <div>
+                <CloseSaleButton purchase={purchase} />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Fechar venda</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <div className="hidden lg:flex flex-row justify-end">
           <TooltipProvider>
@@ -65,32 +91,6 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
             ))}
           </TooltipProvider>
         </div>
-
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <div>
-                <CloseSaleButton purchase={purchase} />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Fechar venda</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <div>
-                <CancelPurchaseButton purchase={purchase} />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Cancelar pedido</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
 
         <DropdownMenu>
           <DropdownMenuTrigger

@@ -136,7 +136,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
     cell: ({ row }) => {
       const discount = row.original?.total?.discount
 
-      return discount ? formatCurrencyBRL(discount) : <p>-</p>
+      return discount ? formatCurrencyBRL(discount * -1) : <p>-</p>
     },
     meta: { clickable: true },
   },
