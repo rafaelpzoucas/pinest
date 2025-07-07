@@ -3,6 +3,7 @@
 import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary/actions'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { printTableReceipt } from '../../../config/printing/actions'
 import { createTableSchema, updateTableSchema } from './schemas'
@@ -14,9 +15,9 @@ export const checkTableExists = adminProcedure
   .createServerAction()
   .input(z.object({ number: z.string() }))
   .handler(async ({ ctx: { supabase, store }, input }) => {
-    const { count, error } = await supabase
+    const { data, error } = await supabase
       .from('tables')
-      .select('id', { head: true })
+      .select('id')
       .eq('store_id', store.id)
       .eq('number', input.number)
       .eq('status', 'open')
@@ -26,7 +27,7 @@ export const checkTableExists = adminProcedure
       return false
     }
 
-    return (count ?? 0) > 0
+    return (data.length ?? 0) > 0
   })
 
 /**
@@ -36,6 +37,11 @@ export const createTable = adminProcedure
   .createServerAction()
   .input(createTableSchema)
   .handler(async ({ ctx: { supabase, store }, input }) => {
+    const [exists] = await checkTableExists({ number: input.number })
+
+    if (exists) {
+      throw new Error('Esta mesa já está aberta.')
+    }
     // 1. Pré-monta tabela e items
     const tablePayload = {
       number: parseInt(input.number, 10),
@@ -90,7 +96,7 @@ export const createTable = adminProcedure
       ),
     )
 
-    return { createdTable: { id: tableId } }
+    redirect('/admin/purchases?tab=tables')
   })
 
 /**

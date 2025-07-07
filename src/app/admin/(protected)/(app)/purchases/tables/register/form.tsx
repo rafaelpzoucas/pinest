@@ -23,8 +23,9 @@ import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
 import { ArrowLeft, Plus, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
-import { checkTableExists, createTable, updateTable } from './actions'
+import { createTable, updateTable } from './actions'
 import { ProductsList } from './products/list'
 import { SelectedProducts } from './products/selected-products'
 import { createTableSchema } from './schemas'
@@ -59,7 +60,11 @@ export function CreateSaleForm({
   const purchaseItems = form.watch('purchase_items')
 
   const { execute: executeCreateTable, isPending: isCreatePending } =
-    useServerAction(createTable)
+    useServerAction(createTable, {
+      onError: ({ err }) => {
+        toast(err.message)
+      },
+    })
   const { execute: executeUpdateTable, isPending: isUpdatePending } =
     useServerAction(updateTable)
 
@@ -76,18 +81,6 @@ export function CreateSaleForm({
         console.error({ err })
         return null
       }
-
-      router.push('/admin/purchases?tab=tables')
-    }
-
-    const [exists] = await checkTableExists({ number: values.number })
-
-    if (exists) {
-      form.setError('number', {
-        type: 'manual',
-        message: 'Esta mesa já está aberta.',
-      })
-      return
     }
 
     const [data, err] = await executeCreateTable(values)
@@ -96,8 +89,6 @@ export function CreateSaleForm({
       console.error({ err })
       return null
     }
-
-    router.push('/admin/purchases?tab=tables')
   }
 
   return (
