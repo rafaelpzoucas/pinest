@@ -235,6 +235,11 @@ export default async function OrderPage({
                       return null
                     }
 
+                    const observations =
+                      item.observations &&
+                      item.observations.length > 0 &&
+                      item.observations.filter((obs) => obs !== '')
+
                     return (
                       <Card key={item.id} className="p-4 space-y-2">
                         <header className="flex flex-row items-start justify-between gap-4 text-sm">
@@ -264,11 +269,15 @@ export default async function OrderPage({
                             </p>
                           ))}
 
-                        {item.observations && (
-                          <strong className="uppercase text-muted-foreground">
-                            obs: {item.observations}
-                          </strong>
-                        )}
+                        <div className="flex flex-col">
+                          {observations &&
+                            observations.length > 0 &&
+                            observations.map((obs) => (
+                              <strong className="uppercase text-muted-foreground">
+                                obs: {obs}
+                              </strong>
+                            ))}
+                        </div>
 
                         <div>
                           {variations &&
