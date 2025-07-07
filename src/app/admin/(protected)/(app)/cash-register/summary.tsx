@@ -7,8 +7,23 @@ import {
 } from '@/components/ui/card'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { PaymentType } from '@/models/payment'
+import { z } from 'zod'
+import { CloseCashSession } from './close'
+import { createCashReceiptsSchema } from './schemas'
 
-export function CashRegisterSummary({ payments }: { payments: PaymentType[] }) {
+export function CashRegisterSummary({
+  hasOpenPurchases,
+  hasOpenTables,
+  cashReceipts,
+  payments,
+  reports,
+}: {
+  hasOpenPurchases: boolean
+  hasOpenTables: boolean
+  cashReceipts?: z.infer<typeof createCashReceiptsSchema>
+  payments: PaymentType[]
+  reports: any
+}) {
   const initialAmount = payments.find(
     (payment) => payment.description === 'Abertura de caixa',
   )?.amount
@@ -147,6 +162,14 @@ export function CashRegisterSummary({ payments }: { payments: PaymentType[] }) {
           <span>Tudo</span>
           <span>{formatCurrencyBRL(totalBalance ?? 0)}</span>
         </div>
+
+        <CloseCashSession
+          hasOpenPurchases={hasOpenPurchases}
+          hasOpenTables={hasOpenTables}
+          cashReceipts={cashReceipts}
+          payments={payments}
+          reports={reports}
+        />
       </CardFooter>
     </Card>
   )
