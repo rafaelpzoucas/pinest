@@ -212,8 +212,6 @@ export const handleOrderPlaced = webhookProcedure
       return
     }
 
-    console.log({ orderData })
-
     const { id, createdAt, orderType, payments, total, delivery } = orderData
 
     const newPurchaseValues = {

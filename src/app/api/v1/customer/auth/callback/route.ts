@@ -17,25 +17,6 @@ export async function GET(request: Request) {
     origin.includes('staging.pinest.com.br') ||
     origin.includes('staging-pinest.vercel.app')
 
-  console.log('Callback recebido:', {
-    code: code ? 'presente' : 'ausente',
-    error,
-    errorDescription,
-    subdomain,
-    checkout,
-    customDomain,
-    origin,
-    isStagingHost,
-    url: request.url,
-    nodeEnv: process.env.NODE_ENV,
-    VERCEL_URL: process.env.VERCEL_URL,
-    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,
-    hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  })
-
   // Verificar se há erro do Google OAuth
   if (error) {
     console.error('Erro do Google OAuth:', { error, errorDescription })
@@ -73,12 +54,6 @@ export async function GET(request: Request) {
     console.error('Erro ao obter usuário:', sessionError)
     return NextResponse.redirect(`${origin}/sign-in?error=session_failed`)
   }
-
-  console.log('Usuário autenticado:', {
-    userId: session.user.id,
-    email: session.user.email,
-    name: session.user.user_metadata.name,
-  })
 
   // Inserir usuário na tabela users se não existir
   try {
@@ -127,14 +102,6 @@ export async function GET(request: Request) {
     const accountPath =
       checkout === 'true' ? '/account?checkout=pickup' : '/purchases'
     redirectURL = `${origin}${createPath(accountPath, subdomain)}`
-
-    console.log('Redirecionamento staging/dev:', {
-      condition: 'staging_or_dev',
-      accountPath,
-      subdomain,
-      createPathResult: createPath(accountPath, subdomain),
-      redirectURL,
-    })
   } else {
     // Em produção utilizamos o formato subdomínio.pinest.com.br
     if (!subdomain) {
@@ -146,14 +113,7 @@ export async function GET(request: Request) {
       checkout === 'true'
         ? `https://${subdomain}.pinest.com.br/account?checkout=pickup`
         : `https://${subdomain}.pinest.com.br/purchases`
-
-    console.log('Redirecionamento produção:', {
-      condition: 'production',
-      subdomain,
-      redirectURL,
-    })
   }
 
-  console.log('Redirecionamento final para:', redirectURL)
   return NextResponse.redirect(redirectURL)
 }

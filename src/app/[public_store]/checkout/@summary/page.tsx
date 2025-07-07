@@ -26,8 +26,6 @@ export default async function Summary({
     changeValue: string
   }
 }) {
-  console.log('searchParams:', searchParams)
-
   const shippingCost = searchParams.shippingPrice
   const transp = searchParams.transp
   const pickup = searchParams.pickup?.toUpperCase()

@@ -61,6 +61,11 @@ export function ProductCard({
 
   const thumbURL = imageURL === '' ? defaultThumbUrl : imageURL
 
+  const filteredObservations =
+    observations &&
+    observations.length > 0 &&
+    observations?.filter((obs) => obs !== '')
+
   if (!data) {
     return (
       <div className={cn(productCardVariants({ variant }))}>
@@ -177,11 +182,13 @@ export function ProductCard({
             </p>
           ))}
 
-        {observations && (
-          <p className="text-xs text-muted-foreground uppercase line-clamp-2">
-            obs: {observations}{' '}
-          </p>
-        )}
+        {filteredObservations &&
+          filteredObservations.length > 0 &&
+          filteredObservations.map((obs) => (
+            <p className="text-xs text-muted-foreground uppercase line-clamp-2">
+              obs: {obs}{' '}
+            </p>
+          ))}
 
         <div>
           {variations &&

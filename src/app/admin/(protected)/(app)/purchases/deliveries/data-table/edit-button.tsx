@@ -18,7 +18,7 @@ export function EditButton({ purchase }: { purchase: PurchaseType }) {
     <>
       {accepted && !isPaid && (
         <Link
-          href={`purchases/deliveries/register?purchase_id=${purchase?.id}`}
+          href={`/admin/purchases/deliveries/register?purchase_id=${purchase?.id}`}
           className={buttonVariants({
             variant: 'ghost',
             size: isMobile ? 'default' : 'icon',

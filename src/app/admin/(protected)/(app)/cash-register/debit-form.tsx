@@ -83,7 +83,6 @@ export function DebitForm({
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log({ values })
     const cashReceipts = values.transactions.map((transaction) => ({
       type: 'debit',
       value: transaction,

@@ -47,8 +47,6 @@ export const createPayment = cashProcedure
     const amount = stringToNumber(input.amount)
     const discount = stringToNumber(input.discount)
 
-    console.log({ input })
-
     const { data: createdPayment, error } = await supabase
       .from('payments')
       .insert({

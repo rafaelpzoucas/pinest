@@ -3,8 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PurchaseType } from '@/models/purchase'
 import { TableType } from '@/models/table'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useQueryState } from 'nuqs'
 import { MdSportsMotorsports, MdTableBar } from 'react-icons/md'
 import { Deliveries } from './deliveries/deliveries'
 import { Tables } from './tables/tables'
@@ -16,20 +15,13 @@ export function Purchases({
   purchases: PurchaseType[] | null
   tables: TableType[] | null
 }) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  const currentTab = searchParams.get('tab')
-
-  useEffect(() => {
-    router.push('?tab=deliveries')
-  }, [])
+  const [tab, setTab] = useQueryState('tab', {
+    defaultValue: 'deliveries',
+    history: 'replace',
+  })
 
   return (
-    <Tabs
-      defaultValue={currentTab ?? 'deliveries'}
-      onValueChange={(e) => router.push(`?tab=${e}`)}
-    >
+    <Tabs value={tab} onValueChange={setTab}>
       <TabsList className="h-fit">
         <TabsTrigger value="deliveries" className="px-6 py-3">
           <MdSportsMotorsports className="mr-2" />

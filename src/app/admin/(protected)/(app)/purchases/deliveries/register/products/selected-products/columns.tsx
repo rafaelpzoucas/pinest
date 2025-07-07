@@ -10,8 +10,6 @@ export const columns: ColumnDef<PurchaseItemsType>[] = [
     cell({ row }) {
       const productName = row.original
 
-      console.log({ productName })
-
       return productName
     },
   },

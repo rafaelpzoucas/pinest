@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -251,13 +252,16 @@ export function CloseBillForm({
           {isCashPayment && (
             <div>
               <FormItem>
-                <Label>Valor recebido</Label>
+                <Label>Valor recebido (opcional)</Label>
                 <Input
                   maskType="currency"
                   placeholder="Insira o valor pago..."
                   value={enterAmount}
                   onChange={(e) => setEnterAmount(e.target.value)}
                 />
+                <FormDescription>
+                  Para calcular o valor do troco
+                </FormDescription>
               </FormItem>
 
               {stringToNumber(enterAmount) > 0 && (

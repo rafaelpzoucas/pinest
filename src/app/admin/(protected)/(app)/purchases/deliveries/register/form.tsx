@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
 import { buttonVariants } from '@/components/ui/button'
@@ -16,7 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
+import { cn, stringToNumber } from '@/lib/utils'
 import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
@@ -93,37 +93,43 @@ export function CreatePurchaseForm({
     await executeCreate(values)
   }
 
+  const purchaseItems = useWatch({
+    control: form.control,
+    name: 'purchase_items',
+  })
+  const type = useWatch({ control: form.control, name: 'type' })
+  const shippingPrice = useWatch({
+    control: form.control,
+    name: 'total.shipping_price',
+  })
+  const discount = useWatch({ control: form.control, name: 'total.discount' })
+
   useEffect(() => {
-    const subscription = form.watch((values) => {
-      const purchaseItems = values.purchase_items ?? []
-
-      const subtotal = purchaseItems
-        .filter((item) => item?.product_id)
-        .reduce((acc, item) => {
-          const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 1)
-          const extrasTotal = (item?.extras ?? []).reduce(
-            (extraAcc, extra) =>
-              extraAcc + (extra?.price ?? 0) * (extra?.quantity ?? 1),
-            0,
-          )
-
-          return acc + itemTotal + extrasTotal
-        }, 0)
-
-      if (subtotal !== values.total?.subtotal) {
-        const deliveryFee = form.watch('total.shipping_price')
-        const discount = form.watch('total.discount')
-
-        form.setValue('total.subtotal', subtotal, { shouldValidate: true })
-        form.setValue(
-          'total.total_amount',
-          subtotal + deliveryFee - (discount ? parseFloat(discount) : 0),
+    const subtotal = (purchaseItems ?? [])
+      .filter((item) => item?.product_id)
+      .reduce((acc, item) => {
+        const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 1)
+        const extrasTotal = (item?.extras ?? []).reduce(
+          (extraAcc, extra) =>
+            extraAcc + (extra?.price ?? 0) * (extra?.quantity ?? 1),
+          0,
         )
-      }
-    })
 
-    return () => subscription.unsubscribe()
-  }, [form.watch])
+        return acc + itemTotal + extrasTotal
+      }, 0)
+
+    const parsedDiscount = discount ? stringToNumber(discount) : 0
+    const isDelivery = type === 'DELIVERY'
+
+    form.setValue('total.subtotal', subtotal, { shouldValidate: true })
+    form.setValue(
+      'total.total_amount',
+      subtotal + (isDelivery ? shippingPrice : 0) - parsedDiscount,
+      {
+        shouldValidate: true,
+      },
+    )
+  }, [purchaseItems, type, shippingPrice, discount])
 
   return (
     <Form {...form}>

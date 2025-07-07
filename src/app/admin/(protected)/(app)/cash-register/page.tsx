@@ -9,7 +9,6 @@ import {
   readOpenPurchases,
   readOpenTables,
 } from './actions'
-import { CloseCashSession } from './close'
 import { CreateTransactionForm } from './create-transaction-form'
 import { columns } from './data-table/columns'
 import { DataTable } from './data-table/table'
@@ -133,15 +132,6 @@ export default async function CashRegister() {
         {cashSession && (
           <section className="space-y-6">
             <header className="flex flex-row gap-4">
-              <CloseCashSession
-                cashSessionId={cashSession.id}
-                hasOpenPurchases={hasOpenPurchases}
-                hasOpenTables={hasOpenTables}
-                cashReceipts={cashReceipts}
-                payments={payments}
-                reports={reportsData}
-              />
-
               <CreateTransactionForm />
             </header>
 
@@ -149,7 +139,13 @@ export default async function CashRegister() {
               <DataTable data={payments} columns={columns} />
 
               <aside className="lg:sticky top-4 w-full lg:w-auto">
-                <CashRegisterSummary payments={payments} />
+                <CashRegisterSummary
+                  payments={payments}
+                  hasOpenPurchases={hasOpenPurchases}
+                  hasOpenTables={hasOpenTables}
+                  cashReceipts={cashReceipts}
+                  reports={reportsData}
+                />
               </aside>
             </div>
           </section>

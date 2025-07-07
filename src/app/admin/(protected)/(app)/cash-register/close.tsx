@@ -36,7 +36,7 @@ import {
   buildProductsSoldReportText,
   buildSalesReportText,
 } from '@/lib/receipts'
-import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
+import { cn, formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { PaymentType } from '@/models/payment'
 import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -55,14 +55,12 @@ function emptyIfZero(value: number) {
 }
 
 export function CloseCashSession({
-  cashSessionId,
   hasOpenPurchases,
   hasOpenTables,
   cashReceipts,
   payments,
   reports,
 }: {
-  cashSessionId: string
   hasOpenPurchases: boolean
   hasOpenTables: boolean
   cashReceipts?: z.infer<typeof createCashReceiptsSchema>
@@ -243,7 +241,7 @@ export function CloseCashSession({
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
-                <Button className="cursor-not-allowed opacity-50">
+                <Button className="cursor-not-allowed opacity-50 w-full mt-2">
                   Fechar caixa
                 </Button>
               </TooltipTrigger>
@@ -253,7 +251,9 @@ export function CloseCashSession({
             </Tooltip>
           </TooltipProvider>
         ) : (
-          <SheetTrigger className={buttonVariants()}>Fechar caixa</SheetTrigger>
+          <SheetTrigger className={cn(buttonVariants(), 'w-full mt-2')}>
+            Fechar caixa
+          </SheetTrigger>
         )}
         <SheetContent className="space-y-4">
           <SheetHeader className="items-start mb-4">

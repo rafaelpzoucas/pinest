@@ -66,11 +66,7 @@ export default async function OrderPage({
     3,
   )
 
-  const purchaseItemsTotal = purchaseItems.reduce(
-    (total, item) => total + item.product_price * item.quantity,
-    0,
-  )
-  const subTotal = isIfood ? ifoodItemsTotal : purchaseItemsTotal
+  const subTotal = isIfood ? ifoodItemsTotal : purchase.total.subtotal
   const change = purchase?.total?.change_value - purchase?.total?.total_amount
 
   return (
@@ -147,18 +143,6 @@ export default async function OrderPage({
                 </div>
               )}
 
-              {isIfood && ifoodOrderData.benefits && (
-                <p className="flex flex-row items-center justify-between">
-                  <span>
-                    Desconto: (
-                    {ifoodOrderData.benefits[0].sponsorshipValues[0].name})
-                  </span>{' '}
-                  <span>
-                    {formatCurrencyBRL(ifoodOrderData.benefits[0].value)}
-                  </span>
-                </p>
-              )}
-
               {purchase.type === 'DELIVERY' && (
                 <div className="flex flex-row items-center justify-between text-sm w-full">
                   <strong>Entrega</strong>
@@ -185,6 +169,27 @@ export default async function OrderPage({
                     <strong>{formatCurrencyBRL(change ?? 0)}</strong>
                   </div>
                 )}
+
+              {isIfood && ifoodOrderData.benefits && (
+                <p className="flex flex-row items-center justify-between">
+                  <span>
+                    Desconto: (
+                    {ifoodOrderData.benefits[0].sponsorshipValues[0].name})
+                  </span>{' '}
+                  <span>
+                    {formatCurrencyBRL(ifoodOrderData.benefits[0].value)}
+                  </span>
+                </p>
+              )}
+
+              {purchase.total.discount ? (
+                <div className="flex flex-row items-center justify-between text-sm w-full">
+                  <strong>Desconto</strong>
+                  <strong>
+                    {formatCurrencyBRL(purchase.total.discount * -1)}
+                  </strong>
+                </div>
+              ) : null}
 
               <div className="flex flex-row items-center justify-between text-sm w-full">
                 <strong>Total da venda</strong>
@@ -230,6 +235,11 @@ export default async function OrderPage({
                       return null
                     }
 
+                    const observations =
+                      item.observations &&
+                      item.observations.length > 0 &&
+                      item.observations.filter((obs) => obs !== '')
+
                     return (
                       <Card key={item.id} className="p-4 space-y-2">
                         <header className="flex flex-row items-start justify-between gap-4 text-sm">
@@ -259,11 +269,15 @@ export default async function OrderPage({
                             </p>
                           ))}
 
-                        {item.observations && (
-                          <strong className="uppercase text-muted-foreground">
-                            obs: {item.observations}
-                          </strong>
-                        )}
+                        <div className="flex flex-col">
+                          {observations &&
+                            observations.length > 0 &&
+                            observations.map((obs) => (
+                              <strong className="uppercase text-muted-foreground">
+                                obs: {obs}
+                              </strong>
+                            ))}
+                        </div>
 
                         <div>
                           {variations &&
