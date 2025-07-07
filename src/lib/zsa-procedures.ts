@@ -77,14 +77,6 @@ export const storeProcedure = createServerActionProcedure().handler(
     const cookieStore = cookies()
     const subdomainCookie = cookieStore.get('public_store_subdomain')?.value
 
-    console.log('storeProcedure debug:', {
-      subdomainCookie,
-      allCookies: Array.from(cookieStore.getAll()).map((c) => ({
-        name: c.name,
-        value: c.value,
-      })),
-    })
-
     if (!subdomainCookie) {
       console.error('Nenhuma loja identificada.')
       return null
@@ -106,11 +98,6 @@ export const storeProcedure = createServerActionProcedure().handler(
     if (error) {
       console.error('Erro ao buscar dados da loja.', error)
     }
-
-    console.log('storeProcedure store debug:', {
-      storeSubdomain: store?.store_subdomain,
-      storeName: store?.name,
-    })
 
     return { store: store as StoreType, supabase, cookieStore }
   },

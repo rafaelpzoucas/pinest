@@ -189,17 +189,6 @@ const isStagingEnvironment = () => {
     process.env.VERCEL_ENV === 'preview' ||
     process.env.VERCEL_GIT_COMMIT_REF === 'staging'
 
-  // Debug logs
-  console.log('isStagingEnvironment debug:', {
-    VERCEL_URL: process.env.VERCEL_URL,
-    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,
-    NODE_ENV: process.env.NODE_ENV,
-    hostname,
-    isStaging,
-  })
-
   return isStaging
 }
 

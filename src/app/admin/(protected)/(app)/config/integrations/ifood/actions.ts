@@ -39,8 +39,6 @@ export const refreshIfoodAccessToken = async (ctx: any) => {
   const clientSecret = process.env.IFOOD_CLIENT_SECRET
   const api = process.env.IFOOD_API_BASE_URL
 
-  console.log('🔄 Gerando novo token...')
-
   const body = new URLSearchParams()
   body.append('grantType', 'client_credentials')
   body.append('clientId', clientId ?? '')
