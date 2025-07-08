@@ -1,11 +1,11 @@
 import { headers } from 'next/headers'
 
-const STAGING_HOSTS = [
+export const STAGING_HOSTS = [
   'localhost:3000',
   'staging.pinest.com.br',
   'staging-pinest.vercel.app',
 ]
-const ROOT_DOMAIN = 'pinest.com.br'
+export const ROOT_DOMAIN = 'pinest.com.br'
 
 function isTrustedHost(host: string): boolean {
   return (
