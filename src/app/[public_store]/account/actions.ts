@@ -26,7 +26,7 @@ export const readCustomer = storeProcedure
       .single()
 
     if (error || !customer) {
-      console.error('Erro ao buscar o cliente pelo telefone', error)
+      throw new Error('Erro ao buscar o cliente pelo telefone', error as Error)
     }
 
     return { customer: customer as CustomerType }
