@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
-import { useCashRegister } from '@/stores/cashRegisterStore'
 import { MoreVertical } from 'lucide-react'
 import { CancelPurchaseButton } from './cancel-purchase-button'
 import { CloseSaleButton } from './close-sale-button'
@@ -26,12 +25,7 @@ import { UpdateStatusButton } from './update-status-button'
 export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
   const currentStatus = purchase?.status
 
-  const isPaid = purchase.is_paid
-
   const accepted = currentStatus !== 'accept'
-  const delivered = currentStatus === 'delivered'
-
-  const { isCashOpen } = useCashRegister()
 
   const options = [
     {
