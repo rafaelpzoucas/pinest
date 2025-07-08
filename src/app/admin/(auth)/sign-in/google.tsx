@@ -5,11 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import { FaGoogle } from 'react-icons/fa'
 
 export function SignInWithGoogle() {
-  const host = window.location.host
-
   async function signInWithGoogle() {
     const supabase = createClient()
-    const redirectURL = `${window.location.origin}/api/v1/admin/auth/callback`
+    const redirectURL = `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/admin/auth/callback`
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
