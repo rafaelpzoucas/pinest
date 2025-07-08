@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/select'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
-import { createPrinter, readAvailablePrinters } from './actions'
+import { createPrinter } from './actions'
 import { printerSchema, PrinterType } from './schemas'
 
 export const printerSectors = [
@@ -52,15 +52,6 @@ export function NewPrinterForm({
     },
   })
 
-  const { execute: executeReadAvailablePrinters } = useServerAction(
-    readAvailablePrinters,
-    {
-      onSuccess: ({ data }) => {
-        setAvailablePrinters(data)
-      },
-    },
-  )
-
   const { execute: executeCreatePrinter, isPending: isCreating } =
     useServerAction(createPrinter, {
       onSuccess: () => {
@@ -72,12 +63,32 @@ export function NewPrinterForm({
       },
     })
 
+  async function readAvailablePrinters() {
+    try {
+      const res = await fetch('http://127.0.0.1:53281/printers', {
+        method: 'GET',
+      })
+
+      if (!res.ok) {
+        const text = await res.text() // tenta capturar erro bruto
+        throw new Error(`Erro HTTP ${res.status}: ${text}`)
+      }
+
+      const data = await res.json()
+
+      setAvailablePrinters(data)
+    } catch (error) {
+      console.error('Erro ao verificar extensão', error)
+      return { success: false, error: (error as Error).message }
+    }
+  }
+
   function onSubmit(data: z.infer<typeof printerSchema>) {
     executeCreatePrinter({ id: printer?.id, ...data })
   }
 
   useEffect(() => {
-    executeReadAvailablePrinters()
+    readAvailablePrinters()
   }, [])
 
   return (

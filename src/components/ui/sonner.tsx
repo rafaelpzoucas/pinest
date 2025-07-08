@@ -1,5 +1,7 @@
 'use client'
 
+import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/lib/utils'
 import { useTheme } from 'next-themes'
 import { Toaster as Sonner } from 'sonner'
 
@@ -7,12 +9,13 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme()
+  const isMobile = useIsMobile()
 
   return (
     <Sonner
       position="bottom-right"
       theme={theme as ToasterProps['theme']}
-      className="toaster group"
+      className={cn('toaster group ', isMobile && 'mb-14')}
       toastOptions={{
         classNames: {
           toast:
