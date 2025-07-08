@@ -25,7 +25,10 @@ export const readStoreCustomer = storeProcedure
       .single()
 
     if (error) {
-      console.error('Não foi possível buscar o cliente da loja', error)
+      throw new Error(
+        'Não foi possível buscar o cliente da loja',
+        error as Error,
+      )
     }
 
     return { storeCustomer: data as StoreCustomerType }

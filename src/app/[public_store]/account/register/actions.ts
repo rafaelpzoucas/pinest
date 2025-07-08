@@ -3,6 +3,7 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CustomerType } from '@/models/customer'
 import { revalidatePath } from 'next/cache'
+import { readStoreCustomer } from '../../purchases/actions'
 import { createCustomerSchema, updateCustomerSchema } from './schemas'
 
 export const createCustomer = storeProcedure
@@ -44,7 +45,7 @@ export const updateCustomer = storeProcedure
   .createServerAction()
   .input(updateCustomerSchema)
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase, store } = ctx
 
     const { data: updatedCustomer, error: updateCustomerError } = await supabase
       .from('customers')
@@ -58,6 +59,26 @@ export const updateCustomer = storeProcedure
         'Não foi possível atualizar os dados do cliente.',
         updateCustomerError,
       )
+    }
+
+    const [storeCustomerData] = await readStoreCustomer()
+
+    const storeCustomer = storeCustomerData?.storeCustomer
+
+    if (!storeCustomer) {
+      const { data: createdStoreCustomer, error: createStoreCustomerError } =
+        await supabase
+          .from('store_customers')
+          .insert({ customer_id: updatedCustomer?.id, store_id: store.id })
+          .select()
+          .single()
+
+      if (createStoreCustomerError || !createdStoreCustomer) {
+        console.error(
+          'Não foi possível adicionar o cliente à loja',
+          createStoreCustomerError,
+        )
+      }
     }
 
     return revalidatePath('/')
