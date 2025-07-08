@@ -5,13 +5,13 @@ import { PurchaseType } from '@/models/purchase'
 import { useCashRegister } from '@/stores/cashRegisterStore'
 import { BadgeDollarSign, Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
 import { closeBills } from '../../close/actions'
 
+import { useQueryState } from 'nuqs'
+
 export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
-  const searchParams = useSearchParams()
-  const tab = searchParams.get('tab')
+  const [tab] = useQueryState('tab')
 
   const currentStatus = purchase?.status
   const isIfood = purchase?.is_ifood
@@ -54,7 +54,7 @@ export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
     <Link
       href={
         isCashOpen
-          ? `/admin/purchases/close?purchase_id=${purchase.id}&tab=${tab}`
+          ? `/admin/purchases/close?purchase_id=${purchase.id}&tab=${tab ?? 'deliveries'}`
           : '/admin/cash-register'
       }
       className={buttonVariants({
