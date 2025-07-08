@@ -41,15 +41,6 @@ export function Deliveries({
 
   const searchStr = normalizeString(search)
 
-  const statusPriority: Record<PurchaseStatus, number> = {
-    accept: 1,
-    pending: 2,
-    preparing: 3,
-    shipped: 4,
-    delivered: 5,
-    cancelled: 6,
-  }
-
   const statusFilters = [
     {
       status: 'in_progress',
@@ -108,15 +99,7 @@ export function Deliveries({
     )
   }
 
-  const sortedDeliveries = deliveries
-    ? [...deliveries].sort(
-        (a, b) =>
-          statusPriority[a.status as PurchaseStatus] -
-          statusPriority[b.status as PurchaseStatus],
-      )
-    : []
-
-  const filteredDeliveries = sortedDeliveries.filter((delivery) => {
+  const filteredDeliveries = deliveries?.filter((delivery) => {
     const { store_customers: storeCustomers, status, id } = delivery
 
     const matchesSearch =
