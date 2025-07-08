@@ -104,7 +104,7 @@ export function NewPrinterForm({
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem disabled value="">
+                    <SelectItem disabled value="no-printers">
                       Nenhuma impressora encontrada
                     </SelectItem>
                   )}
