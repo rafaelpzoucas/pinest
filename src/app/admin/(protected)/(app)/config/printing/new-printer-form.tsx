@@ -52,12 +52,14 @@ export function NewPrinterForm({
     },
   })
 
-  const { execute: executeReadAvailablePrinters, data: availablePrintersData } =
-    useServerAction(readAvailablePrinters, {
-      onSuccess: () => {
-        setAvailablePrinters(availablePrintersData)
+  const { execute: executeReadAvailablePrinters } = useServerAction(
+    readAvailablePrinters,
+    {
+      onSuccess: ({ data }) => {
+        setAvailablePrinters(data)
       },
-    })
+    },
+  )
 
   const { execute: executeCreatePrinter, isPending: isCreating } =
     useServerAction(createPrinter, {
@@ -94,11 +96,18 @@ export function NewPrinterForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {availablePrinters?.map((printer) => (
-                    <SelectItem key={printer} value={printer}>
-                      {printer}
+                  {Array.isArray(availablePrinters) &&
+                  availablePrinters.length > 0 ? (
+                    availablePrinters.map((printer) => (
+                      <SelectItem key={printer} value={printer}>
+                        {printer}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem disabled value="no-printers">
+                      Nenhuma impressora encontrada
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />
