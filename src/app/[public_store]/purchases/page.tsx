@@ -7,9 +7,9 @@ import { Box, ChevronRight } from 'lucide-react'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { readStore } from '../actions'
-import { readCart } from '../cart/actions'
-import { readPurchases } from './actions'
+import { readStoreCached } from '../actions'
+import { readCartCached } from '../cart/actions'
+import { readPurchasesCached } from './actions'
 
 type StatusKey = keyof typeof statuses
 
@@ -18,9 +18,9 @@ export default async function PurchasesPage() {
   const cookieStore = cookies()
 
   const [[storeData], [cartData], [purchasesData]] = await Promise.all([
-    readStore(),
-    readCart(),
-    readPurchases(),
+    readStoreCached(),
+    readCartCached(),
+    readPurchasesCached(),
   ])
 
   const store = storeData?.store

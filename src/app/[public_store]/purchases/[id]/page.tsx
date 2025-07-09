@@ -3,7 +3,7 @@ import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
-import { readStore } from '../../actions'
+import { readStoreCached } from '../../actions'
 import { readPurchaseById } from './actions'
 import { Status, StatusKey } from './status'
 
@@ -13,7 +13,7 @@ export default async function PurchasePage({
   params: { id: string }
 }) {
   const [[storeData], [purchaseData]] = await Promise.all([
-    readStore(),
+    readStoreCached(),
     readPurchaseById({ purchaseId: params.id }),
   ])
 

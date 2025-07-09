@@ -1,6 +1,7 @@
 'use server'
 
 import { storeProcedure } from '@/lib/zsa-procedures'
+import { cache } from 'react'
 import { z } from 'zod'
 
 export const getSearchedProducts = storeProcedure
@@ -30,3 +31,5 @@ export const getSearchedProducts = storeProcedure
 
     return { products }
   })
+
+export const getSearchedProductsCached = cache(getSearchedProducts)

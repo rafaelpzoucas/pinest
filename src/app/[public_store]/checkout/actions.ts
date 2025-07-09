@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { AddressType } from '@/models/address'
 import { PurchaseType } from '@/models/purchase'
+import { cache } from 'react'
 
 export async function readUserConnectedAccountId(userId: string) {
   const supabase = createClient()
@@ -34,6 +35,8 @@ export const readStoreAddress = storeProcedure
 
     return { storeAddress: storeAddress as AddressType }
   })
+
+export const readStoreAddressCached = cache(readStoreAddress)
 
 export async function readPurchaseItems(purchaseId: string): Promise<{
   purchase: PurchaseType | null

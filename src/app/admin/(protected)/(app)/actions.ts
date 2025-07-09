@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { UserType } from '@/models/user'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 import { refreshIfoodAccessToken } from './purchases/deliveries/data-table/actions'
 
@@ -58,13 +59,16 @@ export const updateStoreStatus = adminProcedure
       .from('stores')
       .update({ is_open_override: input.isOpen, is_open: input.isOpen })
       .eq('id', store.id)
+      .select()
 
-    if (error || !data) {
+    console.log(input, data, error)
+
+    if (error) {
       console.error('Erro ao atualizar status da loja.', error)
       return null
     }
 
-    revalidatePath('/')
+    revalidatePath('/admin/purchases')
 
     return { data }
   })
@@ -243,3 +247,10 @@ export const isPermissionGranted = adminProcedure
 
     return { granted: planData?.plan.features[input.feature] ?? false }
   })
+
+export const readIfoodIntegrationCached = cache(readIfoodIntegration)
+export const readLastEventsCached = cache(readLastEvents)
+export const readStoreSubscriptionStatusCached = cache(
+  readStoreSubscriptionStatus,
+)
+export const readStorePlanCached = cache(readStorePlan)

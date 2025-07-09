@@ -4,7 +4,7 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { PurchaseItemsType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { Plus } from 'lucide-react'
-import { readTableById } from './actions'
+import { readTableByIdCached } from './actions'
 
 type StatusKey = keyof typeof statuses
 
@@ -13,7 +13,7 @@ export default async function OrderPage({
 }: {
   params: { id: string; print: string }
 }) {
-  const [data] = await readTableById({ id: params.id })
+  const [data] = await readTableByIdCached({ id: params.id })
 
   const table = data?.table
 

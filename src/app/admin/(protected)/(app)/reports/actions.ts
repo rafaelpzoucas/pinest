@@ -1,5 +1,6 @@
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { endOfDay, startOfDay } from 'date-fns'
+import { cache } from 'react'
 import { getSalesReportInputSchema } from './schemas'
 
 export const getSalesReport = adminProcedure
@@ -86,3 +87,5 @@ export const getSalesReport = adminProcedure
       productsSold,
     }
   })
+
+export const getSalesReportCached = cache(getSalesReport)

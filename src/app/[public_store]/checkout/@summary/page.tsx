@@ -5,9 +5,9 @@ import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 import { cn, createPath, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
-import { readCustomer } from '../../account/actions'
-import { readStore } from '../../actions'
-import { readCart } from '../../cart/actions'
+import { readCustomerCached } from '../../account/actions'
+import { readStoreCached } from '../../actions'
+import { readCartCached } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
 import { CheckoutButton } from './checkout-button'
 import { Delivery } from './delivery'
@@ -34,10 +34,10 @@ export default async function Summary({
 
   const [[storeData], [cartData], [ownShippingData], [customerData]] =
     await Promise.all([
-      readStore(),
-      readCart(),
+      readStoreCached(),
+      readCartCached(),
       readOwnShipping(),
-      readCustomer({}),
+      readCustomerCached({}),
     ])
 
   const store = storeData?.store

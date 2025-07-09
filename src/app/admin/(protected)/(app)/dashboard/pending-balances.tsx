@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrencyBRL } from '@/lib/utils'
-import { readPendingBalances } from './actions'
+import { readPendingBalancesCached } from './actions'
 
 export async function PendingBalances() {
-  const [storeCustomersData] = await readPendingBalances()
+  const [storeCustomersData] = await readPendingBalancesCached()
 
   const storeCustomers = storeCustomersData?.storeCustomers
 

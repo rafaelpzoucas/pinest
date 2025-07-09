@@ -2,6 +2,7 @@
 
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CategoryType } from '@/models/category'
+import { cache } from 'react'
 
 export const readProductsByCategory = storeProcedure
   .createServerAction()
@@ -28,3 +29,5 @@ export const readProductsByCategory = storeProcedure
 
     return { categories: categories as CategoryType[] }
   })
+
+export const readProductsByCategoryCached = cache(readProductsByCategory)

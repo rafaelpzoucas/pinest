@@ -3,6 +3,7 @@
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure, cashProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 import { closeSaleSchema, createPaymentSchema } from './schemas'
 
@@ -36,6 +37,8 @@ export const readPayments = adminProcedure
 
     return { payments }
   })
+
+export const readPaymentsCached = cache(readPayments)
 
 export const createPayment = cashProcedure
   .createServerAction()
@@ -92,16 +95,14 @@ export const createPayment = cashProcedure
       }
     }
 
-    if (input.items) {
-      for (const item of input.items) {
-        const { error } = await supabase
-          .from('purchase_items')
-          .update({ is_paid: true })
-          .eq('id', item.id)
-
-        if (error) {
-          console.error('Error updating purchase item status.', error)
-        }
+    if (input.items && input.items.length > 0) {
+      const itemIds = input.items.map((item) => item.id)
+      const { error: updateItemsError } = await supabase
+        .from('purchase_items')
+        .update({ is_paid: true })
+        .in('id', itemIds)
+      if (updateItemsError) {
+        console.error('Error updating purchase item status.', updateItemsError)
       }
     }
 

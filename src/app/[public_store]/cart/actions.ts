@@ -7,6 +7,7 @@ import { storeProcedure } from '@/lib/zsa-procedures'
 import { CartProductType } from '@/models/cart'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 
@@ -59,6 +60,8 @@ export const readCartProduct = storeProcedure
 
     return { cartProduct: cartProduct as CartProductType }
   })
+
+export const readCartProductCached = cache(readCartProduct)
 
 async function insertCartProduct(
   newItem: CartProductType,
@@ -140,6 +143,8 @@ export const readCart = storeProcedure
     return { cart: cart as CartProductType[] }
   })
 
+export const readCartCached = cache(readCart)
+
 // export async function getCart(storeUrl: string): Promise<{
 //   cart: CartProductType[] | null
 //   cartError: any | null
@@ -186,7 +191,7 @@ export const addToCart = storeProcedure
       return revalidatePath(redirectURL)
     }
 
-    const [cartProductData] = await readCartProduct({
+    const [cartProductData] = await readCartProductCached({
       cartSessionId: newItem.id,
     })
 

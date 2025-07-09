@@ -1,10 +1,10 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
-import { readBenefits } from './actions'
+import { readBenefitsCached } from './actions'
 
 export async function Benefits() {
-  const [data] = await readBenefits()
+  const [data] = await readBenefitsCached()
 
   const benefits = data?.benefits
 

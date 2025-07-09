@@ -2,6 +2,7 @@
 
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { InsertMerchantIdFormSchema } from './schemas'
 
 export const getValidIfoodAccessToken = adminProcedure
@@ -117,3 +118,6 @@ export const insertIfoodMerchantId = adminProcedure
 
     return { success: true }
   })
+
+export const getValidIfoodAccessTokenCached = cache(getValidIfoodAccessToken)
+export const getIfoodMerchantIdCached = cache(getIfoodMerchantId)

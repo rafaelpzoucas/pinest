@@ -1,5 +1,5 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readStore } from './actions'
+import { readStoreCached } from './actions'
 import { AppearenceForm } from './appearence'
 import { BenefitsSection } from './benefits/section'
 import { Hours } from './hours'
@@ -8,7 +8,7 @@ import { Socials } from './socials'
 import { Store } from './store'
 
 export default async function Layout() {
-  const [storeData] = await readStore()
+  const [storeData] = await readStoreCached()
 
   const store = storeData?.store
 

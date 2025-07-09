@@ -1,12 +1,12 @@
 import { Header } from '@/components/store-header'
-import { readStore } from '../../actions'
-import { readCustomer } from '../actions'
+import { readStoreCached } from '../../actions'
+import { readCustomerCached } from '../actions'
 import { CustomerRegisterForm } from './form'
 
 export default async function AccountRegisterPage() {
   const [[storeData], [customerData]] = await Promise.all([
-    readStore(),
-    readCustomer({}),
+    readStoreCached(),
+    readCustomerCached({}),
   ])
 
   const store = storeData?.store

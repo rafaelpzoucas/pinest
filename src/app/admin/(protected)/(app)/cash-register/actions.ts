@@ -3,6 +3,7 @@
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure, cashProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 import {
   closeCashSessionSchema,
@@ -269,3 +270,12 @@ export const readCashReceipts = adminProcedure
 
     return { cashReceipts: data as z.infer<typeof createCashReceiptsSchema> }
   })
+
+export const readCashSessionCached = cache(readCashSession)
+export const readPaymentsByCashSessionIdCached = cache(
+  readPaymentsByCashSessionId,
+)
+export const readOpenPurchasesCached = cache(readOpenPurchases)
+export const readOpenTablesCached = cache(readOpenTables)
+export const readCashReceiptsCached = cache(readCashReceipts)
+export const readCashSessionPaymentsCached = cache(readCashSessionPayments)

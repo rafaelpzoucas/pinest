@@ -1,7 +1,7 @@
 import { AdminHeader } from '@/app/admin-header'
 import { DatePicker } from '@/components/ui/date-picker'
 import { endOfDay, startOfDay } from 'date-fns'
-import { getSalesReport } from './actions'
+import { getSalesReportCached } from './actions'
 import { ProductsSoldReport } from './products-sold'
 import { SalesReport } from './sales-report'
 
@@ -15,7 +15,7 @@ export default async function ReportsPage({
   ).toISOString()
   const endDate = endOfDay(searchParams.start_date || new Date()).toISOString()
 
-  const [reports] = await getSalesReport({
+  const [reports] = await getSalesReportCached({
     start_date: startDate,
     end_date: endDate,
   })

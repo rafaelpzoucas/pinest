@@ -7,6 +7,7 @@ import {
 } from '@/lib/receipts'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import { readPurchaseById } from '../../purchases/deliveries/[id]/actions'
@@ -403,3 +404,8 @@ export const deletePrinter = adminProcedure
 
     revalidatePath('/admin/config/printing')
   })
+
+export const readPrintPendingItemsCached = cache(readPrintPendingItems)
+export const readPrinterByNameCached = cache(readPrinterByName)
+export const readPrintingSettingsCached = cache(readPrintingSettings)
+export const readPrintersCached = cache(readPrinters)

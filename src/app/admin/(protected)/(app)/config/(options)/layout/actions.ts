@@ -2,6 +2,7 @@
 
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { StoreType } from '@/models/store'
+import { cache } from 'react'
 import { appearenceFormSchema } from './schemas'
 
 export const readStore = adminProcedure
@@ -64,3 +65,6 @@ export const updateStoreTheme = adminProcedure
       console.error('Erro ao atualizar tema da loja:', error)
     }
   })
+
+export const readStoreHoursCached = cache(readStoreHours)
+export const readStoreCached = cache(readStore)

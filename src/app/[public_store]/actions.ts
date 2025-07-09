@@ -1,6 +1,7 @@
 'use server'
 
 import { storeProcedure } from '@/lib/zsa-procedures'
+import { cache } from 'react'
 
 // export async function getStoreByStoreURL(storeURL: string): Promise<{
 //   store: StoreType | null
@@ -30,3 +31,5 @@ export const readStore = storeProcedure
 
     return { store }
   })
+
+export const readStoreCached = cache(readStore)

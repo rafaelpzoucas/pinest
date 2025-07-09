@@ -4,12 +4,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { SlidersHorizontal } from 'lucide-react'
-import { readStore } from '../../actions'
+import { readStoreCached } from '../../actions'
 import { SearchIsland } from './search-island'
 import { SearchSheet } from './search-sheet'
 
 export default async function Search() {
-  const [data] = await readStore()
+  const [data] = await readStoreCached()
   const store = data?.store
 
   return (

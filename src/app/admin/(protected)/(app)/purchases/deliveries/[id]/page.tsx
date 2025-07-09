@@ -8,6 +8,7 @@ import { addHours, format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import { PurchaseOptions } from '../data-table/options'
+// ATENÇÃO: Não usar versão cacheada, pois esta tela depende de tempo real
 import { readPurchaseById } from './actions'
 
 type StatusKey = keyof typeof statuses

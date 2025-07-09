@@ -10,10 +10,14 @@ import {
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
 
 import { Header } from '@/components/store-header'
-import { readCustomer } from '../../account/actions'
-import { readStore } from '../../actions'
-import { readCart } from '../../cart/actions'
-import { readExtras, readProductByURL, readProductVariations } from './actions'
+import { readCustomerCached } from '../../account/actions'
+import { readStoreCached } from '../../actions'
+import { readCartCached } from '../../cart/actions'
+import {
+  readExtrasCached,
+  readProductByURLCached,
+  readProductVariationsCached,
+} from './actions'
 import { ProductInfo } from './info'
 
 export default async function ProductPage({
@@ -26,19 +30,19 @@ export default async function ProductPage({
   const cartProductId = searchParams.cart_product_id
 
   const [
-    [storeData],
+    [productData],
     [extrasData],
     [cartData],
-    [productData],
-    [productVariationsData],
+    [variationsData],
     [customerData],
+    [storeData],
   ] = await Promise.all([
-    readStore(),
-    readExtras(),
-    readCart(),
-    readProductByURL({ productURL: params.product_url }),
-    readProductVariations({ productURL: params.product_url }),
-    readCustomer({}),
+    readProductByURLCached({ productURL: params.product_url }),
+    readExtrasCached(),
+    readCartCached(),
+    readProductVariationsCached({ productURL: params.product_url }),
+    readCustomerCached({}),
+    readStoreCached(),
   ])
 
   const store = storeData?.store
@@ -46,7 +50,7 @@ export default async function ProductPage({
   const cart = cartData?.cart
   const storeAddress = store?.addresses[0]
   const product = productData?.product
-  const variations = productVariationsData?.variations
+  const variations = variationsData?.variations
   const customer = customerData?.customer
 
   const cartProduct = cart?.find((item) => item.id === cartProductId)

@@ -1,7 +1,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { UserCheck } from 'lucide-react'
 import Link from 'next/link'
-import { readStore } from '../actions'
+import { readStoreCached } from '../actions'
 import { SignInWithGoogle } from './google'
 
 export default async function SignIn({
@@ -10,7 +10,7 @@ export default async function SignIn({
   searchParams: { checkout: string }
 }) {
   const checkout = searchParams.checkout
-  const [storeData] = await readStore()
+  const [storeData] = await readStoreCached()
 
   const store = storeData?.store
 

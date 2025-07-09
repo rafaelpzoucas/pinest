@@ -1,11 +1,11 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readAccountData } from './actions'
+import { readAccountDataCached } from './actions'
 import { Address } from './address'
 import { Profile } from './profile'
 import { ManageSubscription } from './subscription'
 
 export default async function AccountPage() {
-  const [account] = await readAccountData()
+  const [account] = await readAccountDataCached()
 
   const user = account?.userData
   const address = account?.storeAddress

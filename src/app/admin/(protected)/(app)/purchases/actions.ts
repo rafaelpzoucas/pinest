@@ -5,6 +5,7 @@ import { adminProcedure } from '@/lib/zsa-procedures'
 import { ObservationType } from '@/models/observation'
 import { PurchaseType } from '@/models/purchase'
 import { StoreType } from '@/models/store'
+import { cache } from 'react'
 import { z } from 'zod'
 
 async function readStore(): Promise<{
@@ -133,3 +134,6 @@ export const readObservations = adminProcedure
 
     return { observations: data as ObservationType[] }
   })
+
+export const readTablesCached = cache(readTables)
+export const readObservationsCached = cache(readObservations)

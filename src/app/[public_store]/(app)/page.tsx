@@ -1,14 +1,14 @@
-import { readOpeningHours } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
-import { readStore } from '../actions'
-import { readCart } from '../cart/actions'
+import { readOpeningHoursCached } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
+import { readStoreCached } from '../actions'
+import { readCartCached } from '../cart/actions'
 import { Categories } from './categories'
-import { readCategories } from './categories/actions'
+import { readCategoriesCached } from './categories/actions'
 import { Footer } from './footer'
 import { Header } from './header'
 import { ProductsList } from './productsList'
-import { readProductsByCategory } from './productsList/actions'
+import { readProductsByCategoryCached } from './productsList/actions'
 import { Showcases } from './showcases'
-import { readShowcases } from './showcases/actions'
+import { readShowcasesCached } from './showcases/actions'
 
 export default async function HomePage() {
   const [
@@ -19,12 +19,12 @@ export default async function HomePage() {
     [productsData],
     [showcasesData],
   ] = await Promise.all([
-    readStore(),
-    readCart(),
-    readCategories(),
-    readOpeningHours(),
-    readProductsByCategory(),
-    readShowcases(),
+    readStoreCached(),
+    readCartCached(),
+    readCategoriesCached(),
+    readOpeningHoursCached(),
+    readProductsByCategoryCached(),
+    readShowcasesCached(),
   ])
 
   const store = storeData?.store
