@@ -50,7 +50,7 @@ import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
-import { printReportReceipt } from '../config/printing/actions'
+import { printMultipleReports } from '../config/printing/actions'
 import { closeCashSession } from './actions'
 import { CashForm } from './cash-form'
 import { ReceiptForm } from './receipt-form'
@@ -174,25 +174,47 @@ export function CloseCashSession({
 
   const difference = totalDeclared - totalComputed
 
+  const { execute: executePrintMultipleReports } = useServerAction(
+    printMultipleReports,
+    {
+      onSuccess: (result) => {
+        console.log('Impressão múltipla concluída:', result)
+      },
+      onError: ({ err }) => {
+        console.log('Erro ao imprimir múltiplos relatórios', err)
+      },
+    },
+  )
+
   const { execute, isPending } = useServerAction(closeCashSession, {
     onSuccess: () => {
       setIsSheetOpen(false)
       form.reset()
 
-      executePrintReceipt({
-        text: buildSalesReportText(reports.salesReport),
-      })
+      // Limpa os query params após fechar o caixa
+      setPixValue(null)
+      setCreditValue(null)
+      setDebitValue(null)
+      setCashValue(null)
 
-      executePrintReceipt({
-        text: buildProductsSoldReportText(reports.productsSold),
+      console.log('Imprimindo múltiplos relatórios')
+      executePrintMultipleReports({
+        reports: [
+          {
+            name: 'Relatório de Vendas',
+            text: buildSalesReportText(reports.salesReport),
+          },
+          {
+            name: 'Produtos Vendidos',
+            text: buildProductsSoldReportText(reports.productsSold),
+          },
+        ],
       })
     },
     onError: (error) => {
       console.error(error)
     },
   })
-
-  const { execute: executePrintReceipt } = useServerAction(printReportReceipt)
 
   function onSubmit(values: z.infer<typeof closeCashSessionSchema>) {
     setIsPrinting(true)
@@ -589,6 +611,8 @@ export function CloseCashSession({
         receipts={cashReceiptsMoney}
         open={sheet === 'cash-form'}
         setOpen={(open) => handleChildSheetChange(open, 'cash-form')}
+        computedValue={computedCash}
+        setCashValue={setCashValue}
       />
       <ReceiptForm
         type="pix"

@@ -63,7 +63,7 @@ export const createPayment = cashProcedure
       })
       .select()
 
-    if (error || !createdPayment) {
+    if (error) {
       console.error('Error creating payment transaction.', error)
       return
     }
@@ -75,7 +75,7 @@ export const createPayment = cashProcedure
         .eq('id', customerId)
         .single()
 
-    if (customerToUpdateError || !customerToUpdate) {
+    if (customerToUpdateError) {
       console.error(
         'Error fetching customer for balance update.',
         customerToUpdateError,
@@ -111,11 +111,11 @@ export const createPayment = cashProcedure
     return { createdPayment }
   })
 
-export const closeBills = adminProcedure
+export const closeBills = cashProcedure
   .createServerAction()
   .input(closeSaleSchema)
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase, cashSession } = ctx
 
     if (input.table_id) {
       const { data: createdPayment, error } = await supabase
@@ -134,6 +134,7 @@ export const closeBills = adminProcedure
         .from('purchases')
         .update({
           is_paid: true,
+          cash_session_id: cashSession.id,
         })
         .eq('id', input.purchase_id)
         .select()
