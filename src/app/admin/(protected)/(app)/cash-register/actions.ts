@@ -271,6 +271,24 @@ export const readCashReceipts = adminProcedure
     return { cashReceipts: data as z.infer<typeof createCashReceiptsSchema> }
   })
 
+export const deleteCashReceipt = adminProcedure
+  .createServerAction()
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ ctx, input }) => {
+    const { supabase } = ctx
+
+    const { error } = await supabase
+      .from('cash_register_receipts')
+      .delete()
+      .eq('id', input.id)
+
+    if (error) {
+      throw new Error('Erro ao remover recibo', error)
+    }
+
+    revalidatePath('/admin/cash-register')
+  })
+
 export const readCashSessionCached = cache(readCashSession)
 export const readPaymentsByCashSessionIdCached = cache(
   readPaymentsByCashSessionId,

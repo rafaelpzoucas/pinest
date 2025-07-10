@@ -1,5 +1,16 @@
 'use client'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetClose,
@@ -8,42 +19,62 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { ArrowLeft, Loader2, Trash } from 'lucide-react'
-
-import { z } from 'zod'
-
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-
-import { Card } from '@/components/ui/card'
-import {
-  Form,
-  FormControl,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowLeft, Loader2, Trash } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
-import { upsertCashReceipts } from './actions'
+import { deleteCashReceipt, upsertCashReceipts } from './actions'
 import { createCashReceiptsSchema } from './schemas'
+
+const TITLES = {
+  pix: 'PIX',
+  credit: 'Cartão de crédito',
+  debit: 'Cartão de débito',
+  cash: 'Dinheiro',
+}
+const DESCRIPTIONS = {
+  pix: 'Insira cada transação de PIX',
+  credit: 'Insira cada transação de Cartão de crédito',
+  debit: 'Insira cada transação de Cartão de débito',
+  cash: 'Insira cada transação em dinheiro',
+}
+const BUTTONS = {
+  pix: 'Salvar PIX',
+  credit: 'Salvar cartão de crédito',
+  debit: 'Salvar cartão de débito',
+  cash: 'Salvar dinheiro',
+}
 
 const formSchema = z.object({
   transactions: z.array(z.number()),
 })
 
-export function PIXForm({
-  receipts,
-  open,
-  setOpen,
-}: {
+type ReceiptFormProps = {
+  type: 'pix' | 'credit' | 'debit' | 'cash'
   receipts: z.infer<typeof createCashReceiptsSchema>
   open: boolean
   setOpen: (open: boolean) => void
-}) {
+  computedValue?: number // valor computado esperado
+  setPixValue?: (v: string) => void
+  setCreditValue?: (v: string) => void
+  setDebitValue?: (v: string) => void
+  setCashValue?: (v: string) => void
+}
+
+export function ReceiptForm({
+  type,
+  receipts,
+  open,
+  setOpen,
+  computedValue = 0,
+  setPixValue,
+  setCreditValue,
+  setDebitValue,
+  setCashValue,
+}: ReceiptFormProps) {
   const defaultValues = {
     transactions: receipts.map((receipt) => receipt.value) || [],
   }
@@ -53,6 +84,7 @@ export function PIXForm({
     defaultValues,
   })
 
+  const { execute: deleteReceipt } = useServerAction(deleteCashReceipt)
   const { execute: createReceipts, isPending: isCreating } = useServerAction(
     upsertCashReceipts,
     {
@@ -60,15 +92,22 @@ export function PIXForm({
         setOpen(false)
       },
       onError: ({ err }) => {
-        console.log('Erro ao salvar transações PIX.', err)
+        console.log('Erro ao salvar transações.', err)
       },
     },
   )
 
-  const [inputValue, setInputValue] = useState('') // <- novo estado para o valor atual
+  const [inputValue, setInputValue] = useState('')
   const transactions = form.watch('transactions')
-
+  // Soma das transações adicionadas
+  const totalTransactions = transactions.reduce(
+    (acc, curr) => acc + Number(curr),
+    0,
+  )
+  // Diferença entre o valor computado e o total das transações
+  const difference = totalTransactions - computedValue
   const inputRef = useRef<HTMLInputElement>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -83,11 +122,16 @@ export function PIXForm({
         ...form.getValues('transactions'),
         parsedValue,
       ])
-      setInputValue('') // Limpa o input depois de adicionar
+      setInputValue('')
     }
   }
 
-  const removeTransaction = (index: number) => {
+  const removeTransaction = async (index: number, id?: string) => {
+    if (id) {
+      setDeletingId(id)
+      await deleteReceipt({ id })
+      setDeletingId(null)
+    }
     const updated = [...form.getValues('transactions')]
     updated.splice(index, 1)
     form.setValue('transactions', updated)
@@ -95,13 +139,21 @@ export function PIXForm({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const cashReceipts = values.transactions.map((transaction) => ({
-      type: 'pix',
+      type,
       value: Number(transaction),
       amount: 1,
       total: Number(transaction),
     })) as z.infer<typeof createCashReceiptsSchema>
-
     createReceipts(cashReceipts)
+
+    // Atualiza o valor total no query param correspondente
+    const total = String(
+      values.transactions.reduce((acc, curr) => acc + Number(curr), 0),
+    )
+    if (type === 'pix' && setPixValue) setPixValue(total)
+    if (type === 'credit' && setCreditValue) setCreditValue(total)
+    if (type === 'debit' && setDebitValue) setDebitValue(total)
+    if (type === 'cash' && setCashValue) setCashValue(total)
   }
 
   return (
@@ -115,12 +167,34 @@ export function PIXForm({
               >
                 <ArrowLeft />
               </SheetClose>
-              <SheetTitle className="!mt-0">PIX</SheetTitle>
+              <SheetTitle className="!mt-0">{TITLES[type]}</SheetTitle>
             </div>
             <SheetDescription className="!mt-0">
-              Insira cada transação de PIX
+              {DESCRIPTIONS[type]}
             </SheetDescription>
           </SheetHeader>
+
+          {/* NOVO BLOCO: Exibir valor computado e diferença */}
+          <div className="mb-4">
+            <div className="flex flex-row justify-between text-sm">
+              <span>Valor computado</span>
+              <span>{formatCurrencyBRL(computedValue)}</span>
+            </div>
+            <div className="flex flex-row justify-between text-sm">
+              <span>Transações adicionadas</span>
+              <span>{formatCurrencyBRL(totalTransactions)}</span>
+            </div>
+            <div className="flex flex-row justify-between text-sm">
+              <span>Diferença</span>
+              <span
+                className={
+                  difference === 0 ? 'text-green-600' : 'text-amber-600'
+                }
+              >
+                {formatCurrencyBRL(difference)}
+              </span>
+            </div>
+          </div>
 
           {transactions.length > 0 && (
             <div className="space-y-2 pb-8">
@@ -130,14 +204,24 @@ export function PIXForm({
                   className="flex items-center justify-between p-2"
                 >
                   <span>{formatCurrencyBRL(transaction)}</span>
-
                   <Button
                     type="button"
                     size="icon"
                     variant="secondary"
-                    onClick={() => removeTransaction(index)}
+                    onClick={async () =>
+                      await removeTransaction(index, receipts[index]?.id)
+                    }
+                    disabled={
+                      !!receipts[index]?.id &&
+                      deletingId === receipts[index]?.id
+                    }
                   >
-                    <Trash className="h-4 w-4" />
+                    {receipts[index]?.id &&
+                    deletingId === receipts[index]?.id ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Trash className="h-4 w-4" />
+                    )}
                   </Button>
                 </Card>
               ))}
@@ -166,9 +250,11 @@ export function PIXForm({
                       }}
                     />
                   </FormControl>
+                  <FormDescription>
+                    Pressione Enter para adicionar a transação
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
-
                 <Button
                   type="button"
                   onClick={() => onSubmit(form.getValues())}
@@ -177,10 +263,10 @@ export function PIXForm({
                   {isCreating ? (
                     <>
                       <Loader2 className="animate-spin w-4 h-4" />
-                      <span>Salvando...</span>
+                      <span>{BUTTONS[type]}</span>
                     </>
                   ) : (
-                    <span>Salvar PIX</span>
+                    <span>{BUTTONS[type]}</span>
                   )}
                 </Button>
               </form>

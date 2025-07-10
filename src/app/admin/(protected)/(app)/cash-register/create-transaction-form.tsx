@@ -1,6 +1,16 @@
 'use client'
 
 import { Button, buttonVariants } from '@/components/ui/button'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+
+import { useState } from 'react'
+import { useServerAction } from 'zsa-react'
+import { createCashSessionTransaction } from './actions'
+import { createTransactionFormSchema } from './schemas'
+
 import {
   Sheet,
   SheetClose,
@@ -10,10 +20,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { ArrowLeft, Loader2, Plus } from 'lucide-react'
-
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import {
   Form,
@@ -25,13 +31,12 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { useState } from 'react'
-import { useServerAction } from 'zsa-react'
-import { createCashSessionTransaction } from './actions'
-import { createTransactionFormSchema } from './schemas'
 
 export function CreateTransactionForm() {
   const [isOpen, setIsOpen] = useState(false)
+  const [receiptType, setReceiptType] = useState<
+    'pix' | 'credit' | 'debit' | null
+  >(null)
 
   const form = useForm<z.infer<typeof createTransactionFormSchema>>({
     resolver: zodResolver(createTransactionFormSchema),
@@ -52,6 +57,13 @@ export function CreateTransactionForm() {
   function onSubmit(values: z.infer<typeof createTransactionFormSchema>) {
     execute(values)
   }
+
+  // Adiciona função para abrir o form de recibo
+  const openReceiptForm = (type: 'pix' | 'credit' | 'debit') => {
+    setReceiptType(type)
+    setIsOpen(true)
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger className={buttonVariants({ variant: 'outline' })}>
