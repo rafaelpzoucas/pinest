@@ -6,6 +6,7 @@ import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { ShippingConfigType } from '@/models/shipping'
 import { StoreType } from '@/models/store'
+import { cache } from 'react'
 
 export const readStoreData = adminProcedure
   .createServerAction()
@@ -38,3 +39,5 @@ export const readStoreData = adminProcedure
       shippings: shippings as ShippingConfigType,
     }
   })
+
+export const readStoreDataCached = cache(readStoreData)

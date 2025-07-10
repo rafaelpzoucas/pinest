@@ -1,5 +1,5 @@
 import { endOfDay, startOfDay } from 'date-fns'
-import { getSalesReport } from '../../actions'
+import { getSalesReportByDateCached } from '../../actions'
 import { Printer } from '../printer'
 import { ProductsSoldReportPrint } from './products-sold'
 import { SalesReportPrint } from './sales'
@@ -16,7 +16,7 @@ export default async function CashRegisterPrint({
   ).toISOString()
   const endDate = endOfDay(searchParams.start_date || new Date()).toISOString()
 
-  const [reports] = await getSalesReport({
+  const [reports] = await getSalesReportByDateCached({
     start_date: startDate,
     end_date: endDate,
   })

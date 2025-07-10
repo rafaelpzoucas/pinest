@@ -4,16 +4,16 @@ import { Card } from '@/components/ui/card'
 import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { readCustomer } from '../account/actions'
-import { readStore } from '../actions'
-import { readCart } from './actions'
+import { readCustomerCached } from '../account/actions'
+import { readStoreCached } from '../actions'
+import { readCartCached } from './actions'
 import { CartProducts } from './cart-products'
 
 export default async function CartPage() {
   const [[customerData], [storeData], [cartData]] = await Promise.all([
-    readCustomer({}),
-    readStore(),
-    readCart(),
+    readCustomerCached({}),
+    readStoreCached(),
+    readCartCached(),
   ])
 
   const store = storeData?.store

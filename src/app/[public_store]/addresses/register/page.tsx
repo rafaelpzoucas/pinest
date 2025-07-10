@@ -1,6 +1,6 @@
 import { Header } from '@/components/store-header'
 import { createClient } from '@/lib/supabase/server'
-import { readStore } from '../../actions'
+import { readStoreCached } from '../../actions'
 import { readAddressById } from '../../checkout/@summary/actions'
 import { AddressForm } from './form'
 
@@ -11,7 +11,7 @@ export default async function CustomerAddressRegister({
 }) {
   const supabase = createClient()
 
-  const [storeData] = await readStore()
+  const [storeData] = await readStoreCached()
 
   const store = storeData?.store
 

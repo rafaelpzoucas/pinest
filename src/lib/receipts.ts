@@ -29,52 +29,58 @@ export function buildReceiptKitchenText(
   let text = ''
 
   text += `${reprint ? 'REIMPRESSÃO - ' : ''}COZINHA\n`
-  text += `Pedido #${displayId}\n`
-  text += `${purchase.type}\n\n` // aqui você pode adaptar para DELIVERY_TYPES
+  text += `PEDIDO #${displayId}\n`
+  text += `${purchase.type}\n`
 
-  text += `Data: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
-  text += `Cliente: ${customerName}\n`
+  text += `DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
+  text += `CLIENTE: ${customerName.toUpperCase()}\n`
 
   if (purchase.observations) {
     text += `OBS: ${purchase.observations.toUpperCase()}\n`
   }
 
-  text += `\nItens do pedido:\n`
+  text += `\n\nITENS DO PEDIDO:\n\n`
 
   if (!isIfood) {
     for (const item of itemsList) {
       if (!item.products) continue
-      text += `${item.quantity}x ${item.products.name.toUpperCase()}\n`
+      text += `${item.quantity}X ${item.products.name.toUpperCase()}\n`
 
       if (item.extras.length > 0) {
         for (const extra of item.extras) {
-          text += `  + ${extra.quantity} ad. ${extra.name.toUpperCase()}\n`
+          text += `  + ${extra.quantity}X AD. ${extra.name.toUpperCase()}\n`
         }
       }
 
       if (item.observations && item.observations.length > 0) {
         for (const obs of item.observations) {
-          text += `  * ${obs}\n`
+          text += `  * ${obs.toUpperCase()}\n`
         }
       }
+
+      text += `----------------------\n\n`
     }
   } else {
     for (const item of purchase.ifood_order_data.items) {
-      text += `${item.quantity}x ${item.name.toUpperCase()}\n`
+      text += `${item.quantity}X ${item.name.toUpperCase()}\n`
 
       if (item.options && item.options.length > 0) {
         for (const option of item.options) {
-          text += `  + ${option.quantity} ad. ${option.name.toUpperCase()}\n`
+          text += `  + ${option.quantity}X AD. ${option.name.toUpperCase()}\n`
         }
       }
 
       if (item.observations) {
-        text += `  **${item.observations}\n`
+        text += `  **${item.observations.toUpperCase()}\n`
       }
+
+      text += `----------------------\n\n`
     }
   }
 
-  return text
+  text += `======================\n\n`
+
+  return text.trim()
 }
 
 export function buildReceiptDeliveryText(
@@ -110,23 +116,23 @@ export function buildReceiptDeliveryText(
   let text = ''
 
   text += `${reprint ? 'REIMPRESSÃO' : ''}\n`
-  text += `Pedido #${displayId}\n`
-  text += `${deliveryType}\n\n`
+  text += `PEDIDO #${displayId}\n`
+  text += `${deliveryType}\n`
 
-  text += `Data: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
+  text += `DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
   if (isIfood) {
-    text += `Entrega: ${format(new Date(ifoodOrder.delivery.deliveryDateTime), 'dd/MM HH:mm:ss')}\n`
+    text += `ENTREGA: ${format(new Date(ifoodOrder.delivery.deliveryDateTime), 'dd/MM HH:mm:ss')}\n`
   }
 
-  text += `Cliente: ${customerName.toUpperCase()}\n`
-  text += `Telefone: ${customerPhone}\n`
-  text += `Endereço: ${customerAddress?.toUpperCase()}\n`
+  text += `CLIENTE: ${customerName.toUpperCase()}\n`
+  text += `TELEFONE: ${String(customerPhone).toUpperCase()}\n`
+  text += `ENDEREÇO: ${String(customerAddress).toUpperCase()}\n`
 
   if (purchase.observations || ifoodOrder?.delivery?.observations) {
     text += `OBS: ${(ifoodOrder?.delivery?.observations ?? purchase.observations).toUpperCase()}\n`
   }
 
-  text += `\nItens do pedido:\n`
+  text += `\n\nITENS DO PEDIDO:\n\n`
 
   if (!isIfood) {
     for (const item of purchase.purchase_items) {
@@ -139,34 +145,39 @@ export function buildReceiptDeliveryText(
       )
       const total = (itemTotal + extrasTotal) * item.quantity
 
-      text += `${item.quantity}x ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}\n`
+      text += `${item.quantity}X ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}\n`
 
       for (const extra of item.extras) {
-        text += `  + ${extra.quantity} ad. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}\n`
+        text += `  + ${extra.quantity}X AD. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}\n`
       }
 
       for (const obs of item.observations ?? []) {
-        text += `  * ${obs}\n`
+        text += `  * ${obs.toUpperCase()}\n`
       }
+
+      text += `----------------------\n\n`
     }
   } else {
     for (const item of ifoodOrder.items) {
-      text += `${item.quantity}x ${item.name.toUpperCase()}\n`
+      text += `${item.quantity}X ${item.name.toUpperCase()}\n`
 
       for (const option of item.options ?? []) {
-        text += `  + ${option.quantity} ad. ${option.name.toUpperCase()}\n`
+        text += `  + ${option.quantity}X AD. ${option.name.toUpperCase()}\n`
       }
 
       if (item.observations) {
-        text += `  * ${item.observations}\n`
+        text += `  * ${item.observations.toUpperCase()}\n`
       }
+
+      text += `----------------------\n\n`
     }
   }
 
+  text += `======================\n\n`
+
   // Total do pedido
   const total = formatCurrencyBRL(purchase.total.total_amount)
-
-  text += `\nTOTAL: ${total}\n`
+  text += `TOTAL: ${total}\n\n`
 
   // Forma de pagamento
   if (purchase.payment_type) {
@@ -190,19 +201,19 @@ export function buildReceiptDeliveryText(
         ]?.toUpperCase() || 'INDEFINIDO'
     }
 
-    text += `\nPAGAMENTO:\n${paymentLabel}\n`
+    text += `PAGAMENTO:\n${paymentLabel}\n\n`
 
     if (purchase.total.change_value > 0) {
       const troco = purchase.total.change_value - purchase.total.total_amount
-      text += `TROCO PARA: ${formatCurrencyBRL(troco)}\n`
+      text += `TROCO PARA: ${formatCurrencyBRL(troco)}\n\n`
     }
 
     if (isIfood && ifoodOrder?.extraInfo) {
-      text += `INFO ADICIONAL: ${ifoodOrder.extraInfo}\n`
+      text += `INFO ADICIONAL: ${ifoodOrder.extraInfo.toUpperCase()}\n\n`
     }
   }
 
-  return text
+  return text.trim()
 }
 
 export function buildReceiptTableText(
@@ -217,14 +228,15 @@ export function buildReceiptTableText(
   let text = ''
   text += `\n====== COZINHA ======\n`
   text += `MESA #${displayId}${table.description ? ' - ' + table.description.toUpperCase() : ''}\n\n`
+  text += `ITENS DO PEDIDO:\n\n`
 
   for (const item of itemsList) {
     if (!item.products) continue
 
-    text += `${item.quantity}x ${item.products.name.toUpperCase()}\n`
+    text += `${item.quantity}X ${item.products.name.toUpperCase()}\n`
 
     for (const extra of item.extras) {
-      text += `  + ${extra.quantity}x AD. ${extra.name.toUpperCase()}\n`
+      text += `  + ${extra.quantity}X AD. ${extra.name.toUpperCase()}\n`
     }
 
     if (item.observations?.length) {
@@ -233,8 +245,10 @@ export function buildReceiptTableText(
       }
     }
 
-    text += `----------------------\n`
+    text += `----------------------\n\n`
   }
+
+  text += `======================\n\n`
 
   return text.trim()
 }
@@ -246,7 +260,7 @@ export function buildProductsSoldReportText(
   text += `\n=== PRODUTOS VENDIDOS ===\n\n`
 
   if (!data || data.length === 0) {
-    text += 'Nenhum resultado encontrado para o período selecionado.'
+    text += 'NENHUM RESULTADO ENCONTRADO PARA O PERÍODO SELECIONADO.'
     return text
   }
 
@@ -256,9 +270,11 @@ export function buildProductsSoldReportText(
     const total = formatCurrencyBRL(item.totalAmount)
 
     text += `${name}\n`
-    text += `  ${quantity} un.   ${total}\n`
-    text += `----------------------\n`
+    text += `  ${quantity} UN.   ${total}\n`
+    text += `----------------------\n\n`
   }
+
+  text += `======================\n\n`
 
   return text.trim()
 }
@@ -268,22 +284,24 @@ export function buildSalesReportText(data: SalesReportType): string {
   text += `\n=== RELATÓRIO DE VENDAS ===\n\n`
 
   if (!data?.totalAmount) {
-    text += 'Nenhum resultado encontrado para o período selecionado.'
+    text += 'NENHUM RESULTADO ENCONTRADO PARA O PERÍODO SELECIONADO.'
     return text
   }
 
   // Entregas
   text += `-- ENTREGAS --\n`
-  text += `Total de entregas: ${data.deliveriesCount}\n\n`
+  text += `TOTAL DE ENTREGAS: ${data.deliveriesCount}\n\n`
 
   // Métodos de pagamento
   text += `-- MÉTODOS DE PAGAMENTO --\n`
-  text += `Total de vendas: ${formatCurrencyBRL(data.totalAmount)}\n`
+  text += `TOTAL DE VENDAS: ${formatCurrencyBRL(data.totalAmount)}\n\n`
 
   for (const [key, value] of Object.entries(data.paymentTypes || {})) {
     const paymentLabel = PAYMENT_TYPES[key as keyof typeof PAYMENT_TYPES] || key
-    text += `${paymentLabel}: ${formatCurrencyBRL(value)}\n`
+    text += `${paymentLabel.toUpperCase()}: ${formatCurrencyBRL(value)}\n`
   }
+
+  text += `\n======================\n\n`
 
   return text.trim()
 }

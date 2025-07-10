@@ -141,21 +141,11 @@ export function Deliveries({
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {
         const notification = new Notification('Novo Pedido Recebido', {
-          body: 'Clique aqui para visualizar o pedido.',
+          body: 'Visualize o pedido.',
           icon: '/icon-dark.svg',
         })
 
         lastNotificationTimeRef.current = now
-
-        notification.onclick = () => {
-          const myWindow = window.open(
-            `${process.env.NEXT_PUBLIC_APP_URL}/admin/purchases?tab=deliveries`,
-            'pinest',
-          )
-          if (myWindow) {
-            myWindow.focus()
-          }
-        }
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then((permission) => {
           if (permission === 'granted' && hasPending) {

@@ -1,25 +1,25 @@
 import { ProductCard } from '@/components/product-card'
 import { Header } from '@/components/store-header'
 import { Search } from 'lucide-react'
-import { readCustomer } from '../account/actions'
-import { readStore } from '../actions'
-import { readCart } from '../cart/actions'
-import { getSearchedProducts } from './actions'
+import { readCustomerCached } from '../account/actions'
+import { readStoreCached } from '../actions'
+import { readCartCached } from '../cart/actions'
+import { getSearchedProductsCached } from './actions'
 
 export default async function SearchPage({
   searchParams,
 }: {
   searchParams: { q: string }
 }) {
-  const [[searchData], [storeData], [cartData], [customerData]] =
+  const [[productsData], [storeData], [cartData], [customerData]] =
     await Promise.all([
-      getSearchedProducts({ query: searchParams.q }),
-      readStore(),
-      readCart(),
-      readCustomer({}),
+      getSearchedProductsCached({ query: searchParams.q }),
+      readStoreCached(),
+      readCartCached(),
+      readCustomerCached({}),
     ])
 
-  const products = searchData?.products
+  const products = productsData?.products
   const store = storeData?.store
   const cart = cartData?.cart
   const customer = customerData?.customer

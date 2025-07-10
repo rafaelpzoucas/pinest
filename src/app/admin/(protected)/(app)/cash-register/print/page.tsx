@@ -1,7 +1,7 @@
 import { formatCurrencyBRL } from '@/lib/utils'
 import { PaymentType } from '@/models/payment'
 import { endOfDay, startOfDay } from 'date-fns'
-import { getSalesReport } from '../../reports/actions'
+import { getSalesReportByDateCached } from '../../reports/actions'
 import { ProductsSoldReportPrint } from '../../reports/print/[report]/products-sold'
 import { readPaymentsByCashSessionId } from '../actions'
 import { Printer } from './printer'
@@ -13,7 +13,7 @@ export default async function CashRegisterPrint({
 }) {
   const today = new Date()
   const [[reports], [paymentsData]] = await Promise.all([
-    getSalesReport({
+    getSalesReportByDateCached({
       start_date: startOfDay(today).toISOString(),
       end_date: endOfDay(today).toISOString(),
     }),

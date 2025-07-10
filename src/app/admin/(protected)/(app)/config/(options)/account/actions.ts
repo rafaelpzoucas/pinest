@@ -9,6 +9,7 @@ import { StoreType } from '@/models/store'
 import { UserType } from '@/models/user'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 import { z } from 'zod'
 
 export async function readUser(): Promise<{
@@ -220,3 +221,6 @@ export const cancelSubscription = adminProcedure
 
     revalidatePath('/')
   })
+
+export const readOpeningHoursCached = cache(readOpeningHours)
+export const readAccountDataCached = cache(readAccountData)

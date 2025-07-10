@@ -7,6 +7,7 @@ import {
 } from '@/lib/receipts'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import { readPurchaseById } from '../../purchases/deliveries/[id]/actions'
@@ -246,6 +247,7 @@ export const printReportReceipt = createServerAction()
     }),
   )
   .handler(async ({ input }) => {
+    console.log({ input })
     const [[printerData], [printSettingsData]] = await Promise.all([
       readPrinters(),
       readPrintingSettings(),
@@ -255,7 +257,7 @@ export const printReportReceipt = createServerAction()
     const fontSize = printSettingsData?.printingSettings?.font_size
 
     if (!printers) {
-      return new Response('Impressora não encontrada', { status: 404 })
+      throw new Error('Impressora não encontrada')
     }
 
     for (const printer of printers) {
@@ -272,11 +274,92 @@ export const printReportReceipt = createServerAction()
           },
         ])
       } catch (error) {
-        console.error('Erro ao verificar extensão', error)
-        return { success: false, error: (error as Error).message }
+        throw new Error('Erro ao verificar extensão', error as Error)
       }
     }
     // Se setores definidos e "kitchen" não incluso, não imprime
+  })
+
+export const printMultipleReports = createServerAction()
+  .input(
+    z.object({
+      reports: z.array(
+        z.object({
+          text: z.string(),
+          name: z.string(),
+        }),
+      ),
+    }),
+  )
+  .handler(async ({ input }) => {
+    console.log(
+      'Iniciando impressão de múltiplos relatórios:',
+      input.reports.length,
+    )
+
+    const [[printerData], [printSettingsData]] = await Promise.all([
+      readPrinters(),
+      readPrintingSettings(),
+    ])
+
+    const printers = printerData?.printers
+    const fontSize = printSettingsData?.printingSettings?.font_size
+
+    if (!printers) {
+      throw new Error('Impressora não encontrada')
+    }
+
+    const results = []
+    let successfulReports = 0
+    const totalReports = input.reports.length
+
+    for (const report of input.reports) {
+      console.log(`Imprimindo relatório: ${report.name}`)
+
+      try {
+        for (const printer of printers) {
+          if (
+            printer.sectors.length > 0 &&
+            !printer.sectors.includes('balcony')
+          ) {
+            console.log(
+              `Pulando impressora ${printer.name} - setor não compatível`,
+            )
+            continue
+          }
+
+          await addToPrintQueue([
+            {
+              text: report.text,
+              font_size: fontSize,
+              printer_name: printer.name,
+            },
+          ])
+
+          console.log(
+            `Relatório "${report.name}" enviado para impressora ${printer.name}`,
+          )
+        }
+
+        results.push({ name: report.name, success: true })
+        successfulReports++
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error)
+        console.error(`Erro ao imprimir relatório "${report.name}":`, errorMsg)
+        results.push({ name: report.name, success: false, error: errorMsg })
+      }
+    }
+
+    console.log(
+      `Impressão concluída: ${successfulReports}/${totalReports} relatórios impressos com sucesso`,
+    )
+
+    return {
+      success: successfulReports > 0,
+      results,
+      totalReports,
+      successfulReports,
+    }
   })
 
 export const readPrintingSettings = adminProcedure
@@ -403,3 +486,8 @@ export const deletePrinter = adminProcedure
 
     revalidatePath('/admin/config/printing')
   })
+
+export const readPrintPendingItemsCached = cache(readPrintPendingItems)
+export const readPrinterByNameCached = cache(readPrinterByName)
+export const readPrintingSettingsCached = cache(readPrintingSettings)
+export const readPrintersCached = cache(readPrinters)

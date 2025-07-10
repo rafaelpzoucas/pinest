@@ -3,6 +3,7 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { ProductType } from '@/models/product'
 import { ShowcaseType } from '@/models/showcase'
+import { cache } from 'react'
 
 type ShowcaseProductsType = ShowcaseType & {
   products: ProductType[]
@@ -57,3 +58,5 @@ export const readShowcases = storeProcedure
       showcasesWithProducts: showcasesWithProducts as ShowcaseProductsType[],
     }
   })
+
+export const readShowcasesCached = cache(readShowcases)

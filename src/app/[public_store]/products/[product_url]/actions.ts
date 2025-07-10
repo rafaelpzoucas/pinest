@@ -3,6 +3,7 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { ExtraType } from '@/models/extras'
 import { ProductType, ProductVariationType } from '@/models/product'
+import { cache } from 'react'
 import { z } from 'zod'
 
 export const readProductByURL = storeProcedure
@@ -76,3 +77,7 @@ export const readExtras = storeProcedure
 
     return { extras: extras as ExtraType[] }
   })
+
+export const readProductByURLCached = cache(readProductByURL)
+export const readProductVariationsCached = cache(readProductVariations)
+export const readExtrasCached = cache(readExtras)

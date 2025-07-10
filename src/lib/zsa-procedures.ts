@@ -25,23 +25,23 @@ export const adminProcedure = createServerActionProcedure(
 ).handler(async ({ ctx }) => {
   const { user, supabase } = ctx
 
-  const { data, error: roleError } = await supabase
+  // Refatorado: busca role e dados da loja em uma só query
+  const { data, error } = await supabase
     .from('users')
-    .select('role')
+    .select('role, stores(*, addresses(*))')
     .eq('id', user.id)
     .single()
 
-  if (roleError || data.role !== 'admin') {
+  if (error || !data) {
+    throw new Error('User is not an admin or does not have a store')
+  }
+
+  if (data.role !== 'admin') {
     throw new Error('User is not an admin')
   }
 
-  const { data: store, error: storeError } = await supabase
-    .from('stores')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
-
-  if (storeError || !store) {
+  const store = Array.isArray(data.stores) ? data.stores[0] : data.stores
+  if (!store) {
     throw new Error('User does not have a store')
   }
 

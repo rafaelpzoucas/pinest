@@ -131,10 +131,15 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin
 
   if (!storeURL || !purchaseId) {
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: 'Missing required parameters.' },
       { status: 400 },
     )
+    res.headers.set(
+      'Cache-Control',
+      'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+    )
+    return res
   }
 
   const { error } = await supabase
@@ -143,18 +148,27 @@ export async function GET(request: Request) {
     .eq('id', purchaseId)
 
   if (error) {
-    console.error('Supabase Error:', error)
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: 'Failed to update purchase.' },
       { status: 500 },
     )
+    res.headers.set(
+      'Cache-Control',
+      'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+    )
+    return res
   }
 
   if (!amount || !stripeAccountId) {
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: 'Missing required parameters. (amount & stripeAccountId)' },
       { status: 400 },
     )
+    res.headers.set(
+      'Cache-Control',
+      'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+    )
+    return res
   }
 
   if (isShipping) {
@@ -163,5 +177,12 @@ export async function GET(request: Request) {
 
   revalidatePath('/purchases')
 
-  return NextResponse.redirect(`${origin}/${storeURL}/purchases?callback=home`)
+  const res = NextResponse.redirect(
+    `${origin}/${storeURL}/purchases?callback=home`,
+  )
+  res.headers.set(
+    'Cache-Control',
+    'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+  )
+  return res
 }

@@ -2,6 +2,7 @@
 
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CustomerType } from '@/models/customer'
+import { cache } from 'react'
 import { z } from 'zod'
 
 export const readCustomer = storeProcedure
@@ -31,3 +32,5 @@ export const readCustomer = storeProcedure
 
     return { customer: customer as CustomerType }
   })
+
+export const readCustomerCached = cache(readCustomer)

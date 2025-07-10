@@ -1,6 +1,7 @@
 'use server'
 
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { cache } from 'react'
 
 export const readStoreData = adminProcedure
   .createServerAction()
@@ -25,3 +26,5 @@ export const readStoreData = adminProcedure
 
     return { categories, products, extras }
   })
+
+export const readStoreDataCached = cache(readStoreData)

@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { formatCurrencyBRL } from '@/lib/utils'
 import { useServerAction } from 'zsa-react'
 import { upsertCashReceipts } from './actions'
 import { createCashReceiptsSchema } from './schemas'
@@ -64,10 +65,14 @@ export function CashForm({
   receipts,
   open,
   setOpen,
+  computedValue = 0,
+  setCashValue,
 }: {
   receipts: z.infer<typeof createCashReceiptsSchema>
   open: boolean
   setOpen: (open: boolean) => void
+  computedValue?: number
+  setCashValue?: (v: string) => void
 }) {
   const cashTypes = [
     'cash_005',
@@ -100,6 +105,18 @@ export function CashForm({
     defaultValues,
   })
 
+  // Calcula o valor total das cédulas e moedas inseridas
+  const formValues = form.watch()
+  const totalCashAmount = Object.keys(formValues).reduce((acc, key) => {
+    const typedKey = key as keyof typeof MONEY_VALUES
+    const value = Number(MONEY_VALUES[typedKey] || 0)
+    const amount = Number(formValues[key as keyof typeof formValues] ?? 0) || 0
+    return acc + value * amount
+  }, 0)
+
+  // Diferença entre o valor computado e o total das cédulas/moedas
+  const difference = totalCashAmount - computedValue
+
   const { execute: createReceipts, isPending: isCreating } = useServerAction(
     upsertCashReceipts,
     {
@@ -130,6 +147,13 @@ export function CashForm({
       })
 
       createReceipts(cashReceipts)
+
+      // Atualiza o valor total no query param correspondente
+      const total = cashReceipts.reduce(
+        (acc, receipt) => acc + receipt.total,
+        0,
+      )
+      if (setCashValue) setCashValue(String(total))
     } catch (err) {
       console.error('Erro de validação:', err)
     }
@@ -154,6 +178,28 @@ export function CashForm({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* NOVO BLOCO: Exibir valor computado e diferença */}
+            <div className="mb-4">
+              <div className="flex flex-row justify-between text-sm">
+                <span>Valor computado</span>
+                <span>{formatCurrencyBRL(computedValue)}</span>
+              </div>
+              <div className="flex flex-row justify-between text-sm">
+                <span>Cédulas e moedas inseridas</span>
+                <span>{formatCurrencyBRL(totalCashAmount)}</span>
+              </div>
+              <div className="flex flex-row justify-between text-sm">
+                <span>Diferença</span>
+                <span
+                  className={
+                    difference === 0 ? 'text-green-600' : 'text-amber-600'
+                  }
+                >
+                  {formatCurrencyBRL(difference)}
+                </span>
+              </div>
+            </div>
+
             <Card className="p-4">
               <h2>Moedas</h2>
               <div className="grid grid-cols-3 gap-2">

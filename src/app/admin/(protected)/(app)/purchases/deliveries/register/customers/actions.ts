@@ -7,6 +7,7 @@ import {
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { CustomerType } from '@/models/customer'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 
 export const createCustomer = adminProcedure
@@ -99,3 +100,5 @@ export const readCustomerLastPurchases = adminProcedure
 
     return { lastPurchases }
   })
+
+export const readCustomerLastPurchasesCached = cache(readCustomerLastPurchases)

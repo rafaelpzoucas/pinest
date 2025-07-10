@@ -1,6 +1,6 @@
 import { TableType } from '@/models/table'
 import { Asterisk, Plus } from 'lucide-react'
-import { readTableById } from '../actions'
+import { readTableByIdCached } from '../actions'
 import { Printer } from './printer'
 
 export default async function PrintKitchenReceipt({
@@ -10,7 +10,7 @@ export default async function PrintKitchenReceipt({
   params: { id: string }
   searchParams: { reprint: string }
 }) {
-  const [tableData] = await readTableById({ id: params.id })
+  const [tableData] = await readTableByIdCached({ id: params.id })
 
   if (!tableData) {
     console.error('Erro ao buscar as informações da mesa.')

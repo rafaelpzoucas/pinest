@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { format, isAfter, isBefore, parse } from 'date-fns'
-import { readStore } from './[public_store]/actions'
+import { readStoreCached } from './[public_store]/actions'
 
 export async function StoreStatus() {
   try {
     const supabase = createClient()
 
-    const [storeData] = await readStore()
+    const [storeData] = await readStoreCached()
 
     const store = storeData?.store
 

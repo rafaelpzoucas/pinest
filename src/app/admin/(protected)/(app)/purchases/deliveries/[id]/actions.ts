@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 import { getValidIfoodAccessToken } from '../../../config/integrations/ifood/actions'
 
@@ -63,6 +64,8 @@ export const readPurchaseById = adminProcedure
     return { purchase: purchase as PurchaseType }
   })
 
+export const readPurchaseByIdCached = cache(readPurchaseById)
+
 export const acceptPurchase = adminProcedure
   .createServerAction()
   .input(z.object({ purchaseId: z.string() }))
@@ -108,25 +111,15 @@ export const updatePurchasePrintedItems = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
-    const { data: purchaseItems, error: purchaseItemsError } = await supabase
+    // Update em lote: marca todos os itens do pedido como impressos de uma vez
+    const { error } = await supabase
       .from('purchase_items')
-      .select('*')
+      .update({ printed: true })
       .eq('purchase_id', input.purchaseId)
 
-    if (purchaseItemsError) {
-      console.error('Error reading purchase items', purchaseItemsError)
+    if (error) {
+      console.error('Error updating printed status of purchase items.', error)
       return
-    }
-
-    for (const item of purchaseItems) {
-      const { error } = await supabase
-        .from('purchase_items')
-        .update({ printed: true })
-        .eq('id', item.id)
-
-      if (error) {
-        console.error('Error updating printed status of purchase item.', error)
-      }
     }
 
     revalidatePath('/')
@@ -159,12 +152,12 @@ export const updatePurchaseStatus = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
-    const { data, error: updateStatusError } = await supabase
+    const { error: updateStatusError } = await supabase
       .from('purchases')
       .update({ status: input.newStatus })
       .eq('id', input.purchaseId)
 
-    if (updateStatusError || !data) {
+    if (updateStatusError) {
       console.error('Erro ao atualizar o status.', updateStatusError)
     }
 

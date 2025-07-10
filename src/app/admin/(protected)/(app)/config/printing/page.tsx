@@ -1,12 +1,12 @@
-import { readPrinters, readPrintingSettings } from './actions'
+import { readPrintersCached, readPrintingSettingsCached } from './actions'
 import { Extension } from './extension'
 import { FontSizeSelector } from './font-size'
 import { Printers } from './printers'
 
 export default async function PrintingPage() {
   const [[printSettingsData], [printersData]] = await Promise.all([
-    readPrintingSettings(),
-    readPrinters(),
+    readPrintingSettingsCached(),
+    readPrintersCached(),
   ])
 
   const printSettings = printSettingsData?.printingSettings

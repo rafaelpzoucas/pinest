@@ -1,6 +1,7 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { PurchaseType } from '@/models/purchase'
 import { StoreCustomerType } from '@/models/store-customer'
+import { cache } from 'react'
 import { readCustomer } from '../account/actions'
 
 export const readStoreCustomer = storeProcedure
@@ -65,3 +66,6 @@ export const readPurchases = storeProcedure
 
     return { purchases: purchases as PurchaseType[] }
   })
+
+export const readStoreCustomerCached = cache(readStoreCustomer)
+export const readPurchasesCached = cache(readPurchases)

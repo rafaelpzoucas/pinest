@@ -1,22 +1,20 @@
 import { redirect } from 'next/navigation'
-import { getSalesReport } from '../reports/actions'
+import { readStoreCached } from '../config/(options)/layout/actions'
+import { getSalesReportByDateCached } from '../reports/actions'
 import { SalesReport } from '../reports/sales-report'
-import { readStore } from './actions'
 import { FirstSteps } from './first-steps'
 import { PendingBalances } from './pending-balances'
 import { ProfileCard } from './profile'
 import { TodaySummary } from './today-summary'
 
 export default async function DashboardPage() {
-  const { store, storeError } = await readStore()
-  const [reports] = await getSalesReport({
+  const [storeData] = await readStoreCached()
+  const [reports] = await getSalesReportByDateCached({
     start_date: new Date().toISOString(),
     end_date: new Date().toISOString(),
   })
 
-  if (storeError) {
-    console.error(storeError)
-  }
+  const store = storeData?.store
 
   if (!store) {
     redirect('/admin/onboarding/store/basic')

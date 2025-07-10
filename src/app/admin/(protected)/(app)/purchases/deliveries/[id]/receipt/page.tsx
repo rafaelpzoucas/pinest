@@ -1,6 +1,7 @@
 import { IfoodItem } from '@/models/ifood'
 import { format } from 'date-fns'
 import { Asterisk, Plus } from 'lucide-react'
+// ATENÇÃO: Não usar versão cacheada, pois esta tela depende de tempo real
 import { readPurchaseById } from '../actions'
 import { DELIVERY_TYPES } from './info'
 import { Printer } from './printer'

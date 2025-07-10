@@ -2,6 +2,7 @@
 
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { z } from 'zod'
 
 export const readTableById = adminProcedure
@@ -32,31 +33,23 @@ export const readTableById = adminProcedure
     return { table }
   })
 
+export const readTableByIdCached = cache(readTableById)
+
 export const updateTablePrintedItems = adminProcedure
   .createServerAction()
   .input(z.object({ tableId: z.string() }))
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
-    const { data: tableItems, error: tableItemsError } = await supabase
+    // Update em lote: marca todos os itens da mesa como impressos de uma vez
+    const { error } = await supabase
       .from('purchase_items')
-      .select('*')
+      .update({ printed: true })
       .eq('table_id', input.tableId)
 
-    if (tableItemsError || !tableItems) {
-      console.error('Error reading purchase items', tableItemsError)
+    if (error) {
+      console.error('Error updating printed status of purchase items.', error)
       return
-    }
-
-    for (const item of tableItems) {
-      const { error } = await supabase
-        .from('purchase_items')
-        .update({ printed: true })
-        .eq('id', item.id)
-
-      if (error) {
-        console.error('Error updating printed status of purchase item.', error)
-      }
     }
 
     revalidatePath('/')

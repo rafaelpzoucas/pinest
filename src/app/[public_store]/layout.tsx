@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import ThemeDataProvider from '@/context/theme-data-provider'
 import { Metadata, ResolvingMetadata } from 'next'
-import { readStore } from './actions'
-import { readCart } from './cart/actions'
+import { readStoreCached } from './actions'
+import { readCartCached } from './cart/actions'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
@@ -13,7 +13,7 @@ type PublicStoreLayoutProps = {
 export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const [response] = await readStore()
+  const [response] = await readStoreCached()
   const store = response?.store
 
   if (!store) {
@@ -49,7 +49,7 @@ export async function generateMetadata(
 export default async function PublicStoreLayout({
   children,
 }: PublicStoreLayoutProps) {
-  const [response] = await readStore()
+  const [response] = await readStoreCached()
 
   const store = response?.store
 
@@ -57,7 +57,7 @@ export default async function PublicStoreLayout({
     return <NotFound />
   }
 
-  const [cartData] = await readCart()
+  const [cartData] = await readCartCached()
   const cart = cartData?.cart
 
   return (

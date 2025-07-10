@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { StoreType } from '@/models/store'
 import { Edit } from 'lucide-react'
 import Link from 'next/link'
-import { readStoreHours } from './actions'
+import { readStoreHoursCached } from './actions'
 import { HoursList } from './register/hours/hours-list'
 
 export async function Hours({ store }: { store?: StoreType }) {
@@ -12,7 +12,7 @@ export async function Hours({ store }: { store?: StoreType }) {
     return null
   }
 
-  const [hoursData] = await readStoreHours()
+  const [hoursData] = await readStoreHoursCached()
 
   const hours = hoursData?.hours
 

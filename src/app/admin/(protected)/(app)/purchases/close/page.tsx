@@ -2,10 +2,10 @@ import { Card } from '@/components/ui/card'
 import { PaymentType } from '@/models/payment'
 import { PurchaseItemsType } from '@/models/purchase'
 import { isPermissionGranted } from '../../actions'
-import { readPurchaseById } from '../deliveries/[id]/actions'
-import { readTableById } from '../tables/[id]/actions'
-import { readPayments } from './actions'
-import { readCustomers } from './customers/actions'
+import { readPurchaseByIdCached } from '../deliveries/[id]/actions'
+import { readTableByIdCached } from '../tables/[id]/actions'
+import { readPaymentsCached } from './actions'
+import { readCustomersCached } from './customers/actions'
 import { DataTableStored } from './data-table/data-table-stored'
 import { CloseBillForm } from './form'
 
@@ -14,12 +14,12 @@ export default async function CloseBill({
 }: {
   searchParams: { table_id: string; purchase_id: string }
 }) {
-  const [customersData] = await readCustomers()
-  const [tableData] = await readTableById({ id: searchParams.table_id })
-  const [purchaseData] = await readPurchaseById({
+  const [customersData] = await readCustomersCached()
+  const [tableData] = await readTableByIdCached({ id: searchParams.table_id })
+  const [purchaseData] = await readPurchaseByIdCached({
     id: searchParams.purchase_id,
   })
-  const [paymentsData] = await readPayments({
+  const [paymentsData] = await readPaymentsCached({
     table_id: searchParams.table_id,
     purchase_id: searchParams.purchase_id,
   })

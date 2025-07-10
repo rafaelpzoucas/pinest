@@ -12,6 +12,7 @@ import {
   startOfMonth,
   subMonths,
 } from 'date-fns'
+import { cache } from 'react'
 
 export async function getTotalPurchasesOfToday(): Promise<{
   purchases: PurchaseType[] | null
@@ -148,3 +149,5 @@ export const readPendingBalances = adminProcedure
 
     return { storeCustomers: storeCustomers as StoreCustomerType[] }
   })
+
+export const readPendingBalancesCached = cache(readPendingBalances)

@@ -1,7 +1,7 @@
-import { readCustomers } from '../../close/customers/actions'
-import { readPurchaseById } from '../[id]/actions'
+import { readCustomersCached } from '../../close/customers/actions'
+import { readPurchaseByIdCached } from '../[id]/actions'
 import { CreatePurchaseForm } from './form'
-import { readStoreData } from './products/actions'
+import { readStoreDataCached } from './products/actions'
 
 export default async function CreatePurchasePage({
   searchParams,
@@ -9,9 +9,9 @@ export default async function CreatePurchasePage({
   searchParams: { purchase_id: string }
 }) {
   const [[purchaseData], [customersData], [data]] = await Promise.all([
-    readPurchaseById({ id: searchParams.purchase_id }),
-    readCustomers(),
-    readStoreData(),
+    readPurchaseByIdCached({ id: searchParams.purchase_id }),
+    readCustomersCached(),
+    readStoreDataCached(),
   ])
 
   const customers = customersData?.customers

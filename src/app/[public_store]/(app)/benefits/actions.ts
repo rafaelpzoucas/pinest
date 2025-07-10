@@ -1,5 +1,6 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { BenefitType } from '@/models/benefits'
+import { cache } from 'react'
 
 export const readBenefits = storeProcedure
   .createServerAction()
@@ -19,3 +20,5 @@ export const readBenefits = storeProcedure
       benefits: benefits as BenefitType[],
     }
   })
+
+export const readBenefitsCached = cache(readBenefits)

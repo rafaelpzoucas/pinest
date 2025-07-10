@@ -4,10 +4,10 @@ import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { StoreType } from '@/models/store'
 import { Pyramid } from 'lucide-react'
-import { readCustomer } from '../../account/actions'
+import { readCustomerCached } from '../../account/actions'
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../search/search-sheet'
-import { readOwnShipping } from './actions'
+import { readOwnShippingCached } from './actions'
 import { Status } from './status'
 
 export async function Header({
@@ -18,8 +18,8 @@ export async function Header({
   cart: CartProductType[]
 }) {
   const [[customerData], [shippingData]] = await Promise.all([
-    await readCustomer({}),
-    await readOwnShipping(),
+    await readCustomerCached({}),
+    await readOwnShippingCached(),
   ])
 
   const customer = customerData?.customer

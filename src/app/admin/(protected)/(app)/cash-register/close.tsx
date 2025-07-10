@@ -23,6 +23,14 @@ import { z } from 'zod'
 import { closeCashSessionSchema, createCashReceiptsSchema } from './schemas'
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Form,
   FormControl,
   FormDescription,
@@ -42,12 +50,10 @@ import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
-import { printReportReceipt } from '../config/printing/actions'
+import { printMultipleReports } from '../config/printing/actions'
 import { closeCashSession } from './actions'
 import { CashForm } from './cash-form'
-import { CreditForm } from './credit-form'
-import { DebitForm } from './debit-form'
-import { PIXForm } from './pix-form'
+import { ReceiptForm } from './receipt-form'
 
 // Função utilitária para retornar string vazia se o valor for zero
 function emptyIfZero(value: number) {
@@ -71,6 +77,26 @@ export function CloseCashSession({
   const isSheetOpen = sheet === 'close-cash'
   const setIsSheetOpen = (open: boolean) => setSheet(open ? 'close-cash' : null)
   const [isPrinting, setIsPrinting] = useState(false)
+  const [manualInputAllowed, setManualInputAllowed] = useState({
+    pix: false,
+    credit: false,
+    debit: false,
+  })
+  const [dialogOpen, setDialogOpen] = useState<
+    null | 'pix' | 'credit' | 'debit'
+  >(null)
+  const [pixManual, setPixManual] = useState(false)
+  const [creditManual, setCreditManual] = useState(false)
+  const [debitManual, setDebitManual] = useState(false)
+
+  // Estados dos valores dos campos via nuqs
+  const [pixValue, setPixValue] = useQueryState('pixValue', parseAsString)
+  const [creditValue, setCreditValue] = useQueryState(
+    'creditValue',
+    parseAsString,
+  )
+  const [debitValue, setDebitValue] = useQueryState('debitValue', parseAsString)
+  const [cashValue, setCashValue] = useQueryState('cashValue', parseAsString)
 
   const cashReceiptsMoney =
     cashReceipts?.filter((receipt) => receipt.type.startsWith('cash_')) || []
@@ -130,10 +156,10 @@ export function CloseCashSession({
   const form = useForm<z.infer<typeof closeCashSessionSchema>>({
     resolver: zodResolver(closeCashSessionSchema),
     defaultValues: {
-      pix_balance: emptyIfZero(declaredPix),
-      credit_balance: emptyIfZero(declaredCredit),
-      debit_balance: emptyIfZero(declaredDebit),
-      cash_balance: emptyIfZero(declaredCash),
+      pix_balance: pixValue ? String(stringToNumber(pixValue)) : '',
+      credit_balance: creditValue ? String(stringToNumber(creditValue)) : '',
+      debit_balance: debitValue ? String(stringToNumber(debitValue)) : '',
+      cash_balance: cashValue ? String(stringToNumber(cashValue)) : '',
       closing_balance: emptyIfZero(totalDeclaredInitial),
     },
   })
@@ -148,25 +174,47 @@ export function CloseCashSession({
 
   const difference = totalDeclared - totalComputed
 
+  const { execute: executePrintMultipleReports } = useServerAction(
+    printMultipleReports,
+    {
+      onSuccess: (result) => {
+        console.log('Impressão múltipla concluída:', result)
+      },
+      onError: ({ err }) => {
+        console.log('Erro ao imprimir múltiplos relatórios', err)
+      },
+    },
+  )
+
   const { execute, isPending } = useServerAction(closeCashSession, {
     onSuccess: () => {
       setIsSheetOpen(false)
       form.reset()
 
-      executePrintReceipt({
-        text: buildSalesReportText(reports.salesReport),
-      })
+      // Limpa os query params após fechar o caixa
+      setPixValue(null)
+      setCreditValue(null)
+      setDebitValue(null)
+      setCashValue(null)
 
-      executePrintReceipt({
-        text: buildProductsSoldReportText(reports.productsSold),
+      console.log('Imprimindo múltiplos relatórios')
+      executePrintMultipleReports({
+        reports: [
+          {
+            name: 'Relatório de Vendas',
+            text: buildSalesReportText(reports.salesReport),
+          },
+          {
+            name: 'Produtos Vendidos',
+            text: buildProductsSoldReportText(reports.productsSold),
+          },
+        ],
       })
     },
     onError: (error) => {
       console.error(error)
     },
   })
-
-  const { execute: executePrintReceipt } = useServerAction(printReportReceipt)
 
   function onSubmit(values: z.infer<typeof closeCashSessionSchema>) {
     setIsPrinting(true)
@@ -213,6 +261,68 @@ export function CloseCashSession({
     return () => subscription.unsubscribe()
   }, [form])
 
+  useEffect(() => {
+    // PIX
+    if (pixReceipts.length > 0 && pixManual) {
+      setPixManual(false)
+      form.setValue('pix_balance', emptyIfZero(declaredPix))
+    }
+    if (pixReceipts.length === 0 && !pixManual) {
+      form.setValue('pix_balance', emptyIfZero(declaredPix))
+    }
+    // CREDIT
+    if (creditReceipts.length > 0 && creditManual) {
+      setCreditManual(false)
+      form.setValue('credit_balance', emptyIfZero(declaredCredit))
+    }
+    if (creditReceipts.length === 0 && !creditManual) {
+      form.setValue('credit_balance', emptyIfZero(declaredCredit))
+    }
+    // DEBIT
+    if (debitReceipts.length > 0 && debitManual) {
+      setDebitManual(false)
+      form.setValue('debit_balance', emptyIfZero(declaredDebit))
+    }
+    if (debitReceipts.length === 0 && !debitManual) {
+      form.setValue('debit_balance', emptyIfZero(declaredDebit))
+    }
+    // CASH sempre sincroniza
+    form.setValue('cash_balance', emptyIfZero(declaredCash))
+    form.setValue(
+      'closing_balance',
+      emptyIfZero(
+        stringToNumber(form.getValues('cash_balance')) +
+          stringToNumber(form.getValues('pix_balance')) +
+          stringToNumber(form.getValues('credit_balance')) +
+          stringToNumber(form.getValues('debit_balance')),
+      ),
+    )
+  }, [
+    declaredCash,
+    declaredPix,
+    declaredCredit,
+    declaredDebit,
+    pixReceipts.length,
+    creditReceipts.length,
+    debitReceipts.length,
+    pixManual,
+    creditManual,
+    debitManual,
+  ])
+
+  useEffect(() => {
+    if (isSheetOpen) {
+      form.reset({
+        pix_balance: pixValue ? String(stringToNumber(pixValue)) : '',
+        credit_balance: creditValue ? String(stringToNumber(creditValue)) : '',
+        debit_balance: debitValue ? String(stringToNumber(debitValue)) : '',
+        cash_balance: cashValue ? String(stringToNumber(cashValue)) : '',
+        closing_balance: emptyIfZero(totalDeclaredInitial),
+      })
+    }
+    // eslint-disable-next-line
+  }, [isSheetOpen])
+
   // Função utilitária para abrir um filho e fechar o pai
   function handleOpenChildSheet(sheetKey: string) {
     setSheet(sheetKey)
@@ -225,17 +335,75 @@ export function CloseCashSession({
     }
   }
 
-  // Função para limpar campos e permitir entrada manual
-  function handleClearFields() {
-    form.setValue('cash_balance', '')
-    form.setValue('pix_balance', '')
-    form.setValue('credit_balance', '')
-    form.setValue('debit_balance', '')
-    form.setValue('closing_balance', '')
+  const handleConfirmManualInput = (type: 'pix' | 'credit' | 'debit') => {
+    // Limpa os recibos do tipo e libera o input
+    if (type === 'pix') {
+      pixReceipts.length = 0
+    } else if (type === 'credit') {
+      creditReceipts.length = 0
+    } else if (type === 'debit') {
+      debitReceipts.length = 0
+    }
+    setManualInputAllowed((prev) => ({ ...prev, [type]: true }))
+    setDialogOpen(null)
   }
+
+  const INPUT_TYPES = [
+    {
+      name: 'cash_balance',
+      label: 'Dinheiro',
+      form: 'cash-form',
+      computed: computedCash,
+      type: 'cash',
+    },
+    {
+      name: 'pix_balance',
+      label: 'PIX',
+      form: 'pix-form',
+      computed: computedPix,
+      type: 'pix',
+    },
+    {
+      name: 'credit_balance',
+      label: 'Cartão de crédito',
+      form: 'credit-form',
+      computed: computedCredit,
+      type: 'credit',
+    },
+    {
+      name: 'debit_balance',
+      label: 'Cartão de débito',
+      form: 'debit-form',
+      computed: computedDebit,
+      type: 'debit',
+    },
+  ]
 
   return (
     <>
+      {/* Dialog de confirmação para liberar input manual */}
+      <Dialog
+        open={!!dialogOpen}
+        onOpenChange={(open) => setDialogOpen(open ? dialogOpen : null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Deseja informar o valor manualmente?</DialogTitle>
+            <DialogDescription>
+              Isso irá descartar todas as transações manuais desse tipo. Tem
+              certeza que deseja continuar?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => handleConfirmManualInput(dialogOpen!)}>
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         {hasOpenPurchases || hasOpenTables ? (
           <TooltipProvider>
@@ -273,138 +441,113 @@ export function CloseCashSession({
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="cash_balance"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex flex-row justify-between">
-                      <FormLabel>Dinheiro</FormLabel>
-                      <FormDescription>
-                        Esperado: {formatCurrencyBRL(computedCash)}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <div className="flex flex-row gap-2">
-                        <Input
-                          maskType="currency"
-                          placeholder="Insira o valor final..."
-                          {...field}
-                        />
-                        {/* Botão para abrir o Sheet de CashForm */}
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="icon"
-                          onClick={() => handleOpenChildSheet('cash-form')}
-                        >
-                          <Plus />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="pix_balance"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex flex-row justify-between">
-                      <FormLabel>PIX</FormLabel>
-                      <FormDescription>
-                        Esperado: {formatCurrencyBRL(computedPix)}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <div className="flex flex-row gap-2">
-                        <Input
-                          maskType="currency"
-                          placeholder="Insira o valor final..."
-                          {...field}
-                        />
-                        {/* Botão para abrir o Sheet de PIXForm */}
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="icon"
-                          onClick={() => handleOpenChildSheet('pix-form')}
-                        >
-                          <Plus />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="credit_balance"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex flex-row justify-between">
-                      <FormLabel>Cartão de crédito</FormLabel>
-                      <FormDescription>
-                        Esperado: {formatCurrencyBRL(computedCredit)}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <div className="flex flex-row gap-2">
-                        <Input
-                          maskType="currency"
-                          placeholder="Insira o valor final..."
-                          {...field}
-                        />
-                        {/* Botão para abrir o Sheet de CreditForm */}
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="icon"
-                          onClick={() => handleOpenChildSheet('credit-form')}
-                        >
-                          <Plus />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="debit_balance"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex flex-row justify-between">
-                      <FormLabel>Cartão de débito</FormLabel>
-                      <FormDescription>
-                        Esperado: {formatCurrencyBRL(computedDebit)}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <div className="flex flex-row gap-2">
-                        <Input
-                          maskType="currency"
-                          placeholder="Insira o valor final..."
-                          {...field}
-                        />
-                        {/* Botão para abrir o Sheet de DebitForm */}
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="icon"
-                          onClick={() => handleOpenChildSheet('debit-form')}
-                        >
-                          <Plus />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {INPUT_TYPES.map((input) => {
+                const type = input.type as 'cash' | 'pix' | 'credit' | 'debit'
+                const hasReceipts =
+                  (type === 'pix' && pixReceipts.length > 0) ||
+                  (type === 'credit' && creditReceipts.length > 0) ||
+                  (type === 'debit' && debitReceipts.length > 0)
+                const isBlocked = hasReceipts && !manualInputAllowed[type]
+                return (
+                  <FormField
+                    key={input.name}
+                    control={form.control}
+                    name={
+                      input.name as unknown as
+                        | 'closing_balance'
+                        | 'cash_balance'
+                        | 'credit_balance'
+                        | 'debit_balance'
+                        | 'pix_balance'
+                    }
+                    render={({ field }) => {
+                      const handleManualChange = (e: any) => {
+                        const rawValue = e.target.value
+                        const numericValue = String(stringToNumber(rawValue))
+                        if (type === 'pix') {
+                          setPixManual(true)
+                          setPixValue(numericValue)
+                        }
+                        if (type === 'credit') {
+                          setCreditManual(true)
+                          setCreditValue(numericValue)
+                        }
+                        if (type === 'debit') {
+                          setDebitManual(true)
+                          setDebitValue(numericValue)
+                        }
+                        if (type === 'cash') {
+                          setCashValue(numericValue)
+                        }
+                        field.onChange(e)
+                      }
+                      const handleBlur = () => {
+                        // Se o campo for limpo, reseta o estado manual
+                        if (!field.value) {
+                          if (type === 'pix') setPixManual(false)
+                          if (type === 'credit') setCreditManual(false)
+                          if (type === 'debit') setDebitManual(false)
+                        }
+                        if (field.onBlur) field.onBlur()
+                      }
+                      return (
+                        <FormItem>
+                          <div className="flex flex-row justify-between">
+                            <FormLabel>{input.label}</FormLabel>
+                            <FormDescription>
+                              Esperado: {formatCurrencyBRL(input.computed)}
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <div className="flex flex-row gap-2 items-center">
+                              {isBlocked ? (
+                                <TooltipProvider>
+                                  <Tooltip delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                      <span
+                                        className="flex items-center w-full border rounded-md px-3 py-2 text-sm h-9 bg-secondary/30
+                                          select-none cursor-not-allowed"
+                                      >
+                                        {formatCurrencyBRL(
+                                          stringToNumber(field.value),
+                                        )}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-md">
+                                      O campo está bloqueado porque existem
+                                      transações manuais. Para informar o valor
+                                      manualmente, descarte as transações.
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                <Input
+                                  maskType="currency"
+                                  placeholder="Insira o valor final..."
+                                  {...field}
+                                  onChange={handleManualChange}
+                                  onBlur={handleBlur}
+                                />
+                              )}
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => handleOpenChildSheet(input.form)}
+                              >
+                                <Plus />
+                                Inserir{' '}
+                                {type === 'cash' ? 'cédulas' : 'recibos'}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )
+                    }}
+                  />
+                )
+              })}
+
               <FormField
                 control={form.control}
                 name="closing_balance"
@@ -423,12 +566,12 @@ export function CloseCashSession({
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <Input
-                        maskType="currency"
-                        placeholder="Insira o valor final..."
-                        readOnly
-                        {...field}
-                      />
+                      <span
+                        className="flex items-center w-full border rounded-md px-3 py-2 text-sm h-9 bg-secondary/30
+                          select-none cursor-not-allowed"
+                      >
+                        {formatCurrencyBRL(stringToNumber(field.value))}
+                      </span>
                     </FormControl>
                     <FormDescription>
                       Dinheiro + Recibos de cartão + PIX - Saídas
@@ -443,32 +586,21 @@ export function CloseCashSession({
                   </FormItem>
                 )}
               />
-              <div className="flex flex-row gap-2">
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleClearFields}
-                    disabled={isPending || isPending}
-                  >
-                    Limpar campos
-                  </Button>
-                </div>
-                <Button
-                  type="submit"
-                  disabled={isPending || isPending || difference !== 0}
-                  className="w-full lg:w-auto"
-                >
-                  {isPrinting || isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      <span>Fechando caixa</span>
-                    </>
-                  ) : (
-                    'Fechar caixa e imprimir'
-                  )}
-                </Button>
-              </div>
+
+              <Button
+                type="submit"
+                disabled={isPending || isPending || difference !== 0}
+                className="w-full lg:w-auto"
+              >
+                {isPrinting || isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <span>Fechando caixa</span>
+                  </>
+                ) : (
+                  'Fechar caixa e imprimir'
+                )}
+              </Button>
             </form>
           </Form>
         </SheetContent>
@@ -479,21 +611,32 @@ export function CloseCashSession({
         receipts={cashReceiptsMoney}
         open={sheet === 'cash-form'}
         setOpen={(open) => handleChildSheetChange(open, 'cash-form')}
+        computedValue={computedCash}
+        setCashValue={setCashValue}
       />
-      <PIXForm
+      <ReceiptForm
+        type="pix"
         receipts={pixReceipts}
         open={sheet === 'pix-form'}
         setOpen={(open) => handleChildSheetChange(open, 'pix-form')}
+        computedValue={computedPix}
+        setPixValue={setPixValue}
       />
-      <CreditForm
+      <ReceiptForm
+        type="credit"
         receipts={creditReceipts}
         open={sheet === 'credit-form'}
         setOpen={(open) => handleChildSheetChange(open, 'credit-form')}
+        computedValue={computedCredit}
+        setCreditValue={setCreditValue}
       />
-      <DebitForm
+      <ReceiptForm
+        type="debit"
         receipts={debitReceipts}
         open={sheet === 'debit-form'}
         setOpen={(open) => handleChildSheetChange(open, 'debit-form')}
+        computedValue={computedDebit}
+        setDebitValue={setDebitValue}
       />
     </>
   )

@@ -1,9 +1,9 @@
 import { AdminHeader } from '@/app/admin-header'
-import { readStoreHours } from '../../actions'
+import { readStoreHoursCached } from '../../actions'
 import { BusinessHoursForm } from './form'
 
 export default async function BusinessHoursRegister() {
-  const [hoursData] = await readStoreHours()
+  const [hoursData] = await readStoreHoursCached()
 
   const hours = hoursData?.hours
 

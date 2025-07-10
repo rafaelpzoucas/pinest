@@ -1,9 +1,9 @@
-import { readPurchases, readTables } from './actions'
+import { readPurchases, readTablesCached } from './actions'
 import { Purchases } from './purchases'
 
 export default async function WorkspacePage() {
   const { purchases, purchasesError } = await readPurchases()
-  const [data] = await readTables()
+  const [data] = await readTablesCached()
 
   if (purchasesError) {
     console.error(purchasesError)

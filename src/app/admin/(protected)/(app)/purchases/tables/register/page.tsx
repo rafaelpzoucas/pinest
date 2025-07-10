@@ -1,17 +1,17 @@
 import { CategoryType } from '@/models/category'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
-import { readTableById } from '../[id]/actions'
+import { readTableByIdCached } from '../[id]/actions'
 import { CreateSaleForm } from './form'
-import { readStoreData } from './products/actions'
+import { readStoreDataCached } from './products/actions'
 
 export default async function CreateTablePage({
   searchParams,
 }: {
   searchParams: { id: string }
 }) {
-  const [store] = await readStoreData()
-  const [tableData] = await readTableById({ id: searchParams.id })
+  const [store] = await readStoreDataCached()
+  const [tableData] = await readTableByIdCached({ id: searchParams.id })
 
   const categories = store?.categories as unknown as CategoryType[]
   const products = store?.products as unknown as ProductType[]
