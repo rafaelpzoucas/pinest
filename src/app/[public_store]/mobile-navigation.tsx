@@ -3,20 +3,20 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, createPath, getRootPath } from '@/lib/utils'
-import { CartProductType } from '@/models/cart'
+import { useCartStore } from '@/stores/cartStore'
 import { Home, ReceiptText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SearchSheet } from './(app)/search/search-sheet'
 
 export function MobileNavigation({
-  cartProducts,
   storeSubdomain,
 }: {
-  cartProducts?: CartProductType[]
   storeSubdomain: string
 }) {
   const pathname = usePathname()
+
+  const cart = useCartStore((s) => s.cart)
 
   if (pathname.includes('register')) {
     return null
@@ -91,12 +91,12 @@ export function MobileNavigation({
             'relative bg-transparent w-12',
           )}
         >
-          {cartProducts && cartProducts?.length > 0 && (
+          {cart && cart?.length > 0 && (
             <span
               className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold
                 px-[5px] rounded-full border-2"
             >
-              {cartProducts?.length}
+              {cart?.length}
             </span>
           )}
 

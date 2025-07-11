@@ -2,7 +2,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import ThemeDataProvider from '@/context/theme-data-provider'
 import { Metadata, ResolvingMetadata } from 'next'
 import { readStoreCached } from './actions'
-import { readCartCached } from './cart/actions'
+import { CartInitializer } from './cart/cart-initializer'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
@@ -57,9 +57,6 @@ export default async function PublicStoreLayout({
     return <NotFound />
   }
 
-  const [cartData] = await readCartCached()
-  const cart = cartData?.cart
-
   return (
     <ThemeProvider
       storageKey="storeThemeMode"
@@ -73,10 +70,8 @@ export default async function PublicStoreLayout({
           <div className="w-full lg:max-w-7xl">
             {children}
 
-            <MobileNavigation
-              cartProducts={cart}
-              storeSubdomain={store.store_subdomain}
-            />
+            <CartInitializer />
+            <MobileNavigation storeSubdomain={store.store_subdomain} />
           </div>
         </div>
       </ThemeDataProvider>
