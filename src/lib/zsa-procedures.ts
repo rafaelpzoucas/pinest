@@ -6,8 +6,6 @@ import { createClient } from './supabase/server'
 
 export const authenticatedProcedure = createServerActionProcedure().handler(
   async () => {
-    console.time('getPublicProducts')
-
     const supabase = createClient()
     const {
       data: { user },
@@ -17,7 +15,7 @@ export const authenticatedProcedure = createServerActionProcedure().handler(
     if (userError || !user) {
       throw new Error('User not authenticated')
     }
-    console.timeEnd('getPublicProducts')
+
     return { user, supabase }
   },
 )
@@ -25,7 +23,6 @@ export const authenticatedProcedure = createServerActionProcedure().handler(
 export const adminProcedure = createServerActionProcedure(
   authenticatedProcedure,
 ).handler(async ({ ctx }) => {
-  console.time('getPublicProducts')
   const { user, supabase } = ctx
 
   // Refatorado: busca role e dados da loja em uma só query
@@ -47,7 +44,6 @@ export const adminProcedure = createServerActionProcedure(
   if (!store) {
     throw new Error('User does not have a store')
   }
-  console.timeEnd('getPublicProducts')
 
   return {
     supabase,
@@ -59,7 +55,6 @@ export const adminProcedure = createServerActionProcedure(
 export const cashProcedure = createServerActionProcedure(
   adminProcedure,
 ).handler(async ({ ctx }) => {
-  console.time('getPublicProducts')
   const { user, store, supabase } = ctx
 
   const { data: cashSession, error } = await supabase
@@ -73,14 +68,12 @@ export const cashProcedure = createServerActionProcedure(
   if (error || !cashSession) {
     console.error('Cash session is not open:', error)
   }
-  console.timeEnd('getPublicProducts')
 
   return { cashSession, user, store, supabase }
 })
 
 export const storeProcedure = createServerActionProcedure().handler(
   async () => {
-    console.time('getPublicProducts')
     const supabase = createClient()
     const subdomain = extractSubdomain()
     const cookieStore = cookies()
@@ -99,7 +92,7 @@ export const storeProcedure = createServerActionProcedure().handler(
     if (error) {
       console.error('Erro ao buscar dados da loja.', error)
     }
-    console.timeEnd('getPublicProducts')
+
     return { store: store as StoreType, supabase, cookieStore }
   },
 )
