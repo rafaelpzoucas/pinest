@@ -11,6 +11,9 @@ export default async function SearchPage({
 }: {
   searchParams: { q: string }
 }) {
+  console.time('SearchPage')
+
+  console.time('fetchSearchData')
   const [[productsData], [storeData], [cartData], [customerData]] =
     await Promise.all([
       getSearchedProductsCached({ query: searchParams.q }),
@@ -18,12 +21,16 @@ export default async function SearchPage({
       readCartCached(),
       readCustomerCached({}),
     ])
+  console.timeEnd('fetchSearchData')
 
+  console.time('processSearchData')
   const products = productsData?.products
   const store = storeData?.store
   const cart = cartData?.cart
   const customer = customerData?.customer
+  console.timeEnd('processSearchData')
 
+  console.timeEnd('SearchPage')
   return (
     <div className="space-y-6 lg:space-y-8">
       <Header store={store} cartProducts={cart} customer={customer} />
