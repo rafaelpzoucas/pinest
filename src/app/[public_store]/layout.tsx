@@ -5,6 +5,7 @@ import { Metadata } from 'next'
 import { CartInitializer } from './cart/cart-initializer'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
+import { generateRequestId, logCpu } from './utils'
 
 type PublicStoreLayoutProps = {
   children: React.ReactNode
@@ -16,67 +17,67 @@ export async function generateMetadata({
 }: {
   params: { public_store: string }
 }): Promise<Metadata> {
-  console.time('generateMetadata')
-  const sub = params.public_store
+  const requestId = generateRequestId()
 
-  console.time('getStoreEdgeConfig')
-  const store = (await get(`store_${sub}`)) as any
-  console.timeEnd('getStoreEdgeConfig')
+  return await logCpu(`${requestId}::generateMetadata`, async () => {
+    const sub = params.public_store
 
-  if (!store) {
-    console.timeEnd('generateMetadata')
-    return { title: 'Pinest' }
-  }
+    const store = await logCpu(`${requestId}::getStoreEdgeConfig`, async () => {
+      return (await get(`store_${sub}`)) as any
+    })
 
-  console.time('formatTitle')
-  const formattedTitle = store.name
-    .toLowerCase()
-    .replace(/\b\w/g, (char: string) => char.toUpperCase())
-  console.timeEnd('formatTitle')
+    if (!store) {
+      return { title: 'Pinest' }
+    }
 
-  console.timeEnd('generateMetadata')
-  return {
-    title: formattedTitle,
-    description: store.description,
-    icons: { icon: store.logo_url },
-  }
+    const formattedTitle = store.name
+      .toLowerCase()
+      .replace(/\b\w/g, (char: string) => char.toUpperCase())
+
+    return {
+      title: formattedTitle,
+      description: store.description,
+      icons: { icon: store.logo_url },
+    }
+  })
 }
 
 export default async function PublicStoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
-  console.time('PublicStoreLayout')
-  const sub = params.public_store
+  const requestId = generateRequestId()
 
-  console.time('getStoreEdgeConfig')
-  const store = (await get(`store_${sub}`)) as any
-  console.timeEnd('getStoreEdgeConfig')
+  return await logCpu(`${requestId}::PublicStoreLayout`, async () => {
+    const sub = params.public_store
 
-  if (!store) {
-    console.timeEnd('PublicStoreLayout')
-    return <NotFound />
-  }
+    const store = await logCpu(`${requestId}::getStoreEdgeConfig`, async () => {
+      return (await get(`store_${sub}`)) as any
+    })
 
-  console.timeEnd('PublicStoreLayout')
-  return (
-    <ThemeProvider
-      storageKey="storeThemeMode"
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <ThemeDataProvider>
-        <div className="flex lg:flex-row items-center justify-center p-4 pb-20 bg-background">
-          <div className="w-full lg:max-w-7xl">
-            {children}
+    if (!store) {
+      return <NotFound />
+    }
 
-            <CartInitializer />
-            <MobileNavigation storeSubdomain={store.store_subdomain} />
+    return (
+      <ThemeProvider
+        storageKey="storeThemeMode"
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <ThemeDataProvider>
+          <div className="flex lg:flex-row items-center justify-center p-4 pb-20 bg-background">
+            <div className="w-full lg:max-w-7xl">
+              {children}
+
+              <CartInitializer />
+              <MobileNavigation storeSubdomain={store.store_subdomain} />
+            </div>
           </div>
-        </div>
-      </ThemeDataProvider>
-    </ThemeProvider>
-  )
+        </ThemeDataProvider>
+      </ThemeProvider>
+    )
+  })
 }

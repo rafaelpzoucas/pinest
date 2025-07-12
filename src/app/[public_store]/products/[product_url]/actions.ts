@@ -5,91 +5,110 @@ import { ExtraType } from '@/models/extras'
 import { ProductType, ProductVariationType } from '@/models/product'
 import { cache } from 'react'
 import { z } from 'zod'
+import { generateRequestId, logCpu } from '../../utils'
 
 export const readProductByURL = storeProcedure
   .createServerAction()
   .input(z.object({ productURL: z.string() }))
   .handler(async ({ ctx, input }) => {
-    console.time('readProductByURL')
-    const { store, supabase } = ctx
+    const requestId = generateRequestId()
 
-    console.time('fetchProductDB')
-    const { data: products, error: productError } = await supabase
-      .from('products')
-      .select(
-        `
-        *,
-        product_images (*)
-      `,
+    return await logCpu(`${requestId}::readProductByURL`, async () => {
+      const { store, supabase } = ctx
+
+      const { data: products, error: productError } = await logCpu(
+        `${requestId}::fetchProductDB`,
+        async () => {
+          return await supabase
+            .from('products')
+            .select(
+              `
+            *,
+            product_images (*)
+          `,
+            )
+            .eq('product_url', input.productURL)
+            .eq('store_id', store?.id)
+        },
       )
-      .eq('product_url', input.productURL)
-      .eq('store_id', store?.id)
-    console.timeEnd('fetchProductDB')
 
-    const product = products && products.length > 0 && products[0]
+      const product = products && products.length > 0 && products[0]
 
-    console.timeEnd('readProductByURL')
-    return { product: product as ProductType }
+      return { product: product as ProductType }
+    })
   })
 
 export const readProductVariations = storeProcedure
   .createServerAction()
   .input(z.object({ productURL: z.string() }))
   .handler(async ({ ctx, input }) => {
-    console.time('readProductVariations')
-    const { supabase } = ctx
+    const requestId = generateRequestId()
 
-    console.time('getProductForVariations')
-    const [productData] = await readProductByURL({
-      productURL: input.productURL,
+    return await logCpu(`${requestId}::readProductVariations`, async () => {
+      const { supabase } = ctx
+
+      const [productData] = await logCpu(
+        `${requestId}::getProductForVariations`,
+        async () => {
+          return await readProductByURL({
+            productURL: input.productURL,
+          })
+        },
+      )
+
+      const product = productData?.product
+
+      const { data: variations, error: variationsError } = await logCpu(
+        `${requestId}::fetchVariationsDB`,
+        async () => {
+          return await supabase
+            .from('product_variations')
+            .select(
+              `
+            *,
+            attributes (*)
+          `,
+            )
+            .eq('product_id', product?.id)
+        },
+      )
+
+      if (variationsError) {
+        console.error(
+          'Não foi possível ler as variações do produto.',
+          variationsError,
+        )
+      }
+
+      return { variations: variations as ProductVariationType[] }
     })
-    console.timeEnd('getProductForVariations')
-
-    const product = productData?.product
-
-    console.time('fetchVariationsDB')
-    const { data: variations, error: variationsError } = await supabase
-      .from('product_variations')
-      .select(
-        `
-        *,
-        attributes (*)
-      `,
-      )
-      .eq('product_id', product?.id)
-    console.timeEnd('fetchVariationsDB')
-
-    if (variationsError) {
-      console.error(
-        'Não foi possível ler as variações do produto.',
-        variationsError,
-      )
-    }
-
-    console.timeEnd('readProductVariations')
-    return { variations: variations as ProductVariationType[] }
   })
 
 export const readExtras = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    console.time('readExtras')
-    const { supabase, store } = ctx
+    const requestId = generateRequestId()
 
-    console.time('fetchExtrasDB')
-    const { data: extras, error } = await supabase
-      .from('extras')
-      .select('*')
-      .eq('store_id', store?.id)
-    console.timeEnd('fetchExtrasDB')
+    return await logCpu(`${requestId}::readExtras`, async () => {
+      const { supabase, store } = ctx
 
-    if (error) {
-      console.error(error)
-      throw new Error('Não foi possível ler os adicionais.', error)
-    }
+      const { data: extras, error } = await logCpu(
+        `${requestId}::fetchExtrasDB`,
+        async () => {
+          return await supabase
+            .from('extras')
+            .select('*')
+            .eq('store_id', store?.id)
+        },
+      )
 
-    console.timeEnd('readExtras')
-    return { extras: extras as ExtraType[] }
+      if (error) {
+        console.error(error)
+        throw new Error('Não foi possível ler os adicionais.', error)
+      }
+
+      return { extras: extras as ExtraType[] }
+    })
   })
 
 export const readProductByURLCached = cache(readProductByURL)

@@ -1,5 +1,6 @@
 'use server'
 
+import { generateRequestId, logCpu } from '@/app/[public_store]/utils'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { adminProcedure, storeProcedure } from '@/lib/zsa-procedures'
@@ -110,43 +111,45 @@ export const readStoreSocials = storeProcedure
 export const readOpeningHours = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    console.time('readOpeningHours')
-    const { supabase, store } = ctx
+    const requestId = generateRequestId()
 
-    console.time('fetchHoursDB')
-    const { data: hours, error: readHoursError } = await supabase
-      .from('store_hours')
-      .select('*')
-      .eq('store_id', store?.id)
-    console.timeEnd('fetchHoursDB')
+    return await logCpu(`${requestId}::readOpeningHours`, async () => {
+      const { supabase, store } = ctx
 
-    if (readHoursError || !hours) {
-      console.error('Erro ao buscar horários de abertura.', readHoursError)
-      console.timeEnd('readOpeningHours')
-      return
-    }
+      const { data: hours, error: readHoursError } = await logCpu(
+        `${requestId}::fetchHoursDB`,
+        async () => {
+          return await supabase
+            .from('store_hours')
+            .select('*')
+            .eq('store_id', store?.id)
+        },
+      )
 
-    // Ordem dos dias da semana para referência
-    const dayOrder = [
-      'sunday',
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-    ]
+      if (readHoursError || !hours) {
+        console.error('Erro ao buscar horários de abertura.', readHoursError)
+        return
+      }
 
-    // Ordenar os horários com base na referência
-    console.time('sortHours')
-    const sortedHours = hours?.sort(
-      (a, b) =>
-        dayOrder.indexOf(a.day_of_week) - dayOrder.indexOf(b.day_of_week),
-    )
-    console.timeEnd('sortHours')
+      // Ordem dos dias da semana para referência
+      const dayOrder = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ]
 
-    console.timeEnd('readOpeningHours')
-    return { hours: sortedHours as HourType[] }
+      // Ordenar os horários com base na referência
+      const sortedHours = hours?.sort(
+        (a, b) =>
+          dayOrder.indexOf(a.day_of_week) - dayOrder.indexOf(b.day_of_week),
+      )
+
+      return { hours: sortedHours as HourType[] }
+    })
   })
 
 export async function readStoreTheme(storeURL: string): Promise<{

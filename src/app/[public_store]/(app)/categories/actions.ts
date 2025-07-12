@@ -1,31 +1,37 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CategoryType } from '@/models/category'
 import { cache } from 'react'
+import { generateRequestId, logCpu } from '../../utils'
 
 export const readCategories = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    console.time('readCategories')
-    const { store, supabase } = ctx
+    const requestId = generateRequestId()
 
-    console.time('fetchCategoriesDB')
-    const { data, error } = await supabase
-      .from('categories')
-      .select(
-        `
-          *,
-          products (*)  
-        `,
+    return await logCpu(`${requestId}::readCategories`, async () => {
+      const { store, supabase } = ctx
+
+      const { data, error } = await logCpu(
+        `${requestId}::fetchCategoriesDB`,
+        async () => {
+          return await supabase
+            .from('categories')
+            .select(
+              `
+                *,
+                products (*)  
+              `,
+            )
+            .eq('store_id', store?.id)
+        },
       )
-      .eq('store_id', store?.id)
-    console.timeEnd('fetchCategoriesDB')
 
-    if (error || !data) {
-      console.error('Não foi possível ler as categorias.', error)
-    }
+      if (error || !data) {
+        console.error('Não foi possível ler as categorias.', error)
+      }
 
-    console.timeEnd('readCategories')
-    return { categories: data as CategoryType[] }
+      return { categories: data as CategoryType[] }
+    })
   })
 
 export const readCategoriesCached = cache(readCategories)
