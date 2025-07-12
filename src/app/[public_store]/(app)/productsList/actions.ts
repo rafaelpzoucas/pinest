@@ -3,41 +3,36 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CategoryType } from '@/models/category'
 import { cache } from 'react'
-import { generateRequestId, logCpu } from '../../utils'
 
 export const readProductsByCategory = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    const requestId = generateRequestId()
+    console.time('readProductsByCategory')
+    const { store, supabase } = ctx
 
-    return await logCpu(`${requestId}::readProductsByCategory`, async () => {
-      const { store, supabase } = ctx
-
-      const { data: categories, error } = await logCpu(
-        `${requestId}::fetchProductsDB`,
-        async () => {
-          return await supabase
-            .from('categories')
-            .select(
-              `
-            *,
-            products (
-              *,
-              product_images (*)
-            )
-          `,
-            )
-            .eq('store_id', store?.id)
-        },
+    console.time('fetchProductsDB')
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select(
+        `
+        *,
+        products (
+          *,
+          product_images (*)
+        )
+      `,
       )
+      .eq('store_id', store?.id)
+    console.timeEnd('fetchProductsDB')
 
-      if (error) {
-        console.error('Falha ao buscar categorias.', error)
-        return { categories: [] }
-      }
+    if (error) {
+      console.error('Falha ao buscar categorias.', error)
+      console.timeEnd('readProductsByCategory')
+      return { categories: [] }
+    }
 
-      return { categories: categories as CategoryType[] }
-    })
+    console.timeEnd('readProductsByCategory')
+    return { categories: categories as CategoryType[] }
   })
 
 export const readProductsByCategoryCached = cache(readProductsByCategory)

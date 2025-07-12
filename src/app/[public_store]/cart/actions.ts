@@ -10,7 +10,6 @@ import { cookies } from 'next/headers'
 import { cache } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
-import { generateRequestId, logCpu } from '../utils'
 
 async function createCartSession(storeUrl: string) {
   const cookieStore = cookies()
@@ -120,42 +119,34 @@ async function updateCartProduct(
 export const readCart = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    const requestId = generateRequestId()
+    console.time('readCart')
+    const { store, supabase } = ctx
 
-    return await logCpu(`${requestId}::readCart`, async () => {
-      const { store, supabase } = ctx
+    console.time('getCartSession')
+    const cartSession = await getCartSession(store.store_subdomain)
+    console.timeEnd('getCartSession')
 
-      const cartSession = await logCpu(
-        `${requestId}::getCartSession`,
-        async () => {
-          return await getCartSession(store.store_subdomain)
-        },
+    console.time('fetchCartDB')
+    const { data: cart, error: cartError } = await supabase
+      .from('cart_sessions')
+      .select(
+        `
+        *,
+        products (
+         *,
+         product_images (*)
+        )
+      `,
       )
+      .eq('session_id', cartSession?.value)
+    console.timeEnd('fetchCartDB')
 
-      const { data: cart, error: cartError } = await logCpu(
-        `${requestId}::fetchCartDB`,
-        async () => {
-          return await supabase
-            .from('cart_sessions')
-            .select(
-              `
-            *,
-            products (
-             *,
-             product_images (*)
-            )
-          `,
-            )
-            .eq('session_id', cartSession?.value)
-        },
-      )
+    if (cartError) {
+      console.error('Erro ao buscar dados do carrinho.', cartError)
+    }
 
-      if (cartError) {
-        console.error('Erro ao buscar dados do carrinho.', cartError)
-      }
-
-      return { cart: cart as CartProductType[] }
-    })
+    console.timeEnd('readCart')
+    return { cart: cart as CartProductType[] }
   })
 
 export const readCartCached = cache(readCart)
