@@ -6,9 +6,11 @@ import { generateSlug } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { MarketNicheType } from '@/models/market-niches'
 import { StoreType } from '@/models/store'
+import { get } from '@vercel/edge-config'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { createServerAction } from 'zsa'
 import { storeSchema } from './form'
 
 export async function readStoreById(storeId: string): Promise<{
@@ -32,6 +34,58 @@ export async function readStoreById(storeId: string): Promise<{
 
   return { store, storeError }
 }
+
+export const setStoreEdgeConfigVercel = createServerAction()
+  .input(
+    z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      logoUrl: z.string().optional(),
+      subdomain: z.string(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    const { name, description, logoUrl, subdomain } = input
+
+    // 1. Buscar valor atual
+    const existing = await get(`store_${subdomain}`)
+
+    // 2. Merge dos dados
+    const updatedValue = {
+      ...((existing as any) || {}),
+      ...(name !== undefined && { name }),
+      ...(description !== undefined && { description }),
+      ...(logoUrl !== undefined && { logo_url: logoUrl }),
+    }
+
+    // 3. Fazer o PATCH
+    const response = await fetch(
+      `https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: [
+            {
+              operation: 'upsert',
+              key: `store_${subdomain}`,
+              value: updatedValue,
+            },
+          ],
+        }),
+      },
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error(data)
+      throw new Error('Não foi possível atualizar o Edge Config')
+    }
+  })
 
 export async function createStore(
   columns: z.infer<typeof storeSchema>,
@@ -57,6 +111,13 @@ export async function createStore(
     .from('stores')
     .insert({ user_id: session.user.id, ...newColumns })
 
+  setStoreEdgeConfigVercel({
+    name: newColumns.name,
+    description: newColumns.description,
+    subdomain: newColumns.store_subdomain,
+    logoUrl: newColumns.store_subdomain,
+  })
+
   return { storeError }
 }
 
@@ -76,6 +137,13 @@ export async function updateStore(
     .from('stores')
     .update(newColumns)
     .eq('id', id)
+
+  setStoreEdgeConfigVercel({
+    name: newColumns.name,
+    description: newColumns.description,
+    subdomain: newColumns.store_subdomain,
+    logoUrl: newColumns.store_subdomain,
+  })
 
   return { data, error }
 }

@@ -48,6 +48,7 @@
     "@supabase/ssr": "^0.5.2",
     "@tanstack/react-table": "^8.20.5",
     "@types/mdx": "^2.0.13",
+    "@vercel/edge-config": "^1.4.0",
     "@vercel/speed-insights": "^1.0.12",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.1",

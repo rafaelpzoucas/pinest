@@ -1,57 +1,45 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import ThemeDataProvider from '@/context/theme-data-provider'
-import { Metadata, ResolvingMetadata } from 'next'
-import { readStoreCached } from './actions'
+import { get } from '@vercel/edge-config'
+import { Metadata } from 'next'
 import { CartInitializer } from './cart/cart-initializer'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
 type PublicStoreLayoutProps = {
   children: React.ReactNode
+  params: { public_store: string }
 }
 
-export async function generateMetadata(
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  const [response] = await readStoreCached()
-  const store = response?.store
+export async function generateMetadata({
+  params,
+}: {
+  params: { public_store: string }
+}): Promise<Metadata> {
+  const sub = params.public_store
+
+  const store = (await get(`store_${sub}`)) as any
 
   if (!store) {
-    console.error('Não foi possível buscar a loja.')
-
-    return {
-      title: 'Pinest',
-    }
-  }
-
-  const previousImages = (await parent).openGraph?.images || []
-
-  if (store) {
-    return {
-      title: store.name
-        .toLowerCase()
-        .replace(/\b\w/g, (char) => char.toUpperCase()),
-      description: store.description,
-      icons: {
-        icon: store.logo_url,
-      },
-      openGraph: {
-        images: [store.logo_url, ...previousImages],
-      },
-    }
+    return { title: 'Pinest' }
   }
 
   return {
-    title: 'Pinest',
+    title: store.name
+      .toLowerCase()
+      .replace(/\b\w/g, (char: string) => char.toUpperCase()),
+    description: store.description,
+    icons: { icon: store.logo_url },
   }
 }
 
 export default async function PublicStoreLayout({
   children,
+  params,
 }: PublicStoreLayoutProps) {
-  const [response] = await readStoreCached()
+  const sub = params.public_store
 
-  const store = response?.store
+  const store = (await get(`store_${sub}`)) as any
 
   if (!store) {
     return <NotFound />
