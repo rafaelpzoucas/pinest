@@ -7,7 +7,6 @@ import {
   handleCancelOrder,
   handleOrderNewStatus,
   handleOrderPlaced,
-  keepAlive,
 } from './actions'
 
 import { createRouteHandlersForAction } from 'zsa-openapi'
@@ -26,62 +25,52 @@ const webhookAction = createServerAction()
 
       console.log('[IFOOD EVENT]: ', body)
 
+      // Early return para KEEPALIVE (evita ativar lógica desnecessária)
+      if (body.code === 'KEEPALIVE') {
+        return new NextResponse(
+          JSON.stringify({ message: 'Evento KEEPALIVE recebido.' }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
       switch (body.code) {
-        case 'PLC': {
+        case 'PLC':
           await handleOrderPlaced({
             orderId: body.orderId,
             merchantId: body.merchantId,
           })
-
           break
-        }
-
-        case 'CFM': {
+        case 'CFM':
           await handleOrderNewStatus({
             orderId: body.orderId,
             newStatus: 'pending',
           })
-
           break
-        }
-
-        case 'RTP': {
+        case 'RTP':
           await handleOrderNewStatus({
             orderId: body.orderId,
             newStatus: 'readyToPickup',
           })
-
           break
-        }
-
-        case 'DSP': {
+        case 'DSP':
           await handleOrderNewStatus({
             orderId: body.orderId,
             newStatus: 'shipped',
           })
-
           break
-        }
-
-        case 'CON': {
+        case 'CON':
           await handleOrderNewStatus({
             orderId: body.orderId,
             newStatus: 'delivered',
           })
-
           break
-        }
-
-        case 'CAN': {
+        case 'CAN':
           await handleCancelOrder({
             orderId: body.orderId,
             merchantId: body.merchantId,
           })
-
           break
-        }
-
-        case 'HSD': {
+        case 'HSD':
           try {
             const validated = IfoodHandshakeDisputeSchema.parse(body)
             await createHandshakeEvent(validated)
@@ -89,20 +78,12 @@ const webhookAction = createServerAction()
             console.error('Erro ao validar schema do HSD:', err)
           }
           break
-        }
-        case 'CARF': {
+        case 'CARF':
           console.log('Cancellation request failed.', body)
           await deleteHandshakeEvent({ order_id: body.orderId })
           break
-        }
-
-        case 'HANDSHAKE_SETTLEMENT': {
+        case 'HANDSHAKE_SETTLEMENT':
           console.log('✅ Acordo detectado!', body)
-          break
-        }
-
-        case 'KEEPALIVE':
-          await keepAlive()
           break
       }
 
