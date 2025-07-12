@@ -2,9 +2,9 @@ import Image from 'next/image'
 
 import { Card } from '@/components/ui/card'
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
 } from '@/components/ui/carousel'
 
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
@@ -14,9 +14,9 @@ import { readCustomerCached } from '../../account/actions'
 import { readStoreCached } from '../../actions'
 import { readCartCached } from '../../cart/actions'
 import {
-    readExtrasCached,
-    readProductByURLCached,
-    readProductVariationsCached,
+  readExtrasCached,
+  readProductByURLCached,
+  readProductVariationsCached,
 } from './actions'
 import { ProductInfo } from './info'
 
@@ -27,10 +27,8 @@ export default async function ProductPage({
   searchParams: { cart_product_id: string }
   params: { product_url: string }
 }) {
-  console.time('ProductPage')
   const cartProductId = searchParams.cart_product_id
 
-  console.time('fetchProductData')
   const [
     [productData],
     [extrasData],
@@ -46,9 +44,7 @@ export default async function ProductPage({
     readCustomerCached({}),
     readStoreCached(),
   ])
-  console.timeEnd('fetchProductData')
 
-  console.time('processProductData')
   const store = storeData?.store
   const extras = extrasData?.extras
   const cart = cartData?.cart
@@ -60,9 +56,7 @@ export default async function ProductPage({
   const cartProduct = cart?.find((item) => item.id === cartProductId)
 
   const productImages = product?.product_images || []
-  console.timeEnd('processProductData')
 
-  console.timeEnd('ProductPage')
   return (
     <main className="flex flex-col items-center justify-center gap-6">
       <Header
