@@ -12,22 +12,27 @@ type ShowcaseProductsType = ShowcaseType & {
 export const readShowcases = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
+    console.time('readShowcases')
     const { store, supabase } = ctx
 
     // Buscar showcases ativas da loja
+    console.time('fetchShowcasesDB')
     const { data: showcases, error: showcasesError } = await supabase
       .from('store_showcases')
       .select('*')
       .eq('store_id', store?.id)
       .eq('status', true)
       .order('position', { ascending: true })
+    console.timeEnd('fetchShowcasesDB')
 
     if (showcasesError) {
       console.error(showcasesError)
+      console.timeEnd('readShowcases')
       return null
     }
 
     // Verifica se há showcases e mapeia cada uma com seus respectivos produtos
+    console.time('fetchShowcaseProducts')
     const showcasesWithProducts = await Promise.all(
       showcases.map(async (showcase) => {
         // Busca os produtos relacionados a cada showcase
@@ -52,8 +57,10 @@ export const readShowcases = storeProcedure
         return { ...showcase, products }
       }),
     )
+    console.timeEnd('fetchShowcaseProducts')
 
     // Retorna o array de showcases com seus produtos
+    console.timeEnd('readShowcases')
     return {
       showcasesWithProducts: showcasesWithProducts as ShowcaseProductsType[],
     }

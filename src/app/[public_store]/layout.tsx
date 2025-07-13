@@ -16,18 +16,27 @@ export async function generateMetadata({
 }: {
   params: { public_store: string }
 }): Promise<Metadata> {
+  console.time('generateMetadata')
   const sub = params.public_store
 
+  console.time('getStoreEdgeConfig')
   const store = (await get(`store_${sub}`)) as any
+  console.timeEnd('getStoreEdgeConfig')
 
   if (!store) {
+    console.timeEnd('generateMetadata')
     return { title: 'Pinest' }
   }
 
+  console.time('formatTitle')
+  const formattedTitle = store.name
+    .toLowerCase()
+    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+  console.timeEnd('formatTitle')
+
+  console.timeEnd('generateMetadata')
   return {
-    title: store.name
-      .toLowerCase()
-      .replace(/\b\w/g, (char: string) => char.toUpperCase()),
+    title: formattedTitle,
     description: store.description,
     icons: { icon: store.logo_url },
   }
@@ -37,14 +46,19 @@ export default async function PublicStoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
+  console.time('PublicStoreLayout')
   const sub = params.public_store
 
+  console.time('getStoreEdgeConfig')
   const store = (await get(`store_${sub}`)) as any
+  console.timeEnd('getStoreEdgeConfig')
 
   if (!store) {
+    console.timeEnd('PublicStoreLayout')
     return <NotFound />
   }
 
+  console.timeEnd('PublicStoreLayout')
   return (
     <ThemeProvider
       storageKey="storeThemeMode"
