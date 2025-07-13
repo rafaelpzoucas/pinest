@@ -42,10 +42,16 @@ export const setStoreEdgeConfigVercel = createServerAction()
       description: z.string().optional(),
       logoUrl: z.string().optional(),
       subdomain: z.string(),
+      theme: z
+        .object({
+          mode: z.string().optional(),
+          color: z.string().optional(),
+        })
+        .optional(),
     }),
   )
   .handler(async ({ input }) => {
-    const { name, description, logoUrl, subdomain } = input
+    const { name, description, logoUrl, subdomain, theme } = input
 
     // 1. Buscar valor atual
     const existing = await get(`store_${subdomain}`)
@@ -56,6 +62,13 @@ export const setStoreEdgeConfigVercel = createServerAction()
       ...(name !== undefined && { name }),
       ...(description !== undefined && { description }),
       ...(logoUrl !== undefined && { logo_url: logoUrl }),
+      ...(theme && {
+        theme: {
+          // Garante que sempre salva no formato correto (minúsculo)
+          mode: theme.mode?.toLowerCase(),
+          color: theme.color?.toLowerCase(),
+        },
+      }),
     }
 
     // 3. Fazer o PATCH

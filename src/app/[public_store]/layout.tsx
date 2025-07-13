@@ -2,6 +2,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import ThemeDataProvider from '@/context/theme-data-provider'
 import { get } from '@vercel/edge-config'
 import { Metadata } from 'next'
+import React from 'react'
 import { CartInitializer } from './cart/cart-initializer'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
@@ -47,15 +48,23 @@ export default async function PublicStoreLayout({
     return <NotFound />
   }
 
+  // Busca o tema da loja diretamente do Edge Config
+  const themeMode = store.theme?.mode || 'system'
+  const themeColor = store.theme?.color || 'Zinc'
+
   return (
     <ThemeProvider
       storageKey="storeThemeMode"
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme={themeMode}
+      forcedTheme={themeMode}
+      enableSystem={false}
       disableTransitionOnChange
     >
-      <ThemeDataProvider>
+      <ThemeDataProvider
+        initialThemeMode={themeMode}
+        initialThemeColor={themeColor}
+      >
         <div className="flex lg:flex-row items-center justify-center p-4 pb-20 bg-background">
           <div className="w-full lg:max-w-7xl">
             {children}
