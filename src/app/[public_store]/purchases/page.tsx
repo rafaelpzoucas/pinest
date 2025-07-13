@@ -14,19 +14,15 @@ import { readPurchasesCached } from './actions'
 type StatusKey = keyof typeof statuses
 
 export default async function PurchasesPage() {
-  console.time('PurchasesPage')
   const maxItems = 3
   const cookieStore = cookies()
 
-  console.time('fetchPurchasesData')
   const [[storeData], [cartData], [purchasesData]] = await Promise.all([
     readStoreCached(),
     readCartCached(),
     readPurchasesCached(),
   ])
-  console.timeEnd('fetchPurchasesData')
 
-  console.time('processPurchasesData')
   const store = storeData?.store
   const cart = cartData?.cart
   const purchases = purchasesData?.purchases ?? []
@@ -34,22 +30,17 @@ export default async function PurchasesPage() {
   const storeCustomerPhone = cookieStore.get(
     `${store?.store_subdomain}_customer_phone`,
   )
-  console.timeEnd('processPurchasesData')
 
   if (!storeCustomerPhone) {
-    console.time('redirectToAccount')
     const redirectPath = createPath('/account', store?.store_subdomain)
     console.log('Purchases page redirect debug:', {
       storeSubdomain: store?.store_subdomain,
       redirectPath,
       createPathResult: createPath('/account', store?.store_subdomain),
     })
-    console.timeEnd('redirectToAccount')
-    console.timeEnd('PurchasesPage')
     return redirect(redirectPath)
   }
 
-  console.timeEnd('PurchasesPage')
   return (
     <div className="space-y-4">
       <Header title="Minhas compras" store={store} cartProducts={cart} />

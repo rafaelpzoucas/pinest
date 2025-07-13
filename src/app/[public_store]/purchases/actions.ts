@@ -7,16 +7,11 @@ import { readCustomer } from '../account/actions'
 export const readStoreCustomer = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    console.time('readStoreCustomer')
     const { store, supabase } = ctx
 
-    console.time('getCustomerData')
     const [customerData] = await readCustomer({})
-    console.timeEnd('getCustomerData')
-
     const customer = customerData?.customer
 
-    console.time('fetchStoreCustomerDB')
     const { data, error } = await supabase
       .from('store_customers')
       .select(
@@ -28,7 +23,6 @@ export const readStoreCustomer = storeProcedure
       .eq('customer_id', customer?.id)
       .eq('store_id', store.id)
       .single()
-    console.timeEnd('fetchStoreCustomerDB')
 
     if (error) {
       throw new Error(
@@ -37,22 +31,17 @@ export const readStoreCustomer = storeProcedure
       )
     }
 
-    console.timeEnd('readStoreCustomer')
     return { storeCustomer: data as StoreCustomerType }
   })
 
 export const readPurchases = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    console.time('readPurchases')
     const { supabase, store } = ctx
 
-    console.time('getStoreCustomer')
     const [storeCustomerData] = await readStoreCustomer()
-    console.timeEnd('getStoreCustomer')
     const storeCustomer = storeCustomerData?.storeCustomer
 
-    console.time('fetchPurchasesDB')
     const { data: purchases, error } = await supabase
       .from('purchases')
       .select(
@@ -69,13 +58,11 @@ export const readPurchases = storeProcedure
       .eq('customer_id', storeCustomer?.id)
       .eq('store_id', store.id)
       .order('created_at', { ascending: false })
-    console.timeEnd('fetchPurchasesDB')
 
     if (error || !purchases) {
       console.error('Não foi possível ler os pedidos.', error)
     }
 
-    console.timeEnd('readPurchases')
     return { purchases: purchases as PurchaseType[] }
   })
 
