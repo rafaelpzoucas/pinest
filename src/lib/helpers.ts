@@ -4,6 +4,7 @@ export const STAGING_HOSTS = [
   'localhost:3000',
   'staging.pinest.com.br',
   'staging-pinest.vercel.app',
+  'pinest.onrender.com',
 ]
 export const ROOT_DOMAIN = 'pinest.com.br'
 
