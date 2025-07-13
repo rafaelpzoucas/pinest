@@ -40,9 +40,9 @@ export default async function PublicStoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
-  const sub = params.public_store
+  const subdomain = params.public_store
 
-  const store = (await get(`store_${sub}`)) as any
+  const store = (await get(`store_${subdomain}`)) as any
 
   if (!store) {
     return <NotFound />
@@ -70,7 +70,7 @@ export default async function PublicStoreLayout({
             {children}
 
             <CartInitializer />
-            <MobileNavigation storeSubdomain={store.store_subdomain} />
+            <MobileNavigation storeSubdomain={subdomain} />
           </div>
         </div>
       </ThemeDataProvider>
