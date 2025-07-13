@@ -2,9 +2,9 @@ import Image from 'next/image'
 
 import { Card } from '@/components/ui/card'
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
 } from '@/components/ui/carousel'
 
 import defaultThumbUrl from '../../../../../public/default_thumb_url.png'
@@ -14,9 +14,9 @@ import { readCustomerCached } from '../../account/actions'
 import { readStoreCached } from '../../actions'
 import { readCartCached } from '../../cart/actions'
 import {
-    readExtrasCached,
-    readProductByURLCached,
-    readProductVariationsCached,
+  readExtrasCached,
+  readProductByURLCached,
+  readProductVariationsCached,
 } from './actions'
 import { ProductInfo } from './info'
 
