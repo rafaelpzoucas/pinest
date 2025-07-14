@@ -1,4 +1,5 @@
 import { readPrintersCached, readPrintingSettingsCached } from './actions'
+import { AutoPrint } from './auto-print'
 import { Extension } from './extension'
 import { FontSizeSelector } from './font-size'
 import { Printers } from './printers'
@@ -15,7 +16,7 @@ export default async function PrintingPage() {
   return (
     <div className="pb-16 p-4 lg:px-0 space-y-6">
       <Extension />
-      {/* <AutoPrint printSettings={printSettings} /> */}
+      <AutoPrint printSettings={printSettings} />
       <Printers printers={printers} />
       <FontSizeSelector printSettings={printSettings} />
     </div>
