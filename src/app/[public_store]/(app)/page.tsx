@@ -1,46 +1,20 @@
-import { readOpeningHoursCached } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
-import { readStoreCached } from '../actions'
-import { readCartCached } from '../cart/actions'
+import { readPublicStoreData } from './actions'
 import { Categories } from './categories'
-import { readCategoriesCached } from './categories/actions'
 import { Footer } from './footer'
 import { Header } from './header'
 import { ProductsList } from './productsList'
-import { readProductsByCategoryCached } from './productsList/actions'
 import { Showcases } from './showcases'
-import { readShowcasesCached } from './showcases/actions'
 
 export default async function HomePage() {
-  console.time('HomePage')
+  const [publicStoreData] = await readPublicStoreData()
 
-  console.time('fetchAllData')
-  const [
-    [storeData],
-    [cartData],
-    [categoriesData],
-    [hoursData],
-    [productsData],
-    [showcasesData],
-  ] = await Promise.all([
-    readStoreCached(),
-    readCartCached(),
-    readCategoriesCached(),
-    readOpeningHoursCached(),
-    readProductsByCategoryCached(),
-    readShowcasesCached(),
-  ])
-  console.timeEnd('fetchAllData')
+  const store = publicStoreData?.store
+  const cart = publicStoreData?.cart
+  const hours = publicStoreData?.store.store_hours
+  const categories = publicStoreData?.categories
+  const products = publicStoreData?.categories
+  const showcases = publicStoreData?.showcases
 
-  console.time('dataProcessing')
-  const store = storeData?.store
-  const cart = cartData?.cart
-  const hours = hoursData?.hours
-  const categories = categoriesData?.categories
-  const products = productsData?.categories
-  const showcases = showcasesData?.showcasesWithProducts
-  console.timeEnd('dataProcessing')
-
-  console.timeEnd('HomePage')
   return (
     <div className="w-full space-y-8">
       <Header store={store} cart={cart ?? []} />

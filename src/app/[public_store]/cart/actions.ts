@@ -23,7 +23,7 @@ async function createCartSession(storeUrl: string) {
   }
 }
 
-async function getCartSession(storeSubdomain: string) {
+export async function getCartSession(storeSubdomain: string) {
   const cookieStore = cookies()
 
   const session = cookieStore.get(`${storeSubdomain}_cart_session`)
@@ -119,14 +119,10 @@ async function updateCartProduct(
 export const readCart = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    console.time('readCart')
     const { store, supabase } = ctx
 
-    console.time('getCartSession')
     const cartSession = await getCartSession(store.store_subdomain)
-    console.timeEnd('getCartSession')
 
-    console.time('fetchCartDB')
     const { data: cart, error: cartError } = await supabase
       .from('cart_sessions')
       .select(
@@ -139,13 +135,11 @@ export const readCart = storeProcedure
       `,
       )
       .eq('session_id', cartSession?.value)
-    console.timeEnd('fetchCartDB')
 
     if (cartError) {
       console.error('Erro ao buscar dados do carrinho.', cartError)
     }
 
-    console.timeEnd('readCart')
     return { cart: cart as CartProductType[] }
   })
 

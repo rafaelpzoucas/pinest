@@ -1,108 +1,45 @@
 'use client'
 
-import { readStore } from '@/app/[public_store]/actions'
-import { readStoreTheme } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
 import setGlobalColorTheme from '@/lib/theme-colors'
-import { StoreType } from '@/models/store'
-import { useTheme } from 'next-themes'
-import { ThemeProviderProps } from 'next-themes/dist/types'
-import Image from 'next/image'
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { useServerAction } from 'zsa-react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext<ThemeColorStateParams>(
   {} as ThemeColorStateParams,
 )
 
-export default function ThemeDataProvider({ children }: ThemeProviderProps) {
-  const [store, setStore] = useState<StoreType | undefined>()
-  const [themeColor, setThemeColor] = useState<ThemeColors>('Zinc')
-  const [themeMode, setThemeMode] = useState<ThemeModes>('light')
-  const [isMounted, setIsMounted] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const { setTheme } = useTheme()
+interface ThemeDataProviderProps {
+  children: React.ReactNode
+  initialThemeMode: ThemeModes
+  initialThemeColor: ThemeColors
+}
 
-  const { execute, data } = useServerAction(readStore, {
-    onSuccess: () => {
-      setStore(data?.store)
-    },
-  })
+export default function ThemeDataProvider({
+  children,
+  initialThemeMode,
+  initialThemeColor,
+}: ThemeDataProviderProps) {
+  const [themeColor, setThemeColor] = useState<ThemeColors>(
+    initialThemeColor || 'Zinc',
+  )
+  const [themeMode, setThemeMode] = useState<ThemeModes>(
+    initialThemeMode || 'light',
+  )
 
-  const storeSubdomain = store?.store_subdomain
-
-  const getSavedTheme = useCallback(async () => {
-    try {
-      if (!storeSubdomain) {
-        return { color: 'Zinc' as ThemeColors, mode: 'system' as ThemeModes }
-      }
-
-      const { themeColor: color, themeMode: mode } =
-        await readStoreTheme(storeSubdomain)
-
-      return {
-        color: (color as ThemeColors) || 'Zinc',
-        mode: (mode as ThemeModes) || 'light',
-      }
-    } catch (err) {
-      return { color: 'Zinc' as ThemeColors, mode: 'dark' as ThemeModes }
-    }
-  }, [storeSubdomain])
-
-  useEffect(() => {
-    const loadTheme = async () => {
-      const { color, mode } = await getSavedTheme()
-      setThemeColor(color)
-      setThemeMode(mode)
-      setTheme(mode) // Define o tema inicial com next-themes
-    }
-
-    if (storeSubdomain) {
-      loadTheme()
-    }
-  }, [getSavedTheme, setTheme])
-
-  useEffect(() => {
-    if (!storeSubdomain) {
-      return
-    }
-
-    localStorage.setItem('storeThemeColor', themeColor)
-    localStorage.setItem('storeThemeMode', themeMode)
-
-    setGlobalColorTheme(themeMode, themeColor)
-
-    if (!isMounted) {
-      setIsMounted(true)
-    }
-
-    setIsLoading(false)
-  }, [themeColor, themeMode, storeSubdomain, isMounted])
-
-  useEffect(() => {
-    execute()
-  }, [execute])
-
-  // Mostra loading apenas se ainda estiver carregando e não estiver montado
-  if (isLoading || !isMounted) {
-    return (
-      <div className="w-full h-dvh flex flex-col items-center justify-center bg-background">
-        <div className="relative w-16 h-16 animate-bounce">
-          <Image
-            src="/icon-dark.svg"
-            fill
-            alt="Carregando..."
-            className="object-fill"
-          />
-        </div>
-      </div>
-    )
+  // Função para capitalizar a primeira letra
+  function capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
   }
+
+  // Normaliza os valores antes de aplicar
+  const normalizedThemeColor = capitalize(themeColor)
+  const normalizedThemeMode = themeMode.toLowerCase() as ThemeModes
+
+  useEffect(() => {
+    setGlobalColorTheme(
+      normalizedThemeMode,
+      normalizedThemeColor as ThemeColors,
+    )
+  }, [normalizedThemeMode, normalizedThemeColor])
 
   return (
     <ThemeContext.Provider

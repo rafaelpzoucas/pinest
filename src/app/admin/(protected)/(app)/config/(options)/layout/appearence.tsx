@@ -19,6 +19,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { updateStoreTheme } from './actions'
+import { setStoreEdgeConfigVercel } from './register/store/actions'
 import { appearenceFormSchema } from './schemas'
 
 const availableThemeColors = [
@@ -73,6 +74,18 @@ export function AppearenceForm({ store }: { store?: StoreType }) {
 
     if (store) {
       await updateStoreTheme(values)
+      await setStoreEdgeConfigVercel({
+        subdomain: store.store_subdomain,
+        theme: {
+          mode: values.theme_mode,
+          color: values.theme_color,
+        },
+        // Se quiser atualizar outros campos, adicione aqui
+        // name: store.name,
+        // description: store.description,
+        // logoUrl: store.logo_url,
+      })
+      // Se precisar, atualize também no banco de dados
     }
   }
 
