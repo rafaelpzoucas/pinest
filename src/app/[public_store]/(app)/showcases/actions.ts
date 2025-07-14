@@ -1,13 +1,8 @@
 'use server'
 
 import { storeProcedure } from '@/lib/zsa-procedures'
-import { ProductType } from '@/models/product'
 import { ShowcaseType } from '@/models/showcase'
 import { cache } from 'react'
-
-type ShowcaseProductsType = ShowcaseType & {
-  products: ProductType[]
-}
 
 export const readShowcases = storeProcedure
   .createServerAction()
@@ -55,7 +50,7 @@ export const readShowcases = storeProcedure
 
     // Retorna o array de showcases com seus produtos
     return {
-      showcasesWithProducts: showcasesWithProducts as ShowcaseProductsType[],
+      showcasesWithProducts: showcasesWithProducts as ShowcaseType[],
     }
   })
 

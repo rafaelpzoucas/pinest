@@ -23,7 +23,7 @@ async function createCartSession(storeUrl: string) {
   }
 }
 
-async function getCartSession(storeSubdomain: string) {
+export async function getCartSession(storeSubdomain: string) {
   const cookieStore = cookies()
 
   const session = cookieStore.get(`${storeSubdomain}_cart_session`)
