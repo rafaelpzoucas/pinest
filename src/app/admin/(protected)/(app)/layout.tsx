@@ -51,8 +51,6 @@ export default async function ProtectedLayout({
       <MobileNavigation />
 
       <main className="md:flex flex-row w-full">
-        <SoundNotification />
-
         <ScrollArea className="w-full h-dvh lg:px-5 print:p-0">
           <main className="flex flex-col items-center w-full">
             <div className="w-full max-w-7xl">
@@ -67,6 +65,8 @@ export default async function ProtectedLayout({
 
         <OpenCashSessionToast cashSession={cashSession} />
       </main>
+
+      <SoundNotification />
     </SidebarProvider>
   )
 }

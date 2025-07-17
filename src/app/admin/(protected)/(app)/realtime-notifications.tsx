@@ -1,21 +1,38 @@
 'use client'
 
+import { useStoreNotifications } from '@/hooks/useStoreNotifications'
 import { createClient } from '@/lib/supabase/client'
 import { PurchaseType } from '@/models/purchase'
+import { StoreType } from '@/models/store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function RealtimeNotifications({
   purchases,
+  store,
 }: {
   purchases: PurchaseType[]
+  store: StoreType | null
 }) {
   const supabase = createClient()
   const router = useRouter()
   const [canPlay, setCanPlay] = useState(true)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  useStoreNotifications({ storeId: store?.id })
+
   useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then((permission) => {
+          console.log('Permissão para notificações:', permission)
+          if (permission === 'granted') {
+            // você pode registrar o service worker aqui, se ainda não tiver feito
+          }
+        })
+      }
+    }
+
     const hasPending = purchases.some(
       (purchase) => purchase.status === 'accept',
     )

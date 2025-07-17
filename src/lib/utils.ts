@@ -7,8 +7,6 @@ import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { z } from 'zod'
 
-type QueryParamsGeneric = { [key: string]: string | number | null | undefined }
-
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
