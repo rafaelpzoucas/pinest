@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ROOT_DOMAIN, STAGING_HOSTS } from './lib/helpers'
 
-const IGNORED_PATHS = ['/_next', '/api', '/favicon.ico', '/admin']
+const IGNORED_PATHS = ['/_next', '/api', '/favicon.ico', '/admin', '/sw.js']
 
 export function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl
@@ -40,6 +40,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next|api|admin|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|css|map)$).*)',
+    '/((?!_next|api|admin|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|css|map)$).*)',
   ],
 }
