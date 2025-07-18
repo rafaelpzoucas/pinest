@@ -1,6 +1,8 @@
 'use server'
 
 import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
+
+import { notifyStoreSchema, NotifyStoreType } from '@/app/api/v1/push/schemas'
 import { createClient } from '@/lib/supabase/server'
 import { createPath } from '@/lib/utils'
 import { storeProcedure } from '@/lib/zsa-procedures'
@@ -194,6 +196,8 @@ export const createPurchase = storeProcedure
       customerId: storeCustomer?.customers?.id,
     })
 
+    nofityStore({ storeId: store?.id })
+
     return redirect(
       createPath(
         `/purchases/${createdPurchase.id}?back=home`,
@@ -201,6 +205,29 @@ export const createPurchase = storeProcedure
       ),
     )
   })
+
+async function nofityStore(values: NotifyStoreType) {
+  const { description, storeId, title, url } = notifyStoreSchema.parse(values)
+
+  console.log(values)
+
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/push/notify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        storeId,
+        title: title ?? 'Novo pedido recebido',
+        description: description ?? 'Você recebeu um novo pedido na sua loja!',
+        url: url ?? '',
+      }),
+    })
+  } catch (error) {
+    throw new Error('Erro ao notificar a loja', error as Error)
+  }
+}
 
 export async function updateAmountSoldAndStock(
   productId: string,
