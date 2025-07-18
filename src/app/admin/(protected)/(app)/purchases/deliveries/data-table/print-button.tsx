@@ -28,6 +28,7 @@ export function Printbutton({ purchase }: { purchase: PurchaseType }) {
       onClick={() =>
         executePrintReceipt({
           purchaseId: purchase.id,
+          purchaseType: purchase.type,
           reprint: true,
         })
       }

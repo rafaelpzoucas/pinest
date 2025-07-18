@@ -1,4 +1,4 @@
-import { buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -27,6 +27,7 @@ import {
   Edit,
   Loader2,
   Plus,
+  Printer,
   Search,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -34,6 +35,7 @@ import { useEffect, useState } from 'react'
 import { MdTableBar } from 'react-icons/md'
 import { useServerAction } from 'zsa-react'
 import { readCashSession } from '../../cash-register/actions'
+import { printTableReceipt } from '../../config/printing/actions'
 
 export function Tables({ tables }: { tables: TableType[] | null }) {
   const [search, setSearch] = useState('')
@@ -47,6 +49,8 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
       setIsCashOpen(isOpen)
     },
   })
+
+  const { execute: executePrint } = useServerAction(printTableReceipt)
 
   async function handleReadCashSession() {
     await execute()
@@ -130,6 +134,18 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                       >
                         <Edit />
                       </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          executePrint({
+                            tableId: table.id,
+                            reprint: true,
+                          })
+                        }
+                      >
+                        <Printer />
+                      </Button>
                     </SheetHeader>
 
                     <section className="py-4 w-full flex flex-col gap-4">

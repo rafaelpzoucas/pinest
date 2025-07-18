@@ -4,6 +4,7 @@ export const printingSettingsSchema = z.object({
   id: z.string().uuid().optional(),
   created_at: z.string().optional(),
   auto_print: z.boolean().optional(),
+  kitchen_font_size: z.number().optional(),
   font_size: z.number().optional(),
 })
 

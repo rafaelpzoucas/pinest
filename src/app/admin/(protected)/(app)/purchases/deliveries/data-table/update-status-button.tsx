@@ -25,6 +25,7 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
       onSuccess: () => {
         executePrintReceipt({
           purchaseId: purchase.id,
+          purchaseType: purchase.type,
           reprint: false,
         })
       },

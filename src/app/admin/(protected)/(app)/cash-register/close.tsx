@@ -23,6 +23,16 @@ import { z } from 'zod'
 import { closeCashSessionSchema, createCashReceiptsSchema } from './schemas'
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -49,6 +59,7 @@ import { PaymentType } from '@/models/payment'
 import { ArrowLeft, Loader2, Plus } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 import { printMultipleReports } from '../config/printing/actions'
 import { closeCashSession } from './actions'
@@ -88,6 +99,10 @@ export function CloseCashSession({
   const [pixManual, setPixManual] = useState(false)
   const [creditManual, setCreditManual] = useState(false)
   const [debitManual, setDebitManual] = useState(false)
+  const [showDifferenceDialog, setShowDifferenceDialog] = useState(false)
+  const [pendingValues, setPendingValues] = useState<z.infer<
+    typeof closeCashSessionSchema
+  > | null>(null)
 
   // Estados dos valores dos campos via nuqs
   const [pixValue, setPixValue] = useQueryState('pixValue', parseAsString)
@@ -198,11 +213,15 @@ export function CloseCashSession({
       setCashValue(null)
 
       console.log('Imprimindo múltiplos relatórios')
+      let salesReportText = buildSalesReportText(reports.salesReport)
+      if (difference !== 0) {
+        salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE R$ ${formatCurrencyBRL(Math.abs(difference))} ***\n`
+      }
       executePrintMultipleReports({
         reports: [
           {
             name: 'Relatório de Vendas',
-            text: buildSalesReportText(reports.salesReport),
+            text: salesReportText,
           },
           {
             name: 'Produtos Vendidos',
@@ -216,7 +235,25 @@ export function CloseCashSession({
     },
   })
 
+  function handleConfirmClose() {
+    if (pendingValues) {
+      setIsPrinting(true)
+      execute(pendingValues)
+      setIsPrinting(false)
+      toast(
+        `Caixa fechado com diferença de ${formatCurrencyBRL(Math.abs(difference))}`,
+      )
+      setShowDifferenceDialog(false)
+      setPendingValues(null)
+    }
+  }
+
   function onSubmit(values: z.infer<typeof closeCashSessionSchema>) {
+    if (difference !== 0) {
+      setPendingValues(values)
+      setShowDifferenceDialog(true)
+      return
+    }
     setIsPrinting(true)
     execute(values)
     setIsPrinting(false)
@@ -404,6 +441,29 @@ export function CloseCashSession({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={showDifferenceDialog}
+        onOpenChange={setShowDifferenceDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Fechar caixa com diferença?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Existe uma diferença de {formatCurrencyBRL(Math.abs(difference))}{' '}
+              entre o valor declarado e o esperado. Tem certeza que deseja
+              fechar o caixa assim mesmo?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDifferenceDialog(false)}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose}>
+              Confirmar fechamento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         {hasOpenPurchases || hasOpenTables ? (
           <TooltipProvider>
@@ -589,7 +649,7 @@ export function CloseCashSession({
 
               <Button
                 type="submit"
-                disabled={isPending || isPending || difference !== 0}
+                disabled={isPending || isPrinting}
                 className="w-full lg:w-auto"
               >
                 {isPrinting || isPending ? (
