@@ -7,6 +7,7 @@ import {
   Printer,
   ReceiptText,
   Store,
+  Ticket,
   User,
 } from 'lucide-react'
 
@@ -25,6 +26,11 @@ export const main = [
     title: 'Cardápio',
     url: '/admin/catalog',
     icon: LayoutList,
+  },
+  {
+    title: 'Promoções',
+    url: '/admin/promotions',
+    icon: Ticket,
   },
   // {
   //   title: 'Clientes',

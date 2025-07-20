@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
 import { createPurchase } from './actions'
@@ -12,8 +13,21 @@ export function CheckoutButton({
 }: {
   values: z.infer<typeof createPurchaseSchema>
 }) {
-  const { execute, isPending } = useServerAction(createPurchase)
+  const { execute, isPending } = useServerAction(createPurchase, {
+    onError: ({ err }) => {
+      console.error(err)
+      toast.error('Ocorreu um erro inesperado.')
+    },
+  })
   async function handleCreatePurchase() {
+    const result = createPurchaseSchema.safeParse(values)
+
+    if (!result.success) {
+      console.error('Erro de validação', result.error)
+      toast.error('Dados inválidos. Verifique e tente novamente.')
+      return
+    }
+
     execute(values)
   }
   return (

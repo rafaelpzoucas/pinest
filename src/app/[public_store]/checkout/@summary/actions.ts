@@ -108,11 +108,81 @@ export const createPurchase = storeProcedure
 
     const cart = cartData?.cart
     const storeCustomer = customerData?.storeCustomer
-
     const type = input.type
-
     const shippingPrice = type !== 'TAKEOUT' ? input.shippingPrice : 0
-    const subtotal = input.totalAmount - shippingPrice
+    let subtotal = input.totalAmount - shippingPrice
+    let couponDiscount = 0
+
+    // --- Lógica de cupom ---
+    const couponId = input.coupon_id
+    if (input.coupon_code && input.coupon_id) {
+      // Busca cupom para validar regras novamente
+      const { data: coupon, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('id', input.coupon_id)
+        .eq('store_id', store.id)
+        .eq('code', input.coupon_code)
+        .single()
+
+      if (!error && coupon && coupon.status === 'active') {
+        // Verifica expiração
+        const isNotExpired =
+          !coupon.expires_at || new Date(coupon.expires_at) >= new Date()
+        if (isNotExpired) {
+          // Verifica limites globais
+          const canUseGlobal =
+            !coupon.usage_limit ||
+            (coupon.usage_count ?? 0) < coupon.usage_limit
+
+          // Verifica limites por cliente
+          let canUseByCustomer = true
+          if (coupon.usage_limit_per_customer && storeCustomer?.id) {
+            const { count: usageCount, error: usageError } = await supabase
+              .from('coupon_usages')
+              .select('*', { count: 'exact', head: true })
+              .eq('coupon_id', coupon.id)
+              .eq('customer_id', storeCustomer.id)
+
+            if (usageError)
+              throw new Error('Erro ao verificar uso do cupom pelo cliente')
+
+            canUseByCustomer =
+              (usageCount ?? 0) < coupon.usage_limit_per_customer
+          }
+
+          if (canUseGlobal && canUseByCustomer) {
+            // Aplica desconto
+            if (coupon.couponDiscount_type === 'percent') {
+              couponDiscount = Math.min(
+                subtotal,
+                (subtotal * coupon.couponDiscount) / 100,
+              )
+            } else if (coupon.couponDiscount_type === 'fixed') {
+              couponDiscount = Math.min(subtotal, coupon.discount)
+            }
+
+            subtotal -= couponDiscount
+
+            // Atualiza usage_count
+            await supabase
+              .from('coupons')
+              .update({ usage_count: (coupon.usage_count || 0) + 1 })
+              .eq('id', coupon.id)
+
+            // Registra uso por cliente
+            if (storeCustomer?.id) {
+              await supabase.from('coupon_usages').insert({
+                coupon_id: coupon.id,
+                customer_id: storeCustomer.id,
+                used_at: new Date().toISOString(),
+                purchase_id: null, // pode ser atualizado depois
+              })
+            }
+          }
+        }
+      }
+    }
 
     const newPurchaseValues = {
       customer_id: storeCustomer?.id ?? null,
@@ -123,8 +193,8 @@ export const createPurchase = storeProcedure
       payment_type: input.payment_type,
       total: {
         subtotal,
-        discount: 0,
-        total_amount: input.totalAmount,
+        discount: input.discount,
+        total_amount: subtotal + shippingPrice,
         shipping_price: shippingPrice,
         change_value: input.changeValue ?? 0,
       },
@@ -132,6 +202,8 @@ export const createPurchase = storeProcedure
         time: type === 'DELIVERY' ? input.shippingTime : null,
         address: storeCustomer?.customers?.address,
       },
+      coupon_id: couponId,
+      coupon_code: input.coupon_code,
     }
 
     const { data: createdPurchase, error: purchaseError } = await supabase
@@ -282,6 +354,68 @@ export const handlePayment = storeProcedure
     })
 
     await clearCart(store.store_subdomain)
-
     revalidatePath(`/`)
+  })
+
+export const validateCoupon = storeProcedure
+  .createServerAction()
+  .input(
+    z.object({
+      code: z.string().max(20),
+      customer_id: z.string().optional(),
+    }),
+  )
+  .handler(async ({ ctx, input }) => {
+    const { store, supabase } = ctx
+    const code = input.code.toUpperCase()
+
+    // Busca cupom
+    const { data: coupon, error } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('store_id', store.id)
+      .eq('code', code)
+      .maybeSingle()
+
+    if (error || !coupon) {
+      return { valid: false, error: 'Cupom não encontrado.' }
+    }
+
+    // Status
+    if (coupon.status !== 'active') {
+      return { valid: false, error: 'Cupom inativo ou expirado.' }
+    }
+
+    // Expiração
+    if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+      return { valid: false, error: 'Cupom expirado.' }
+    }
+
+    // Limite total
+    if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit) {
+      return { valid: false, error: 'Limite de uso do cupom atingido.' }
+    }
+
+    // Limite por cliente
+    if (input.customer_id && coupon.usage_limit_per_customer) {
+      const { count, error: usageError } = await supabase
+        .from('coupon_usages')
+        .select('*', { count: 'exact', head: true })
+        .eq('coupon_id', coupon.id)
+        .eq('customer_id', input.customer_id)
+
+      if (usageError) {
+        return { valid: false, error: 'Erro ao validar uso do cupom.' }
+      }
+      if ((count ?? 0) >= coupon.usage_limit_per_customer) {
+        return { valid: false, error: 'Limite de uso por cliente atingido.' }
+      }
+    }
+
+    return {
+      valid: true,
+      discount: coupon.discount,
+      discount_type: coupon.discount_type,
+      coupon_id: coupon.id,
+    }
   })

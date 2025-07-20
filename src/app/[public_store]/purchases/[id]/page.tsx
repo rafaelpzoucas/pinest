@@ -23,6 +23,7 @@ export default async function PurchasePage({
   const address = purchase?.delivery.address
 
   const total = purchase?.total
+  const discount = total?.discount
   const currentStatus = statuses[purchase?.status as StatusKey]
   const shippingPrice = total?.shipping_price ?? 0
   const subtotal = total?.subtotal ?? 0
@@ -57,6 +58,12 @@ export default async function PurchasePage({
             ) : (
               <p className="text-muted-foreground">Retirar pedido na loja</p>
             )}
+            {discount && discount < 0 ? (
+              <p className="flex flex-row items-center justify-between">
+                <span className="text-muted-foreground">Desconto</span>
+                <span>{formatCurrencyBRL(discount)}</span>
+              </p>
+            ) : null}
             <p className="flex flex-row items-center justify-between">
               <span className="text-muted-foreground">Total</span>
               <span>{formatCurrencyBRL(purchase?.total?.total_amount)}</span>
