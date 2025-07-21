@@ -7,7 +7,7 @@ import { Pyramid } from 'lucide-react'
 import { readCustomerCached } from '../../account/actions'
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../search/search-sheet'
-import { readOwnShippingCached } from './actions'
+import { readOwnShipping } from './actions'
 import { Status } from './status'
 
 export async function Header({
@@ -19,7 +19,7 @@ export async function Header({
 }) {
   const [[customerData], [shippingData]] = await Promise.all([
     await readCustomerCached({}),
-    await readOwnShippingCached(),
+    await readOwnShipping(),
   ])
 
   const customer = customerData?.customer
