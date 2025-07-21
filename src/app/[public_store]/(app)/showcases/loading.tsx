@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/carousel'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export default function StoreLoading() {
+export default function ShowcasesLoading() {
   return (
-    <section className="space-y-4 p-4 px-5 pt-5 bg-secondary/50 rounded-xl">
+    <section className="space-y-4">
       <Skeleton className="w-2/3 h-5" />
 
       <Carousel

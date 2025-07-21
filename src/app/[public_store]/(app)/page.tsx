@@ -1,3 +1,4 @@
+import { StoreHydrator } from '../hydrator'
 import { readPublicStoreData } from './actions'
 import { Categories } from './categories'
 import { Footer } from './footer'
@@ -8,20 +9,19 @@ import { Showcases } from './showcases'
 export default async function HomePage() {
   const [publicStoreData] = await readPublicStoreData()
 
-  const store = publicStoreData?.store
-  const cart = publicStoreData?.cart
-  const hours = publicStoreData?.store.store_hours
-  const categories = publicStoreData?.categories
-  const products = publicStoreData?.categories
-  const showcases = publicStoreData?.showcases
+  if (!publicStoreData) {
+    return <div>Erro ao carregar dados</div>
+  }
 
   return (
     <div className="w-full space-y-8">
-      <Header store={store} cart={cart ?? []} />
-      <Categories categories={categories} />
-      <Showcases showcases={showcases} store={store} />
-      <ProductsList categories={products} store={store} />
-      <Footer store={store} hours={hours} categories={categories} />
+      <StoreHydrator publicStoreData={publicStoreData} />
+
+      <Header />
+      <Categories />
+      <Showcases />
+      <ProductsList />
+      <Footer />
     </div>
   )
 }

@@ -4,7 +4,11 @@ import { readCustomerCached } from './actions'
 import { ReadCustomerForm } from './form'
 import { CustomerRegisterForm } from './register/form'
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  params,
+}: {
+  params: { public_store: string }
+}) {
   const [[storeData], [customerData]] = await Promise.all([
     readStoreCached(),
     readCustomerCached({}),
@@ -17,13 +21,13 @@ export default async function AccountPage() {
       <Header
         title="Minha conta"
         store={store}
-        storeSubdomain={store?.store_subdomain}
+        storeSubdomain={params.public_store}
       />
 
       {customer ? (
         <CustomerRegisterForm
           customer={customer}
-          storeSubdomain={store?.store_subdomain}
+          storeSubdomain={params.public_store}
         />
       ) : (
         <ReadCustomerForm />

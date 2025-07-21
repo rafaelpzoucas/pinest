@@ -1,3 +1,6 @@
+'use client'
+
+import { readCategoriesData } from '@/actions/client/app/public_store/categories'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -6,15 +9,27 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel'
-import { CategoryType } from '@/models/category'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import { Box } from 'lucide-react'
 import Link from 'next/link'
+import CategoriesLoading from './loading'
 
-export async function Categories({
-  categories,
-}: {
-  categories?: CategoryType[]
-}) {
+export function Categories() {
+  const { store } = usePublicStore()
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => readCategoriesData(store?.id),
+    enabled: !!store,
+  })
+
+  const categories = data?.categories
+
+  if (!store || isLoading) {
+    return <CategoriesLoading />
+  }
+
   return (
     <>
       <div className="lg:hidden w-full max-w-7xl">

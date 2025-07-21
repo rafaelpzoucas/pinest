@@ -106,7 +106,13 @@ export function ProductCard({
             'relative min-w-14 w-full aspect-square overflow-hidden border-0',
           )}
         >
-          <Image src={thumbURL} fill alt="" className="object-cover" />
+          <Image
+            src={thumbURL}
+            fill
+            alt=""
+            className="object-cover"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 33vw"
+          />
 
           {variant && data.stock === 0 && (
             <Badge

@@ -1,31 +1,9 @@
-'use server'
-
-import { storeProcedure } from '@/lib/zsa-procedures'
-import { CategoryType } from '@/models/category'
+import { createClient } from '@/lib/supabase/client'
 import { ShowcaseType } from '@/models/showcase'
 
-async function readCategoriesData(supabase: any, storeId: string) {
-  const { data, error } = await supabase
-    .from('categories')
-    .select(
-      `
-        *,
-        products (
-          *,
-          product_images (*)
-        ) 
-      `,
-    )
-    .eq('store_id', storeId)
+export async function readShowcasesData(storeId?: string) {
+  const supabase = createClient()
 
-  if (error || !data) {
-    throw new Error('Não foi possível ler as categorias.', error)
-  }
-
-  return { categories: data as CategoryType[] }
-}
-
-async function readShowcasesData(supabase: any, storeId: string) {
   const { data: showcases, error: showcasesError } = await supabase
     .from('store_showcases')
     .select('*')
@@ -65,11 +43,3 @@ async function readShowcasesData(supabase: any, storeId: string) {
     showcases: showcasesWithProducts as ShowcaseType[],
   }
 }
-
-export const readPublicStoreData = storeProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { store } = ctx
-
-    return { store }
-  })

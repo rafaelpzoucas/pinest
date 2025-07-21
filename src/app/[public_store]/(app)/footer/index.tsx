@@ -1,11 +1,13 @@
+'use client'
+
+import { readCategoriesData } from '@/actions/client/app/public_store/categories'
 import { HoursList } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/hours/hours-list'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { CategoryType } from '@/models/category'
-import { HourType } from '@/models/hour'
-import { StoreType } from '@/models/store'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import { Clock, Pyramid } from 'lucide-react'
 import Link from 'next/link'
 import { FaWhatsapp } from 'react-icons/fa'
@@ -13,18 +15,21 @@ import GoogleTransparencyBadge from './google-transparency-badge'
 import { PaymentMethods } from './payment-methods'
 import { StoreSocials } from './socials'
 
-export async function Footer({
-  store,
-  categories,
-  hours,
-}: {
-  store?: StoreType
-  categories?: CategoryType[]
-  hours?: HourType[]
-}) {
+export function Footer() {
+  const { store } = usePublicStore()
+
+  const { data } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => readCategoriesData(store?.id),
+    enabled: !!store,
+  })
+
   if (!store) {
     return null
   }
+
+  const categories = data?.categories
+  const hours = store.store_hours
 
   return (
     <footer>
