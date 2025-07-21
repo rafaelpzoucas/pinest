@@ -1,6 +1,5 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { ShippingConfigType } from '@/models/shipping'
-import { cache } from 'react'
 
 export const readOwnShipping = storeProcedure
   .createServerAction()
@@ -21,5 +20,3 @@ export const readOwnShipping = storeProcedure
       shipping: shipping as ShippingConfigType,
     }
   })
-
-export const readOwnShippingCached = cache(readOwnShipping)

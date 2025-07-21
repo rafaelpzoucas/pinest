@@ -22,17 +22,6 @@ export function RealtimeNotifications({
   useStoreNotifications({ storeId: store?.id })
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission().then((permission) => {
-          console.log('Permissão para notificações:', permission)
-          if (permission === 'granted') {
-            // você pode registrar o service worker aqui, se ainda não tiver feito
-          }
-        })
-      }
-    }
-
     const hasPending = purchases.some(
       (purchase) => purchase.status === 'accept',
     )

@@ -1,12 +1,27 @@
+'use client'
+
+import { readBenefitsData } from '@/actions/client/app/public_store/benefits'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import { CheckCircle } from 'lucide-react'
-import { readBenefitsCached } from './actions'
+import ShowcasesLoading from '../showcases/loading'
 
-export async function Benefits() {
-  const [data] = await readBenefitsCached()
+export function Benefits() {
+  const { store } = usePublicStore()
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['benefits'],
+    queryFn: () => readBenefitsData(store?.id),
+    enabled: !!store,
+  })
 
   const benefits = data?.benefits
+
+  if (isLoading) {
+    return <ShowcasesLoading />
+  }
 
   if (benefits?.length === 0) {
     return null

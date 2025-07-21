@@ -1,33 +1,8 @@
 'use server'
 
 import { storeProcedure } from '@/lib/zsa-procedures'
-import { CartProductType } from '@/models/cart'
 import { CategoryType } from '@/models/category'
 import { ShowcaseType } from '@/models/showcase'
-import { getCartSession } from '../cart/actions'
-
-async function readCartData(subdomain: string, supabase: any) {
-  const cartSession = await getCartSession(subdomain)
-
-  const { data: cart, error: cartError } = await supabase
-    .from('cart_sessions')
-    .select(
-      `
-        *,
-        products (
-          *,
-          product_images (*)
-        )
-      `,
-    )
-    .eq('session_id', cartSession?.value)
-
-  if (cartError) {
-    throw new Error('Erro ao buscar dados no carrinho', cartError)
-  }
-
-  return { cart: cart as CartProductType[] }
-}
 
 async function readCategoriesData(supabase: any, storeId: string) {
   const { data, error } = await supabase
@@ -94,13 +69,7 @@ async function readShowcasesData(supabase: any, storeId: string) {
 export const readPublicStoreData = storeProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    const { supabase, store } = ctx
+    const { store } = ctx
 
-    const [{ cart }, { categories }, { showcases }] = await Promise.all([
-      readCartData(store.store_subdomain, supabase),
-      readCategoriesData(supabase, store.id),
-      readShowcasesData(supabase, store.id),
-    ])
-
-    return { store, cart, categories, showcases }
+    return { store }
   })

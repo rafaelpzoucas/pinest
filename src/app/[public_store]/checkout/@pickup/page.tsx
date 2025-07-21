@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card'
 import { formatAddress } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { readOwnShippingCached } from '../../(app)/header/actions'
+import { readOwnShipping } from '../../(app)/header/actions'
 import { readCustomerCached } from '../../account/actions'
 import { readStoreAddressCached } from '../actions'
 import { Delivery } from './delivery'
@@ -12,7 +12,7 @@ export default async function PickupOptions() {
     await Promise.all([
       readStoreAddressCached(),
       readCustomerCached({}),
-      readOwnShippingCached(),
+      readOwnShipping(),
     ])
 
   const storeAddress = storeAddressData?.storeAddress

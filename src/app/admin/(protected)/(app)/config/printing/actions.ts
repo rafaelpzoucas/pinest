@@ -100,7 +100,7 @@ export const printTableReceipt = createServerAction()
   .input(
     z.object({
       tableId: z.string().optional(),
-      printerName: z.string(),
+      printerName: z.string().optional(),
       reprint: z.boolean().optional(),
     }),
   )
@@ -115,7 +115,7 @@ export const printTableReceipt = createServerAction()
     const table = tableData?.table
     const printers = printersData?.printers || []
     const printingSettings = printSettingsData?.printingSettings
-    const fontSize = printSettingsData?.printingSettings?.font_size
+    const fontSize = printSettingsData?.printingSettings?.kitchen_font_size
 
     if (!printingSettings?.auto_print) {
       return
@@ -166,6 +166,7 @@ export const printPurchaseReceipt = createServerAction()
   .input(
     z.object({
       purchaseId: z.string().optional(),
+      purchaseType: z.enum(['DELIVERY', 'TAKEOUT']).optional(),
       reprint: z.boolean().optional().default(false),
     }),
   )
@@ -180,7 +181,10 @@ export const printPurchaseReceipt = createServerAction()
     const purchase = purchaseData?.purchase ?? purchaseTest
     const printers = printersData?.printers || []
     const printingSettings = printSettingsData?.printingSettings
-    const fontSize = printingSettings?.font_size
+    const kitchenFontSize = printingSettings?.kitchen_font_size
+    const deliveryFontSize = printingSettings?.font_size
+
+    const isDelivery = input.purchaseType === 'DELIVERY'
 
     if (!printers.length) {
       return new Response('Nenhuma impressora encontrada', { status: 404 })
@@ -203,7 +207,7 @@ export const printPurchaseReceipt = createServerAction()
           await addToPrintQueue([
             {
               text: textKitchen,
-              font_size: fontSize,
+              font_size: kitchenFontSize,
               printer_name: printer.name,
             },
           ])
@@ -212,7 +216,7 @@ export const printPurchaseReceipt = createServerAction()
         }
 
         if (
-          printer.sectors.length === 0 ||
+          (isDelivery && printer.sectors.length === 0) ||
           printer.sectors.includes('delivery')
         ) {
           const textDelivery = buildReceiptDeliveryText(purchase, input.reprint)
@@ -220,7 +224,7 @@ export const printPurchaseReceipt = createServerAction()
           await addToPrintQueue([
             {
               text: textDelivery,
-              font_size: fontSize,
+              font_size: deliveryFontSize,
               printer_name: printer.name,
             },
           ])

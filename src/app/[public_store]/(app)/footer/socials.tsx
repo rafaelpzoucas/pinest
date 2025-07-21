@@ -1,13 +1,23 @@
-import { readStoreSocials } from '@/app/admin/(protected)/(app)/config/(options)/account/actions'
+'use client'
+
+import { readSocialsData } from '@/actions/client/app/public_store/socials'
 import { SOCIAL_MEDIAS } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/socials/socials'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 
-export async function StoreSocials() {
-  const [socialsData] = await readStoreSocials()
+export function StoreSocials() {
+  const { store } = usePublicStore()
 
-  const socials = socialsData?.socials || []
+  const { data } = useQuery({
+    queryKey: ['socials'],
+    queryFn: () => readSocialsData(store?.id),
+    enabled: !!store,
+  })
+
+  const socials = data?.socials || []
 
   return (
     <div className="flex flex-row gap-2 w-full max-w-sm">

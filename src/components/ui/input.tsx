@@ -6,12 +6,26 @@ import { NumericFormat } from 'react-number-format'
 type NumericFormatValueType = 'string | number | null | undefined'
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  maskType?: 'cep' | 'cpf' | 'currency' | 'kilo' | 'custom' | 'phone'
+  maskType?:
+    | 'cep'
+    | 'cpf'
+    | 'currency'
+    | 'kilo'
+    | 'custom'
+    | 'phone'
+    | 'percent'
   customMask?: string
 }
 
 export type MaskedInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  maskType?: 'cep' | 'cpf' | 'currency' | 'kilo' | 'custom' | 'phone'
+  maskType?:
+    | 'cep'
+    | 'cpf'
+    | 'currency'
+    | 'kilo'
+    | 'custom'
+    | 'phone'
+    | 'percent'
   customMask?: string
 }
 
@@ -61,6 +75,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <NumericFormat
           decimalSeparator=","
           suffix=" Kg"
+          decimalScale={3}
+          {...numericFormatProps}
+        />
+      )
+    }
+
+    if (maskType === 'percent') {
+      return (
+        <NumericFormat
+          decimalSeparator=","
+          suffix=" %"
           decimalScale={3}
           {...numericFormatProps}
         />

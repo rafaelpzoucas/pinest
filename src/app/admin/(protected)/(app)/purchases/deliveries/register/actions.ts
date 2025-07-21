@@ -4,7 +4,10 @@ import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { redirect } from 'next/navigation'
-import { readPrintingSettings } from '../../../config/printing/actions'
+import {
+  printPurchaseReceipt,
+  readPrintingSettings,
+} from '../../../config/printing/actions'
 import { createPurchaseFormSchema, updatePurchaseFormSchema } from './schemas'
 
 export const createPurchase = adminProcedure
@@ -98,9 +101,13 @@ export const createPurchase = adminProcedure
     // 5. Se auto_print, só enfileire sem bloquear o fluxo
     const autoPrint = printSettingsData?.printingSettings.auto_print
     if (autoPrint) {
-      supabase
-        .from('print_queue')
-        .insert({ purchase_id: purchaseId, reprint: false })
+      printPurchaseReceipt({
+        purchaseId,
+        purchaseType: input.type,
+        reprint: false,
+      }).catch((err) =>
+        console.error('Erro ao gerar impressão automática:', err),
+      )
     }
 
     // 6. Redirect final
@@ -213,9 +220,13 @@ export const updatePurchase = adminProcedure
     // 5. Se auto_print, enfileire sem await
     const autoPrint = settingsData?.printingSettings.auto_print
     if (autoPrint) {
-      supabase
-        .from('print_queue')
-        .insert({ purchase_id: purchaseId, reprint: true })
+      printPurchaseReceipt({
+        purchaseId,
+        purchaseType: input.type,
+        reprint: true,
+      }).catch((err) =>
+        console.error('Erro ao gerar impressão automática:', err),
+      )
     }
 
     // 6. Redirect final

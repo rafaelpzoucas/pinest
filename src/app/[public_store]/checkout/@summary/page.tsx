@@ -1,5 +1,4 @@
 import { buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
 import { cn, createPath, formatAddress, formatCurrencyBRL } from '@/lib/utils'
@@ -9,8 +8,8 @@ import { readCustomerCached } from '../../account/actions'
 import { readStoreCached } from '../../actions'
 import { readCartCached } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
-import { CheckoutButton } from './checkout-button'
 import { Delivery } from './delivery'
+import { SummaryCard } from './summary-card'
 
 export default async function Summary({
   searchParams,
@@ -94,43 +93,25 @@ export default async function Summary({
 
   const formattedAddress = storeAddress && formatAddress(storeAddress)
 
-  const createPurchaseValues = {
-    type: pickup,
-    payment_type: payment,
-    totalAmount: totalPrice,
-    shippingPrice,
-    shippingTime: shipping && shipping.status ? shipping.delivery_time : 0,
-    changeValue: parseFloat(searchParams.changeValue ?? 0),
-  }
+  // --- Cupom de desconto (client component) ---
+  // O campo será renderizado acima do resumo do total
+  // Estado do desconto aplicado
+  // Função para calcular o total com desconto
+  // (tudo isso será movido para o componente client)
 
   return (
     <div className="flex flex-col w-full">
-      <Card className="flex flex-col p-4 w-full space-y-2">
-        <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <p>Produtos ({cart ? cart.length : 0})</p>
-          <span>{formatCurrencyBRL(productsPrice)}</span>
-        </div>
-
-        <div className="flex flex-row justify-between text-xs text-muted-foreground">
-          <p>
-            {searchParams.pickup !== 'TAKEOUT' ? 'Frete' : 'Retirar'}
-            <strong>{transp ? ` por ${transp}` : ''}</strong>
-          </p>
-          {searchParams.pickup !== 'TAKEOUT' && shipping && (
-            <span>{formatCurrencyBRL(shippingPrice)}</span>
-          )}
-          {searchParams.pickup === 'TAKEOUT' && shipping && (
-            <span className="text-emerald-600">Grátis</span>
-          )}
-        </div>
-
-        <div className="flex flex-row justify-between text-sm pb-2">
-          <p>Total</p>
-          <strong>{formatCurrencyBRL(totalPrice)}</strong>
-        </div>
-
-        <CheckoutButton values={createPurchaseValues} />
-      </Card>
+      <SummaryCard
+        cart={cart}
+        shipping={shipping}
+        shippingCost={shippingCost}
+        pickup={pickup}
+        payment={payment}
+        transp={transp}
+        totalPrice={totalPrice}
+        store={store}
+        searchParams={searchParams}
+      />
 
       {searchParams.pickup !== 'pickup' && (
         <Delivery customerAddress={customerAddress} store={store} />

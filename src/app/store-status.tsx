@@ -1,52 +1,39 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { storeShouldBeOpen } from '@/actions/client/app/public_store/status'
+import { usePublicStore } from '@/stores/public-store'
+import { useMutation } from '@tanstack/react-query'
 import { format, isAfter, isBefore, parse } from 'date-fns'
-import { readStoreCached } from './[public_store]/actions'
+import { useEffect } from 'react'
 
-export async function StoreStatus() {
-  try {
-    const supabase = createClient()
+export function StoreStatus() {
+  const { store } = usePublicStore()
 
-    const [storeData] = await readStoreCached()
+  const { mutateAsync: updateStoreStatus } = useMutation({
+    mutationKey: ['store-status'],
+    mutationFn: (shouldBeOpen: boolean) =>
+      storeShouldBeOpen(shouldBeOpen, store?.id),
+    onError: () => console.error('Erro ao atualizar status da loja'),
+  })
 
-    const store = storeData?.store
-
-    if (!store || store?.is_open_override) {
-      return null
-    }
+  useEffect(() => {
+    if (!store || store?.is_open_override) return
 
     const now = new Date()
-    const today = format(now, 'EEEE').toLowerCase() // Pega o dia da semana em inglês
-
-    // Filtrar o horário de hoje
+    const today = format(now, 'EEEE').toLowerCase()
     const todayHours = store?.store_hours.find(
       (hour: any) => hour.day_of_week === today,
     )
-
-    if (!todayHours) {
-      return null // Se não houver horário cadastrado para hoje, não faz nada
-    }
+    if (!todayHours) return
 
     const openTime = parse(todayHours.open_time, 'HH:mm:ss', now)
     const closeTime = parse(todayHours.close_time, 'HH:mm:ss', now)
-
-    // Verifica se a loja deveria estar aberta ou fechada
     const shouldBeOpen = isAfter(now, openTime) && isBefore(now, closeTime)
 
-    // Se o status atual estiver incorreto, atualiza no Supabase
     if (shouldBeOpen !== store?.is_open) {
-      const { error: updateError } = await supabase
-        .from('stores')
-        .update({ is_open: shouldBeOpen })
-        .eq('id', store?.id)
-
-      if (updateError) {
-        console.error('Erro ao atualizar status da loja:', updateError)
-      }
+      updateStoreStatus(shouldBeOpen)
     }
+  }, [store, updateStoreStatus])
 
-    return null
-  } catch (error) {
-    console.error('Erro ao verificar status da loja:', error)
-    return null
-  }
+  return null
 }
