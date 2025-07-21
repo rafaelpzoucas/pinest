@@ -8,7 +8,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-export default function HeaderLoading() {
+export default function CategoriesLoading() {
   return (
     <>
       <div className="lg:hidden w-full">
@@ -21,25 +21,25 @@ export default function HeaderLoading() {
             <CarouselItem className="flex-[0_0_27.5%]">
               <div className="flex flex-col items-center justify-center gap-2">
                 <Skeleton className="w-14 h-14 rounded-full" />
-                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/5 h-3" />
               </div>
             </CarouselItem>
             <CarouselItem className="flex-[0_0_27.5%]">
               <div className="flex flex-col items-center justify-center gap-2">
                 <Skeleton className="w-14 h-14 rounded-full" />
-                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/5 h-3" />
               </div>
             </CarouselItem>
             <CarouselItem className="flex-[0_0_27.5%]">
               <div className="flex flex-col items-center justify-center gap-2">
                 <Skeleton className="w-14 h-14 rounded-full" />
-                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/5 h-3" />
               </div>
             </CarouselItem>
             <CarouselItem className="flex-[0_0_27.5%]">
               <div className="flex flex-col items-center justify-center gap-2">
                 <Skeleton className="w-14 h-14 rounded-full" />
-                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/5 h-3" />
               </div>
             </CarouselItem>
           </CarouselContent>

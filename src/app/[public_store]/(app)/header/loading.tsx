@@ -12,9 +12,10 @@ export default function HeaderLoading() {
         <div className="flex flex-col items-center lg:flex-row gap-4 w-full max-w-sm">
           <Skeleton className="w-24 h-24 lg:w-16 lg:h-16 rounded-full" />
 
-          <div className="flex flex-col items-center lg:items-start w-full max-w-72 gap-1">
-            <Skeleton className="w-40 h-5" />
-            <Skeleton className="w-60 h-3" />
+          <div className="flex flex-col items-center lg:items-start w-full max-w-72 gap-2">
+            <Skeleton className="w-60 h-5" />
+            <Skeleton className="w-40 h-3" />
+            <Skeleton className="w-28 h-3" />
           </div>
         </div>
 

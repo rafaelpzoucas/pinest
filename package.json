@@ -46,6 +46,8 @@
     "@stripe/connect-js": "^3.3.6",
     "@stripe/react-connect-js": "^3.3.8",
     "@supabase/ssr": "^0.5.2",
+    "@tanstack/react-query": "^5.83.0",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-table": "^8.20.5",
     "@types/mdx": "^2.0.13",
     "@vercel/edge-config": "^1.4.0",

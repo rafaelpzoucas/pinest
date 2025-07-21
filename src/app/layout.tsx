@@ -1,9 +1,6 @@
-import { Toaster } from '@/components/ui/sonner'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Inter } from 'next/font/google'
-import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
+import Providers from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,13 +14,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
-        <TooltipProvider>
-          <NuqsAdapter>{children}</NuqsAdapter>
-        </TooltipProvider>
-
-        <Toaster />
-
-        <SpeedInsights />
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

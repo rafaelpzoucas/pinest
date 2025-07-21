@@ -1,30 +1,46 @@
+'use client'
+
+import {
+  readCustomerByPhone,
+  readDeliveryData,
+} from '@/actions/client/app/public_store/header'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
-import { StoreType } from '@/models/store'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import { Pyramid } from 'lucide-react'
-import { readCustomerCached } from '../../account/actions'
 import { PublicStoreNavigation } from '../../navigation'
 import { SearchSheet } from '../search/search-sheet'
-import { readOwnShipping } from './actions'
+import HeaderLoading from './loading'
 import { Status } from './status'
 
-export async function Header({
-  store,
-  cart,
-}: {
-  store?: StoreType
-  cart: CartProductType[]
-}) {
-  const [[customerData], [shippingData]] = await Promise.all([
-    await readCustomerCached({}),
-    await readOwnShipping(),
-  ])
+export function Header() {
+  const { store } = usePublicStore()
 
-  const customer = customerData?.customer
-  const shipping = shippingData?.shipping
   const storeNiche = store && store?.market_niches[0]
+
+  const { data: customerData } = useQuery({
+    queryKey: ['customer', store?.id],
+    queryFn: () => readCustomerByPhone(store),
+    enabled: !!store,
+  })
+
+  const { data: deliveryData, isLoading: isDeliveryDataLoading } = useQuery({
+    queryKey: ['delivery', store?.id],
+    queryFn: () => readDeliveryData(store),
+    enabled: !!store,
+  })
+
+  const delivery = deliveryData?.delivery
+  const customer = customerData?.customer
+  const cart: CartProductType[] = []
+
+  if (!store) {
+    return <HeaderLoading />
+  }
 
   return (
     <header className="flex items-center justify-center w-full">
@@ -49,11 +65,16 @@ export async function Header({
                 </p>
               )}
 
-              {shipping && shipping.status && (
-                <p className="text-xs mt-2 text-muted-foreground">
-                  Entrega: {shipping.delivery_time}min &bull;{' '}
-                  {formatCurrencyBRL(shipping.price)}
-                </p>
+              {isDeliveryDataLoading ? (
+                <Skeleton className="h-4 w-40 mt-2" />
+              ) : (
+                delivery &&
+                delivery.status && (
+                  <p className="text-xs mt-2 text-muted-foreground">
+                    Entrega: {delivery.delivery_time}min &bull;{' '}
+                    {formatCurrencyBRL(delivery.price)}
+                  </p>
+                )
               )}
             </div>
 

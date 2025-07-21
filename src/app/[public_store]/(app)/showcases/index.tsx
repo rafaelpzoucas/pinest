@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Carousel,
   CarouselContent,
@@ -8,17 +10,27 @@ import {
 
 import { ProductCard } from '@/components/product-card'
 
-import { ShowcaseType } from '@/models/showcase'
-import { StoreType } from '@/models/store'
+import { readShowcasesData } from '@/actions/client/app/public_store/showcases'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import { Benefits } from '../benefits'
+import ShowcasesLoading from './loading'
 
-export async function Showcases({
-  showcases,
-  store,
-}: {
-  showcases?: ShowcaseType[]
-  store?: StoreType
-}) {
+export function Showcases() {
+  const { store } = usePublicStore()
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['showcases'],
+    queryFn: () => readShowcasesData(store?.id),
+    enabled: !!store,
+  })
+
+  if (!store || isLoading) {
+    return <ShowcasesLoading />
+  }
+
+  const showcases = data?.showcases
+
   if (!showcases || showcases.length === 0) {
     return <Benefits />
   }

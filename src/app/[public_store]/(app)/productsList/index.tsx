@@ -1,15 +1,27 @@
-import { ProductCard } from '@/components/product-card'
-import { CategoryType } from '@/models/category'
-import { StoreType } from '@/models/store'
-import { Box, Boxes } from 'lucide-react'
+'use client'
 
-export async function ProductsList({
-  categories,
-  store,
-}: {
-  categories?: CategoryType[]
-  store?: StoreType
-}) {
+import { readCategoriesData } from '@/actions/client/app/public_store/categories'
+import { ProductCard } from '@/components/product-card'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
+import { Box, Boxes } from 'lucide-react'
+import ProductsListLoading from './loading'
+
+export function ProductsList() {
+  const { store } = usePublicStore()
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => readCategoriesData(store?.id),
+    enabled: !!store,
+  })
+
+  const categories = data?.categories
+
+  if (!store || isLoading) {
+    return <ProductsListLoading />
+  }
+
   if (!categories) {
     return (
       <div
@@ -23,45 +35,50 @@ export async function ProductsList({
   }
 
   return (
-    <section className="flex flex-col gap-8 pt-4 pb-16">
-      {categories && categories.length > 0 ? (
-        categories.map((category) => {
-          if (category.products.length === 0) {
-            return null
-          }
+    <>
+      {/* <ProductsListLoading /> */}
+      <section className="flex flex-col gap-8 pt-4 pb-16">
+        {categories && categories.length > 0 ? (
+          categories.map((category) => {
+            if (category.products.length === 0) {
+              return null
+            }
 
-          return (
-            <div
-              id={category.name.toLowerCase()}
-              className="flex flex-col"
-              key={category.id}
-            >
-              <div className="py-4 bg-background">
-                <h1 className="text-xl uppercase font-bold">{category.name}</h1>
-              </div>
+            return (
+              <div
+                id={category.name.toLowerCase()}
+                className="flex flex-col"
+                key={category.id}
+              >
+                <div className="py-4 bg-background">
+                  <h1 className="text-xl uppercase font-bold">
+                    {category.name}
+                  </h1>
+                </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                {category.products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    variant={'featured'}
-                    data={product}
-                    storeSubdomain={store?.store_subdomain}
-                    className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
-                  />
-                ))}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                  {category.products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      variant={'featured'}
+                      data={product}
+                      storeSubdomain={store?.store_subdomain}
+                      className="hover:scale-105 focus:scale-105 delay-300 transition-all duration-300"
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          )
-        })
-      ) : (
-        <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted">
-          <Box className="w-20 h-20" />
-          <p className="text-center text-muted-foreground">
-            Não encontramos nenhum produto
-          </p>
-        </div>
-      )}
-    </section>
+            )
+          })
+        ) : (
+          <div className="flex flex-col gap-4 items-center justify-center max-w-xs mx-auto text-muted">
+            <Box className="w-20 h-20" />
+            <p className="text-center text-muted-foreground">
+              Não encontramos nenhum produto
+            </p>
+          </div>
+        )}
+      </section>
+    </>
   )
 }
