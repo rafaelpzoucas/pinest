@@ -174,7 +174,7 @@ export function CartProduct({
           </Select>
           <Link
             href={createPath(
-              `/products/${product.product_url}?cart_product_id=${cartProduct.id}`,
+              `/${product.product_url}?cart_product_id=${cartProduct.id}`,
               storeSubdomain,
             )}
             className={buttonVariants({ variant: 'outline', size: 'icon' })}

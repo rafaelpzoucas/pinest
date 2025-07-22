@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 
-export default async function CartPageLoading() {
+export default function CartPageLoading() {
   return (
     <main className="pb-40">
       <Header title="Finalizar compra" />

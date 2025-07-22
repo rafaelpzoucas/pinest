@@ -2,7 +2,7 @@ import { Header } from '@/components/store-header'
 
 import { Skeleton } from '@/components/ui/skeleton'
 
-export default async function ProductPageLoading() {
+export default function ProductPageLoading() {
   return (
     <main className="flex flex-col items-center justify-center gap-6">
       <Header cartProducts={[]} store={null} customer={null} />
@@ -14,7 +14,7 @@ export default async function ProductPageLoading() {
           </div>
 
           <section className="mt-6 lg:mt-0 space-y-6 lg:space-y-12 w-full">
-            <div className="lg:flex flex-col-reverse gap-4">
+            <div className="lg:flex flex-col-reverse gap-4 space-y-4">
               <Skeleton className="w-32 h-5 lg:h-[30px]" />
               <Skeleton className="w-96 h-[18px] lg:h-5" />
             </div>

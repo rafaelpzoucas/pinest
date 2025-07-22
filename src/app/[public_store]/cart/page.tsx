@@ -1,23 +1,32 @@
+'use client'
+
+import { readCustomer } from '@/actions/client/app/public_store/cart/customer'
+import { readStoreData } from '@/actions/client/app/public_store/readStore'
 import { Header } from '@/components/store-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
+import { useCartStore } from '@/stores/cartStore'
+import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { readCustomerCached } from '../account/actions'
-import { readStoreCached } from '../actions'
-import { readCartCached } from './actions'
 import { CartProducts } from './cart-products'
+import CartPageLoading from './loading'
 
-export default async function CartPage() {
-  const [[customerData], [storeData], [cartData]] = await Promise.all([
-    readCustomerCached({}),
-    readStoreCached(),
-    readCartCached(),
-  ])
+export default function CartPage() {
+  const { cart } = useCartStore()
+
+  const { data: storeData, isLoading: isLoadingStore } = useQuery({
+    queryKey: ['store'],
+    queryFn: () => readStoreData(),
+  })
+
+  const { data: customerData, isLoading: isLoadingCustomer } = useQuery({
+    queryKey: ['customer'],
+    queryFn: () => readCustomer({}),
+  })
 
   const store = storeData?.store
-  const cart = cartData?.cart
   const customer = customerData?.customer
 
   const productsPrice = cart
@@ -37,6 +46,10 @@ export default async function CartPage() {
   const finishPurchaseLink = !customer
     ? createPath('/account?checkout=true', store?.store_subdomain)
     : createPath('/checkout?step=pickup', store?.store_subdomain)
+
+  if (isLoadingStore || isLoadingCustomer) {
+    return <CartPageLoading />
+  }
 
   return (
     <main className="w-full space-y-4 pb-40">
