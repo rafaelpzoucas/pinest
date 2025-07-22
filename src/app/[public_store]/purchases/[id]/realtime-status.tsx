@@ -7,7 +7,7 @@ import { formatDistanceToNowDate } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
 import { addMinutes, format } from 'date-fns'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { StatusKey } from './status'
@@ -44,6 +44,7 @@ export function RealtimeStatus({ purchase }: { purchase: PurchaseType }) {
   const isShipped = purchase.status === 'shipped'
   const isDelivered = purchase.status === 'delivered'
   const isReadyToPickup = purchase.status === 'readyToPickup'
+  const isCancelled = purchase.status === 'cancelled'
 
   const deliveryTime = addMinutes(
     purchase.created_at,
@@ -52,12 +53,19 @@ export function RealtimeStatus({ purchase }: { purchase: PurchaseType }) {
 
   return (
     <Card className="flex flex-col items-start gap-2 p-4 space-y-4">
-      {isDelivered ? (
+      {isCancelled && (
+        <div className="flex flex-row gap-2 text-destructive">
+          <XCircle />
+          <h2 className="text-xl font-bold">Pedido cancelado.</h2>
+        </div>
+      )}
+      {isDelivered && (
         <div className="flex flex-row gap-2">
           <CheckCircle2 />
           <h2 className="text-xl font-bold">Seu pedido chegou!</h2>
         </div>
-      ) : (
+      )}
+      {!isCancelled && !isDelivered && (
         <div>
           <span>Previsão de entrega</span>
           <h2 className="text-xl">
@@ -66,16 +74,18 @@ export function RealtimeStatus({ purchase }: { purchase: PurchaseType }) {
           </h2>
         </div>
       )}
-
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row w-full space-x-2">
-          <LoadingBar stop={isAccepted} isLoading={!isAccepted} />
           <LoadingBar
-            stop={isShipped || isDelivered || isReadyToPickup}
+            stop={isAccepted || isCancelled}
+            isLoading={!isAccepted}
+          />
+          <LoadingBar
+            stop={isShipped || isDelivered || isReadyToPickup || isCancelled}
             isLoading={isPreparing}
           />
           <LoadingBar
-            stop={isDelivered}
+            stop={isDelivered || isCancelled}
             isLoading={isShipped || isReadyToPickup}
           />
         </div>

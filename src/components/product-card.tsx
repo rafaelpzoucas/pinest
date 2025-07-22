@@ -86,8 +86,8 @@ export function ProductCard({
   const rootPath = getRootPath(storeSubdomain)
 
   const productLink = rootPath
-    ? `/${rootPath}/products/${data.product_url}`
-    : `/products/${data.product_url}`
+    ? `/${rootPath}/${data.product_url}`
+    : `/${data.product_url}`
 
   return (
     <Link

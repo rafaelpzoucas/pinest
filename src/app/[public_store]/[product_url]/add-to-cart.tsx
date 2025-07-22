@@ -27,7 +27,7 @@ import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
-import { addToCart } from '../../cart/actions'
+import { addToCart } from '../cart/actions'
 import { ExtrasSection } from './extras'
 
 const formSchema = z.object({

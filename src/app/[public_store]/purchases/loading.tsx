@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ChevronRight } from 'lucide-react'
 
-export default async function PurchasesPageLoading() {
+export default function PurchasesPageLoading() {
   return (
     <div className="space-y-4">
       <Header title="Minhas compras" />
