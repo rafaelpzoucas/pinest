@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "sandubadaleyla.com.br"
+        }
+      ],
+      "destination": "/sandubadaleyla/:path*"
+    }
+  ]
+}
