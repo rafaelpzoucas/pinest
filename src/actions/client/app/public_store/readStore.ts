@@ -1,64 +1,73 @@
 import { createClient } from '@/lib/supabase/client'
 import { StoreType } from '@/models/store'
 
+// Hosts que podem ser usados em ambiente de staging ou dev
 export const STAGING_HOSTS = [
   'localhost:3000',
   'staging.pinest.com.br',
   'staging-pinest.vercel.app',
   'pinest.onrender.com',
 ]
+
 export const ROOT_DOMAIN = 'pinest.com.br'
 
-function isTrustedHost(host: string): boolean {
-  return (
-    STAGING_HOSTS.includes(host) ||
-    host.endsWith(`.${ROOT_DOMAIN}`) ||
-    host === ROOT_DOMAIN
-  )
+function isStagingHost(host: string): boolean {
+  return STAGING_HOSTS.includes(host)
 }
 
-function extractSubdomainClient(): string | null {
+function isSubdomainOfRoot(host: string): boolean {
+  return host.endsWith(`.${ROOT_DOMAIN}`)
+}
+
+async function extractStoreByHost(): Promise<StoreType | null> {
   if (typeof window === 'undefined') return null
 
   const host = window.location.host
-  const pathname = window.location.pathname
-
-  if (!isTrustedHost(host)) {
-    console.warn('Untrusted host:', host)
-    return null
-  }
-
-  const isStaging = STAGING_HOSTS.includes(host)
-
-  if (!isStaging && host.endsWith(ROOT_DOMAIN)) {
-    const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
-    if (parts.length === 1) return parts[0]
-  }
-
-  const segments = pathname.split('/').filter(Boolean)
-  if (segments.length > 0) return segments[0]
-
-  return null
-}
-
-export async function readStoreData() {
   const supabase = createClient()
-  const subdomain = extractSubdomainClient()
 
-  if (!subdomain) {
-    console.error('Nenhuma loja identificada.')
-    return null
+  if (isStagingHost(host) || isSubdomainOfRoot(host)) {
+    const subdomain = host.replace(`.${ROOT_DOMAIN}`, '').split('.')[0]
+
+    if (!subdomain) {
+      console.warn('Subdomínio inválido:', host)
+      return null
+    }
+
+    const { data: store, error } = await supabase
+      .from('stores')
+      .select(`*, store_hours (*), market_niches (*), addresses (*)`)
+      .eq('store_subdomain', subdomain)
+      .single()
+
+    if (error) {
+      console.error('Erro ao buscar loja por subdomínio:', error)
+      return null
+    }
+
+    return store as StoreType
   }
 
   const { data: store, error } = await supabase
     .from('stores')
     .select(`*, store_hours (*), market_niches (*), addresses (*)`)
-    .eq('store_subdomain', subdomain)
+    .eq('custom_domain', host)
     .single()
 
   if (error) {
-    console.error('Erro ao buscar dados da loja.', error)
+    console.error('Erro ao buscar loja por domínio personalizado:', error)
+    return null
   }
 
-  return { store: store as StoreType }
+  return store as StoreType
+}
+
+export async function readStoreData() {
+  const store = await extractStoreByHost()
+
+  if (!store) {
+    console.error('Nenhuma loja identificada.')
+    return null
+  }
+
+  return { store }
 }
