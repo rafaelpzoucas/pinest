@@ -1,7 +1,8 @@
 import { StoreType } from '@/models/store'
 import { cookies } from 'next/headers'
 import { createServerActionProcedure } from 'zsa'
-import { extractSubdomain } from './helpers'
+
+import { extractSubdomainOrDomain } from './helpers'
 import { createClient } from './supabase/server'
 
 export const authenticatedProcedure = createServerActionProcedure().handler(
@@ -75,10 +76,10 @@ export const cashProcedure = createServerActionProcedure(
 export const storeProcedure = createServerActionProcedure().handler(
   async () => {
     const supabase = createClient()
-    const subdomain = extractSubdomain()
+    const subdomainOrDomain = extractSubdomainOrDomain()
     const cookieStore = cookies()
 
-    if (!subdomain) {
+    if (!subdomainOrDomain) {
       console.error('Nenhuma loja identificada.')
       return null
     }
@@ -86,7 +87,9 @@ export const storeProcedure = createServerActionProcedure().handler(
     const { data: store, error } = await supabase
       .from('stores')
       .select(`*, store_hours (*), market_niches (*), addresses (*)`)
-      .eq('store_subdomain', subdomain)
+      .or(
+        `store_subdomain.eq.${subdomainOrDomain},custom_domain.eq.${subdomainOrDomain}`,
+      )
       .single()
 
     if (error) {

@@ -1,3 +1,4 @@
+import { createClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 
 export const STAGING_HOSTS = [
@@ -6,34 +7,59 @@ export const STAGING_HOSTS = [
   'staging-pinest.vercel.app',
   'pinest.onrender.com',
 ]
+
 export const ROOT_DOMAIN = 'pinest.com.br'
 
-function isTrustedHost(host: string): boolean {
+function isSubdomainOfRoot(host: string): boolean {
+  return host.endsWith(`.${ROOT_DOMAIN}`)
+}
+
+function isTrustedStagingHost(host: string): boolean {
   return (
     STAGING_HOSTS.includes(host) ||
-    host.endsWith(`.${ROOT_DOMAIN}`) ||
+    isSubdomainOfRoot(host) ||
     host === ROOT_DOMAIN
   )
 }
 
-export function extractSubdomain(): string | null {
+// Agora verificamos também no Supabase se é um domínio customizado registrado
+async function isTrustedHost(host: string): Promise<boolean> {
+  if (isTrustedStagingHost(host)) return true
+
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('custom_domain', host)
+    .maybeSingle()
+
+  return Boolean(data) && !error
+}
+
+export async function extractSubdomainOrDomain(): Promise<string | null> {
   const headersList = headers()
   const host = headersList.get('host') || ''
+  const pathname = headersList.get('x-pathname') || '/'
 
-  if (!isTrustedHost(host)) {
+  const trusted = await isTrustedHost(host)
+  if (!trusted) {
     console.warn('Untrusted host:', host)
     return null
   }
 
-  const pathname = headersList.get('x-pathname') || '/'
+  const isStaging = isTrustedStagingHost(host)
 
-  const isStaging = STAGING_HOSTS.includes(host)
-
-  if (!isStaging && host.endsWith(ROOT_DOMAIN)) {
+  if (!isStaging && isSubdomainOfRoot(host)) {
     const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
-    if (parts.length === 1) return parts[0]
+    if (parts.length === 1) return parts[0] // subdomínio válido
   }
 
+  // Se for domínio customizado, retornamos o próprio host
+  if (!isSubdomainOfRoot(host) && !STAGING_HOSTS.includes(host)) {
+    return host
+  }
+
+  // fallback para rota de pathname, se estiver em staging
   const segments = pathname.split('/').filter(Boolean)
   if (segments.length > 0) return segments[0]
 
