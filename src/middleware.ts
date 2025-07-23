@@ -11,6 +11,7 @@ export function middleware(request: NextRequest) {
 
   const isStaging = STAGING_HOSTS.includes(hostname)
   const isProdHost = hostname.endsWith(`.${ROOT_DOMAIN}`) && !isStaging
+  const isCustomDomain = !hostname.includes(ROOT_DOMAIN) && !isStaging
 
   // Verifica se é rota ignorada
   const shouldIgnore =
@@ -18,6 +19,12 @@ export function middleware(request: NextRequest) {
     /\.(svg|png|jpg|jpeg|gif|webp|ico|js|css|map)$/.test(pathname)
 
   if (shouldIgnore) {
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    })
+  }
+
+  if (isCustomDomain) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     })
