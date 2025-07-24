@@ -37,14 +37,7 @@ export function extractSubdomainOrDomain(): string | null {
   const host = headersList.get('host') || ''
   const pathname = headersList.get('x-pathname') || '/'
 
-  console.log('[extract] host:', host)
-  console.log('[extract] pathname:', pathname)
-
   const normalizedHost = normalizeHost(host)
-  console.log('[extract] normalizedHost:', normalizedHost)
-
-  console.log('[extract] CUSTOM_DOMAIN_MAP:', CUSTOM_DOMAIN_MAP)
-  console.log('[extract] isTrustedHost:', isTrustedHost(host))
 
   if (!isTrustedHost(host)) {
     console.warn('Untrusted host:', host)
@@ -52,7 +45,6 @@ export function extractSubdomainOrDomain(): string | null {
   }
 
   const isStaging = isTrustedStagingHost(host)
-  console.log('[extract] isStaging:', isStaging)
 
   if (!isStaging && isSubdomainOfRoot(host)) {
     const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
@@ -69,7 +61,6 @@ export function extractSubdomainOrDomain(): string | null {
   }
 
   const segments = pathname.split('/').filter(Boolean)
-  console.log('[extract] segments:', segments)
   if (segments.length > 0) return segments[0]
 
   return null

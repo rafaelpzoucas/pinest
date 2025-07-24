@@ -84,8 +84,6 @@ export const storeProcedure = createServerActionProcedure().handler(
       return null
     }
 
-    console.log({ subdomainOrDomain })
-
     const { data: store, error } = await supabase
       .from('stores')
       .select(`*, store_hours (*), market_niches (*), addresses (*)`)
