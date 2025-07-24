@@ -37,20 +37,20 @@ export default function ProductPage() {
   const { store } = usePublicStore()
 
   const { data: productData, isLoading: isLoadingProduct } = useQuery({
-    queryKey: ['product'],
+    queryKey: ['product', productURL],
     queryFn: () => readProductByURL({ productURL, storeId: store?.id }),
     enabled: !!store,
   })
 
   const { data: variationsData } = useQuery({
-    queryKey: ['variations'],
+    queryKey: ['variations', productURL],
     queryFn: () =>
       readProductVariations({ productId: productData?.product.id }),
     enabled: !!store,
   })
 
   const { data: extrasData } = useQuery({
-    queryKey: ['extras'],
+    queryKey: ['extras', productURL],
     queryFn: () => readExtras({ storeId: store?.id }),
     enabled: !!store,
   })
