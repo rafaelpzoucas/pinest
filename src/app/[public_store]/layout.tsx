@@ -44,7 +44,7 @@ export default async function PublicStoreLayout({
   const subdomain =
     params.public_store !== 'undefined'
       ? params.public_store
-      : extractSubdomainOrDomain()
+      : (extractSubdomainOrDomain() as string)
 
   const store = (await get(`store_${subdomain}`)) as any
 
