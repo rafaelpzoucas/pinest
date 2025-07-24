@@ -64,6 +64,12 @@ export function middleware(request: NextRequest) {
   // produção com subdomínio: shop.example.com → /shop/*
   if (isProdHost) {
     const subdomain = hostname.replace(`.${ROOT_DOMAIN}`, '').split('.')[0]
+
+    if (subdomain === 'www') {
+      console.log('🔍 IGNORED SUBDOMAIN: www')
+      return NextResponse.next({ request: { headers: requestHeaders } })
+    }
+
     const url = request.nextUrl.clone()
     url.pathname = `/${subdomain}${pathname === '/' ? '' : pathname}`
 
