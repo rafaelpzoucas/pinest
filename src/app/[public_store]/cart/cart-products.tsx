@@ -8,7 +8,7 @@ export function CartProducts({
   store,
 }: {
   cartProducts?: CartProductType[]
-  store?: StoreType
+  store?: StoreType | null
 }) {
   return (
     <div className="lg:h-[370px] p-1 pr-2">

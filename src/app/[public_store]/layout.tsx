@@ -4,7 +4,9 @@ import { extractSubdomainOrDomain } from '@/lib/helpers'
 import { get } from '@vercel/edge-config'
 import { Metadata } from 'next'
 import React from 'react'
+import { readPublicStoreData } from './(app)/actions'
 import { CartInitializer } from './cart/cart-initializer'
+import { StoreHydrator } from './hydrator'
 import { MobileNavigation } from './mobile-navigation'
 import NotFound from './not-found'
 
@@ -18,7 +20,10 @@ export async function generateMetadata({
 }: {
   params: { public_store: string }
 }): Promise<Metadata> {
-  const sub = params.public_store
+  const sub =
+    params.public_store !== 'undefined'
+      ? params.public_store
+      : (extractSubdomainOrDomain() as string)
 
   const store = (await get(`store_${sub}`)) as any
 
@@ -41,6 +46,8 @@ export default async function PublicStoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
+  const [publicStoreData] = await readPublicStoreData()
+
   const subdomain =
     params.public_store !== 'undefined'
       ? params.public_store
@@ -77,6 +84,7 @@ export default async function PublicStoreLayout({
 
             <CartInitializer />
             <MobileNavigation storeSubdomain={subdomain} />
+            <StoreHydrator publicStoreData={publicStoreData} />
           </div>
         </div>
       </ThemeDataProvider>

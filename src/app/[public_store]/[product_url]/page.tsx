@@ -16,9 +16,9 @@ import {
   readProductByURL,
   readProductVariations,
 } from '@/actions/client/app/public_store/products/product_url'
-import { readStoreData } from '@/actions/client/app/public_store/readStore'
 import { Header } from '@/components/store-header'
 import { useCartStore } from '@/stores/cartStore'
+import { usePublicStore } from '@/stores/public-store'
 import { useQuery } from '@tanstack/react-query'
 import { useParams, useSearchParams } from 'next/navigation'
 import { ProductInfo } from './info'
@@ -34,12 +34,7 @@ export default function ProductPage() {
 
   const productURL = params.product_url as string
 
-  const { data: storeData, isLoading: isLoadingStore } = useQuery({
-    queryKey: ['store'],
-    queryFn: readStoreData,
-  })
-
-  const store = storeData?.store
+  const { store } = usePublicStore()
 
   const { data: productData, isLoading: isLoadingProduct } = useQuery({
     queryKey: ['product'],
@@ -47,14 +42,14 @@ export default function ProductPage() {
     enabled: !!store,
   })
 
-  const { data: variationsData, isLoading: isLoadingVariations } = useQuery({
+  const { data: variationsData } = useQuery({
     queryKey: ['variations'],
     queryFn: () =>
       readProductVariations({ productId: productData?.product.id }),
     enabled: !!store,
   })
 
-  const { data: extrasData, isLoading: isLoadingExtras } = useQuery({
+  const { data: extrasData } = useQuery({
     queryKey: ['extras'],
     queryFn: () => readExtras({ storeId: store?.id }),
     enabled: !!store,
@@ -69,7 +64,7 @@ export default function ProductPage() {
 
   const productImages = product?.product_images || []
 
-  if (!store || isLoadingStore || isLoadingProduct) {
+  if (!store || isLoadingProduct) {
     return <ProductPageLoading />
   }
 
