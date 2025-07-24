@@ -18,7 +18,10 @@ export async function generateMetadata({
 }: {
   params: { public_store: string }
 }): Promise<Metadata> {
-  const sub = params.public_store
+  const sub =
+    params.public_store !== 'undefined'
+      ? params.public_store
+      : (extractSubdomainOrDomain() as string)
 
   const store = (await get(`store_${sub}`)) as any
 
