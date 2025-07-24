@@ -80,11 +80,9 @@ export const storeProcedure = createServerActionProcedure().handler(
     const cookieStore = cookies()
 
     if (!subdomainOrDomain) {
-      console.error('Nenhuma loja identificada.')
+      console.error('Nenhuma loja identificada.', subdomainOrDomain)
       return null
     }
-
-    console.log(subdomainOrDomain)
 
     const { data: store, error } = await supabase
       .from('stores')
