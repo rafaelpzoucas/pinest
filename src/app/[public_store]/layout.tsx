@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import ThemeDataProvider from '@/context/theme-data-provider'
+import { extractSubdomainOrDomain } from '@/lib/helpers'
 import { get } from '@vercel/edge-config'
 import { Metadata } from 'next'
 import React from 'react'
@@ -40,9 +41,14 @@ export default async function PublicStoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
-  const subdomain = params.public_store
+  const subdomain =
+    params.public_store !== 'undefined'
+      ? params.public_store
+      : extractSubdomainOrDomain()
 
   const store = (await get(`store_${subdomain}`)) as any
+
+  console.log({ store, subdomain })
 
   if (!store) {
     return <NotFound />
