@@ -37,27 +37,39 @@ export function extractSubdomainOrDomain(): string | null {
   const host = headersList.get('host') || ''
   const pathname = headersList.get('x-pathname') || '/'
 
+  console.log('[extract] host:', host)
+  console.log('[extract] pathname:', pathname)
+
+  const normalizedHost = normalizeHost(host)
+  console.log('[extract] normalizedHost:', normalizedHost)
+
+  console.log('[extract] CUSTOM_DOMAIN_MAP:', CUSTOM_DOMAIN_MAP)
+  console.log('[extract] isTrustedHost:', isTrustedHost(host))
+
   if (!isTrustedHost(host)) {
     console.warn('Untrusted host:', host)
     return null
   }
 
-  const normalizedHost = normalizeHost(host)
   const isStaging = isTrustedStagingHost(host)
+  console.log('[extract] isStaging:', isStaging)
 
-  // Se for subdomínio do domínio raiz (ex: loja1.pinest.com.br)
   if (!isStaging && isSubdomainOfRoot(host)) {
     const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
+    console.log('[extract] subdomain parts:', parts)
     if (parts.length === 1) return parts[0]
   }
 
-  // Se for domínio customizado
   if (isCustomDomainMapped(host)) {
+    console.log(
+      '[extract] customDomain match:',
+      CUSTOM_DOMAIN_MAP[normalizedHost],
+    )
     return CUSTOM_DOMAIN_MAP[normalizedHost]
   }
 
-  // Se for um host de staging, tentar pegar o slug da URL (ex: /loja1/...)
   const segments = pathname.split('/').filter(Boolean)
+  console.log('[extract] segments:', segments)
   if (segments.length > 0) return segments[0]
 
   return null
