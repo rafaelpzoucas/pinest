@@ -6,9 +6,14 @@ import { normalizeHost } from './lib/utils'
 const IGNORED_PATHS = ['/_next', '/api', '/favicon.ico', '/admin', '/sw.js']
 
 // mapeamento de domínios customizados para slugs de loja
-const CUSTOM_DOMAIN_MAP: Record<string, string> = {
+export const CUSTOM_DOMAIN_MAP: Record<string, string> = {
   'sandubadaleyla.com.br': 'sandubadaleyla',
   // adicione outros domínios customizados aqui
+}
+
+export function isCustomDomainMapped(host: string): boolean {
+  const normalizedHost = normalizeHost(host)
+  return Object.prototype.hasOwnProperty.call(CUSTOM_DOMAIN_MAP, normalizedHost)
 }
 
 export function middleware(request: NextRequest) {
@@ -17,14 +22,9 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', pathname)
 
-  const normalizedHost = normalizeHost(hostname)
-
   const isStaging = STAGING_HOSTS.includes(hostname)
   const isProdHost = hostname.endsWith(`.${ROOT_DOMAIN}`) && !isStaging
-  const isCustomDomain = Object.prototype.hasOwnProperty.call(
-    CUSTOM_DOMAIN_MAP,
-    normalizedHost,
-  )
+  const isCustomDomain = isCustomDomainMapped(hostname)
 
   // ignorar assets, API e paths estáticos
   const shouldIgnore =
