@@ -215,3 +215,7 @@ export const createPath = (
   if (!rootPath) return path
   return `/${rootPath}${path}`
 }
+
+export function normalizeHost(hostname: string): string {
+  return hostname.startsWith('www.') ? hostname.slice(4) : hostname
+}

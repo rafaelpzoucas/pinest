@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
+import { normalizeHost } from './utils'
 
 export const STAGING_HOSTS = [
   'localhost:3000',
@@ -56,7 +57,8 @@ export async function extractSubdomainOrDomain(): Promise<string | null> {
 
   // Se for domínio customizado, retornamos o próprio host
   if (!isSubdomainOfRoot(host) && !STAGING_HOSTS.includes(host)) {
-    return host
+    const normalizedHost = normalizeHost(host)
+    return normalizeHost(normalizedHost)
   }
 
   // fallback para rota de pathname, se estiver em staging
