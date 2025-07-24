@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { CUSTOM_DOMAIN_MAP } from '@/middleware'
 import { headers } from 'next/headers'
 import { normalizeHost } from './utils'
 
@@ -23,45 +23,40 @@ function isTrustedStagingHost(host: string): boolean {
   )
 }
 
-// Agora verificamos também no Supabase se é um domínio customizado registrado
-async function isTrustedHost(host: string): Promise<boolean> {
-  if (isTrustedStagingHost(host)) return true
-
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('stores')
-    .select('id')
-    .eq('custom_domain', host)
-    .maybeSingle()
-
-  return Boolean(data) && !error
+function isCustomDomainMapped(host: string): boolean {
+  const normalizedHost = normalizeHost(host)
+  return Object.prototype.hasOwnProperty.call(CUSTOM_DOMAIN_MAP, normalizedHost)
 }
 
-export async function extractSubdomainOrDomain(): Promise<string | null> {
+function isTrustedHost(host: string): boolean {
+  return isTrustedStagingHost(host) || isCustomDomainMapped(host)
+}
+
+export function extractSubdomainOrDomain(): string | null {
   const headersList = headers()
   const host = headersList.get('host') || ''
   const pathname = headersList.get('x-pathname') || '/'
 
-  const trusted = await isTrustedHost(host)
-  if (!trusted) {
+  if (!isTrustedHost(host)) {
     console.warn('Untrusted host:', host)
     return null
   }
 
+  const normalizedHost = normalizeHost(host)
   const isStaging = isTrustedStagingHost(host)
 
+  // Se for subdomínio do domínio raiz (ex: loja1.pinest.com.br)
   if (!isStaging && isSubdomainOfRoot(host)) {
     const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
-    if (parts.length === 1) return parts[0] // subdomínio válido
+    if (parts.length === 1) return parts[0]
   }
 
-  // Se for domínio customizado, retornamos o próprio host
-  if (!isSubdomainOfRoot(host) && !STAGING_HOSTS.includes(host)) {
-    const normalizedHost = normalizeHost(host)
-    return normalizeHost(normalizedHost)
+  // Se for domínio customizado
+  if (isCustomDomainMapped(host)) {
+    return CUSTOM_DOMAIN_MAP[normalizedHost]
   }
 
-  // fallback para rota de pathname, se estiver em staging
+  // Se for um host de staging, tentar pegar o slug da URL (ex: /loja1/...)
   const segments = pathname.split('/').filter(Boolean)
   if (segments.length > 0) return segments[0]
 
