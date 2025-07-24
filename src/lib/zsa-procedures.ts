@@ -76,13 +76,15 @@ export const cashProcedure = createServerActionProcedure(
 export const storeProcedure = createServerActionProcedure().handler(
   async () => {
     const supabase = createClient()
-    const subdomainOrDomain = await extractSubdomainOrDomain()
+    const subdomainOrDomain = extractSubdomainOrDomain()
     const cookieStore = cookies()
 
     if (!subdomainOrDomain) {
       console.error('Nenhuma loja identificada.', subdomainOrDomain)
       return null
     }
+
+    console.log({ subdomainOrDomain })
 
     const { data: store, error } = await supabase
       .from('stores')
