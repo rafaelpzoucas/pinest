@@ -13,29 +13,21 @@ const CUSTOM_DOMAIN_MAP: Record<string, string> = {
 export function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl
 
-  // DEBUG: informações da requisição
-  console.log('🔍 MIDDLEWARE:', {
-    hostname,
-    pathname,
-    userAgent: request.headers.get('user-agent')?.slice(0, 50),
-  })
-
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', pathname)
+
+  function normalizeHost(hostname: string): string {
+    return hostname.startsWith('www.') ? hostname.slice(4) : hostname
+  }
+
+  const normalizedHost = normalizeHost(hostname)
 
   const isStaging = STAGING_HOSTS.includes(hostname)
   const isProdHost = hostname.endsWith(`.${ROOT_DOMAIN}`) && !isStaging
   const isCustomDomain = Object.prototype.hasOwnProperty.call(
     CUSTOM_DOMAIN_MAP,
-    hostname,
+    normalizedHost,
   )
-
-  console.log('🔍 CONDITIONS:', {
-    isStaging,
-    isProdHost,
-    isCustomDomain,
-    ROOT_DOMAIN,
-  })
 
   // ignorar assets, API e paths estáticos
   const shouldIgnore =
@@ -43,7 +35,6 @@ export function middleware(request: NextRequest) {
     /\.(svg|png|jpg|jpeg|gif|webp|ico|js|css|map)$/.test(pathname)
 
   if (shouldIgnore) {
-    console.log('🔍 IGNORED PATH:', pathname)
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
@@ -53,11 +44,6 @@ export function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = `/${storeSlug}${pathname === '/' ? '' : pathname}`
 
-    console.log('🔍 CUSTOM DOMAIN REWRITE:', {
-      from: `${hostname}${pathname}`,
-      to: url.pathname,
-    })
-
     return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
   }
 
@@ -66,23 +52,15 @@ export function middleware(request: NextRequest) {
     const subdomain = hostname.replace(`.${ROOT_DOMAIN}`, '').split('.')[0]
 
     if (subdomain === 'www') {
-      console.log('🔍 IGNORED SUBDOMAIN: www')
       return NextResponse.next({ request: { headers: requestHeaders } })
     }
 
     const url = request.nextUrl.clone()
     url.pathname = `/${subdomain}${pathname === '/' ? '' : pathname}`
 
-    console.log('🔍 PROD HOST REWRITE:', {
-      from: `${hostname}${pathname}`,
-      to: url.pathname,
-    })
-
     return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
   }
 
-  // fallback: passa adiante sem alteração
-  console.log('🔍 DEFAULT - NextResponse.next()')
   return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
