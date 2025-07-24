@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ROOT_DOMAIN, STAGING_HOSTS } from './lib/helpers'
+import { normalizeHost } from './lib/utils'
 
 // caminhos que não devem passar pelo rewrite
 const IGNORED_PATHS = ['/_next', '/api', '/favicon.ico', '/admin', '/sw.js']
@@ -15,10 +16,6 @@ export function middleware(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', pathname)
-
-  function normalizeHost(hostname: string): string {
-    return hostname.startsWith('www.') ? hostname.slice(4) : hostname
-  }
 
   const normalizedHost = normalizeHost(hostname)
 
