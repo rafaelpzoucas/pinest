@@ -23,7 +23,7 @@ export function PurchaseCard({ purchase }: PurchaseCardPropsType) {
   const customerNames = customer?.name.split(' ')
   const firstName = customerNames && customerNames[0]
 
-  const displayId = purchase.id.substring(0, 4)
+  const displayId = purchase.display_id ?? purchase.id.substring(0, 4)
 
   return (
     <Card key={purchase.id} className={cn('flex flex-col gap-2 p-4')}>

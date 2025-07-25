@@ -26,7 +26,7 @@ export function Info({ purchase }: { purchase?: PurchaseType }) {
 
   const displayId = isIfood
     ? ifoodOrder.displayId
-    : purchase?.id.substring(0, 4)
+    : (purchase?.display_id ?? purchase?.id.substring(0, 4))
 
   if (!purchase) {
     return null

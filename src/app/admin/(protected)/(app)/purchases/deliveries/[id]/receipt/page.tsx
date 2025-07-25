@@ -17,7 +17,7 @@ export default async function PrintKitchenReceipt({
 
   const purchase = purchaseData?.purchase
 
-  const displayId = purchase?.id.substring(0, 4)
+  const displayId = purchase?.display_id ?? purchase?.id.substring(0, 4)
 
   if (!purchase) {
     return null

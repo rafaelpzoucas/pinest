@@ -47,6 +47,7 @@ export type PurchaseItemVariations = {
 
 export type PurchaseType = {
   id: string
+  display_id: number
   created_at: string
   updated_at: string
   customer_id: string

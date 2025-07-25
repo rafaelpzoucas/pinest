@@ -13,7 +13,7 @@ export function buildReceiptKitchenText(
 ) {
   if (!purchase) return ''
 
-  const displayId = purchase.id.substring(0, 4)
+  const displayId = purchase?.display_id ?? purchase.id.substring(0, 4)
   const isIfood = purchase?.is_ifood
 
   const customer = isIfood
@@ -106,7 +106,7 @@ export function buildReceiptDeliveryText(
 
   const displayId = isIfood
     ? ifoodOrder.displayId
-    : purchase?.id.substring(0, 4)
+    : (purchase?.display_id ?? purchase?.id.substring(0, 4))
 
   const deliveryType = {
     TAKEOUT: 'RETIRAR NA LOJA',

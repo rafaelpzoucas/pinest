@@ -19,6 +19,7 @@ export function CheckoutButton({
       toast.error('Ocorreu um erro inesperado.')
     },
   })
+
   async function handleCreatePurchase() {
     const result = createPurchaseSchema.safeParse(values)
 
