@@ -1,6 +1,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
+import { CopyTextButton } from '@/components/copy-text-button'
 import { cn, createPath, formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
@@ -151,9 +152,18 @@ export default async function Summary({
           Você pagará {formatCurrencyBRL(totalPrice)}{' '}
           {PAYMENT_METHODS[paymentKey]?.label}
         </p>
-        <span className="text-xs text-muted-foreground">
-          {PAYMENT_METHODS[paymentKey]?.description}
-        </span>
+        {paymentKey === 'PIX' && store?.pix_key ? (
+          <div>
+            <CopyTextButton
+              textToCopy={store?.pix_key}
+              buttonText="Chave PIX"
+            />
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">
+            {PAYMENT_METHODS[paymentKey]?.description}
+          </span>
+        )}
 
         <Link
           href={createPath(

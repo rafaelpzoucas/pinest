@@ -1,8 +1,10 @@
+import { CopyTextButton } from '@/components/copy-text-button'
 import { ProductCard } from '@/components/product-card'
 import { Header } from '@/components/store-header'
 import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
+import { Banknote, CreditCard, DollarSign } from 'lucide-react'
 import { readStoreCached } from '../../actions'
 import { readPurchaseById } from './actions'
 import { Status, StatusKey } from './status'
@@ -28,6 +30,33 @@ export default async function PurchasePage({
   const shippingPrice = total?.shipping_price ?? 0
   const subtotal = total?.subtotal ?? 0
 
+  const paymentType = purchase?.payment_type
+  const totalAmount = total?.total_amount ?? 0
+  const changeValue = total?.change_value ?? 0
+
+  const PAYMENT_METHODS = {
+    CREDIT: {
+      label: 'com cartão de crédito',
+      description: 'Você poderá pagar com um cartão de crédito.',
+    },
+    DEBIT: {
+      label: 'com cartão de débito',
+      description: 'Você poderá pagar com um cartão de débito.',
+    },
+    CASH: {
+      label: `em dinheiro ${changeValue ? ' - troco para ' + formatCurrencyBRL(changeValue) : ''}`,
+      description: `Você deverá efetuar o pagamento no momento da ${purchase?.type === 'DELIVERY' ? 'entrega.' : 'retirada.'}`,
+    },
+    PIX: {
+      label: 'com PIX',
+      description: store?.pix_key
+        ? `A chave PIX da loja é: ${store?.pix_key}`
+        : 'Solicite a chave PIX para a loja.',
+    },
+  }
+
+  const paymentKey = paymentType as keyof typeof PAYMENT_METHODS
+
   return (
     <section className="flex flex-col items-center justify-center gap-4">
       <Header title="Detalhes do pedido" />
@@ -35,6 +64,29 @@ export default async function PurchasePage({
       {purchase && (
         <div className="flex flex-col gap-2 text-sm w-full max-w-lg">
           <Status purchase={purchase} />
+
+          <Card className="flex flex-col items-center gap-2 text-center py-6">
+            {paymentType === 'CREDIT' && <CreditCard />}
+            {paymentType === 'DEBIT' && <CreditCard />}
+            {paymentType === 'CASH' && <Banknote />}
+            {paymentType === 'PIX' && <DollarSign />}
+            <p>
+              Você pagará {formatCurrencyBRL(totalAmount)}{' '}
+              {PAYMENT_METHODS[paymentKey]?.label}
+            </p>
+            {paymentKey === 'PIX' && store?.pix_key ? (
+              <div>
+                <CopyTextButton
+                  textToCopy={store?.pix_key}
+                  buttonText="Chave PIX"
+                />
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {PAYMENT_METHODS[paymentKey]?.description}
+              </span>
+            )}
+          </Card>
 
           <Card className="p-4">
             <span className="text-muted-foreground">
