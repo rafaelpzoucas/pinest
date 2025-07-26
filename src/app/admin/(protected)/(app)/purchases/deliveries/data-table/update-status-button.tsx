@@ -60,7 +60,6 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
 
   return (
     <Button
-      variant={!accepted ? 'default' : 'secondary'}
       onClick={() =>
         handleUpdateStatus(
           statuses[currentStatus as StatusKey].next_status as string,

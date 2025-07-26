@@ -2,7 +2,7 @@
 
 import { StatusKey } from '@/app/[public_store]/purchases/[id]/status'
 import { Badge } from '@/components/ui/badge'
-import { cn, formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
+import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
@@ -100,7 +100,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
       const cancelled = status === 'cancelled'
 
       return (
-        <Badge className={cn(statuses[status as StatusKey].color)}>
+        <Badge variant="secondary" className="hover:bg-secondary">
           {statuses[status as StatusKey].status}{' '}
           {!cancelled && isPaid ? ' - Pago' : ''}
         </Badge>
