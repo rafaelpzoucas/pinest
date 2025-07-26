@@ -29,6 +29,8 @@ export default async function CloseBill({
 
   const sale = tableData?.table ?? purchaseData?.purchase
 
+  const purchaseDiscount = purchaseData?.purchase.total.discount
+
   const storeCustomers = customersData?.customers
 
   const purchaseItems: PurchaseItemsType[] = sale.purchase_items
@@ -53,6 +55,7 @@ export default async function CloseBill({
         </section>
         <aside className="sticky top-4 w-full">
           <CloseBillForm
+            saleDiscount={purchaseDiscount}
             payments={purchasePayments}
             storeCustomers={storeCustomers}
             isPermissionGranted={permission?.granted}

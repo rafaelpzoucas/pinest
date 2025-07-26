@@ -33,10 +33,12 @@ import { createPaymentSchema } from './schemas'
 
 export function CloseBillForm({
   payments,
+  saleDiscount,
   storeCustomers,
   isPermissionGranted,
 }: {
   payments: PaymentType[]
+  saleDiscount: any
   storeCustomers?: StoreCustomerType[]
   isPermissionGranted: boolean
 }) {
@@ -69,7 +71,8 @@ export function CloseBillForm({
     (sum, item) => sum + item.product_price * item.quantity,
     0,
   )
-  const totalDiscount = payments.reduce((sum, item) => sum + item.discount, 0)
+  const totalDiscount =
+    payments.reduce((sum, item) => sum + item.discount, 0) + saleDiscount
   const totalAmountPaid = payments.reduce((sum, item) => sum + item.amount, 0)
   const remainingAmount = totalAmount - totalDiscount - totalAmountPaid
 
