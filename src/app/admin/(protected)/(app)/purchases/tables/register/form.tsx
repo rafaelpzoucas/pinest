@@ -22,7 +22,7 @@ import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
 import { ArrowLeft, Plus, X } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { useServerAction } from 'zsa-react'
 import { createTable, updateTable } from './actions'
@@ -42,7 +42,6 @@ export function CreateSaleForm({
   extras: ExtraType[]
   table: TableType
 }) {
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   const isEdit = searchParams.get('edit') === 'true'
@@ -62,11 +61,18 @@ export function CreateSaleForm({
   const { execute: executeCreateTable, isPending: isCreatePending } =
     useServerAction(createTable, {
       onError: ({ err }) => {
-        toast(err.message)
+        toast.error(err.message)
       },
     })
   const { execute: executeUpdateTable, isPending: isUpdatePending } =
-    useServerAction(updateTable)
+    useServerAction(updateTable, {
+      onSuccess: () => {
+        toast.success('Mesa atualizada com sucesso!')
+      },
+      onError: () => {
+        toast.error('Ocorreu um erro ao atualizar a mesa.')
+      },
+    })
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createTableSchema>) {
@@ -81,6 +87,8 @@ export function CreateSaleForm({
         console.error({ err })
         return null
       }
+
+      return
     }
 
     const [data, err] = await executeCreateTable(values)

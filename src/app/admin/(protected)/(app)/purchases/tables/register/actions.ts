@@ -171,4 +171,6 @@ export const updateTable = adminProcedure
         updateAmountSoldAndStock(productId, diff),
       ),
     )
+
+    redirect('/admin/purchases?tab=tables')
   })
