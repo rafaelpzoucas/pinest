@@ -1,6 +1,8 @@
 'use server'
 
+import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { CouponFormValues, couponSchema } from './schema'
@@ -27,7 +29,7 @@ export const createCoupon = adminProcedure
       ...input,
       store_id: store.id,
       usage_count: 0,
-      discount: input.discount,
+      discount: stringToNumber(input.discount),
       created_at: new Date().toISOString(),
     })
 
@@ -79,10 +81,12 @@ export const updateCoupon = adminProcedure
 
     const { error } = await supabase
       .from('coupons')
-      .update(input)
+      .update({ ...input, discount: stringToNumber(input.discount) })
       .eq('id', input.id)
 
     if (error) throw new Error('Erro ao atualizar cupom', error)
+
+    revalidatePath('/admin/promotions')
   })
 
 export const deleteCoupon = adminProcedure
