@@ -145,33 +145,6 @@ export const readCart = storeProcedure
 
 export const readCartCached = cache(readCart)
 
-// export async function getCart(storeUrl: string): Promise<{
-//   cart: CartProductType[] | null
-//   cartError: any | null
-// }> {
-//   const supabase = createClient()
-//   const cartSession = await getCartSession(storeUrl)
-
-//   const { data: cart, error: cartError } = await supabase
-//     .from('cart_sessions')
-//     .select(
-//       `
-//         *,
-//         products (
-//          *,
-//          product_images (*)
-//         )
-//       `,
-//     )
-//     .eq('session_id', cartSession?.value)
-
-//   if (cartError) {
-//     console.error(cartError)
-//   }
-
-//   return { cart, cartError }
-// }
-
 export const addToCart = storeProcedure
   .createServerAction()
   .input(z.object({ newItem: z.custom<CartProductType>() }))
