@@ -9,6 +9,7 @@ import { useServerAction } from 'zsa-react'
 import { closeBills } from '../../close/actions'
 
 import { useQueryState } from 'nuqs'
+import { OpenCashSession } from '../../../cash-register/open'
 
 export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
   const [tab] = useQueryState('tab')
@@ -47,11 +48,9 @@ export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
     )
   }
 
-  // if(!isCashOpen) {
-  //   return (
-
-  //   )
-  // }
+  if (!isCashOpen) {
+    return <OpenCashSession />
+  }
 
   return (
     <Link

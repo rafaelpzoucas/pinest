@@ -18,6 +18,7 @@ export const notifyStoreSchema = z.object({
   title: z.string().optional(),
   customerPhone: z.string().optional(),
   url: z.string().optional(),
+  icon: z.string().optional(),
 })
 
 export type NotifyStoreType = z.infer<typeof notifyStoreSchema>

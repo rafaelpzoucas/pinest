@@ -297,10 +297,9 @@ export const createPurchase = storeProcedure
     )
   })
 
-async function nofityStore(values: NotifyStoreType) {
-  const { description, storeId, title, url } = notifyStoreSchema.parse(values)
-
-  console.log(values)
+export async function nofityStore(values: NotifyStoreType) {
+  const { description, storeId, title, url, icon } =
+    notifyStoreSchema.parse(values)
 
   try {
     await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/push/notify`, {
@@ -313,6 +312,7 @@ async function nofityStore(values: NotifyStoreType) {
         title: title ?? 'Novo pedido recebido',
         description: description ?? 'Você recebeu um novo pedido na sua loja!',
         url: url ?? '',
+        icon,
       }),
     })
   } catch (error) {

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     )
   }
 
-  const { description, storeId, title, customerPhone, url } = parsed.data
+  const { description, storeId, title, customerPhone, url, icon } = parsed.data
   const supabase = createClient()
 
   const { data: subscriptions, error: subError } = await supabase
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     try {
       await webpush.sendNotification(
         sub,
-        JSON.stringify({ title, description, url }),
+        JSON.stringify({ title, description, url, icon }),
       )
     } catch (err: any) {
       errors.push({
