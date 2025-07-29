@@ -20,6 +20,7 @@ export type SalesReportType =
 export function SalesReport({ data }: { data: SalesReportType }) {
   const { execute: executePrintReceipt, isPending: isPrinting } =
     useServerAction(printReportReceipt)
+
   return (
     <Card className="h-auto max-w-full break-inside-avoid">
       <CardHeader className="flex flex-row items-center justify-between">

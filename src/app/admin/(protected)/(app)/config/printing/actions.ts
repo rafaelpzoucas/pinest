@@ -251,7 +251,6 @@ export const printReportReceipt = createServerAction()
     }),
   )
   .handler(async ({ input }) => {
-    console.log({ input })
     const [[printerData], [printSettingsData]] = await Promise.all([
       readPrinters(),
       readPrintingSettings(),
@@ -265,7 +264,7 @@ export const printReportReceipt = createServerAction()
     }
 
     for (const printer of printers) {
-      if (printer.sectors.length > 0 && !printer.sectors.includes('balcony')) {
+      if (printer.sectors.length > 0 && !printer.sectors.includes('delivery')) {
         return { success: false, skipped: true }
       }
 
@@ -324,7 +323,7 @@ export const printMultipleReports = createServerAction()
         for (const printer of printers) {
           if (
             printer.sectors.length > 0 &&
-            !printer.sectors.includes('balcony')
+            !printer.sectors.includes('delivery')
           ) {
             console.log(
               `Pulando impressora ${printer.name} - setor não compatível`,

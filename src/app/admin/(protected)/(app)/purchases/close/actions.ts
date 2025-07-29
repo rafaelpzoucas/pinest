@@ -120,7 +120,7 @@ export const closeBills = cashProcedure
     if (input.table_id) {
       const { data: createdPayment, error } = await supabase
         .from('tables')
-        .update({ status: 'closed' })
+        .update({ status: 'closed', cash_session_id: cashSession.id })
         .eq('id', input.table_id)
 
       if (error || !createdPayment) {
