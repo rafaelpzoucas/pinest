@@ -1,22 +1,42 @@
 'use client'
 
-import { useCartStore } from '@/stores/cartStore'
+import { usePublicStore } from '@/stores/public-store'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { useServerAction } from 'zsa-react'
-import { readCartCached } from './actions'
 
-export function CartInitializer() {
-  const setCart = useCartStore((s) => s.setCart)
-
-  const { execute } = useServerAction(readCartCached, {
-    onSuccess: ({ data }) => {
-      setCart(data.cart)
+const getCart = async (subdomain: string) => {
+  const res = await fetch(`/api/v1/cart?subdomain=${subdomain}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
     },
   })
 
-  useEffect(() => {
-    execute()
-  }, [setCart])
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.message || 'Erro ao buscar carrinho')
+  }
 
-  return null // nada visível
+  const data = await res.json()
+  return data.cart
+}
+
+export function CartInitializer() {
+  const { store, updateCart } = usePublicStore()
+
+  const subdomain = store?.store_subdomain
+
+  const { data, isSuccess } = useQuery({
+    queryKey: ['cart'],
+    queryFn: () => getCart(subdomain as string),
+    enabled: !!subdomain,
+  })
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      updateCart(data)
+    }
+  }, [isSuccess, data, updateCart])
+
+  return null
 }

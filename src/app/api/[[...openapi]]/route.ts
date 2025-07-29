@@ -1,10 +1,9 @@
-import {
-  createOpenApiServerActionRouter,
-  createRouteHandlers,
-} from 'zsa-openapi'
+import { createRouteHandlers } from 'zsa-openapi'
+import { router } from './_router'
 
-const router = createOpenApiServerActionRouter({
-  pathPrefix: '/api/v1',
+export const { GET, POST, PUT, DELETE } = createRouteHandlers(router, {
+  shapeError: (error) => ({
+    code: error.code,
+    message: error.message,
+  }),
 })
-
-export const { GET, POST, PUT, DELETE } = createRouteHandlers(router)
