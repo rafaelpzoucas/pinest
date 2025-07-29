@@ -68,8 +68,6 @@ export const createPurchase = adminProcedure
 
     const [displayId] = await getNextDisplayId()
 
-    console.log(displayId)
-
     // 2. Crie o pedido, buscando *só* o id
     const { data: purchaseData, error: purchaseError } = await supabase
       .from('purchases')

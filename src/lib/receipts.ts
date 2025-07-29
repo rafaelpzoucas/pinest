@@ -31,8 +31,6 @@ export function buildReceiptKitchenText(
   text += `${reprint ? 'REIMPRESSÃO - ' : ''}COZINHA\n`
   text += `PEDIDO #${displayId}\n`
 
-  console.log({ purchase })
-
   text += `DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
   text += `Ident.: ${customerName.toUpperCase()}\n`
 

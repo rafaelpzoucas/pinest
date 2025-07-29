@@ -122,7 +122,7 @@ export const createPurchase = storeProcedure
       readStoreCustomer(),
     ])
 
-    const displayId = await getNextDisplayId()
+    const [displayId] = await getNextDisplayId()
 
     const cart = cartData?.cart
     const storeCustomer = customerData?.storeCustomer

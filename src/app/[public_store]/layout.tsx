@@ -55,8 +55,6 @@ export default async function PublicStoreLayout({
 
   const store = (await get(`store_${subdomain}`)) as any
 
-  console.log({ store, subdomain })
-
   if (!store) {
     return <NotFound />
   }

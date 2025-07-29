@@ -13,6 +13,12 @@ import { PurchaseOptions } from './options'
 
 export const columns: ColumnDef<PurchaseType>[] = [
   {
+    accessorKey: 'display_id',
+    header: 'ID',
+    cell: ({ row }) => `#${row.getValue('display_id') ?? ''}`,
+    meta: { clickable: true },
+  },
+  {
     accessorKey: 'created_at',
     header: 'Data',
     cell: ({ row }) => {
