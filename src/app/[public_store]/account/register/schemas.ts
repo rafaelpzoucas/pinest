@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const addressSchema = z.object({
   street: z.string().min(1, { message: 'Preencha o nome da rua.' }),
   number: z.string().min(1, { message: 'Insira o número da residência.' }),
-  neighborhood: z.string().min(1, { message: 'Insira o bairro.' }),
+  neighborhood: z.string().optional(),
   complement: z.string().optional(),
   observations: z.string().optional(),
 })

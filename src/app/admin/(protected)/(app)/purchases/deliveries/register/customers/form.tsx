@@ -22,6 +22,7 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -116,127 +117,128 @@ export function CustomersForm({
       </SheetTrigger>
 
       <SheetContent className="!p-0">
-        <ScrollArea className="space-y-6 h-dvh px-5">
-          <SheetHeader className="flex flex-row items-center gap-2">
-            <SheetClose
-              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-            >
-              <ArrowLeft />
-            </SheetClose>
-            <SheetTitle className="!mt-0">
-              {selectedCustomer ? 'Editando' : 'Novo'} cliente
-            </SheetTitle>
-          </SheetHeader>
+        <SheetHeader className="flex flex-row items-center gap-2 p-4">
+          <SheetClose
+            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+          >
+            <ArrowLeft />
+          </SheetClose>
+          <SheetTitle className="!mt-0">
+            {selectedCustomer ? 'Editando' : 'Novo'} cliente
+          </SheetTitle>
+        </SheetHeader>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col w-full space-y-4 mt-2"
-            >
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefone</FormLabel>
-                    <FormControl>
-                      <PhoneInput {...field} />
-                    </FormControl>
-                    <FormDescription>O número de WhatsApp.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <ScrollArea className="h-[calc(100dvh_-_132px)] px-5">
+              <div className="flex flex-col w-full space-y-4 pb-16">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <PhoneInput {...field} />
+                      </FormControl>
+                      <FormDescription>O número de WhatsApp.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Digite o seu nome..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite o seu nome..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="address.street"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Rua</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Insira a sua rua..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Insira o número..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.neighborhood"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bairro</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Insira o bairro..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.complement"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Complemento (opcional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Insira o complemento se tiver..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.observations"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observações (opcional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Insira uma observação..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="address.street"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Rua</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Insira a sua rua..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="address.number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Insira o número..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="address.neighborhood"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bairro (opcional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Insira o bairro..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="address.complement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Complemento (opcional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Insira o complemento se tiver..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="address.observations"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Observações (opcional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Insira uma observação..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </ScrollArea>
 
+            <SheetFooter className="p-4">
               <Button
                 type="submit"
-                className="ml-auto"
+                className="ml-auto w-full"
                 disabled={isCreating || isUpdating}
               >
                 {(isCreating || isUpdating) && (
@@ -244,20 +246,20 @@ export function CustomersForm({
                 )}
                 {selectedCustomer ? 'Atualizar' : 'Cadastrar'} cliente
               </Button>
-            </form>
-          </Form>
+            </SheetFooter>
+          </form>
+        </Form>
 
-          {selectedCustomer && (
-            <section>
-              <h1 className="text-lg font-bold">Saldo do cliente</h1>
+        {selectedCustomer && (
+          <section>
+            <h1 className="text-lg font-bold">Saldo do cliente</h1>
 
-              <div className="flex flex-row items-center justify-between text-muted-foreground">
-                <p>Saldo atual:</p>
-                <strong>{formatCurrencyBRL(selectedCustomer.balance)}</strong>
-              </div>
-            </section>
-          )}
-        </ScrollArea>
+            <div className="flex flex-row items-center justify-between text-muted-foreground">
+              <p>Saldo atual:</p>
+              <strong>{formatCurrencyBRL(selectedCustomer.balance)}</strong>
+            </div>
+          </section>
+        )}
       </SheetContent>
     </Sheet>
   )

@@ -2,6 +2,7 @@ import { PurchaseType } from '@/models/purchase'
 
 export const purchaseTest: PurchaseType = {
   id: '00000000-0000-0000-0000-000000000000',
+  display_id: 0,
   created_at: '2025-06-05T00:00:00.000Z',
   updated_at: '2025-06-05T00:00:00.000Z',
   customer_id: '11111111-1111-1111-1111-111111111111',

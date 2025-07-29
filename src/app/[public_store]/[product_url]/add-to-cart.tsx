@@ -23,10 +23,10 @@ import { Input } from '@/components/ui/input'
 import { ExtraType } from '@/models/extras'
 import { useProduct } from '@/stores/productStore'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
 import { addToCart } from '../cart/actions'
 import { ExtrasSection } from './extras'
 
@@ -160,14 +160,22 @@ export function AddToCart({
       return total + extra.price * extra.quantity // Corrige a multiplicação de preço e quantidade do extra
     }, 0)
 
-  const { execute: executeAddToCart, isPending: isAddToCartPending } =
-    useServerAction(addToCart, {
+  const queryClient = useQueryClient()
+
+  const { mutate: executeAddToCart, isPending: isAddToCartPending } =
+    useMutation({
+      mutationFn: async (data: { newItem: CartProductType }) => {
+        await addToCart(data) // chama o server action
+      },
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['cart'] }) // força refetch
+
         toast(
           cartProductId
             ? 'Produto atualizado no carrinho.'
             : 'Produto(s) adicionado(s) ao carrinho.',
         )
+
         if (!cartProductId) {
           form.reset({
             variations: selectedVariations ?? defaultVariations,
@@ -175,10 +183,11 @@ export function AddToCart({
             observations: '',
           })
         }
+
         setSelectedExtras(getMergedExtras())
       },
-      onError: ({ err }) => {
-        toast(`Ocorreu um erro, tente novamente`)
+      onError: (err: any) => {
+        toast('Ocorreu um erro, tente novamente')
         console.error(err)
       },
     })

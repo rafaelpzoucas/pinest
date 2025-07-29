@@ -68,7 +68,7 @@ export function RealtimeStatus({ purchase }: { purchase: PurchaseType }) {
       {!isCancelled && !isDelivered && (
         <div>
           <span>Previsão de entrega</span>
-          <h2 className="text-xl">
+          <h2 className="text-xl font-bold">
             {format(deliveryTime, 'HH:mm')} -{' '}
             {format(addMinutes(deliveryTime, 10), 'HH:mm')}
           </h2>

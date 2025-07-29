@@ -5,7 +5,6 @@ import { Header } from '@/components/store-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
-import { useCartStore } from '@/stores/cartStore'
 import { usePublicStore } from '@/stores/public-store'
 import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
@@ -14,8 +13,7 @@ import { CartProducts } from './cart-products'
 import CartPageLoading from './loading'
 
 export default function CartPage() {
-  const { cart } = useCartStore()
-  const { store } = usePublicStore()
+  const { store, cart } = usePublicStore()
 
   const { data: customerData, isLoading: isLoadingCustomer } = useQuery({
     queryKey: ['customer'],

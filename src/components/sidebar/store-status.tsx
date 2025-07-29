@@ -43,7 +43,7 @@ export function StoreStatus({ store }: { store?: StoreType }) {
               <div>
                 {store?.is_open ? (
                   <>
-                    <strong className="flex flex-row items-center text-sm text-emerald-600">
+                    <strong className="flex flex-row items-center text-sm text-emerald-900">
                       <CheckCircle2 className="w-4 h-4 mr-2" /> Loja aberta
                     </strong>
                     <p className="text-primary-foreground">

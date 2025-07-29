@@ -226,8 +226,7 @@ export const updateIfoodOrderStatus = adminProcedure
         throw new Error('Erro ao atualizar o pedido no iFood.')
       }
 
-      const responseData = await response.json()
-      console.log('Pedido atualizado com sucesso', responseData)
+      console.log('Pedido atualizado com sucesso', response.status)
     } catch (error) {
       console.error('Erro ao fazer a requisição', error)
       throw new Error('Erro ao fazer a requisição de atualização do pedido.')

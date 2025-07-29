@@ -90,10 +90,23 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
           tables.length > 0 &&
           tables.map((table) => {
             const purchaseItems = table.purchase_items
-            const totalAmount = table.purchase_items.reduce(
-              (sum, item) => sum + item.product_price,
-              0,
-            )
+            const totalAmount = purchaseItems.reduce((acc, item) => {
+              const extras = Array.isArray(item.extras) ? item.extras : []
+
+              const extrasTotalPerUnit = extras.reduce((acc, extra) => {
+                const price = Number(extra.price) || 0
+                const quantity = Number(extra.quantity) || 0
+                return acc + price * quantity
+              }, 0)
+
+              const productQuantity = Number(item.quantity) || 0
+              const productPrice = Number(item.product_price) || 0
+
+              const extrasTotal = extrasTotalPerUnit * productQuantity
+              const productsTotal = productPrice * productQuantity
+
+              return acc + productsTotal + extrasTotal
+            }, 0)
 
             return (
               <Sheet key={table.id}>

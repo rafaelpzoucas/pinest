@@ -3,7 +3,14 @@ import { ROOT_DOMAIN, STAGING_HOSTS } from './lib/helpers'
 import { normalizeHost } from './lib/utils'
 
 // caminhos que não devem passar pelo rewrite
-const IGNORED_PATHS = ['/_next', '/api', '/favicon.ico', '/admin', '/sw.js']
+const IGNORED_PATHS = [
+  '/_next',
+  '/api',
+  '/favicon.ico',
+  '/admin',
+  '/sw.js',
+  '/docs',
+]
 
 // mapeamento de domínios customizados para slugs de loja
 export const CUSTOM_DOMAIN_MAP: Record<string, string> = {

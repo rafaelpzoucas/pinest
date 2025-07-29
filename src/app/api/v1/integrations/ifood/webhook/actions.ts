@@ -1,3 +1,4 @@
+import { nofityStore } from '@/app/[public_store]/checkout/@summary/actions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { IfoodOrder } from '@/models/ifood'
 import { revalidatePath } from 'next/cache'
@@ -80,6 +81,12 @@ export const createPurchase = webhookProcedure
       console.error('Não foi possível criar o pedido.', createdPurchaseError)
       return
     }
+
+    nofityStore({
+      storeId: store?.id,
+      title: 'Novo pedido',
+      icon: '/ifood-icon.png',
+    })
 
     return { createdPurchase }
   })
@@ -312,6 +319,8 @@ export const createHandshakeEvent = webhookProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
+    const [store] = await readStore({ merchantId: input.merchantId })
+
     const { error } = await supabase.from('ifood_events').upsert(input).select()
 
     if (error) {
@@ -319,6 +328,12 @@ export const createHandshakeEvent = webhookProcedure
     }
 
     revalidatePath('/')
+
+    nofityStore({
+      storeId: store?.id,
+      title: 'Novo pedido',
+      icon: '/ifood-icon.png',
+    })
 
     return NextResponse.json({
       message: 'Evento de handshake tratado com sucesso!',

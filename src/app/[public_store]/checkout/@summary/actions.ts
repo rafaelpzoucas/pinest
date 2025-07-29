@@ -95,6 +95,22 @@ const updateStoreCustomerPurchasesQuantity = storeProcedure
     }
   })
 
+export const getNextDisplayId = storeProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store, supabase } = ctx
+
+    const { data, error } = await supabase.rpc('get_next_display_id', {
+      input_store_id: store?.id,
+    })
+
+    if (error || !data) {
+      throw new Error('Erro ao gerar display_id')
+    }
+
+    return data // current_sequence retornado
+  })
+
 export const createPurchase = storeProcedure
   .createServerAction()
   .input(createPurchaseSchema)
@@ -105,6 +121,8 @@ export const createPurchase = storeProcedure
       readCart(),
       readStoreCustomer(),
     ])
+
+    const [displayId] = await getNextDisplayId()
 
     const cart = cartData?.cart
     const storeCustomer = customerData?.storeCustomer
@@ -185,6 +203,7 @@ export const createPurchase = storeProcedure
     }
 
     const newPurchaseValues = {
+      display_id: displayId,
       customer_id: storeCustomer?.id ?? null,
       status: 'accept',
       updated_at: new Date().toISOString(),
@@ -278,10 +297,9 @@ export const createPurchase = storeProcedure
     )
   })
 
-async function nofityStore(values: NotifyStoreType) {
-  const { description, storeId, title, url } = notifyStoreSchema.parse(values)
-
-  console.log(values)
+export async function nofityStore(values: NotifyStoreType) {
+  const { description, storeId, title, url, icon } =
+    notifyStoreSchema.parse(values)
 
   try {
     await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/push/notify`, {
@@ -294,6 +312,7 @@ async function nofityStore(values: NotifyStoreType) {
         title: title ?? 'Novo pedido recebido',
         description: description ?? 'Você recebeu um novo pedido na sua loja!',
         url: url ?? '',
+        icon,
       }),
     })
   } catch (error) {

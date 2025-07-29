@@ -17,7 +17,6 @@ import {
   readProductVariations,
 } from '@/actions/client/app/public_store/products/product_url'
 import { Header } from '@/components/store-header'
-import { useCartStore } from '@/stores/cartStore'
 import { usePublicStore } from '@/stores/public-store'
 import { useQuery } from '@tanstack/react-query'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -25,7 +24,7 @@ import { ProductInfo } from './info'
 import ProductPageLoading from './loading'
 
 export default function ProductPage() {
-  const { cart } = useCartStore()
+  const { cart } = usePublicStore()
 
   const searchParams = useSearchParams()
   const params = useParams()

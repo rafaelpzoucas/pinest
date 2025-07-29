@@ -176,7 +176,7 @@ export function Summary({
               name="total.change_value"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Troco (opcional)</FormLabel>
+                  <FormLabel>Troco para (opcional)</FormLabel>
                   <FormControl>
                     <Input maskType="currency" {...field} />
                   </FormControl>

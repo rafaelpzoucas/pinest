@@ -10,6 +10,22 @@ import {
 } from '../../../config/printing/actions'
 import { createPurchaseFormSchema, updatePurchaseFormSchema } from './schemas'
 
+export const getNextDisplayId = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store, supabase } = ctx
+
+    const { data, error } = await supabase.rpc('get_next_display_id', {
+      input_store_id: store?.id,
+    })
+
+    if (error || typeof data !== 'number') {
+      throw new Error(error?.message || 'Erro ao gerar display_id')
+    }
+
+    return data // current_sequence retornado
+  })
+
 export const createPurchase = adminProcedure
   .createServerAction()
   .input(createPurchaseFormSchema)
@@ -50,10 +66,13 @@ export const createPurchase = adminProcedure
       }))
       .concat(deliveryFee ? [deliveryFee] : [])
 
+    const [displayId] = await getNextDisplayId()
+
     // 2. Crie o pedido, buscando *só* o id
     const { data: purchaseData, error: purchaseError } = await supabase
       .from('purchases')
       .insert({
+        display_id: displayId,
         customer_id: input.customer_id,
         status: input.status,
         store_id: store.id,

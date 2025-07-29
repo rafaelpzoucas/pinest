@@ -58,18 +58,7 @@ export function PurchaseOptions({ purchase }: { purchase: PurchaseType }) {
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <div>
-                <CloseSaleButton purchase={purchase} />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Fechar venda</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <CloseSaleButton purchase={purchase} />
 
         <div className="hidden lg:flex flex-row justify-end">
           <TooltipProvider>

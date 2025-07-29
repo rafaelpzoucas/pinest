@@ -96,6 +96,7 @@ export function CloseCashSession({
   const [dialogOpen, setDialogOpen] = useState<
     null | 'pix' | 'credit' | 'debit'
   >(null)
+  const [cashManual, setCashManual] = useState(false)
   const [pixManual, setPixManual] = useState(false)
   const [creditManual, setCreditManual] = useState(false)
   const [debitManual, setDebitManual] = useState(false)
@@ -215,7 +216,7 @@ export function CloseCashSession({
       console.log('Imprimindo múltiplos relatórios')
       let salesReportText = buildSalesReportText(reports.salesReport)
       if (difference !== 0) {
-        salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE R$ ${formatCurrencyBRL(Math.abs(difference))} ***\n`
+        salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE ${formatCurrencyBRL(Math.abs(difference))} ***\n`
       }
       executePrintMultipleReports({
         reports: [
@@ -299,6 +300,10 @@ export function CloseCashSession({
   }, [form])
 
   useEffect(() => {
+    // CASH
+    if (!cashManual) {
+      form.setValue('cash_balance', emptyIfZero(declaredCash))
+    }
     // PIX
     if (pixReceipts.length > 0 && pixManual) {
       setPixManual(false)
@@ -323,8 +328,7 @@ export function CloseCashSession({
     if (debitReceipts.length === 0 && !debitManual) {
       form.setValue('debit_balance', emptyIfZero(declaredDebit))
     }
-    // CASH sempre sincroniza
-    form.setValue('cash_balance', emptyIfZero(declaredCash))
+
     form.setValue(
       'closing_balance',
       emptyIfZero(
@@ -537,6 +541,7 @@ export function CloseCashSession({
                           setDebitValue(numericValue)
                         }
                         if (type === 'cash') {
+                          setCashManual(true)
                           setCashValue(numericValue)
                         }
                         field.onChange(e)
@@ -547,6 +552,7 @@ export function CloseCashSession({
                           if (type === 'pix') setPixManual(false)
                           if (type === 'credit') setCreditManual(false)
                           if (type === 'debit') setDebitManual(false)
+                          if (type === 'cash') setDebitManual(false)
                         }
                         if (field.onBlur) field.onBlur()
                       }

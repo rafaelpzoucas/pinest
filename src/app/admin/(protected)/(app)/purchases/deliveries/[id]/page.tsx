@@ -26,7 +26,7 @@ export default async function OrderPage({
     return null
   }
 
-  const displayId = params.id.substring(0, 4)
+  const displayId = purchase.display_id ?? params.id.substring(0, 4)
   const isIfood = purchase?.is_ifood
   const ifoodOrderData: IfoodOrder = isIfood && purchase?.ifood_order_data
   const ifoodItems: IfoodItem[] = ifoodOrderData?.items

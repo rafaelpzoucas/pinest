@@ -3,7 +3,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn, createPath, getRootPath } from '@/lib/utils'
-import { useCartStore } from '@/stores/cartStore'
+import { usePublicStore } from '@/stores/public-store'
 import { Home, ReceiptText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -16,7 +16,7 @@ export function MobileNavigation({
 }) {
   const pathname = usePathname()
 
-  const cart = useCartStore((s) => s.cart)
+  const { cart } = usePublicStore()
 
   if (pathname.includes('register')) {
     return null

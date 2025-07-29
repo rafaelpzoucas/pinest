@@ -7,9 +7,13 @@ self.addEventListener('push', function (event) {
     data.body = event.data.text()
   }
 
+  const icon = data.icon || '/icon.svg'
+
+  console.log('data:', data)
+
   const options = {
     body: data.body,
-    icon: '/icon.svg',
+    icon,
     requireInteraction: true,
   }
 

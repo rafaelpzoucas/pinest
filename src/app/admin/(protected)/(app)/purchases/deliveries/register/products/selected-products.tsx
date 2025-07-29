@@ -5,10 +5,16 @@ import { ObservationsInput } from '@/components/observations-input'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { formatCurrencyBRL } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { stringToNumber } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
-import { Boxes, Minus, Plus, Trash2 } from 'lucide-react'
+import { Boxes, Minus, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import { useFieldArray, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { createPurchaseFormSchema } from '../schemas'
@@ -72,12 +78,43 @@ export function SelectedProducts({
               className="flex flex-col lg:grid grid-cols-[2fr_2fr_2fr] gap-4 items-start justify-between
                 bg-secondary/20 p-3 rounded-lg"
             >
-              <div className="flex flex-row w-full">
-                <div className="flex flex-col">
+              <div className="flex flex-row w-full gap-2">
+                <div className="flex flex-col gap-1">
                   <span>{product.name}</span>
-                  <strong className="text-xs text-muted-foreground">
-                    {formatCurrencyBRL(totalPrice)}
-                  </strong>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      maskType="currency"
+                      className="w-full max-w-28"
+                      value={item.product_price}
+                      onChange={(e) =>
+                        setValue(
+                          `purchase_items.${index}.product_price`,
+                          stringToNumber(e.target.value),
+                        )
+                      }
+                    />
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setValue(
+                              `purchase_items.${index}.product_price`,
+                              product.price,
+                            )
+                          }}
+                        >
+                          <RotateCcw />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Restaurar valor</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 ml-auto lg:mx-auto">

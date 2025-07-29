@@ -9,6 +9,7 @@ import { useServerAction } from 'zsa-react'
 import { closeBills } from '../../close/actions'
 
 import { useQueryState } from 'nuqs'
+import { OpenCashSession } from '../../../cash-register/open'
 
 export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
   const [tab] = useQueryState('tab')
@@ -31,10 +32,7 @@ export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
 
   if (isIfood) {
     return (
-      <Button
-        variant="secondary"
-        onClick={() => executeCloseBill({ purchase_id: purchase.id })}
-      >
+      <Button onClick={() => executeCloseBill({ purchase_id: purchase.id })}>
         {isCloseBillPending ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -50,6 +48,10 @@ export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
     )
   }
 
+  if (!isCashOpen) {
+    return <OpenCashSession />
+  }
+
   return (
     <Link
       href={
@@ -58,7 +60,7 @@ export function CloseSaleButton({ purchase }: { purchase: PurchaseType }) {
           : '/admin/cash-register'
       }
       className={buttonVariants({
-        variant: 'secondary',
+        variant: 'default',
       })}
     >
       <BadgeDollarSign className="w-5 h-5" />

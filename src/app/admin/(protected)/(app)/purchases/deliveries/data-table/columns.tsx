@@ -2,7 +2,7 @@
 
 import { StatusKey } from '@/app/[public_store]/purchases/[id]/status'
 import { Badge } from '@/components/ui/badge'
-import { cn, formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
+import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
@@ -12,6 +12,12 @@ import Image from 'next/image'
 import { PurchaseOptions } from './options'
 
 export const columns: ColumnDef<PurchaseType>[] = [
+  {
+    accessorKey: 'display_id',
+    header: 'ID',
+    cell: ({ row }) => `#${row.getValue('display_id') ?? ''}`,
+    meta: { clickable: true },
+  },
   {
     accessorKey: 'created_at',
     header: 'Data',
@@ -100,7 +106,7 @@ export const columns: ColumnDef<PurchaseType>[] = [
       const cancelled = status === 'cancelled'
 
       return (
-        <Badge className={cn(statuses[status as StatusKey].color)}>
+        <Badge variant="secondary" className="hover:bg-secondary">
           {statuses[status as StatusKey].status}{' '}
           {!cancelled && isPaid ? ' - Pago' : ''}
         </Badge>

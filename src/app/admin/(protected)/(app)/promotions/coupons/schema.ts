@@ -8,7 +8,7 @@ export const couponSchema = z.object({
     .min(3, 'Código obrigatório')
     .max(20, 'Máximo 20 caracteres')
     .regex(/^[A-Z0-9]+$/, 'Apenas letras maiúsculas e números'),
-  discount: z.number({ message: 'Desconto obrigatório' }),
+  discount: z.string({ message: 'Desconto obrigatório' }),
   discount_type: z.enum(['percent', 'fixed'], {
     required_error: 'Tipo de desconto obrigatório',
   }),
