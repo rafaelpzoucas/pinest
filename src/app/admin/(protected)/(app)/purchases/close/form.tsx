@@ -33,12 +33,12 @@ import { createPaymentSchema } from './schemas'
 
 export function CloseBillForm({
   payments,
-  saleDiscount,
+  saleDiscount = 0,
   storeCustomers,
   isPermissionGranted,
 }: {
   payments: PaymentType[]
-  saleDiscount: any
+  saleDiscount?: number
   storeCustomers?: StoreCustomerType[]
   isPermissionGranted: boolean
 }) {
