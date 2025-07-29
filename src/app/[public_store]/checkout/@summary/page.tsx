@@ -148,10 +148,7 @@ export default async function Summary({
         {payment === 'DEBIT' && <CreditCard />}
         {payment === 'CASH' && <Banknote />}
         {payment === 'PIX' && <DollarSign />}
-        <p>
-          Você pagará {formatCurrencyBRL(totalPrice)}{' '}
-          {PAYMENT_METHODS[paymentKey]?.label}
-        </p>
+        <p>Você pagará {PAYMENT_METHODS[paymentKey]?.label}</p>
         {paymentKey === 'PIX' && store?.pix_key ? (
           <div>
             <CopyTextButton
