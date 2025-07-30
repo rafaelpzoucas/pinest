@@ -9,6 +9,7 @@ import { readCustomerCached } from '../../account/actions'
 import { readStoreCached } from '../../actions'
 import { readCartCached } from '../../cart/actions'
 import { CartProduct } from '../../cart/cart-product'
+import { CouponField } from './coupon-field'
 import { Delivery } from './delivery'
 import { SummaryCard } from './summary-card'
 
@@ -113,6 +114,8 @@ export default async function Summary({
         store={store}
         searchParams={searchParams}
       />
+
+      <CouponField />
 
       {searchParams.pickup !== 'pickup' && (
         <Delivery customerAddress={customerAddress} store={store} />

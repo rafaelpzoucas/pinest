@@ -436,5 +436,6 @@ export const validateCoupon = storeProcedure
       discount: coupon.discount,
       discount_type: coupon.discount_type,
       coupon_id: coupon.id,
+      code: coupon.code,
     }
   })
