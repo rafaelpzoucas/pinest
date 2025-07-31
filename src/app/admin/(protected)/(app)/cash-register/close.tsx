@@ -51,8 +51,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
-  buildProductsSoldReportText,
-  buildSalesReportText,
+  buildProductsSoldReportESCPOS,
+  buildSalesReportESCPOS,
 } from '@/lib/receipts'
 import { cn, formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { PaymentType } from '@/models/payment'
@@ -214,19 +214,19 @@ export function CloseCashSession({
       setCashValue(null)
 
       console.log('Imprimindo múltiplos relatórios')
-      let salesReportText = buildSalesReportText(reports.salesReport)
-      if (difference !== 0) {
-        salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE ${formatCurrencyBRL(Math.abs(difference))} ***\n`
-      }
+      const salesReportText = buildSalesReportESCPOS(reports.salesReport)
+      // if (difference !== 0) {
+      //   salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE ${formatCurrencyBRL(Math.abs(difference))} ***\n`
+      // }
       executePrintMultipleReports({
         reports: [
           {
             name: 'Relatório de Vendas',
-            text: salesReportText,
+            raw: salesReportText,
           },
           {
             name: 'Produtos Vendidos',
-            text: buildProductsSoldReportText(reports.productsSold),
+            raw: buildProductsSoldReportESCPOS(reports.productsSold),
           },
         ],
       })

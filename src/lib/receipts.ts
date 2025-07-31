@@ -6,8 +6,9 @@ import { ProductsSoldReportType } from '@/app/admin/(protected)/(app)/reports/pr
 import { SalesReportType } from '@/app/admin/(protected)/(app)/reports/sales-report'
 import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
+import { receipt } from './escpos'
 
-export function buildReceiptKitchenText(
+export function buildReceiptKitchenESCPOS(
   purchase?: PurchaseType,
   reprint = false,
 ) {
@@ -17,26 +18,28 @@ export function buildReceiptKitchenText(
   const isIfood = purchase?.is_ifood
 
   const customer = isIfood
-    ? purchase?.ifood_order_data.customer
-    : purchase?.store_customers.customers
+    ? purchase.ifood_order_data.customer
+    : purchase.store_customers.customers
 
-  const customerName = customer.name
-
+  const customerName = `${customer.name.split(' ')[0]} ${customer.name.split(' ')[1]}`
   const itemsList = reprint
     ? purchase.purchase_items
     : purchase.purchase_items.filter((item) => !item.printed)
 
-  let text = ''
-
-  text += `${reprint ? 'REIMPRESSÃO - ' : ''}COZINHA\n`
-  text += `PEDIDO #${displayId}\n`
-
-  text += `DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
-  text += `Ident.: ${customerName.toUpperCase()}\n`
-
-  text += '========================='
-
-  text += `\n\nITENS DO PEDIDO:\n\n`
+  const r = receipt()
+    .left()
+    .strong()
+    .h3(`${reprint ? 'REIMPRESSÃO - ' : ''}COZINHA`)
+    .endStrong()
+    .br()
+    .h2(`Ident: ${customerName.toUpperCase()}`)
+    .hr()
+    .strong()
+    .h2(`PEDIDO #${displayId}`)
+    .endStrong()
+    .br()
+    .p(`DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}`)
+    .hr()
 
   if (!isIfood) {
     const lastItemIndex = itemsList.length - 1
@@ -44,27 +47,27 @@ export function buildReceiptKitchenText(
     for (const [index, item] of itemsList.entries()) {
       if (!item.products) continue
 
-      text += `${item.quantity} ${item.products.name.toUpperCase()}\n`
+      // Nome do produto
+      r.strong()
+        .h2(`${item.quantity} ${item.products.name.toUpperCase()}`)
+        .endStrong()
+        .br()
 
-      const extras = item.extras
-      const lastExtraIndex = extras.length - 1
-
-      for (const [i, extra] of extras.entries()) {
-        const isLastExtra = i === lastExtraIndex
-        text += `  + ${extra.quantity} ad. ${extra.name.toUpperCase()}${isLastExtra ? '' : '\n'}`
+      // Extras
+      for (const [i, extra] of item.extras.entries()) {
+        r.h2(` +${extra.quantity} ad. ${extra.name.toUpperCase()}`).br()
       }
 
-      if (extras.length > 0) text += '\n'
+      if (item.extras.length > 0) r.br()
 
-      if (item.observations?.length) {
+      if (item.observations.length > 0 && item.observations[0] !== '') {
         for (const obs of item.observations) {
-          text += `  * ${obs.toUpperCase()}\n`
+          r.h2(` *${obs.toUpperCase()}`).br()
         }
       }
 
-      const isLastItem = index === lastItemIndex
-      if (!isLastItem) {
-        text += `----------------------\n`
+      if (index !== lastItemIndex) {
+        r.hr()
       }
     }
   } else {
@@ -72,35 +75,29 @@ export function buildReceiptKitchenText(
     const lastIfoodIndex = ifoodItems.length - 1
 
     for (const [index, item] of ifoodItems.entries()) {
-      text += `${item.quantity}X ${item.name.toUpperCase()}\n`
+      r.h2(`${item.quantity} ${item.name.toUpperCase()}`).br()
 
-      const options = item.options ?? []
-      const lastOptionIndex = options.length - 1
-
-      for (const [i, option] of options.entries()) {
-        const isLastOption = i === lastOptionIndex
-        text += `  + ${option.quantity}X AD. ${option.name.toUpperCase()}${isLastOption ? '' : '\n'}`
+      for (const option of item.options ?? []) {
+        r.h2(` +${option.quantity} ad. ${option.name.toUpperCase()}`).br()
       }
 
-      if (options.length > 0) text += '\n'
+      if (item.options?.length) r.br()
 
       if (item.observations) {
-        text += `  **${item.observations.toUpperCase()}\n`
+        r.h2(` *${item.observations.toUpperCase()}`).br()
       }
 
-      const isLastItem = index === lastIfoodIndex
-      if (!isLastItem) {
-        text += `----------------------\n\n`
+      if (index !== lastIfoodIndex) {
+        r.hr()
       }
     }
   }
 
-  text += `======================\n\n`
-
-  return text.trim()
+  const escposString = r.cut().build()
+  return Buffer.from(escposString, 'binary').toString('base64')
 }
 
-export function buildReceiptDeliveryText(
+export function buildReceiptDeliveryESCPOS(
   purchase?: PurchaseType,
   reprint = false,
 ) {
@@ -130,32 +127,59 @@ export function buildReceiptDeliveryText(
     DELIVERY: 'ENTREGAR',
   }[purchase.type]
 
-  let text = ''
+  // Inicia o builder ESC/POS
+  const r = receipt().initialize()
 
-  text += `${reprint ? 'REIMPRESSÃO' : ''}\n`
-  text += `PEDIDO #${displayId}\n`
-  text += `${deliveryType}\n`
-
-  text += `DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}\n`
-  if (isIfood) {
-    text += `ENTREGA: ${format(new Date(ifoodOrder.delivery.deliveryDateTime), 'dd/MM HH:mm:ss')}\n`
+  // Adiciona cabeçalho
+  if (reprint) {
+    r.center().h3('REIMPRESSÃO').br()
   }
 
-  text += `CLIENTE: ${customerName.toUpperCase()}\n`
-  text += `TELEFONE: ${String(customerPhone).toUpperCase()}\n`
-  text += `ENDEREÇO: ${String(customerAddress).toUpperCase()}\n`
+  r.center()
+    .h2(`PEDIDO #${displayId}`)
+    .br()
+    .center()
+    .h2(deliveryType)
+    .hr()
+    .left()
+
+  // Adiciona informações básicas
+  r.p(`DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}`).br()
+
+  if (isIfood) {
+    r.p(
+      `ENTREGA: ${format(new Date(ifoodOrder.delivery.deliveryDateTime), 'dd/MM HH:mm:ss')}`,
+    ).br()
+  }
+
+  r.p(`CLIENTE: ${customerName.toUpperCase()}`)
+    .br()
+    .p(`TELEFONE: ${String(customerPhone).toUpperCase()}`)
+    .br()
+    .p(`ENDEREÇO: ${String(customerAddress).toUpperCase()}`)
+    .br()
 
   if (purchase.observations || ifoodOrder?.delivery?.observations) {
-    text += `OBS: ${(ifoodOrder?.delivery?.observations ?? purchase.observations).toUpperCase()}\n`
+    r.strong()
+      .p(
+        `OBS: ${(ifoodOrder?.delivery?.observations ?? purchase.observations).toUpperCase().trim()}`,
+      )
+      .endStrong()
   }
 
-  text += `\n\nITENS DO PEDIDO:\n\n`
+  r.hr().h3('ITENS DO PEDIDO:').br(2)
 
+  // Adiciona itens do pedido
   if (!isIfood) {
     const items = purchase.purchase_items
 
     for (const [index, item] of items.entries()) {
-      if (!item.products) continue
+      if (!item.products) {
+        r.p(
+          `${item.quantity} ${item.description} - ${formatCurrencyBRL(item.product_price)}`,
+        )
+        continue
+      }
 
       const itemTotal = item.product_price
       const extrasTotal = item.extras.reduce(
@@ -164,54 +188,52 @@ export function buildReceiptDeliveryText(
       )
       const total = (itemTotal + extrasTotal) * item.quantity
 
-      text += `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}\n`
+      r.p(
+        `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}`,
+      )
 
       for (const extra of item.extras) {
-        text += `  + ${extra.quantity} ad. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}\n`
+        r.br().p(
+          `  +${extra.quantity} ad. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}`,
+        )
       }
 
-      for (const obs of item.observations ?? []) {
-        text += `  * ${obs.toUpperCase()}\n`
+      if (item.observations.length > 0 && item.observations[0] !== '') {
+        for (const obs of item.observations ?? []) {
+          r.br().p(` *${obs.toUpperCase()}`)
+        }
       }
 
       const isLast = index === items.length - 1
 
       if (!isLast) {
-        text += `----------------------\n`
+        r.br().hr(undefined, 'dashed')
       }
     }
   } else {
     const items = ifoodOrder.items
 
     for (const [index, item] of items.entries()) {
-      text += `${item.quantity}X ${item.name.toUpperCase()}\n`
+      r.p(`${item.quantity} ${item.name.toUpperCase()}`)
 
       for (const option of item.options ?? []) {
-        text += `  + ${option.quantity}X AD. ${option.name.toUpperCase()}\n`
+        r.br().p(` +${option.quantity} ad. ${option.name.toUpperCase()}`)
       }
 
       if (item.observations) {
-        text += `  * ${item.observations.toUpperCase()}\n`
+        r.br().p(` *${item.observations.toUpperCase()}`)
       }
 
       const isLast = items.length - 1 === index
 
       if (!isLast) {
-        text += `----------------------\n`
+        r.br().hr(undefined, 'dashed')
       }
     }
   }
 
-  text += `======================\n\n`
-
   // Total do pedido
   const total = formatCurrencyBRL(purchase.total.total_amount)
-  function centerText(text: string, width: number) {
-    const space = width - text.length
-    const left = Math.floor(space / 2)
-    const right = space - left
-    return ' '.repeat(left) + text + ' '.repeat(right)
-  }
 
   // Forma de pagamento
   if (purchase.payment_type) {
@@ -235,28 +257,39 @@ export function buildReceiptDeliveryText(
         ]?.toUpperCase() || 'INDEFINIDO'
     }
 
-    const boxWidth = 28
-    const boxLine = '='.repeat(boxWidth)
-    const labelLine = `|${centerText('COBRAR DO CLIENTE', boxWidth - 2)}|`
-    const valueLine = `|${centerText(total, boxWidth - 2)}|`
-    const paymentLine = `|${centerText(paymentLabel, boxWidth - 2)}|`
-
-    text += `${boxLine}\n${labelLine}\n${valueLine}\n${paymentLine}\n${boxLine}\n\n`
+    r.hr(undefined, 'double')
+      .center()
+      .h3('TOTAL')
+      .br()
+      .center()
+      .strong()
+      .h2(total)
+      .endStrong()
+      .hr(undefined, 'double')
+      .center()
+      .h3(paymentLabel)
 
     if (purchase.total.change_value > 0) {
-      const troco = purchase.total.change_value - purchase.total.total_amount
-      text += `TROCO PARA: ${formatCurrencyBRL(troco)}\n\n`
+      const changeValue =
+        purchase.total.change_value - purchase.total.total_amount
+
+      r.br()
+        .strong()
+        .h3(`TROCO PARA: ${formatCurrencyBRL(changeValue)}`)
+        .endStrong()
+        .br()
     }
 
     if (isIfood && ifoodOrder?.extraInfo) {
-      text += `INFO ADICIONAL: ${ifoodOrder.extraInfo.toUpperCase()}\n\n`
+      r.text(`INFO ADICIONAL: ${ifoodOrder.extraInfo.toUpperCase()}`).br(2)
     }
   }
 
-  return text.trim()
+  const escposString = r.cut().build()
+  return Buffer.from(escposString, 'binary').toString('base64')
 }
 
-export function buildReceiptTableText(
+export function buildReceiptTableESCPOS(
   table: TableType,
   reprint = false,
 ): string {
@@ -265,54 +298,61 @@ export function buildReceiptTableText(
     ? table.purchase_items
     : table.purchase_items.filter((item) => !item.printed)
 
-  let text = ''
-  text += `\n====== COZINHA ======\n`
-  text += `MESA #${displayId}${table.description ? ' - ' + table.description.toUpperCase() : ''}\n\n`
-  text += `ITENS DO PEDIDO:\n\n`
+  const r = receipt()
+    .left()
+    .strong()
+    .h3(`${reprint ? 'REIMPRESSÃO - ' : ''}COZINHA`)
+    .endStrong()
+    .br()
+    .h2(`Ident: ${table.description.toUpperCase()}`)
+    .hr()
+    .strong()
+    .h2(`MESA #${displayId}`)
+    .endStrong()
+    .br()
+    .p(`Data: ${format(table.created_at, 'dd/MM HH:mm:ss')}`)
+    .hr()
 
   const lastItemIndex = itemsList.length - 1
 
   for (const [index, item] of itemsList.entries()) {
     if (!item.products) continue
 
-    text += `${item.quantity}X ${item.products.name.toUpperCase()}\n`
+    // Nome do produto
+    r.strong()
+      .h2(`${item.quantity} ${item.products.name.toUpperCase()}`)
+      .endStrong()
+      .br()
 
-    const extras = item.extras
-    const lastExtraIndex = extras.length - 1
-
-    for (const [extraIndex, extra] of extras.entries()) {
-      const isLastExtra = extraIndex === lastExtraIndex
-      text += `  + ${extra.quantity}X AD. ${extra.name.toUpperCase()}${isLastExtra ? '' : '\n'}`
+    // Extras
+    for (const [i, extra] of item.extras.entries()) {
+      r.h2(`+ ${extra.quantity} ad. ${extra.name.toUpperCase()}`).br()
     }
 
-    if (item.extras.length > 0) text += '\n'
-
+    // Observações
     if (item.observations?.length) {
       for (const obs of item.observations) {
-        text += `  * ${obs.toUpperCase()}\n`
+        r.h2(`* ${obs.toUpperCase()}`).br()
       }
     }
 
-    const isLastItem = index === lastItemIndex
-    if (!isLastItem) {
-      text += `----------------------\n\n`
+    if (index !== lastItemIndex) {
+      r.hr()
     }
   }
 
-  text += `======================\n\n`
-
-  return text.trim()
+  const escposString = r.cut().feed(3).build()
+  return Buffer.from(escposString, 'binary').toString('base64')
 }
 
-export function buildProductsSoldReportText(
+export function buildProductsSoldReportESCPOS(
   data: ProductsSoldReportType,
 ): string {
-  let text = ''
-  text += `\n=== PRODUTOS VENDIDOS ===\n\n`
+  const r = receipt().center().strong().h3('PRODUTOS VENDIDOS').endStrong().br()
 
   if (!data || data.length === 0) {
-    text += 'NENHUM RESULTADO ENCONTRADO.'
-    return text
+    r.h2('NENHUM RESULTADO ENCONTRADO.')
+    return r.build().trim()
   }
 
   for (const item of data) {
@@ -320,39 +360,47 @@ export function buildProductsSoldReportText(
     const quantity = item.quantity
     const total = formatCurrencyBRL(item.totalAmount)
 
-    text += `${name}\n`
-    text += `  ${quantity} UN.   ${total}\n`
-    text += `----------------------\n\n`
+    r.strong().p(`${name}   -   ${quantity} un.   ${total}`).endStrong().hr()
   }
 
-  text += `======================\n\n`
-
-  return text.trim()
+  const escposString = r.cut().feed(3).build()
+  return Buffer.from(escposString, 'binary').toString('base64')
 }
 
-export function buildSalesReportText(data: SalesReportType): string {
-  let text = ''
-  text += `\n=== RELATÓRIO DE VENDAS ===\n\n`
+export function buildSalesReportESCPOS(data: SalesReportType): string {
+  const r = receipt().left().strong().h3('RELATÓRIO DE VENDAS').endStrong().br()
 
   if (!data?.totalAmount) {
-    text += 'NENHUM RESULTADO ENCONTRADO.'
-    return text
+    r.h2('NENHUM RESULTADO ENCONTRADO.')
+    return r.build().trim()
   }
 
-  // Entregas
-  text += `-- ENTREGAS --\n`
-  text += `TOTAL DE ENTREGAS: ${data.deliveriesCount}\n\n`
+  // Seção de Entregas
+  r.strong()
+    .h3('ENTREGAS')
+    .endStrong()
+    .br()
+    .h3(`TOTAL DE ENTREGAS: ${data.deliveriesCount}`)
+    .br()
+    .hr(undefined, 'double')
+    .br()
 
-  // Métodos de pagamento
-  text += `-- MÉTODOS DE PAGAMENTO --\n`
-  text += `TOTAL DE VENDAS: ${formatCurrencyBRL(data.totalAmount)}\n\n`
+  // Seção de Métodos de Pagamento
+  r.strong()
+    .h3('MÉTODOS DE PAGAMENTO')
+    .endStrong()
+    .br()
+    .h3(`TOTAL DE VENDAS: ${formatCurrencyBRL(data.totalAmount)}`)
+    .br()
+    .hr(undefined, 'double')
+    .br()
 
+  // Lista de métodos de pagamento
   for (const [key, value] of Object.entries(data.paymentTypes || {})) {
     const paymentLabel = PAYMENT_TYPES[key as keyof typeof PAYMENT_TYPES] || key
-    text += `${paymentLabel.toUpperCase()}: ${formatCurrencyBRL(value)}\n`
+    r.h2(`${paymentLabel.toUpperCase()}: ${formatCurrencyBRL(value)}`).hr()
   }
 
-  text += `\n======================\n\n`
-
-  return text.trim()
+  const escposString = r.cut().feed(3).build()
+  return Buffer.from(escposString, 'binary').toString('base64')
 }

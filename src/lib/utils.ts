@@ -12,10 +12,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrencyBRL(number: number) {
-  return Intl.NumberFormat('pt-BR', {
+  const formatted = Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(number)
+
+  return formatted.replace(/\u00A0/g, ' ')
 }
 
 export function formatDate(date: string, dateFormat: string) {

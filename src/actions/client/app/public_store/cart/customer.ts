@@ -4,7 +4,7 @@ import { parseCookies, setCookie } from 'nookies'
 import { z } from 'zod'
 
 const ReadCustomerSchema = z.object({
-  subdomain: z.string(),
+  subdomain: z.string().optional(),
   phone: z.string().optional(),
 })
 
