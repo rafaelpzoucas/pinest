@@ -20,6 +20,7 @@ async function printQueueItem(input: PrintQueueType) {
       },
       body: JSON.stringify({
         text: input.text,
+        raw: input.raw,
         printerName: input.printer_name,
         fontSize: input.font_size,
       }),
@@ -49,6 +50,7 @@ export default function PrintQueueListener() {
               id: item.id,
               printer_name: item.printer_name,
               text: item.text,
+              raw: item.raw,
               font_size: item.font_size,
             })
           }
@@ -80,6 +82,7 @@ export default function PrintQueueListener() {
               id: newItem.id,
               printer_name: newItem.printer_name,
               text: newItem.text,
+              raw: newItem.raw,
               font_size: newItem.font_size,
             })
           } catch (error) {

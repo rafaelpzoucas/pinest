@@ -1,9 +1,9 @@
 'use server'
 
 import {
-  buildReceiptDeliveryText,
-  buildReceiptKitchenText,
-  buildReceiptTableText,
+  buildReceiptDeliveryESCPOS,
+  buildReceiptKitchenESCPOS,
+  buildReceiptTableESCPOS,
 } from '@/lib/receipts'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
@@ -32,6 +32,7 @@ export const addToPrintQueue = adminProcedure
       input.map((item) => ({
         store_id: store.id,
         text: item.text,
+        raw: item.raw,
         font_size: item.font_size,
         printer_name: item.printer_name,
       })),
@@ -137,12 +138,11 @@ export const printTableReceipt = createServerAction()
           printer.sectors.length === 0 ||
           printer.sectors.includes('kitchen')
         ) {
-          const textKitchen = buildReceiptTableText(table, input.reprint)
+          const textKitchen = buildReceiptTableESCPOS(table, input.reprint)
 
           await addToPrintQueue([
             {
-              text: textKitchen,
-              font_size: fontSize,
+              raw: textKitchen,
               printer_name: printer.name,
             },
           ])
@@ -202,12 +202,11 @@ export const printPurchaseReceipt = createServerAction()
           printer.sectors.length === 0 ||
           printer.sectors.includes('kitchen')
         ) {
-          const textKitchen = buildReceiptKitchenText(purchase, input.reprint)
+          const textKitchen = buildReceiptKitchenESCPOS(purchase, input.reprint)
 
           await addToPrintQueue([
             {
-              text: textKitchen,
-              font_size: kitchenFontSize,
+              raw: textKitchen,
               printer_name: printer.name,
             },
           ])
@@ -219,11 +218,14 @@ export const printPurchaseReceipt = createServerAction()
           (isDelivery && printer.sectors.length === 0) ||
           printer.sectors.includes('delivery')
         ) {
-          const textDelivery = buildReceiptDeliveryText(purchase, input.reprint)
+          const textDelivery = buildReceiptDeliveryESCPOS(
+            purchase,
+            input.reprint,
+          )
 
           await addToPrintQueue([
             {
-              text: textDelivery,
+              raw: textDelivery,
               font_size: deliveryFontSize,
               printer_name: printer.name,
             },
@@ -247,17 +249,13 @@ export const printPurchaseReceipt = createServerAction()
 export const printReportReceipt = createServerAction()
   .input(
     z.object({
-      text: z.string(),
+      raw: z.string(),
     }),
   )
   .handler(async ({ input }) => {
-    const [[printerData], [printSettingsData]] = await Promise.all([
-      readPrinters(),
-      readPrintingSettings(),
-    ])
+    const [[printerData]] = await Promise.all([readPrinters()])
 
     const printers = printerData?.printers
-    const fontSize = printSettingsData?.printingSettings?.font_size
 
     if (!printers) {
       throw new Error('Impressora não encontrada')
@@ -271,8 +269,7 @@ export const printReportReceipt = createServerAction()
       try {
         await addToPrintQueue([
           {
-            text: input.text,
-            font_size: fontSize,
+            raw: input.raw,
             printer_name: printer.name,
           },
         ])
@@ -288,7 +285,7 @@ export const printMultipleReports = createServerAction()
     z.object({
       reports: z.array(
         z.object({
-          text: z.string(),
+          raw: z.string(),
           name: z.string(),
         }),
       ),
@@ -333,8 +330,7 @@ export const printMultipleReports = createServerAction()
 
           await addToPrintQueue([
             {
-              text: report.text,
-              font_size: fontSize,
+              raw: report.raw,
               printer_name: printer.name,
             },
           ])

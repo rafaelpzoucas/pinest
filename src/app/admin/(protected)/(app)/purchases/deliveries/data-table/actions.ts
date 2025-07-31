@@ -1,6 +1,6 @@
 'use server'
 
-import { buildReceiptKitchenText } from '@/lib/receipts'
+import { buildReceiptKitchenESCPOS } from '@/lib/receipts'
 import { createClient } from '@/lib/supabase/server'
 import { CancellationReasonsType } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
@@ -183,7 +183,7 @@ export async function requestCancellation(
 }
 
 export async function sendToPrint(purchase: PurchaseType, reprint = false) {
-  const textToPrint = buildReceiptKitchenText(purchase, reprint)
+  const textToPrint = buildReceiptKitchenESCPOS(purchase, reprint)
 
   await fetch('http://127.0.0.1:53281/print', {
     method: 'POST',

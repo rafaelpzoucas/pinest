@@ -1,10 +1,22 @@
-export type AppliedCouponType = {
-  valid: boolean
-  discount: number
-  discount_type: 'percent' | 'fixed'
-  code: string
-  coupon_id: string
-}
+export type AppliedCouponType = NonNullable<
+  | {
+      valid: boolean
+      error: string
+      discount?: undefined
+      discount_type?: undefined
+      coupon_id?: undefined
+      code?: string
+    }
+  | {
+      valid: boolean
+      discount: any
+      discount_type: any
+      coupon_id: any
+      error?: undefined
+      code?: string
+    }
+  | null
+>
 
 export type CouponType = {
   id: string

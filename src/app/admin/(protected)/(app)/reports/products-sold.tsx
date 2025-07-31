@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { buildProductsSoldReportText } from '@/lib/receipts'
+import { buildProductsSoldReportESCPOS } from '@/lib/receipts'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { Printer } from 'lucide-react'
 import { useServerAction } from 'zsa-react'
@@ -31,7 +31,7 @@ export function ProductsSoldReport({ data }: { data: ProductsSoldReportType }) {
             size="icon"
             onClick={() =>
               executePrintReceipt({
-                text: buildProductsSoldReportText(data),
+                raw: buildProductsSoldReportESCPOS(data),
               })
             }
             disabled={isPrinting}

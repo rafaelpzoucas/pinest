@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { buildSalesReportText } from '@/lib/receipts'
+import { buildSalesReportESCPOS } from '@/lib/receipts'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { PAYMENT_TYPES } from '@/models/purchase'
 import { Loader2, Printer } from 'lucide-react'
@@ -32,7 +32,7 @@ export function SalesReport({ data }: { data: SalesReportType }) {
             size="icon"
             onClick={() =>
               executePrintReceipt({
-                text: buildSalesReportText(data),
+                raw: buildSalesReportESCPOS(data),
               })
             }
             disabled={isPrinting}

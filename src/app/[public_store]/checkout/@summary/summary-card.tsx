@@ -1,20 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTrigger,
-} from '@/components/ui/sheet'
 import { formatCurrencyBRL } from '@/lib/utils'
-import { AppliedCouponType } from '@/models/coupon'
-import { ArrowLeft, Ticket } from 'lucide-react'
-import { useState } from 'react'
+import { useCouponStore } from '@/stores/couponStore'
 import { CheckoutButton } from './checkout-button'
-import { CouponField } from './coupon-field'
 
 export function SummaryCard({
   cart,
@@ -37,11 +26,7 @@ export function SummaryCard({
   store: any
   searchParams: any
 }) {
-  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCouponType | null>(
-    null,
-  )
-
-  const [open, setOpen] = useState(false)
+  const { appliedCoupon } = useCouponStore()
 
   function getDiscountedTotal() {
     if (!appliedCoupon || !appliedCoupon.valid) return totalPrice
@@ -112,29 +97,6 @@ export function SummaryCard({
 
   return (
     <Card className="flex flex-col p-4 w-full space-y-2">
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center gap-2">
-          <Ticket className="w-4 h-4" />
-          <p>Cupom</p>
-        </div>
-
-        <Sheet open={!!open} onOpenChange={setOpen}>
-          <SheetTrigger>Adicionar</SheetTrigger>
-          <SheetContent className="space-y-8">
-            <SheetHeader className="flex flex-row items-center gap-4">
-              <SheetClose asChild>
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft />
-                </Button>
-              </SheetClose>
-              <span>Adicionar Cupom</span>
-            </SheetHeader>
-
-            <CouponField onApply={setAppliedCoupon} onClose={setOpen} />
-          </SheetContent>
-        </Sheet>
-      </div>
-
       <div className="flex flex-row justify-between text-xs text-muted-foreground">
         <p>Produtos ({cart ? cart.length : 0})</p>
         <span>{formatCurrencyBRL(productsPrice)}</span>

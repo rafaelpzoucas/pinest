@@ -10,14 +10,14 @@ import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { CartProducts } from './cart-products'
-import CartPageLoading from './loading'
 
 export default function CartPage() {
   const { store, cart } = usePublicStore()
 
-  const { data: customerData, isLoading: isLoadingCustomer } = useQuery({
+  const { data: customerData } = useQuery({
     queryKey: ['customer'],
-    queryFn: () => readCustomer({}),
+    queryFn: () =>
+      readCustomer({ subdomain: store?.store_subdomain as string }),
   })
 
   const customer = customerData?.customer
@@ -39,10 +39,6 @@ export default function CartPage() {
   const finishPurchaseLink = !customer
     ? createPath('/account?checkout=true', store?.store_subdomain)
     : createPath('/checkout?step=pickup', store?.store_subdomain)
-
-  if (isLoadingCustomer) {
-    return <CartPageLoading />
-  }
 
   return (
     <main className="w-full space-y-4 pb-40">
