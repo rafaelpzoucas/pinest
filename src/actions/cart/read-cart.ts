@@ -40,7 +40,5 @@ export const readCart = createServerAction()
       )
     }
 
-    console.log({ cartError, cartSession })
-
     return { cart: cart as CartProductType[] }
   })
