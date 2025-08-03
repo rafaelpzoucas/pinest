@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { SheetFooter } from '@/components/ui/sheet'
 import { StoreCustomerType } from '@/models/store-customer'
 import { createStoreCustomer } from '@/services/customers/create'
@@ -139,7 +138,7 @@ export function CustomersForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <ScrollArea className="h-[calc(100dvh_-_132px)]">
+        <div className="h-[calc(100dvh_-_132px)] overflow-auto">
           <div className="flex flex-col w-full space-y-4 px-4 pb-16">
             <FormField
               control={form.control}
@@ -148,7 +147,7 @@ export function CustomersForm({
                 <FormItem>
                   <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <PhoneInput {...field} />
+                    <PhoneInput autoFocus {...field} />
                   </FormControl>
                   <FormDescription>
                     O número de WhatsApp. (DDD + número)
@@ -241,7 +240,7 @@ export function CustomersForm({
               )}
             />
           </div>
-        </ScrollArea>
+        </div>
 
         <SheetFooter className="p-4">
           <Button

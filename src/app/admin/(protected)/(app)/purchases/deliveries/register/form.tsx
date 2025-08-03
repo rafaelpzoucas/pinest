@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -238,18 +238,6 @@ export function CreatePurchaseForm({
           </Sheet>
         </form>
       </Form>
-
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button>Abre aí cara</Button>
-        </SheetTrigger>
-        <SheetContent>
-          <input type="text" />
-          <input type="text" />
-          <input type="text" />
-          <input type="text" />
-        </SheetContent>
-      </Sheet>
 
       <Sheet
         open={showCustomerForm}
