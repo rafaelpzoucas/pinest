@@ -17,8 +17,6 @@ export function StoreStatus() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  console.log({ store }, 'Status')
-
   const { mutateAsync: updateStoreStatus } = useMutation({
     mutationKey: ['store-status'],
     mutationFn: (shouldBeOpen: boolean) =>
@@ -35,14 +33,11 @@ export function StoreStatus() {
       (hour: any) => hour.day_of_week === today,
     )
 
-    console.log({ todayHours })
     if (!todayHours) return
 
     const openTime = parse(todayHours.open_time, 'HH:mm:ss', now)
     const closeTime = parse(todayHours.close_time, 'HH:mm:ss', now)
     const shouldBeOpen = isAfter(now, openTime) && isBefore(now, closeTime)
-
-    console.log({ now, openTime, closeTime, shouldBeOpen })
 
     if (shouldBeOpen !== store?.is_open) {
       updateStoreStatus(shouldBeOpen)
