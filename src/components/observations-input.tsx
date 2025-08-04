@@ -1,15 +1,16 @@
 'use client'
 
-import {
-  insertObservation,
-  readObservations,
-} from '@/app/admin/(protected)/(app)/purchases/actions'
-import { Label } from '@/components/ui/label'
 import { ObservationType } from '@/models/observation'
-import { Check, ChevronsUpDown, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useServerAction } from 'zsa-react'
+import {
+  Check,
+  ChevronsUpDown,
+  Loader2,
+  NotepadText,
+  Trash2,
+} from 'lucide-react'
+import { useState } from 'react'
 
+import { createAdminObservation } from '@/actions/admin/observations/actions'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -25,49 +26,61 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 interface ObservationsInputProps {
   value: string[]
   onChange: (newObservations: string[]) => void
-  label?: string
+  observations?: ObservationType[]
+  isLoading?: boolean
+  storeId?: string
 }
 
 export function ObservationsInput({
   value,
   onChange,
-  label = 'Observações',
+  observations,
+  isLoading,
+  storeId,
 }: ObservationsInputProps) {
-  const [observations, setObservations] = useState<ObservationType[]>([])
+  const queryClient = useQueryClient()
+
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
-  const { execute: executeInsert } = useServerAction(insertObservation, {
-    onSuccess: () => {
-      executeRead()
+  const { mutate: createObservation } = useMutation({
+    mutationFn: createAdminObservation,
+    onSuccess: ({ createdObservation }) => {
+      const newObservation = createdObservation
+
+      queryClient.setQueryData<ObservationType[]>(['observations'], (old) =>
+        old ? [...old, newObservation] : [newObservation],
+      )
+
+      toast.error('Nova observação criada com sucesso!')
+    },
+    onError: ({ message }) => {
+      console.error('Não foi possível criar a observação.', message)
+      toast.error('Não foi possível criar a observação.')
     },
   })
-
-  const { execute: executeRead, data: observationsData } = useServerAction(
-    readObservations,
-    {
-      onSuccess: () => {
-        if (observationsData?.observations) {
-          setObservations(observationsData?.observations)
-        }
-      },
-    },
-  )
 
   const handleAddObservation = async (newObservation: string) => {
     const trimmed = newObservation.trim()
     if (!trimmed) return
 
-    // Adiciona a observação no Supabase
-    executeInsert({ observation: trimmed })
-
     // Atualiza o estado local após sucesso
     onChange([...value, trimmed])
     setInputValue('')
+
+    const observationExists = observations?.some(
+      (obs) => obs.observation.toLowerCase() === trimmed.toLowerCase(),
+    )
+
+    if (!observationExists) {
+      createObservation({ storeId, observation: trimmed })
+    }
   }
 
   const handleRemove = (index: number) => {
@@ -76,40 +89,19 @@ export function ObservationsInput({
     onChange(updated)
   }
 
-  useEffect(() => {
-    executeRead()
-  }, [onChange])
-
   return (
-    <div className="space-y-1">
-      <Label className="text-sm">{label}</Label>
-
-      <ul className="space-y-1">
-        {value.length > 0 &&
-          value.map((obs, index) => (
-            <li
-              key={index}
-              className="flex justify-between items-center bg-muted px-2 py-1 rounded-lg text-xs
-                uppercase"
-            >
-              <span>*{obs}</span>
-              <button type="button" onClick={() => handleRemove(index)}>
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </li>
-          ))}
-      </ul>
-
+    <div className="space-y-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="justify-between"
+            className="w-full"
           >
-            Selecione observações...
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <NotepadText />
+            Observações
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0">
@@ -121,11 +113,13 @@ export function ObservationsInput({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  const filtered = observations.filter((obs) =>
-                    obs.observation
-                      .toLowerCase()
-                      .includes(inputValue.toLowerCase()),
-                  )
+                  const filtered = observations
+                    ? observations.filter((obs) =>
+                        obs.observation
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase()),
+                      )
+                    : []
 
                   if (filtered.length === 0) {
                     handleAddObservation(inputValue) // Cria nova
@@ -142,33 +136,59 @@ export function ObservationsInput({
               }}
             />
             <CommandList>
-              <CommandEmpty>Aperte Enter para criar.</CommandEmpty>
+              <CommandEmpty>
+                {isLoading ? (
+                  <div className="flex flex-row gap-2 items-center justify-center">
+                    <Loader2 className="animate-spin" />
+                    <span>Carregando observações...</span>
+                  </div>
+                ) : (
+                  'Nenhum produto encontrado.'
+                )}
+              </CommandEmpty>
               <CommandGroup>
-                {observations.map((observation) => (
-                  <CommandItem
-                    key={observation.id}
-                    value={observation.observation}
-                    onSelect={(currentValue) => {
-                      handleAddObservation(currentValue)
-                      setOpen(false)
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 h-4 w-4',
-                        inputValue === observation.observation
-                          ? 'opacity-100'
-                          : 'opacity-0',
-                      )}
-                    />
-                    {observation.observation}
-                  </CommandItem>
-                ))}
+                {!!observations &&
+                  observations.map((observation) => (
+                    <CommandItem
+                      key={observation.id}
+                      value={observation.observation}
+                      onSelect={(currentValue) => {
+                        handleAddObservation(currentValue)
+                        setOpen(false)
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          'mr-2 h-4 w-4',
+                          inputValue === observation.observation
+                            ? 'opacity-100'
+                            : 'opacity-0',
+                        )}
+                      />
+                      {observation.observation}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
+
+      <ul className="space-y-1">
+        {value.length > 0 &&
+          value.map((obs, index) => (
+            <li
+              key={index}
+              className="flex justify-between items-center bg-muted px-2 py-1 rounded-lg text-xs
+                uppercase"
+            >
+              <span>*{obs}</span>
+              <button type="button" onClick={() => handleRemove(index)}>
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </li>
+          ))}
+      </ul>
     </div>
   )
 }

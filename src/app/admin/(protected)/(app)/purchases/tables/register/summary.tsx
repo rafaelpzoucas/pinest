@@ -9,31 +9,28 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { formatCurrencyBRL } from '@/lib/utils'
-import { ExtraType } from '@/models/extras'
-import { ProductType } from '@/models/product'
 import { TableType } from '@/models/table'
-import { Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { createTableSchema } from './schemas'
 
 export function Summary({
-  products,
-  extras,
   form,
   table,
   isCreatePending,
   isUpdatePending,
   onSubmit,
 }: {
-  products: ProductType[]
-  extras: ExtraType[]
   form: UseFormReturn<z.infer<typeof createTableSchema>>
   table: TableType
   isCreatePending: boolean
   isUpdatePending: boolean
   onSubmit: (values: z.infer<typeof createTableSchema>) => void
 }) {
+  const router = useRouter()
+
   const purchaseItems = form.watch('purchase_items')
 
   const totalAmount = purchaseItems.reduce(
@@ -45,6 +42,10 @@ export function Summary({
       className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
         lg:border"
     >
+      <Button onClick={() => router.back()} variant="ghost" size="icon">
+        <ArrowLeft />
+      </Button>
+
       {table?.id ? (
         <div className="flex flex-col w-full">
           <strong className="text-xl">Mesa #{table.number}</strong>

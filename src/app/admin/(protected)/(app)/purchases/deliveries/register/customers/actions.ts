@@ -5,7 +5,7 @@ import {
   updateCustomerSchema,
 } from '@/app/[public_store]/account/register/schemas'
 import { adminProcedure } from '@/lib/zsa-procedures'
-import { CustomerType } from '@/models/customer'
+import { StoreCustomerType } from '@/models/store-customer'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { z } from 'zod'
@@ -40,9 +40,12 @@ export const createCustomer = adminProcedure
       )
     }
 
-    revalidatePath('/')
+    const createdStoreCustomerData: StoreCustomerType = {
+      ...createdStoreCustomer,
+      customers: createCustomer,
+    }
 
-    return { createdCustomer: createdCustomer as CustomerType }
+    return { createdStoreCustomer: createdStoreCustomerData }
   })
 
 export const updateCustomer = adminProcedure
@@ -51,21 +54,18 @@ export const updateCustomer = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
-    const { data: updatedCustomer, error: updateCustomerError } = await supabase
-      .from('customers')
-      .update(input)
-      .eq('id', input.id)
-      .select()
-      .single()
+    const { id, ...dataToUpdate } = input
 
-    if (updateCustomerError || !updatedCustomer) {
-      console.error(
-        'Não foi possível atualizar os dados do cliente.',
-        updateCustomerError,
+    const { error: updateCustomerError } = await supabase
+      .from('customers')
+      .update(dataToUpdate)
+      .eq('id', id)
+
+    if (updateCustomerError) {
+      throw new Error(
+        `Não foi possível atualizar os dados do cliente: ${updateCustomerError.message}`,
       )
     }
-
-    return revalidatePath('/')
   })
 
 export const readCustomerLastPurchases = adminProcedure

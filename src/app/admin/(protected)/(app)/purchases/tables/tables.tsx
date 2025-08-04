@@ -258,9 +258,9 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                                 </header>
 
                                 {item.extras.length > 0 &&
-                                  item.extras.map((extra) => (
+                                  item.extras.map((extra, index) => (
                                     <p
-                                      key={extra.id}
+                                      key={index}
                                       className="flex flex-row items-center justify-between w-full text-muted-foreground"
                                     >
                                       <span className="flex flex-row items-center">
@@ -278,8 +278,11 @@ export function Tables({ tables }: { tables: TableType[] | null }) {
                                 <div className="flex flex-col">
                                   {item.observations &&
                                     item.observations.length > 0 &&
-                                    item.observations.map((obs) => (
-                                      <span className="flex flex-row items-center text-muted-foreground uppercase">
+                                    item.observations.map((obs, index) => (
+                                      <span
+                                        key={index}
+                                        className="flex flex-row items-center text-muted-foreground uppercase"
+                                      >
                                         <Asterisk className="w-3 h-3 mr-1" />
                                         {obs}
                                       </span>

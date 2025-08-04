@@ -95,8 +95,8 @@ export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
       <AlertDialogTrigger
         className={cn(
           buttonVariants({
-            variant: !accepted ? 'destructive' : 'outline',
-            size: !accepted ? 'default' : 'icon',
+            variant: 'destructive',
+            size: 'default',
           }),
         )}
         onClick={handleGetCancellationReasons}
