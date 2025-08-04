@@ -1,23 +1,27 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
-import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Loader2, PlusCircle, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { Label } from './ui/label'
 
 interface ExtrasInputProps {
   availableExtras: ExtraType[]
+  isLoading?: boolean
   value: {
     name: string
     price: number
@@ -25,43 +29,33 @@ interface ExtrasInputProps {
     quantity: number
   }[]
   onChange: (extras: ExtrasInputProps['value']) => void
+  placeholder?: string
 }
 
 export function ExtrasInput({
   availableExtras,
+  isLoading,
   value,
   onChange,
+  placeholder = 'Adicionais',
 }: ExtrasInputProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [draftExtras, setDraftExtras] = useState<Record<string, number>>({})
+  const [open, setOpen] = useState(false)
 
-  const handleChange = (extraId: string, delta: number) => {
-    setDraftExtras((prev) => {
-      const current = prev[extraId] || 0
-      const newQuantity = current + delta
-      if (newQuantity <= 0) {
-        const { [extraId]: _, ...rest } = prev
-        return rest
-      }
-      return { ...prev, [extraId]: newQuantity }
-    })
+  const totalExtrasPrice = value.reduce(
+    (total, extra) => total + extra.price,
+    0,
+  )
+
+  const handleAddExtra = (extra: ExtraType) => {
+    const newExtra = {
+      name: extra.name,
+      price: extra.price,
+      extra_id: extra.id,
+      quantity: 1,
+    }
+    onChange([...value, newExtra])
+    setOpen(false)
   }
-
-  const handleSave = () => {
-    const newExtras = Object.entries(draftExtras).map(([id, quantity]) => {
-      const extra = availableExtras.find((e) => e.id === id)!
-      return {
-        name: extra.name,
-        price: extra.price * quantity,
-        extra_id: extra.id,
-        quantity,
-      }
-    })
-    onChange([...value, ...newExtras])
-    setDraftExtras({})
-    setIsOpen(false)
-  }
-
   const handleRemove = (index: number) => {
     const updated = [...value]
     updated.splice(index, 1)
@@ -69,88 +63,84 @@ export function ExtrasInput({
   }
 
   return (
-    <div className="space-y-1">
-      <Label className="text-sm">Adicionais</Label>
-
-      <ul className="space-y-1">
-        {value.length > 0 &&
-          value.map((extra, index) => (
-            <li
-              key={index}
-              className="flex items-center gap-3 bg-muted px-2 py-1 rounded-lg text-xs uppercase"
-            >
-              <div>
-                <span>{extra.quantity} ad.</span>
-                {extra.name}
-              </div>
-              <button
-                type="button"
-                onClick={() => handleRemove(index)}
-                className="flex flex-row items-center gap-2 ml-auto"
-              >
-                <span>{formatCurrencyBRL(extra.price)}</span>
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </li>
-          ))}
-      </ul>
-
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" className="w-full">
-            <Plus className="w-4 h-4" /> Inserir adicionais
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="px-0">
-          <SheetHeader className="px-6">
-            <SheetTitle>Selecionar adicionais</SheetTitle>
-          </SheetHeader>
-          <ScrollArea className="h-[calc(100vh_-_124px)] px-6">
-            <div className="space-y-3 mt-4">
-              {availableExtras.map((extra) => (
-                <div
-                  key={extra.id}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex flex-col">
-                    <span>{extra.name}</span>
-                    <strong className="text-xs text-muted-foreground">
-                      {formatCurrencyBRL(extra.price)}
-                    </strong>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      onClick={() => handleChange(extra.id, -1)}
-                      disabled={!draftExtras[extra.id]}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-6 text-center text-xs">
-                      {draftExtras[extra.id] || 0}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      onClick={() => handleChange(extra.id, 1)}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+    <div className="space-y-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-between"
+            disabled={availableExtras.length === 0}
+          >
+            <div className="flex items-center gap-2">
+              <PlusCircle className="h-4 w-4" />
+              <span>{placeholder}</span>
             </div>
-          </ScrollArea>
-          <SheetFooter className="px-6">
-            <Button className="mt-4 w-full" onClick={handleSave}>
-              Salvar Adicionais
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+            {totalExtrasPrice > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {formatCurrencyBRL(totalExtrasPrice)}
+              </span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0">
+          <Command>
+            <CommandInput placeholder="Buscar adicional..." />
+            <CommandList>
+              <CommandEmpty>
+                {isLoading ? (
+                  <div className="flex flex-row gap-2 items-center justify-center">
+                    <Loader2 className="animate-spin" />
+                    <span>Carregando adicionais...</span>
+                  </div>
+                ) : (
+                  'Nenhum adicional encontrado.'
+                )}
+              </CommandEmpty>
+              <CommandGroup>
+                {availableExtras.map((extra) => (
+                  <CommandItem
+                    key={extra.id}
+                    onSelect={() => handleAddExtra(extra)}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>{extra.name}</span>
+                      <span className="text-muted-foreground text-sm">
+                        {formatCurrencyBRL(extra.price)}
+                      </span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      {/* Badges dos extras selecionados */}
+      {value.length > 0 && (
+        <ul className="space-y-1">
+          {value.length > 0 &&
+            value.map((extra, index) => (
+              <li
+                key={index}
+                className="flex items-center gap-3 bg-muted px-2 py-1 rounded-lg text-xs"
+              >
+                <div>
+                  <span>{extra.quantity} ad. </span>
+                  <span className="uppercase">{extra.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemove(index)}
+                  className="flex flex-row items-center gap-2 ml-auto"
+                >
+                  <span>{formatCurrencyBRL(extra.price)}</span>
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </li>
+            ))}
+        </ul>
+      )}
     </div>
   )
 }

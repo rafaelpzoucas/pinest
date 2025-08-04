@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
+import { createAdminCustomer } from '@/actions/admin/customers/actions'
 import { createCustomerSchema } from '@/app/[public_store]/account/register/schemas'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,7 +20,6 @@ import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/input-phone'
 import { SheetFooter } from '@/components/ui/sheet'
 import { StoreCustomerType } from '@/models/store-customer'
-import { createStoreCustomer } from '@/services/customers/create'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
@@ -68,11 +68,9 @@ export function CustomersForm({
   })
 
   const { mutate: createCustomer, isPending: isCreating } = useMutation({
-    mutationFn: createStoreCustomer,
+    mutationFn: createAdminCustomer,
     onSuccess: ({ createdStoreCustomer }) => {
       const newCustomer = createdStoreCustomer
-
-      console.log({ newCustomer })
       setPhoneQuery(null)
 
       queryClient.setQueryData<StoreCustomerType[]>(['customers'], (old) =>

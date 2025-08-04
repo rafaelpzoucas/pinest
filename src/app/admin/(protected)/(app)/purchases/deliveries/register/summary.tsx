@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { formatCurrencyBRL } from '@/lib/utils'
+import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -29,7 +29,7 @@ export function Summary({
   const purchaseId = searchParams.get('purchase_id')
 
   const subtotal = form.watch('total.subtotal') ?? 0
-
+  const discount = stringToNumber(form.watch('total.discount')) ?? 0
   const totalAmount = form.watch('total.total_amount')
 
   return (
@@ -96,7 +96,7 @@ export function Summary({
                 <RadioGroup
                   onValueChange={field.onChange}
                   value={field.value}
-                  className="grid grid-cols-2 space-y-1"
+                  className="flex flex-row space-x-4"
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
@@ -108,9 +108,7 @@ export function Summary({
                     <FormControl>
                       <RadioGroupItem value="CREDIT" />
                     </FormControl>
-                    <FormLabel className="font-normal">
-                      Cartão de crédito
-                    </FormLabel>
+                    <FormLabel className="font-normal">Cartão</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
@@ -120,11 +118,9 @@ export function Summary({
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="DEBIT" />
+                      <RadioGroupItem value="PAID" />
                     </FormControl>
-                    <FormLabel className="font-normal">
-                      Cartão de débito
-                    </FormLabel>
+                    <FormLabel className="font-normal">Pago</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -132,6 +128,26 @@ export function Summary({
             </FormItem>
           )}
         />
+
+        {form.watch('payment_type') === 'CASH' && (
+          <FormField
+            control={form.control}
+            name="total.change_value"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Troco para (opcional)</FormLabel>
+                <FormControl>
+                  <Input
+                    maskType="currency"
+                    placeholder="Insira o valor..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </div>
 
       <div className="space-y-4">
@@ -170,23 +186,7 @@ export function Summary({
 
       <div className="w-full lg:max-w-xs space-y-4">
         <div className="flex flex-col gap-4 w-full">
-          {form.watch('payment_type') === 'CASH' && (
-            <FormField
-              control={form.control}
-              name="total.change_value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Troco para (opcional)</FormLabel>
-                  <FormControl>
-                    <Input maskType="currency" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          <div>
+          <div className="space-y-1">
             <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">
               <span>Subtotal</span>
               <strong>{formatCurrencyBRL(subtotal)}</strong>
@@ -201,6 +201,17 @@ export function Summary({
               </div>
             )}
 
+            {discount > 0 && (
+              <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">
+                <span>Desconto</span>
+                <strong className="text-green-600">
+                  {formatCurrencyBRL(discount * -1)}
+                </strong>
+              </div>
+            )}
+
+            <hr />
+
             <div className="flex flex-row items-center justify-between w-full">
               <span>Total da venda</span>
               <strong>{formatCurrencyBRL(totalAmount ?? 0)}</strong>
@@ -211,7 +222,7 @@ export function Summary({
         <Button
           type="button"
           className="w-full"
-          disabled={isPending}
+          disabled={isPending || totalAmount <= 0}
           onClick={() => form.handleSubmit(onSubmit)()}
         >
           {isPending ? (

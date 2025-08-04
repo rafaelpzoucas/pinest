@@ -9,12 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form'
+import { FormField, FormItem, FormMessage } from '@/components/ui/form'
 import {
   Popover,
   PopoverContent,
@@ -85,45 +80,47 @@ export function CustomersCombobox({
       control={form.control}
       name="customer_id"
       render={({ field }) => (
-        <FormItem className="flex flex-col w-full max-w-md">
+        <FormItem className="flex flex-col w-full">
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <div
-                  className={cn(
-                    buttonVariants({ variant: 'outline' }),
-                    'justify-between h-fit cursor-pointer',
-                    !field.value && 'text-muted-foreground',
-                  )}
-                >
-                  {field.value ? (
-                    <div>
+            <PopoverTrigger className="rounded-lg focus:outline outline-primary">
+              <div
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  'w-full justify-between h-fit cursor-pointer',
+                  !field.value && 'text-muted-foreground',
+                )}
+              >
+                {field.value ? (
+                  <div className="flex flex-row gap-4">
+                    <p>
                       {
                         storeCustomers?.find(
                           (storeCustomer) => storeCustomer.id === field.value,
                         )?.customers.name
                       }
-                      <p className="text-muted-foreground">
-                        {
-                          storeCustomers?.find(
-                            (storeCustomer) => storeCustomer.id === field.value,
-                          )?.customers.phone
-                        }
-                      </p>
-                      <p className="text-muted-foreground text-wrap">
-                        {formatAddress(
-                          storeCustomers?.find(
-                            (storeCustomer) => storeCustomer.id === field.value,
-                          )?.customers.address,
-                        )}
-                      </p>
-                    </div>
-                  ) : (
-                    'Selecione um cliente'
-                  )}
-                  <ChevronsUpDown className="w-4 h-4 opacity-50" />
-                </div>
-              </FormControl>
+                    </p>
+                    &bull;
+                    <p>
+                      {
+                        storeCustomers?.find(
+                          (storeCustomer) => storeCustomer.id === field.value,
+                        )?.customers.phone
+                      }
+                    </p>
+                    &bull;
+                    <p className="text-wrap text-left">
+                      {formatAddress(
+                        storeCustomers?.find(
+                          (storeCustomer) => storeCustomer.id === field.value,
+                        )?.customers.address,
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  'Selecione um cliente'
+                )}
+                <ChevronsUpDown className="w-4 h-4 opacity-50" />
+              </div>
             </PopoverTrigger>
             <PopoverContent
               align="start"

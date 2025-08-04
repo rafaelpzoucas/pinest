@@ -10,6 +10,9 @@ import {
 } from '../../../config/printing/actions'
 import { createPurchaseFormSchema, updatePurchaseFormSchema } from './schemas'
 
+import { StoreType } from '@/models/store'
+import { cache } from 'react'
+
 export const getNextDisplayId = adminProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
@@ -251,3 +254,15 @@ export const updatePurchase = adminProcedure
     // 6. Redirect final
     redirect('/admin/purchases?tab=deliveries')
   })
+
+export const readStoreData = adminProcedure
+  .createServerAction()
+  .handler(async ({ ctx }) => {
+    const { store } = ctx
+
+    return {
+      store: store as StoreType,
+    }
+  })
+
+export const readStoreDataCached = cache(readStoreData)

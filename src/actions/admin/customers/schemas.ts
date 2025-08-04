@@ -8,20 +8,20 @@ export const addressSchema = z.object({
   observations: z.string().optional(),
 })
 
-export const createStoreCustomerSchema = z.object({
+export const createAdminCustomerSchema = z.object({
   storeId: z.string().uuid(),
   phone: z.string().min(14, 'Insira um número de telefone válido.'),
   name: z.string().min(1, { message: 'O nome é obrigatório.' }),
   address: addressSchema,
 })
 
-export const updateStoreCustomerSchema = z.object({
+export const updateAdminCustomerSchema = z.object({
   id: z.string({ message: 'O ID do cliente é obrigatório.' }),
   phone: z.string().min(1, 'Telefone é obrigatório.'),
   name: z.string().min(1, { message: 'O nome é obrigatório.' }),
   address: addressSchema,
 })
 
-export const readStoreCustomersSchema = z.object({ storeId: z.string() })
+export const readAdminCustomersSchema = z.object({ storeId: z.string() })
 
-export type CreateStoreCustomerType = z.infer<typeof createStoreCustomerSchema>
+export type CreateAdminCustomerType = z.infer<typeof createAdminCustomerSchema>

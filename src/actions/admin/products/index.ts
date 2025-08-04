@@ -1,0 +1,1 @@
+export { readAdminProductsServer } from './read'

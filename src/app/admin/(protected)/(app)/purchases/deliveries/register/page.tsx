@@ -1,6 +1,6 @@
 import { readPurchaseByIdCached } from '../[id]/actions'
+import { readStoreDataCached } from './actions'
 import { CreatePurchaseForm } from './form'
-import { readStoreDataCached } from './products/actions'
 
 export default async function CreatePurchasePage({
   searchParams,
@@ -12,25 +12,12 @@ export default async function CreatePurchasePage({
     readStoreDataCached(),
   ])
 
-  const products = data?.products
-  const categories = data?.categories
-  const extras = data?.extras
-  const shippings = data?.shippings
   const purchase = purchaseData?.purchase
   const storeId = data?.store.id
 
   return (
     <main className="space-y-6 p-4 lg:px-0 w-full">
-      {data && (
-        <CreatePurchaseForm
-          storeId={storeId}
-          products={products}
-          categories={categories}
-          extras={extras}
-          shipping={shippings}
-          purchase={purchase}
-        />
-      )}
+      {data && <CreatePurchaseForm storeId={storeId} purchase={purchase} />}
     </main>
   )
 }

@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
-import { buttonVariants } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { readAdminCustomers } from '@/actions/admin/customers/actions'
+import { readAdminShipping } from '@/actions/admin/shipping/actions'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetClose,
@@ -17,43 +17,32 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { cn, formatCurrencyBRL, stringToNumber } from '@/lib/utils'
-import { CategoryType } from '@/models/category'
-import { ExtraType } from '@/models/extras'
-import { ProductType } from '@/models/product'
 import { PurchaseType } from '@/models/purchase'
-import { ShippingConfigType } from '@/models/shipping'
-import { fetchStoreCustomers } from '@/services/customers/read'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import { useServerAction } from 'zsa-react'
 import { createPurchase, updatePurchase } from './actions'
 import { CustomersCombobox } from './customers/combobox'
 import { CustomersForm } from './customers/form'
-import { ProductsList } from './products/list'
 import { SelectedProducts } from './products/selected-products'
 import { createPurchaseFormSchema } from './schemas'
 import { Summary } from './summary'
 
 export function CreatePurchaseForm({
-  products,
-  categories,
-  extras,
-  shipping,
   purchase,
   storeId,
 }: {
-  products?: ProductType[]
-  categories?: CategoryType[]
-  extras?: ExtraType[]
-  shipping?: ShippingConfigType
   purchase?: PurchaseType
   storeId?: string
 }) {
+  const router = useRouter()
+
   const { data: customers, isLoading: isLoadingCustomers } = useQuery({
     queryKey: ['customers'],
-    queryFn: () => fetchStoreCustomers(storeId ?? ''),
+    queryFn: () => readAdminCustomers(storeId ?? ''),
     enabled: !!storeId,
   })
   const [isFinishOpen, setIsFinishOpen] = useState(false)
@@ -63,6 +52,12 @@ export function CreatePurchaseForm({
   })
   const showCustomerForm =
     customerForm === 'create' || customerForm === 'update'
+
+  const { data: shipping } = useQuery({
+    queryKey: ['shipping'],
+    queryFn: () => readAdminShipping(storeId as string),
+    enabled: !!storeId,
+  })
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof createPurchaseFormSchema>>({
@@ -163,49 +158,27 @@ export function CreatePurchaseForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="relative flex flex-col items-start gap-4 h-[calc(100dvh_-_2rem)] lg:pb-0"
         >
-          <CustomersCombobox
-            storeCustomers={customers}
-            form={form}
-            phoneQuery={phoneQuery}
-            setPhoneQuery={setPhoneQuery}
-            isLoading={isLoadingCustomers}
-            setCustomerForm={setCustomerForm}
-          />
+          <div className="flex flex-row gap-4">
+            <Button
+              type="button"
+              onClick={() => router.back()}
+              variant="ghost"
+              size="icon"
+            >
+              <ArrowLeft />
+            </Button>
 
-          <Sheet>
-            <SheetTrigger className={cn(buttonVariants(), 'w-fit')}>
-              <Plus className="w-4 h-4" />
-              Adicionar produtos
-            </SheetTrigger>
-            <SheetContent className="!max-w-2xl space-y-2">
-              <SheetHeader className="flex flex-row items-center gap-2">
-                <SheetClose
-                  className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-                >
-                  <ArrowLeft />
-                </SheetClose>
-                <SheetTitle className="!mt-0">Produtos</SheetTitle>
-              </SheetHeader>
+            <CustomersCombobox
+              storeCustomers={customers}
+              form={form}
+              phoneQuery={phoneQuery}
+              setPhoneQuery={setPhoneQuery}
+              isLoading={isLoadingCustomers}
+              setCustomerForm={setCustomerForm}
+            />
+          </div>
 
-              <ProductsList
-                form={form}
-                categories={categories}
-                products={products}
-              />
-            </SheetContent>
-          </Sheet>
-
-          <ScrollArea className="w-full h-[calc(100vh_-_32px_-_77px_-_32px)]">
-            <Card className="flex flex-col h-full">
-              <CardContent className="p-4">
-                <SelectedProducts
-                  form={form}
-                  extras={extras}
-                  products={products}
-                />
-              </CardContent>
-            </Card>
-          </ScrollArea>
+          <SelectedProducts form={form} storeId={storeId} />
 
           <div className="hidden lg:block w-full">
             <Summary

@@ -3,10 +3,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { StoreCustomerType } from '@/models/store-customer'
 import { createServerAction, ZSAError } from 'zsa'
-import { readStoreCustomersSchema } from './schemas'
+import { readAdminCustomersSchema } from './schemas'
 
-export const readStoreCustomers = createServerAction()
-  .input(readStoreCustomersSchema)
+export const readAdminCustomersServer = createServerAction()
+  .input(readAdminCustomersSchema)
   .handler(async ({ input }) => {
     const supabase = createClient()
 
