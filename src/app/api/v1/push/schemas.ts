@@ -12,13 +12,13 @@ export const subscribeSchema = z.object({
   customerPhone: z.string().optional(),
 })
 
-export const notifyStoreSchema = z.object({
-  description: z.string().optional(),
+export const notifySchema = z.object({
   storeId: z.string().optional(),
-  title: z.string().optional(),
   customerPhone: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
   url: z.string().optional(),
   icon: z.string().optional(),
 })
 
-export type NotifyStoreType = z.infer<typeof notifyStoreSchema>
+export type NotifyType = z.infer<typeof notifySchema>

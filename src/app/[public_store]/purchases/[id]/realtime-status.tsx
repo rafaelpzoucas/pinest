@@ -2,6 +2,7 @@
 
 import { LoadingBar } from '@/components/loading-bar'
 import { Card } from '@/components/ui/card'
+import { useStoreNotifications } from '@/hooks/useStoreNotifications'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNowDate } from '@/lib/utils'
 import { PurchaseType } from '@/models/purchase'
@@ -12,11 +13,19 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { StatusKey } from './status'
 
-export function RealtimeStatus({ purchase }: { purchase: PurchaseType }) {
+export function RealtimeStatus({
+  purchase,
+  customerPhone,
+}: {
+  purchase: PurchaseType
+  customerPhone?: string
+}) {
   const supabase = createClient()
   const router = useRouter()
 
   const currentStatus = statuses[purchase.status as StatusKey]
+
+  useStoreNotifications({ customerPhone })
 
   useEffect(() => {
     const channel = supabase
