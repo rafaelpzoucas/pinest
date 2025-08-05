@@ -2,7 +2,13 @@ import { buttonVariants } from '@/components/ui/button'
 import { Banknote, CreditCard, DollarSign, MapPin } from 'lucide-react'
 
 import { CopyTextButton } from '@/components/copy-text-button'
-import { cn, createPath, formatAddress, formatCurrencyBRL } from '@/lib/utils'
+import {
+  calculateCartTotal,
+  cn,
+  createPath,
+  formatAddress,
+  formatCurrencyBRL,
+} from '@/lib/utils'
 import Link from 'next/link'
 import { readOwnShipping } from '../../(app)/header/actions'
 import { readCustomerCached } from '../../account/actions'
@@ -70,19 +76,7 @@ export default async function Summary({
 
   const paymentKey = payment as keyof typeof PAYMENT_METHODS
 
-  const productsPrice = cart
-    ? cart.reduce((acc, cartProduct) => {
-        const productTotal = cartProduct.product_price
-
-        const extrasTotal =
-          cartProduct.extras?.reduce(
-            (sum, extra) => sum + extra.price * extra.quantity,
-            0,
-          ) || 0
-
-        return (acc + productTotal + extrasTotal) * cartProduct.quantity
-      }, 0)
-    : 0
+  const productsPrice = cart ? calculateCartTotal(cart) : 0
 
   const shippingPrice =
     pickup === 'DELIVERY'

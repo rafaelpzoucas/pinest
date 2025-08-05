@@ -4,7 +4,12 @@ import { readCustomer } from '@/actions/client/app/public_store/cart/customer'
 import { Header } from '@/components/store-header'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
+import {
+  calculateCartTotal,
+  cn,
+  createPath,
+  formatCurrencyBRL,
+} from '@/lib/utils'
 import { usePublicStore } from '@/stores/public-store'
 import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
@@ -22,19 +27,7 @@ export default function CartPage() {
 
   const customer = customerData?.customer
 
-  const productsPrice = cart
-    ? cart.reduce((acc, cartProduct) => {
-        const productTotal = cartProduct.product_price
-
-        const extrasTotal =
-          cartProduct.extras?.reduce(
-            (sum, extra) => sum + extra.price * extra.quantity,
-            0,
-          ) || 0
-
-        return (acc + productTotal + extrasTotal) * cartProduct.quantity
-      }, 0)
-    : 0
+  const productsPrice = calculateCartTotal(cart)
 
   const finishPurchaseLink = !customer
     ? createPath('/account?checkout=true', store?.store_subdomain)
