@@ -221,3 +221,19 @@ export const createPath = (
 export function normalizeHost(hostname: string): string {
   return hostname.startsWith('www.') ? hostname.slice(4) : hostname
 }
+
+export function calculateCartTotal(cart: any[]) {
+  if (!cart) return 0
+
+  return cart.reduce((acc: number, cartProduct: any) => {
+    const productTotal = cartProduct.product_price
+    const extrasTotal =
+      cartProduct.extras?.reduce(
+        (sum: number, extra: any) => sum + extra.price * extra.quantity,
+        0,
+      ) || 0
+
+    const itemTotal = (productTotal + extrasTotal) * cartProduct.quantity
+    return acc + itemTotal
+  }, 0)
+}

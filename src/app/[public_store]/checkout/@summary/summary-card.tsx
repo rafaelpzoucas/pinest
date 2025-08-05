@@ -1,7 +1,7 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { formatCurrencyBRL } from '@/lib/utils'
+import { calculateCartTotal, formatCurrencyBRL } from '@/lib/utils'
 import { useCouponStore } from '@/stores/couponStore'
 import { CheckoutButton } from './checkout-button'
 
@@ -27,6 +27,8 @@ export function SummaryCard({
   searchParams: any
 }) {
   const { appliedCoupon } = useCouponStore()
+
+  console.log({ totalPrice })
 
   function getDiscountedTotal() {
     if (!appliedCoupon || !appliedCoupon.valid) return totalPrice
@@ -75,17 +77,7 @@ export function SummaryCard({
   }
 
   // Calcula o preço dos produtos
-  const productsPrice = cart
-    ? cart.reduce((acc: number, cartProduct: any) => {
-        const productTotal = cartProduct.product_price
-        const extrasTotal =
-          cartProduct.extras?.reduce(
-            (sum: number, extra: any) => sum + extra.price * extra.quantity,
-            0,
-          ) || 0
-        return (acc + productTotal + extrasTotal) * cartProduct.quantity
-      }, 0)
-    : 0
+  const productsPrice = calculateCartTotal(cart)
 
   // Calcula o preço do frete
   const shippingPrice =
