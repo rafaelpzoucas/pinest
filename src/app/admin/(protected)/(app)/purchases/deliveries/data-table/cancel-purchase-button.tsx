@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { cancelPurchase } from '../[id]/actions'
 import { getCancellationReasons, requestCancellation } from './actions'
 
+import { nofityCustomer } from '@/actions/admin/notifications/actions'
 import {
   Form,
   FormControl,
@@ -38,6 +39,7 @@ import { CancellationReasonsType } from '@/models/ifood'
 import { PurchaseType } from '@/models/purchase'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useServerAction } from 'zsa-react'
 
 const FormSchema = z.object({
   code: z.string(),
@@ -52,9 +54,20 @@ export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
   const accepted = currentStatus !== 'accept'
   const delivered = currentStatus === 'delivered'
 
+  const customerPhone = purchase.store_customers.customers.phone
+
   const [cancellationReasons, setCancellationReasons] = useState<
     CancellationReasonsType[]
   >([])
+
+  const { execute } = useServerAction(cancelPurchase, {
+    onSuccess: () => {
+      nofityCustomer({
+        title: 'O seu pedido foi cancelado!',
+        customerPhone,
+      })
+    },
+  })
 
   async function handleGetCancellationReasons() {
     const response = await getCancellationReasons(purchaseId)
@@ -79,7 +92,7 @@ export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
     }
 
     requestCancellation(requestCancellationBody, purchaseId)
-    cancelPurchase({ purchaseId })
+    execute({ purchaseId })
   }
 
   if (currentStatus === 'cancelled') {
@@ -164,7 +177,7 @@ export function CancelPurchaseButton({ purchase }: { purchase: PurchaseType }) {
         {!isIfood && (
           <AlertDialogFooter>
             <AlertDialogCancel>Não, manter pedido</AlertDialogCancel>
-            <AlertDialogAction onClick={() => cancelPurchase({ purchaseId })}>
+            <AlertDialogAction onClick={() => execute({ purchaseId })}>
               Sim, cancelar
             </AlertDialogAction>
           </AlertDialogFooter>

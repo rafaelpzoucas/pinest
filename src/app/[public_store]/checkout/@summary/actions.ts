@@ -2,7 +2,7 @@
 
 import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
 
-import { notifyStoreSchema, NotifyStoreType } from '@/app/api/v1/push/schemas'
+import { notifySchema, NotifyType } from '@/app/api/v1/push/schemas'
 import { createClient } from '@/lib/supabase/server'
 import { createPath } from '@/lib/utils'
 import { storeProcedure } from '@/lib/zsa-procedures'
@@ -297,9 +297,8 @@ export const createPurchase = storeProcedure
     )
   })
 
-export async function nofityStore(values: NotifyStoreType) {
-  const { description, storeId, title, url, icon } =
-    notifyStoreSchema.parse(values)
+export async function nofityStore(values: NotifyType) {
+  const { description, storeId, title, url, icon } = notifySchema.parse(values)
 
   try {
     await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/push/notify`, {

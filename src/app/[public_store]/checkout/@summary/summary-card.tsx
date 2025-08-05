@@ -28,8 +28,6 @@ export function SummaryCard({
 }) {
   const { appliedCoupon } = useCouponStore()
 
-  console.log({ totalPrice })
-
   function getDiscountedTotal() {
     if (!appliedCoupon || !appliedCoupon.valid) return totalPrice
     if (appliedCoupon.discount_type === 'percent') {

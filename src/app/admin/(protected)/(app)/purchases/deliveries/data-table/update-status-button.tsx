@@ -1,5 +1,6 @@
 'use client'
 
+import { nofityCustomer } from '@/actions/admin/notifications/actions'
 import { Button } from '@/components/ui/button'
 import { PurchaseType } from '@/models/purchase'
 import { statuses } from '@/models/statuses'
@@ -18,6 +19,8 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
 
   const accepted = currentStatus !== 'accept'
 
+  const customerPhone = purchase.store_customers.customers.phone
+
   const { execute: executePrintReceipt } = useServerAction(printPurchaseReceipt)
 
   const { execute: executeAccept, isPending: isAcceptPending } =
@@ -28,10 +31,22 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
           purchaseType: purchase.type,
           reprint: false,
         })
+
+        nofityCustomer({
+          title: 'O seu pedido foi aceito!',
+          customerPhone,
+        })
       },
     })
 
-  const { execute, isPending } = useServerAction(updatePurchaseStatus)
+  const { execute, isPending } = useServerAction(updatePurchaseStatus, {
+    onSuccess: () => {
+      nofityCustomer({
+        title: statuses[currentStatus as StatusKey].next_step as string,
+        customerPhone,
+      })
+    },
+  })
 
   async function handleUpdateStatus(status: string) {
     if (!accepted) {

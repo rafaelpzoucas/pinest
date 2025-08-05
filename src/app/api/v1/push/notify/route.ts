@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import webpush from '@/lib/webpush'
 import { NextResponse } from 'next/server'
-import { notifyStoreSchema } from '../schemas'
+import { notifySchema } from '../schemas'
 
 export const runtime = 'nodejs'
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const parsed = notifyStoreSchema.safeParse(json)
+  const parsed = notifySchema.safeParse(json)
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -25,11 +25,27 @@ export async function POST(req: Request) {
 
   const { description, storeId, title, customerPhone, url, icon } = parsed.data
   const supabase = createClient()
+  let query = supabase.from('push_subscriptions').select('*')
 
-  const { data: subscriptions, error: subError } = await supabase
-    .from('push_subscriptions')
-    .select('*')
-    .or(`store_id.eq.${storeId},customer_phone.eq.${customerPhone}`)
+  if (storeId && customerPhone) {
+    // Se ambos estão presentes
+    query = query.or(
+      `store_id.eq.${storeId},customer_phone.eq.${customerPhone}`,
+    )
+  } else if (storeId) {
+    // Apenas storeId
+    query = query.eq('store_id', storeId)
+  } else if (customerPhone) {
+    // Apenas customerPhone
+    query = query.eq('customer_phone', customerPhone)
+  } else {
+    return NextResponse.json(
+      { error: 'storeId ou customerPhone deve ser fornecido' },
+      { status: 400 },
+    )
+  }
+
+  const { data: subscriptions, error: subError } = await query
 
   if (subError) {
     return NextResponse.json(

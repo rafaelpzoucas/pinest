@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
 import { Banknote, CreditCard, DollarSign } from 'lucide-react'
+import { readCustomerCached } from '../../account/actions'
 import { readStoreCached } from '../../actions'
 import { readPurchaseById } from './actions'
 import { Status, StatusKey } from './status'
@@ -14,15 +15,17 @@ export default async function PurchasePage({
 }: {
   params: { id: string }
 }) {
-  const [[storeData], [purchaseData]] = await Promise.all([
+  const [[storeData], [purchaseData], [customerData]] = await Promise.all([
     readStoreCached(),
     readPurchaseById({ purchaseId: params.id }),
+    readCustomerCached({}),
   ])
 
   const store = storeData?.store
   const storeAddress = store?.addresses[0]
   const purchase = purchaseData?.purchase
   const address = purchase?.delivery.address
+  const customer = customerData?.customer
 
   const total = purchase?.total
   const discount = total?.discount
@@ -63,7 +66,7 @@ export default async function PurchasePage({
 
       {purchase && (
         <div className="flex flex-col gap-2 text-sm w-full max-w-lg">
-          <Status purchase={purchase} />
+          <Status purchase={purchase} customer={customer} />
 
           <Card className="flex flex-col items-center gap-2 text-center py-6">
             {paymentType === 'CREDIT' && <CreditCard />}
