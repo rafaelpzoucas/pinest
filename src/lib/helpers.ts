@@ -16,11 +16,8 @@ function isSubdomainOfRoot(host: string): boolean {
 }
 
 function isTrustedStagingHost(host: string): boolean {
-  return (
-    STAGING_HOSTS.includes(host) ||
-    isSubdomainOfRoot(host) ||
-    host === ROOT_DOMAIN
-  )
+  // Corrigido: removido isSubdomainOfRoot - subdomínios de produção não devem ser staging
+  return STAGING_HOSTS.includes(host) || host === ROOT_DOMAIN
 }
 
 function isCustomDomainMapped(host: string): boolean {
@@ -29,7 +26,11 @@ function isCustomDomainMapped(host: string): boolean {
 }
 
 function isTrustedHost(host: string): boolean {
-  return isTrustedStagingHost(host) || isCustomDomainMapped(host)
+  return (
+    isTrustedStagingHost(host) ||
+    isCustomDomainMapped(host) ||
+    isSubdomainOfRoot(host)
+  )
 }
 
 export function extractSubdomainOrDomain(): string | null {
@@ -51,6 +52,19 @@ export function extractSubdomainOrDomain(): string | null {
     normalized: normalizedHost,
   })
 
+  // Debug detalhado da verificação de host confiável
+  const trustChecks = {
+    isTrustedStaging: isTrustedStagingHost(host),
+    isCustomDomainMapped: isCustomDomainMapped(host),
+    stagingHosts: STAGING_HOSTS,
+    isRootDomain: host === ROOT_DOMAIN,
+    isSubdomainOfRoot: isSubdomainOfRoot(host),
+  }
+  console.log(
+    '[extractSubdomainOrDomain] Verificações de confiança:',
+    trustChecks,
+  )
+
   if (!isTrustedHost(host)) {
     console.warn('[extractSubdomainOrDomain] ❌ Host não confiável:', host)
     console.log('[extractSubdomainOrDomain] === FIM (HOST_NOT_TRUSTED) ===')
@@ -58,10 +72,19 @@ export function extractSubdomainOrDomain(): string | null {
   }
   console.log('[extractSubdomainOrDomain] ✅ Host confiável verificado')
 
+  // Debug adicional para a lógica de staging
+  const stagingChecks = {
+    inStagingHosts: STAGING_HOSTS.includes(host),
+    isRootDomain: host === ROOT_DOMAIN,
+    isSubdomain: isSubdomainOfRoot(host),
+  }
+
   const isStaging = isTrustedStagingHost(host)
-  console.log('[extractSubdomainOrDomain] Verificação staging:', {
+  console.log('[extractSubdomainOrDomain] Verificação staging DETALHADA:', {
     host,
     isStaging,
+    stagingChecks,
+    stagingHosts: STAGING_HOSTS,
   })
 
   if (!isStaging && isSubdomainOfRoot(host)) {
@@ -94,9 +117,8 @@ export function extractSubdomainOrDomain(): string | null {
       '[extractSubdomainOrDomain] ⏭️ Pulando verificação de subdomínio:',
       {
         isStaging,
-        isSubdomainOfRoot: !isStaging
-          ? isSubdomainOfRoot(host)
-          : 'N/A (staging)',
+        isSubdomainOfRoot: isSubdomainOfRoot(host),
+        motivo: isStaging ? 'É ambiente staging' : 'Não é subdomínio do root',
       },
     )
   }

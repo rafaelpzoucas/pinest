@@ -14,8 +14,6 @@ type StoreHydratorProps = {
 export function StoreHydrator({ publicStoreData }: StoreHydratorProps) {
   const setStoreData = usePublicStore((state) => state.setStoreData)
 
-  console.log('Store hydrator', { publicStoreData })
-
   useEffect(() => {
     if (publicStoreData) {
       setStoreData(publicStoreData)
