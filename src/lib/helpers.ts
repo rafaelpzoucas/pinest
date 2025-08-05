@@ -33,35 +33,116 @@ function isTrustedHost(host: string): boolean {
 }
 
 export function extractSubdomainOrDomain(): string | null {
+  console.log('[extractSubdomainOrDomain] === INICIO DA EXECUÇÃO ===')
+
   const headersList = headers()
   const host = headersList.get('host') || ''
   const pathname = headersList.get('x-pathname') || '/'
 
+  console.log('[extractSubdomainOrDomain] Headers capturados:', {
+    host: host || 'VAZIO',
+    pathname: pathname || 'VAZIO',
+    allHeaders: Object.fromEntries(headersList.entries()),
+  })
+
   const normalizedHost = normalizeHost(host)
+  console.log('[extractSubdomainOrDomain] Host normalizado:', {
+    original: host,
+    normalized: normalizedHost,
+  })
 
   if (!isTrustedHost(host)) {
-    console.warn('Untrusted host:', host)
+    console.warn('[extractSubdomainOrDomain] ❌ Host não confiável:', host)
+    console.log('[extractSubdomainOrDomain] === FIM (HOST_NOT_TRUSTED) ===')
     return null
   }
+  console.log('[extractSubdomainOrDomain] ✅ Host confiável verificado')
 
   const isStaging = isTrustedStagingHost(host)
+  console.log('[extractSubdomainOrDomain] Verificação staging:', {
+    host,
+    isStaging,
+  })
 
   if (!isStaging && isSubdomainOfRoot(host)) {
-    const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
-    console.log('[extract] subdomain parts:', parts)
-    if (parts.length === 1) return parts[0]
-  }
-
-  if (isCustomDomainMapped(host)) {
     console.log(
-      '[extract] customDomain match:',
-      CUSTOM_DOMAIN_MAP[normalizedHost],
+      '[extractSubdomainOrDomain] 🔍 Processando como subdomínio do root',
     )
-    return CUSTOM_DOMAIN_MAP[normalizedHost]
+    const parts = host.replace(`.${ROOT_DOMAIN}`, '').split('.')
+    console.log('[extractSubdomainOrDomain] Subdomain parts:', {
+      originalHost: host,
+      rootDomain: ROOT_DOMAIN,
+      afterReplace: host.replace(`.${ROOT_DOMAIN}`, ''),
+      parts,
+      partsLength: parts.length,
+    })
+
+    if (parts.length === 1) {
+      console.log(
+        '[extractSubdomainOrDomain] ✅ Retornando subdomínio:',
+        parts[0],
+      )
+      console.log('[extractSubdomainOrDomain] === FIM (SUBDOMAIN) ===')
+      return parts[0]
+    } else {
+      console.log(
+        '[extractSubdomainOrDomain] ⚠️ Múltiplas partes no subdomínio, continuando...',
+      )
+    }
+  } else {
+    console.log(
+      '[extractSubdomainOrDomain] ⏭️ Pulando verificação de subdomínio:',
+      {
+        isStaging,
+        isSubdomainOfRoot: !isStaging
+          ? isSubdomainOfRoot(host)
+          : 'N/A (staging)',
+      },
+    )
   }
 
-  const segments = pathname.split('/').filter(Boolean)
-  if (segments.length > 0) return segments[0]
+  const isCustomDomain = isCustomDomainMapped(host)
+  console.log('[extractSubdomainOrDomain] Verificação custom domain:', {
+    host,
+    normalizedHost,
+    isCustomDomain,
+    availableMappings: Object.keys(CUSTOM_DOMAIN_MAP),
+  })
 
+  if (isCustomDomain) {
+    const mappedValue = CUSTOM_DOMAIN_MAP[normalizedHost]
+    console.log('[extractSubdomainOrDomain] ✅ Custom domain encontrado:', {
+      host,
+      normalizedHost,
+      mappedValue,
+    })
+    console.log('[extractSubdomainOrDomain] === FIM (CUSTOM_DOMAIN) ===')
+    return mappedValue
+  }
+
+  console.log(
+    '[extractSubdomainOrDomain] 🔍 Processando pathname como fallback',
+  )
+  const segments = pathname.split('/').filter(Boolean)
+  console.log('[extractSubdomainOrDomain] Pathname segments:', {
+    originalPathname: pathname,
+    segments,
+    segmentsLength: segments.length,
+    firstSegment: segments[0] || 'NENHUM',
+  })
+
+  if (segments.length > 0) {
+    console.log(
+      '[extractSubdomainOrDomain] ✅ Retornando primeiro segment:',
+      segments[0],
+    )
+    console.log('[extractSubdomainOrDomain] === FIM (PATHNAME_SEGMENT) ===')
+    return segments[0]
+  }
+
+  console.log(
+    '[extractSubdomainOrDomain] ❌ Nenhuma condição atendida, retornando null',
+  )
+  console.log('[extractSubdomainOrDomain] === FIM (NULL) ===')
   return null
 }
