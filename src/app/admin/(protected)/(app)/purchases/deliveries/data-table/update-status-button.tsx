@@ -35,6 +35,7 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
         nofityCustomer({
           title: 'O seu pedido foi aceito!',
           customerPhone,
+          url: `/purchases/${purchase.id}`,
         })
       },
     })
@@ -44,6 +45,7 @@ export function UpdateStatusButton({ purchase }: { purchase: PurchaseType }) {
       nofityCustomer({
         title: statuses[currentStatus as StatusKey].next_step as string,
         customerPhone,
+        url: `/purchases/${purchase.id}`,
       })
     },
   })
