@@ -2,16 +2,13 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-import { generateSlug } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { MarketNicheType } from '@/models/market-niches'
 import { StoreType } from '@/models/store'
 import { get } from '@vercel/edge-config'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
-import { storeSchema } from './form'
 
 export async function readStoreById(storeId: string): Promise<{
   store: StoreType | null
@@ -99,67 +96,6 @@ export const setStoreEdgeConfigVercel = createServerAction()
       throw new Error('Não foi possível atualizar o Edge Config')
     }
   })
-
-export async function createStore(
-  columns: z.infer<typeof storeSchema>,
-): Promise<{
-  storeError: any | null
-}> {
-  const newColumns = {
-    ...columns,
-    name: columns.name.trim().toLowerCase(),
-    store_subdomain: generateSlug(columns.name.trim()),
-  }
-  const supabase = createClient()
-
-  const { data: session, error: sessionError } = await supabase.auth.getUser()
-
-  if (sessionError) {
-    console.error(sessionError)
-
-    redirect('/admin/sign-in')
-  }
-
-  const { error: storeError } = await supabase
-    .from('stores')
-    .insert({ user_id: session.user.id, ...newColumns })
-
-  setStoreEdgeConfigVercel({
-    name: newColumns.name,
-    description: newColumns.description,
-    subdomain: newColumns.store_subdomain,
-    logoUrl: newColumns.store_subdomain,
-  })
-
-  return { storeError }
-}
-
-export async function updateStore(
-  columns: z.infer<typeof storeSchema>,
-  id: string,
-) {
-  const newColumns = {
-    ...columns,
-    name: columns.name.trim(),
-    store_subdomain: generateSlug(columns.name.trim()),
-  }
-
-  const supabase = createClient()
-
-  const { data, error } = await supabase
-    .from('stores')
-    .update(newColumns)
-    .eq('id', id)
-
-  setStoreEdgeConfigVercel({
-    name: newColumns.name,
-    description: newColumns.description,
-    subdomain: newColumns.store_subdomain,
-    logoUrl: newColumns.store_subdomain,
-  })
-
-  return { data, error }
-}
 
 export const removeStoreLogo = adminProcedure
   .createServerAction()

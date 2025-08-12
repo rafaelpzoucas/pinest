@@ -94,7 +94,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     if (mask) {
       return (
-        <ReactInputMask mask={mask} {...props}>
+        <ReactInputMask mask={mask} maskChar={null} {...props}>
           {
             ((inputProps: any) => (
               <input

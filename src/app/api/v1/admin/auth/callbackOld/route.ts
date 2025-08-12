@@ -57,6 +57,7 @@ export async function GET(request: Request) {
   }
 
   const { data: session, error: sessionError } = await supabase.auth.getUser()
+
   if (sessionError || !session?.user) {
     const url = new URL('/admin/sign-in')
     return NextResponse.redirect(url)

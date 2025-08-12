@@ -11,7 +11,9 @@ export default function LandingPage() {
       <USPSection />
       <ResourcesSection />
       <BenefitsSection />
-      <SubscriptionPlans />
+      <div className="py-16 p-8">
+        <SubscriptionPlans />
+      </div>
       {/* Social proof - números, logotipos e historias de clientes */}
       {/* FAQ */}
     </main>

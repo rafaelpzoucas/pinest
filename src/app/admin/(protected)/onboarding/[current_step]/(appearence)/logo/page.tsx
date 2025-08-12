@@ -20,7 +20,7 @@ export default async function AddLogo() {
 
       <Link
         href="/admin/onboarding/shipping/own"
-        className={cn(buttonVariants(), 'w-fit')}
+        className={cn(buttonVariants(), 'w-fit ml-auto')}
       >
         Próximo
       </Link>

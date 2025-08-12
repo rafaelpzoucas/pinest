@@ -94,7 +94,7 @@ export function OwnShippingForm({
     }
 
     if (currentStep) {
-      router.push(`/admin/dashboard`)
+      router.push(`/admin/onboarding/subscription/checkout`)
     }
   }
 

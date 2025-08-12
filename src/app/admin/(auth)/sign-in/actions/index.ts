@@ -1,0 +1,1 @@
+export { adminAuthCallback } from './callback'

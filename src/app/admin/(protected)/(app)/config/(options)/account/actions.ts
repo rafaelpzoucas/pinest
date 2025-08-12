@@ -175,7 +175,7 @@ export const readAccountData = adminProcedure
       { data: storeAddress, error: storeAddressError },
       { data: subscription, error: subscriptionError },
     ] = await Promise.all([
-      supabase.from('users').select('*').eq('id', user.id).single(),
+      supabase.from('users').select('*').eq('id', user?.id).single(),
       supabase.from('addresses').select('*').eq('store_id', store?.id).single(),
       supabase
         .from('subscriptions')

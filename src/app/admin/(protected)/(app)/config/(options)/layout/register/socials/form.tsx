@@ -22,14 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  useCreateAdminStoreSocials,
+  useDeleteAdminStoreSocial,
+  useUpdateAdminStoreSocials,
+} from '@/features/admin/socials/hooks'
 import { SocialMediaType } from '@/models/social'
 import { Loader2, Plus, Trash } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
-import {
-  createSocialMedias,
-  deleteSocialMedia,
-  updateSocialMedia,
-} from './actions'
 import { SOCIAL_MEDIAS } from './socials'
 
 export const socialFormSchema = z.object({
@@ -71,14 +71,40 @@ export function SocialsForm({
     name: 'socials',
   })
 
+  function goToNextStep() {
+    if (isOnboarding) {
+      router.push('/admin/onboarding/appearence/logo')
+    } else {
+      router.back()
+    }
+  }
+
+  const { mutate: createSocials, isPending: isCreatingSocials } =
+    useCreateAdminStoreSocials({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const { mutate: updateSocials, isPending: isUpdatingSocials } =
+    useUpdateAdminStoreSocials({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const { mutate: deleteSocial, isPending: isDeletingSocials } =
+    useDeleteAdminStoreSocial({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const isLoading = isCreatingSocials || isUpdatingSocials || isDeletingSocials
+
   async function handleDeleteSocial(index: number) {
     if (storeSocials) {
-      const { error } = await deleteSocialMedia(storeSocials[index].id)
-
-      if (error) {
-        console.error(error)
-        return null
-      }
+      deleteSocial({ id: storeSocials[index].id })
     }
 
     remove(index)
@@ -94,24 +120,13 @@ export function SocialsForm({
     )
 
     if (socialsToUpdate.length > 0) {
-      await updateSocialMedia({ socials: socialsToUpdate })
+      updateSocials({ socials: socialsToUpdate })
     }
 
     if (socialsToCreate.length > 0) {
-      const { createSocialError } = await createSocialMedias({
+      createSocials({
         socials: socialsToCreate,
       })
-
-      if (createSocialError) {
-        console.error(createSocialError)
-        return
-      }
-    }
-
-    if (isOnboarding) {
-      router.push('/admin/onboarding/appearence/logo')
-    } else {
-      router.back()
     }
   }
 
@@ -188,16 +203,23 @@ export function SocialsForm({
           Adicionar outra rede social
         </Button>
 
-        <Button
-          type="submit"
-          className="ml-auto"
-          disabled={form.formState.isSubmitting}
-        >
-          {form.formState.isSubmitting && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          )}
-          Salvar
-        </Button>
+        <footer className="ml-auto space-x-2">
+          <Button
+            type="button"
+            onClick={() => router.push('/admin/onboarding/appearence/logo')}
+            variant="outline"
+          >
+            Pular
+          </Button>
+          <Button
+            type="submit"
+            className="ml-auto"
+            disabled={isLoading || !form.formState.isValid}
+          >
+            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Salvar redes sociais
+          </Button>
+        </footer>
       </form>
     </Form>
   )

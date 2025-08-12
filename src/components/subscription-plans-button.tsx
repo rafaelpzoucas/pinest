@@ -1,11 +1,10 @@
 'use client'
 
-import {
-  createPlanCheckout,
-  upgradeSubscription,
-} from '@/app/admin/(protected)/actions'
+import { createAdminSubscriptionCheckout } from '@/app/admin/(auth)/sign-in/actions/create-checkout'
+import { upgradeSubscription } from '@/app/admin/(protected)/actions'
 import { PlanType } from '@/models/plans'
 import { useRouter } from 'next/navigation'
+import { setCookie } from 'nookies'
 import { useServerAction } from 'zsa-react'
 import { Button } from './ui/button'
 
@@ -33,28 +32,39 @@ export function SubscriptionPlansButton({
     },
   })
 
-  const {
-    execute: executeCreate,
-    isPending: isPendingCreate,
-    data: createData,
-  } = useServerAction(createPlanCheckout, {
-    onSuccess: () => {
-      console.log('Checkout realizado com sucesso!', createData)
-      router.push(createData?.sessionURL as string)
-    },
-    onError: (error) => {
-      console.error('Erro ao realizar checkout:', error)
-    },
-  })
+  const { execute: executeCreate, isPending: isPendingCreate } =
+    useServerAction(createAdminSubscriptionCheckout, {
+      onSuccess: ({ data: url }) => {
+        if (url) {
+          router.push(url)
+        }
+      },
+      onError: ({ err }) => {
+        console.error(err)
+      },
+    })
+
+  function handleStartTrial() {
+    // Salva cookies
+    setCookie(null, 'plan_id', plan.id, {
+      maxAge: 60 * 60 * 24, // 1 dia
+      path: '/',
+    })
+    setCookie(null, 'price_id', plan.price_id, {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    })
+
+    // Executa a server action
+    executeCreate()
+  }
 
   if (!currentPlan) {
     return (
       <Button
         className="w-full"
         variant={index === 0 ? 'default' : 'secondary'}
-        onClick={() =>
-          executeCreate({ price_id: plan.price_id, plan_id: plan.id })
-        }
+        onClick={handleStartTrial}
         disabled={isPendingCreate}
       >
         {isPendingCreate ? 'Aguarde...' : 'Começar teste grátis'}

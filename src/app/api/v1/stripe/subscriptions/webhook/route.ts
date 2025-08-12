@@ -1,11 +1,12 @@
 'use server'
 
+import { createAdminSubscription } from '@/features/admin/subscriptions/create'
 import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import { createRouteHandlersForAction } from 'zsa-openapi'
-import { cancelSubscription, createSubscription } from './actions'
+import { cancelSubscription } from './actions'
 
 const webhookLogger = createServerAction()
   .input(z.object({ payload: z.unknown() }))
@@ -49,11 +50,11 @@ const webhookLogger = createServerAction()
             await stripe.subscriptions.retrieve(subscriptionId)
           if (isSubscription(subscription)) {
             const metadata = subscription.metadata
-            await createSubscription({
-              subscriptionId: subscription.id,
-              planId: metadata.plan_id,
-              storeId: metadata.store_id,
-              endDate: subscription.current_period_end,
+            await createAdminSubscription({
+              subscription_id: subscription.id,
+              plan_id: metadata.plan_id,
+              store_id: metadata.store_id,
+              end_date: subscription.current_period_end,
             })
           } else {
             console.error('Assinatura recuperada não é válida.')
