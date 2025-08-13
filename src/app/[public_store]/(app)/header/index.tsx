@@ -20,9 +20,6 @@ import { Status } from './status'
 export function Header() {
   const { store } = usePublicStore()
 
-  const storeNiche =
-    store && store?.market_niches?.length > 0 && store.market_niches[0]
-
   const { data: customerData } = useQuery({
     queryKey: ['customer', store?.id],
     queryFn: () => readCustomerByPhone(store),
@@ -60,11 +57,6 @@ export function Header() {
           <div className="space-y-2">
             <div className="text-center lg:text-left w-full max-w-72">
               <h1 className="text-xl capitalize font-bold">{store?.name}</h1>
-              {storeNiche && (
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {storeNiche.name}
-                </p>
-              )}
 
               {isDeliveryDataLoading ? (
                 <Skeleton className="h-4 w-40 mt-2" />
