@@ -16,13 +16,15 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  useCreateAdminAddress,
+  useUpdateAdminAddress,
+} from '@/features/admin/address/hooks'
+import { useReadViaCepAddress } from '@/features/admin/address/viacep/hooks'
 import { AddressType } from '@/models/address'
-import { ViacepType } from '@/models/viacep-address'
 import { Loader2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { createAddress, updateAddress } from './actions'
 
 export const addressSchema = z.object({
   zip_code: z.string().min(8),
@@ -49,45 +51,19 @@ export function AddressForm({ address }: { address: AddressType | null }) {
   const form = useForm<z.infer<typeof addressSchema>>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      zip_code: zipCode,
-      number,
-      complement,
+      zip_code: zipCode ?? '',
+      street: address?.street ?? '',
+      number: number ?? '',
+      neighborhood: address?.neighborhood ?? '',
+      city: address?.city ?? '',
+      state: address?.state ?? '',
+      complement: complement ?? '',
     },
   })
 
-  function verifyCEP() {
-    const cep = form.watch('zip_code')
+  const cep = form.watch('zip_code') ?? ''
 
-    fetch(`https://viacep.com.br/ws/${zipCode ?? cep}/json`)
-      .then((res) => res.json())
-      .then((data: ViacepType) => {
-        setHasAddress(true)
-        form.setValue('street', data.logradouro)
-        form.setValue('neighborhood', data.bairro)
-        form.setValue('city', data.localidade)
-        form.setValue('state', data.uf)
-      })
-  }
-
-  async function onSubmit(values: z.infer<typeof addressSchema>) {
-    if (address) {
-      const { error } = await updateAddress(values)
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      toast('Informações atualizadas com sucesso')
-    }
-
-    const { error } = await createAddress(values)
-
-    if (error) {
-      console.error(error)
-      return
-    }
-
+  function goToNextStep() {
     if (isOnboarding) {
       router.push('/admin/onboarding/store/hours')
     } else {
@@ -95,11 +71,48 @@ export function AddressForm({ address }: { address: AddressType | null }) {
     }
   }
 
-  useEffect(() => {
-    if (zipCode) {
-      verifyCEP()
+  const { data: viacep, isLoading: isLoadingViacepAddress } =
+    useReadViaCepAddress({
+      zipCode: zipCode ?? cep,
+      enabled: !!zipCode || (!!cep && cep.length === 9),
+    })
+
+  const { mutate: createAddress, isPending: isCreatingAddress } =
+    useCreateAdminAddress({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const { mutate: updateAddress, isPending: isUpdatingAddress } =
+    useUpdateAdminAddress({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const isLoading =
+    isLoadingViacepAddress || isCreatingAddress || isUpdatingAddress
+
+  async function onSubmit(values: z.infer<typeof addressSchema>) {
+    if (address) {
+      updateAddress(values)
     }
-  }, [zipCode]) // eslint-disable-line
+
+    createAddress(values)
+  }
+
+  useEffect(() => {
+    if (viacep?.viacepAddress) {
+      setHasAddress(true)
+      const address = viacep.viacepAddress
+
+      form.setValue('street', address.logradouro)
+      form.setValue('neighborhood', address.bairro)
+      form.setValue('city', address.localidade)
+      form.setValue('state', address.uf)
+    }
+  }, [viacep]) // eslint-disable-line
 
   return (
     <Form {...form}>
@@ -213,19 +226,28 @@ export function AddressForm({ address }: { address: AddressType | null }) {
         />
 
         <Button
-          type={hasAddress ? 'submit' : 'button'}
+          type="submit"
           className="ml-auto"
           disabled={
-            form.formState.isSubmitting ||
-            form.formState.isSubmitting ||
-            (hasAddress && !form.formState.isValid)
+            isLoadingViacepAddress ||
+            (hasAddress && !form.formState.isValid) ||
+            !cep ||
+            cep.length < 9
           }
-          onClick={verifyCEP}
         >
-          {form.formState.isSubmitting && (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <span>Salvando endereço</span>
+            </>
+          ) : isLoadingViacepAddress ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <span>Buscando endereço</span>
+            </>
+          ) : (
+            'Salvar endereço'
           )}
-          {hasAddress ? 'Salvar' : 'Verificar CEP'}
         </Button>
       </form>
     </Form>

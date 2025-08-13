@@ -17,44 +17,23 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { StoreType } from '@/models/store'
-import { CheckIcon, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { createStore, updateStore } from './actions'
-
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
+import { Loader2 } from 'lucide-react'
 
 import { PhoneInput } from '@/components/ui/input-phone'
+
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-
+  useCreateAdminStore,
+  useUpdateAdminStore,
+} from '@/features/admin/stores/hooks'
+import { createAdminStoreSchema } from '@/features/admin/stores/schemas'
 import { MarketNicheType } from '@/models/market-niches'
-import { CaretSortIcon } from '@radix-ui/react-icons'
 import { useParams, useRouter } from 'next/navigation'
-
-export const storeSchema = z.object({
-  name: z.string().min(3, { message: 'O nome da loja é obrigatório.' }),
-  description: z.string().optional(),
-  phone: z.string().min(13, { message: 'O telefone é obritatório.' }),
-  market_niche_id: z.string().min(3, { message: 'O nicho é obrigatório.' }),
-})
 
 export function StoreForm({
   store,
-  marketNiches,
 }: {
   store?: StoreType
-  marketNiches: MarketNicheType[] | null
+  marketNiches?: MarketNicheType[] | null
 }) {
   const router = useRouter()
   const params = useParams()
@@ -64,40 +43,44 @@ export function StoreForm({
   const name = store?.name ?? ''
   const description = store?.description ?? ''
   const phone = store?.phone ?? ''
-  const marketNicheId = store?.market_niche_id ?? ''
 
-  const form = useForm<z.infer<typeof storeSchema>>({
-    resolver: zodResolver(storeSchema),
+  const form = useForm<z.infer<typeof createAdminStoreSchema>>({
+    resolver: zodResolver(createAdminStoreSchema),
     defaultValues: {
       name,
       description,
       phone,
-      market_niche_id: marketNicheId,
     },
   })
 
-  async function onSubmit(values: z.infer<typeof storeSchema>) {
+  const { mutate: createStore, isPending: isCreatingStore } =
+    useCreateAdminStore({
+      onSuccess: () => {
+        if (isOnboarding) {
+          router.push('address')
+        } else {
+          router.back()
+        }
+      },
+    })
+
+  const { mutate: updateStore, isPending: isUpdatingStore } =
+    useUpdateAdminStore({
+      onSuccess: () => {
+        if (isOnboarding) {
+          router.push('address')
+        } else {
+          router.back()
+        }
+      },
+    })
+
+  async function onSubmit(values: z.infer<typeof createAdminStoreSchema>) {
     if (store) {
-      const { error } = await updateStore(values, store?.id)
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      toast('Informações atualizadas com sucesso')
-    }
-
-    const { storeError } = await createStore(values)
-
-    if (storeError) {
-      console.error(storeError)
-    }
-
-    if (isOnboarding) {
-      router.push('/admin/onboarding/store/address')
+      updateStore({ ...values, id: store.id })
     } else {
-      router.back()
+      // Usar a mutation aqui
+      createStore(values)
     }
   }
 
@@ -160,7 +143,7 @@ export function StoreForm({
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="market_niche_id"
           render={({ field }) => (
@@ -231,14 +214,14 @@ export function StoreForm({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <Button
           type="submit"
           className="ml-auto"
-          disabled={form.formState.isSubmitting || form.formState.isSubmitted}
+          disabled={isCreatingStore || isUpdatingStore}
         >
-          {form.formState.isSubmitting ? (
+          {isCreatingStore || isUpdatingStore ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Salvando informações

@@ -11,8 +11,8 @@ export default function StepsLayout({
   const STEPS = {
     store: 1,
     appearence: 2,
-    // payments: 3,
     shipping: 3,
+    subscription: 4,
   }
 
   return (
@@ -22,8 +22,8 @@ export default function StepsLayout({
         steps={[
           { label: 'Loja' },
           { label: 'Aparência' },
-          // { label: 'Pagamentos' },
           { label: 'Entrega' },
+          { label: 'Assinatura' },
         ]}
       />
 

@@ -31,13 +31,15 @@ export async function generateMetadata({
     return { title: 'Pinest' }
   }
 
-  const formattedTitle = store.name
-    .toLowerCase()
+  console.log({ store })
+
+  const formattedTitle = store?.name
+    ?.toLowerCase()
     .replace(/\b\w/g, (char: string) => char.toUpperCase())
 
   return {
     title: formattedTitle,
-    description: store.description,
+    description: store?.description,
     icons: { icon: store.logo_url },
   }
 }

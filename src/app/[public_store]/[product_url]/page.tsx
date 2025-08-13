@@ -110,17 +110,15 @@ export default function ProductPage() {
               )}
             </div>
 
-            {storeAddress && (
-              <ProductInfo
-                isOpen={store?.is_open}
-                product={product}
-                variations={variations}
-                storeAddress={storeAddress}
-                cartProduct={cartProduct}
-                extras={extras}
-                observations={cartProduct?.observations}
-              />
-            )}
+            <ProductInfo
+              isOpen={store?.is_open}
+              product={product}
+              variations={variations}
+              storeAddress={storeAddress}
+              cartProduct={cartProduct}
+              extras={extras}
+              observations={cartProduct?.observations}
+            />
           </div>
         </div>
       </main>

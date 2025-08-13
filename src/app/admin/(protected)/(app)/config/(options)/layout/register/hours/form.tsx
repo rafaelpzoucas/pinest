@@ -12,6 +12,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+  useCreateAdminStoreHours,
+  useUpdateAdminStoreHours,
+} from '@/features/admin/hours/hooks'
+import { createStoreHoursSchema } from '@/features/admin/hours/schemas'
 import { dayTranslation } from '@/lib/utils'
 import { HourType } from '@/models/hour'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,11 +25,9 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
-import { createStoreHours, updateStoreHours } from './actions'
 import { hoursFormSchema } from './schemas'
 
-export type HoursFormValues = z.infer<typeof hoursFormSchema>
+export type HoursFormValues = z.infer<typeof createStoreHoursSchema>
 
 export function BusinessHoursForm({ hours }: { hours?: HourType[] | null }) {
   const router = useRouter()
@@ -125,27 +128,36 @@ export function BusinessHoursForm({ hours }: { hours?: HourType[] | null }) {
     form.setValue(`week_days.${index}.close_time`, newTime)
   }
 
-  const { execute } = useServerAction(createStoreHours, {
-    onSuccess: (hours) => {
-      console.log('Hours created:', hours)
-    },
-    onError: (error) => {
-      console.error('Error creating hours:', error)
-    },
-  })
-
-  async function onSubmit(values: HoursFormValues) {
-    if (hours) {
-      await updateStoreHours(values)
-    }
-
-    execute(values)
-
+  function goToNextStep() {
     if (isOnboarding) {
       router.push('/admin/onboarding/store/socials')
     } else {
       router.back()
     }
+  }
+
+  const { mutate: createStoreHours, isPending: isCreatingStoreHours } =
+    useCreateAdminStoreHours({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const { mutate: updateStoreHours, isPending: isUpdatingStoreHours } =
+    useUpdateAdminStoreHours({
+      onSuccess: () => {
+        goToNextStep()
+      },
+    })
+
+  const isLoading = isCreatingStoreHours || isUpdatingStoreHours
+
+  async function onSubmit(values: HoursFormValues) {
+    if (hours) {
+      updateStoreHours(values)
+    }
+
+    createStoreHours(values)
   }
 
   return (
@@ -161,7 +173,7 @@ export function BusinessHoursForm({ hours }: { hours?: HourType[] | null }) {
               className="relative border-b last:border-b-0 py-4"
             >
               <Label className="text-lg capitalize">
-                {dayTranslation[field.day_of_week]}{' '}
+                {dayTranslation[field.day_of_week as string]}{' '}
                 <span className="text-sm text-muted-foreground">
                   (
                   {form.watch(`week_days.${index}.is_open`)
@@ -229,18 +241,14 @@ export function BusinessHoursForm({ hours }: { hours?: HourType[] | null }) {
           ))}
         </div>
 
-        <Button
-          type="submit"
-          className="ml-auto"
-          disabled={form.formState.isSubmitting || form.formState.isSubmitted}
-        >
-          {form.formState.isSubmitting ? (
+        <Button type="submit" className="ml-auto" disabled={isLoading}>
+          {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Salvando horários
             </>
           ) : (
-            'Salvar'
+            'Salvar horários'
           )}
         </Button>
       </form>

@@ -39,6 +39,8 @@ export default async function ProtectedLayout({
   const events: z.infer<typeof IfoodHandshakeDisputeSchema>[] =
     (data && data.events && data.events) ?? []
 
+  console.log({ subscription })
+
   const isSubscriptionActive = subscription?.subscriptionStatus === 'active'
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true'

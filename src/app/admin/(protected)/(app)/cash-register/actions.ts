@@ -21,7 +21,7 @@ export const createCashSession = adminProcedure
     const { data: cashSession, error: cashSessionError } = await supabase
       .from('cash_sessions')
       .insert({
-        user_id: user.id,
+        user_id: user?.id,
         store_id: store.id,
         opening_balance: stringToNumber(input.opening_balance),
       })
@@ -103,7 +103,7 @@ export const readCashSession = adminProcedure
       .from('cash_sessions')
       .select('*')
       .eq('store_id', store.id)
-      .eq('user_id', user.id)
+      .eq('user_id', user?.id)
       .eq('status', 'open')
       .single()
 

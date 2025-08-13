@@ -21,7 +21,7 @@ export function ProductInfo({
   isOpen?: boolean
   product?: ProductType
   variations?: ProductVariationType[]
-  storeAddress: AddressType
+  storeAddress?: AddressType
   cartProduct?: CartProductType
   extras?: ExtraType[]
   observations?: string[]
@@ -38,6 +38,8 @@ export function ProductInfo({
     product.pkg_width !== null &&
     product.pkg_length !== null &&
     product.pkg_weight !== null
+
+  console.log(product)
 
   return (
     <section className="space-y-6 mt-6 lg:mt-0 lg:space-y-12">
@@ -74,7 +76,7 @@ export function ProductInfo({
         observations={observations}
       />
 
-      {productHasDimensions && (
+      {productHasDimensions && storeAddress && (
         <ShippingForm storeAddress={storeAddress} product={product} />
       )}
     </section>

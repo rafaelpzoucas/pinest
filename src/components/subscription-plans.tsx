@@ -36,11 +36,11 @@ export async function SubscriptionPlans() {
   }
 
   return (
-    <section id="pricing" className="p-8 py-16 space-y-8">
+    <section id="pricing" className="space-y-8">
       <h2 className="text-3xl font-bold text-center">
         {currentPlan
           ? 'Faça Upgrade de Plano'
-          : 'Experimente a Pinest grátis por 14 dias'}
+          : 'Experimente o Pinest grátis por 14 dias'}
       </h2>
 
       <p className="text-center mt-4 text-muted-foreground">

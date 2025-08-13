@@ -20,7 +20,8 @@ import { Status } from './status'
 export function Header() {
   const { store } = usePublicStore()
 
-  const storeNiche = store && store?.market_niches[0]
+  const storeNiche =
+    store && store?.market_niches?.length > 0 && store.market_niches[0]
 
   const { data: customerData } = useQuery({
     queryKey: ['customer', store?.id],

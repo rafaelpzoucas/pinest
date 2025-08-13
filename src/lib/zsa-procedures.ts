@@ -1,6 +1,6 @@
 import { StoreType } from '@/models/store'
 import { cookies } from 'next/headers'
-import { createServerActionProcedure } from 'zsa'
+import { createServerActionProcedure, ZSAError } from 'zsa'
 
 import { extractSubdomainOrDomain } from './helpers'
 import { createClient } from './supabase/server'
@@ -14,12 +14,30 @@ export const authenticatedProcedure = createServerActionProcedure().handler(
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      throw new Error('User not authenticated')
+      console.error('NOT_AUTHORIZED', 'User not authenticated')
     }
 
     return { user, supabase }
   },
 )
+
+export const authedWithStoreIdProcedure = createServerActionProcedure(
+  authenticatedProcedure,
+).handler(async ({ ctx }) => {
+  const { user, supabase } = ctx
+
+  const { data, error } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('user_id', user?.id)
+    .single()
+
+  if (error) {
+    throw new ZSAError('INTERNAL_SERVER_ERROR', error.message)
+  }
+
+  return { ...ctx, storeId: data.id }
+})
 
 export const adminProcedure = createServerActionProcedure(
   authenticatedProcedure,
@@ -30,7 +48,7 @@ export const adminProcedure = createServerActionProcedure(
   const { data, error } = await supabase
     .from('users')
     .select('role, stores(*, addresses(*))')
-    .eq('id', user.id)
+    .eq('id', user?.id)
     .single()
 
   if (error || !data) {
@@ -62,7 +80,7 @@ export const cashProcedure = createServerActionProcedure(
     .from('cash_sessions')
     .select('*')
     .eq('store_id', store.id)
-    .eq('user_id', user.id)
+    .eq('user_id', user?.id)
     .eq('status', 'open')
     .single()
 

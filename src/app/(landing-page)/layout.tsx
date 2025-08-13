@@ -25,7 +25,7 @@ export default function LandingPageLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <div>
+      <div className="scroll-smooth">
         <Header />
 
         {children}
