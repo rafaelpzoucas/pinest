@@ -7,6 +7,7 @@ import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { ProductType } from '@/models/product'
 import { PurchaseItemVariations } from '@/models/purchase'
+import { usePublicStore } from '@/stores/public-store'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Plus } from 'lucide-react'
 import Image from 'next/image'
@@ -47,6 +48,8 @@ export function ProductCard({
   quantity,
   storeSubdomain,
 }: ProductCardProps) {
+  const { store } = usePublicStore()
+
   const isPromotional = data?.promotional_price
 
   function getImageURL() {
@@ -59,7 +62,8 @@ export function ProductCard({
 
   const imageURL = getImageURL()
 
-  const thumbURL = imageURL === '' ? defaultThumbUrl : imageURL
+  const thumbURL =
+    imageURL === '' ? (store?.logo_url ?? defaultThumbUrl) : imageURL
 
   const filteredObservations =
     observations &&
