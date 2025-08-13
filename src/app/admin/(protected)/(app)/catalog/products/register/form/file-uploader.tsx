@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { formatBytes } from '@/lib/utils'
+import { compressImage, formatBytes } from '@/lib/utils'
 import { ImagePlusIcon, Trash } from 'lucide-react'
 import Image from 'next/image'
 
@@ -25,19 +25,25 @@ export function FileUploader({ files, setFiles }: FileUploaderProps) {
   const [rejected, setRejected] = useState<FileRejection[]>([])
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      setFiles((prevFiles) => [
-        ...prevFiles,
-        ...acceptedFiles.map((file) =>
-          Object.assign(file, {
+    async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      const compressedFiles: FileType[] = []
+      for (const file of acceptedFiles) {
+        try {
+          const compressed = await compressImage(file, 0.7)
+          compressedFiles.push(compressed)
+        } catch {
+          // Garante que o arquivo tenha preview antes de adicionar
+          const originalWithPreview = Object.assign(file, {
             preview: URL.createObjectURL(file),
-          }),
-        ),
-      ])
+          }) as FileType
+          compressedFiles.push(originalWithPreview)
+        }
+      }
 
+      setFiles((prevFiles) => [...prevFiles, ...compressedFiles])
       setRejected(rejectedFiles)
     },
-    [setFiles],
+    [setFiles, setRejected],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -91,7 +97,7 @@ export function FileUploader({ files, setFiles }: FileUploaderProps) {
           <div
             data-drag-active={isDragActive}
             className="flex flex-col items-center justify-center gap-4 aspect-square rounded-lg border
-              border-dashed cursor-pointer text-sm text-center
+              border-dashed cursor-pointer text-sm text-center min-w-16 min-h-16
               data-[drag-active=true]:border-primary data-[drag-active=true]:bg-primary
               data-[drag-active=true]:text-primary-foreground transition-all duration-200"
           >

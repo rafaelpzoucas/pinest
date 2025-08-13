@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 import { addressSchema } from '@/app/[public_store]/account/register/schemas'
+import { FileType } from '@/app/admin/(protected)/(app)/catalog/products/register/form/file-uploader'
 import { AddressType } from '@/models/address'
 import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -236,4 +237,41 @@ export function calculateCartTotal(cart: any[]) {
     const itemTotal = (productTotal + extrasTotal) * cartProduct.quantity
     return acc + itemTotal
   }, 0)
+}
+
+export function compressImage(file: File, quality = 0.7): Promise<FileType> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return reject(new Error('Canvas não suportado'))
+
+      // Redimensionamento opcional
+      const maxWidth = 1920
+      const scale = Math.min(1, maxWidth / image.width)
+      canvas.width = image.width * scale
+      canvas.height = image.height * scale
+
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error('Falha ao converter imagem'))
+
+          // <-- Coloque aqui: criação do FileType com preview
+          const fileWithPreview = Object.assign(
+            new File([blob], file.name, { type: blob.type }),
+            { preview: URL.createObjectURL(blob) },
+          )
+
+          resolve(fileWithPreview)
+        },
+        'image/jpeg',
+        quality,
+      )
+    }
+    image.onerror = (e) => reject(new Error('Erro ao carregar a imagem'))
+    image.src = URL.createObjectURL(file)
+  })
 }
