@@ -418,7 +418,7 @@ export default function ProductManagement() {
                 <TableRow>
                   <TableHead>Imagens</TableHead>
                   <TableHead>Nome</TableHead>
-                  <TableHead>SKU</TableHead>
+                  <TableHead>Descrição</TableHead>
                   <TableHead>Preço</TableHead>
                   <TableHead>Preço Promo</TableHead>
                   <TableHead>Estoque</TableHead>
@@ -472,7 +472,7 @@ export default function ProductManagement() {
                     <TableCell className="font-medium">
                       {product.name}
                     </TableCell>
-                    <TableCell>{product.sku}</TableCell>
+                    <TableCell>{product.description}</TableCell>
                     <TableCell>
                       {product.price ? formatCurrencyBRL(product.price) : '-'}
                     </TableCell>
