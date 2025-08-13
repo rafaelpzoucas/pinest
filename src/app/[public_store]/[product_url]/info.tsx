@@ -39,8 +39,6 @@ export function ProductInfo({
     product.pkg_length !== null &&
     product.pkg_weight !== null
 
-  console.log(product)
-
   return (
     <section className="space-y-6 mt-6 lg:mt-0 lg:space-y-12">
       <div className="lg:flex flex-col-reverse gap-4">
