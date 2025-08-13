@@ -240,7 +240,7 @@ export function AddToCart({
 
   useEffect(() => {
     setSelectedExtras(getMergedExtras())
-  }, [cartProduct])
+  }, [extras, cartProduct])
 
   const isProductAvailable =
     (product.stock > 0 || product.stock === null) && product.status === 'active'

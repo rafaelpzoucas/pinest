@@ -41,6 +41,8 @@ export default function ProductPage() {
     enabled: !!store,
   })
 
+  const product = productData?.product
+
   const { data: variationsData } = useQuery({
     queryKey: ['variations', productURL],
     queryFn: () =>
@@ -48,16 +50,16 @@ export default function ProductPage() {
     enabled: !!store,
   })
 
+  const variations = variationsData?.variations
+
   const { data: extrasData } = useQuery({
     queryKey: ['extras', productURL],
-    queryFn: () => readExtras({ storeId: store?.id }),
-    enabled: !!store,
+    queryFn: () => readExtras({ storeId: store?.id, productId: product?.id }),
+    enabled: !!store && !!product,
   })
 
   const extras = extrasData?.extras
   const storeAddress = store?.addresses[0]
-  const product = productData?.product
-  const variations = variationsData?.variations
 
   const cartProduct = cart?.find((item) => item.id === cartProductId)
 
@@ -82,7 +84,11 @@ export default function ProductPage() {
               {productImages.length < 2 && (
                 <Card className="relative w-full aspect-square overflow-hidden border-none">
                   <Image
-                    src={productImages[0]?.image_url ?? defaultThumbUrl}
+                    src={
+                      productImages[0]?.image_url ??
+                      store.logo_url ??
+                      defaultThumbUrl
+                    }
                     alt=""
                     fill
                     className="object-cover"

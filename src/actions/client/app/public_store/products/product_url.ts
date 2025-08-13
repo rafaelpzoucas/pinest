@@ -14,6 +14,7 @@ const readProductVariationsSchema = z.object({
 
 const readExtrasSchema = z.object({
   storeId: z.string().optional(),
+  productId: z.string().optional(),
 })
 
 type ReadProduct = z.infer<typeof readProductSchema>
@@ -68,14 +69,14 @@ export async function readProductVariations(input: ReadProductVariations) {
 export async function readExtras(input: ReadExtras) {
   const supabase = createClient()
 
-  const { data: extras, error } = await supabase
-    .from('extras')
-    .select('*')
-    .eq('store_id', input.storeId)
+  const { data: extras, error } = await supabase.rpc('get_extras_for_product', {
+    p_store_id: input.storeId,
+    p_product_id: input.productId || null,
+  })
 
   if (error) {
     console.error(error)
-    throw new Error('Não foi possível ler os adicionais.', error)
+    throw new Error('Não foi possível ler os adicionais.')
   }
 
   return { extras: extras as ExtraType[] }
