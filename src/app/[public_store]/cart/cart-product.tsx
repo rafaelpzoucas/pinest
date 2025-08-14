@@ -23,6 +23,7 @@ import {
 import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'
 import { ProductVariationType } from '@/models/product'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Edit, Loader2, Plus, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -55,20 +56,28 @@ export function CartProduct({
       0,
     ) || 0)
 
+  const queryClient = useQueryClient()
+
   function handleUpdateQuantity(quantity: string) {
     if (cartProduct && cartProduct.id) {
       updateCartProductQuantity(cartProduct.id, parseInt(quantity))
     }
   }
 
+  const deleteFromCart = useMutation({
+    mutationFn: async (productId: string) => {
+      if (!productId) return
+      await removeFromCart(productId)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
+    },
+  })
+
   async function handleDeleteFromCart() {
-    setisDeleting(true)
-
     if (cartProduct && cartProduct.id) {
-      await removeFromCart(cartProduct.id)
+      deleteFromCart.mutate(cartProduct.id)
     }
-
-    setisDeleting(false)
   }
 
   async function handleReadCartProductVariations() {
@@ -182,7 +191,7 @@ export function CartProduct({
             <Edit className="w-4 h-4" />
           </Link>
           <Button variant="outline" size="icon" onClick={handleDeleteFromCart}>
-            {isDeleting ? (
+            {deleteFromCart.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Trash className="w-4 h-4" />
