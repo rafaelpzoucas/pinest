@@ -204,7 +204,7 @@ export async function removeFromCart(cartProductId: string) {
     console.error(removedFromCartError)
   }
 
-  revalidatePath('/')
+  revalidateTag('cart')
 }
 
 export async function clearCart(storeUrl: string) {
