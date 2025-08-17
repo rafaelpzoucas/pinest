@@ -4,6 +4,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { useReadCart } from '@/features/store/cart-session/hooks'
 import { useCart } from '@/stores/cart-store'
 import { cn } from '@/utils/cn'
+import { createPath } from '@/utils/createPath'
 import { ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -43,6 +44,8 @@ export function Cart() {
 
   const isVisible = config.showCart && totalItems > 0
 
+  const cartLink = createPath('/cart', storeSlug)
+
   return (
     <div
       className="p-4 translate-y-full absolute opacity-0 data-[visible=true]:translate-y-0
@@ -51,7 +54,7 @@ export function Cart() {
       data-visible={isVisible}
     >
       <Link
-        href={`/${storeSlug}/cart`}
+        href={cartLink}
         className={cn(
           buttonVariants(),
           'w-full h-14 text-base rounded-lg shadow-lg backdrop-blur-lg font-bold',

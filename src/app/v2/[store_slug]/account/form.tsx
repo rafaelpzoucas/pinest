@@ -14,26 +14,29 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { PhoneInput } from '@/components/ui/input-phone'
+import { readStoreCustomer } from '@/features/store/customers/read'
+import { ReadCustomerSchema } from '@/features/store/customers/schemas'
 import { ArrowRight, Loader2 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useServerAction } from 'zsa-react'
-import { readCustomer } from './actions'
-import { readAccountSchema } from './schemas'
 
 export function ReadCustomerForm() {
   const router = useRouter()
+  const params = useParams()
   const searchParams = useSearchParams()
 
+  const storeSlug = params.store_slug as string
   const qCheckout = searchParams.get('checkout')
 
-  const form = useForm<z.infer<typeof readAccountSchema>>({
-    resolver: zodResolver(readAccountSchema),
+  const form = useForm<z.infer<typeof ReadCustomerSchema>>({
+    resolver: zodResolver(ReadCustomerSchema),
     defaultValues: {
       phone: '',
+      subdomain: storeSlug,
     },
   })
 
-  const { execute, isPending } = useServerAction(readCustomer, {
+  const { execute, isPending } = useServerAction(readStoreCustomer, {
     onSuccess: () => {
       if (qCheckout) {
         router.push(`account/register?checkout=${qCheckout}`)
@@ -43,7 +46,7 @@ export function ReadCustomerForm() {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof readAccountSchema>) {
+  async function onSubmit(values: z.infer<typeof ReadCustomerSchema>) {
     execute(values)
   }
 
@@ -76,8 +79,10 @@ export function ReadCustomerForm() {
               active:scale-[0.98] transition-all duration-75"
             disabled={isPending}
           >
-            {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            <span>Continuar</span>
+            <span>
+              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <span>Continuar</span>
+            </span>
             <ArrowRight />
           </button>
         </footer>

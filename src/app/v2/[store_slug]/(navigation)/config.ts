@@ -11,22 +11,22 @@ export const navigationConfig: Record<string, NavigationConfig> = {
   },
   '/v2/[store_slug]/cart': {
     showBackButton: true,
-    variant: 'default',
+    variant: 'background',
     title: 'Carrinho',
   },
   '/v2/[store_slug]/account': {
     showBackButton: true,
-    variant: 'default',
+    variant: 'background',
     title: 'Minha conta',
   },
   '/v2/[store_slug]/account/register': {
     showBackButton: true,
-    variant: 'default',
+    variant: 'background',
     title: 'Minha conta',
   },
   '/v2/[store_slug]/checkout': {
     showBackButton: true,
-    variant: 'default',
+    variant: 'background',
     title: 'Finalizar pedido',
   },
   // Configuração padrão para rotas não especificadas

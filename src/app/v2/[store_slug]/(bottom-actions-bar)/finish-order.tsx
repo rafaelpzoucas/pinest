@@ -5,9 +5,10 @@ import { Card } from '@/components/ui/card'
 import { useReadCart } from '@/features/store/cart-session/hooks'
 import { useReadStoreCustomer } from '@/features/store/customers/hooks'
 import { useReadStoreShippings } from '@/features/store/shippings/hooks'
-import { createPath, formatCurrencyBRL } from '@/lib/utils'
+import { formatCurrencyBRL } from '@/lib/utils'
 import { useCart } from '@/stores/cart-store'
 import { cn } from '@/utils/cn'
+import { createPath } from '@/utils/createPath'
 import { ArrowRight, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -49,7 +50,7 @@ export function FinishOrder() {
     }, 0),
   )
 
-  const totalPrice = subtotal + deliveryPrice
+  const totalPrice = subtotal + (isDelivery ? deliveryPrice : 0)
 
   const isVisible = !!config.showFinishOrder
 

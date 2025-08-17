@@ -46,8 +46,7 @@ export function HeaderNavigation() {
     <header
       className={cn(
         getHeaderStyles(),
-        `fixed top-0 left-0 right-0 w-full p-4 z-30 flex items-center justify-between
-        bg-background`,
+        'fixed top-0 left-0 right-0 w-full p-4 z-30 flex items-center justify-between',
       )}
     >
       <div className="flex items-center gap-4">

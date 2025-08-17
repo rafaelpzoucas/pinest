@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Product } from '@/features/store/initial-data/schemas'
-import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
 import { PurchaseItemVariations } from '@/models/purchase'
 import { usePublicStore } from '@/stores/public-store'
+import { createPath } from '@/utils/createPath'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Plus } from 'lucide-react'
 import Image from 'next/image'
@@ -86,11 +87,7 @@ export function ProductCard({
     )
   }
 
-  const rootPath = getRootPath(storeSubdomain)
-
-  const productLink = rootPath
-    ? `/${rootPath}/${data.product_url}`
-    : `/${data.product_url}`
+  const productLink = createPath(`/${data.product_url}`, storeSubdomain)
 
   return (
     <div className="flex flex-row w-full items-center justify-between gap-4">

@@ -20,7 +20,7 @@ import {
   CreateCustomerSchema,
   Customer,
 } from '@/features/store/customers/schemas'
-import { createPath } from '@/lib/utils'
+import { createPath } from '@/utils/createPath'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -197,8 +197,10 @@ export function CustomerRegisterForm({
               active:scale-[0.98] transition-all duration-75"
             disabled={isPending}
           >
-            {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            <span>Continuar</span>
+            <span className="flex flex-row items-center">
+              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <span>Continuar</span>
+            </span>
             <ArrowRight />
           </button>
         </footer>

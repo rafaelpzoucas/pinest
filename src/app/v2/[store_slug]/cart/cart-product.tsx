@@ -24,7 +24,8 @@ import {
   useUpdateCartProduct,
 } from '@/features/store/cart-session/hooks'
 import { CartItem } from '@/features/store/cart-session/schemas'
-import { cn, createPath, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { createPath } from '@/utils/createPath'
 import { Edit, Loader2, Plus, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
