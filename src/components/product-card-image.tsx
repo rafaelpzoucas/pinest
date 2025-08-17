@@ -1,12 +1,11 @@
-import defaultThumbUrl from '@/../public/default_thumb_url.png'
-import { ProductImageType } from '@/models/product'
+import { ProductImage } from '@/features/store/initial-data/schemas'
 import Image from 'next/image'
 import { Card } from './ui/card'
 
 export function ProductCardImage({
   productImages,
 }: {
-  productImages: ProductImageType[]
+  productImages: ProductImage[]
 }) {
   function getImageURL() {
     if (productImages.length > 0) {
@@ -18,11 +17,14 @@ export function ProductCardImage({
 
   const imageURL = getImageURL()
 
-  const thumbURL = imageURL === '' ? defaultThumbUrl : imageURL
-
   return (
     <Card className="relative min-w-14 w-full lg:max-w-10 aspect-square overflow-hidden border-0">
-      <Image src={thumbURL} fill alt="" className="object-cover" />
+      <Image
+        src={imageURL ?? '/default_thumb_url.png'}
+        fill
+        alt=""
+        className="object-cover"
+      />
     </Card>
   )
 }
