@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Product } from '@/features/store/initial-data/schemas'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
-import { PurchaseItemVariations } from '@/models/purchase'
+import { OrderItemVariations } from '@/models/order'
 import { usePublicStore } from '@/stores/public-store'
 import { createPath } from '@/utils/createPath'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -32,7 +32,7 @@ export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
   data?: Product
-  variations?: PurchaseItemVariations[]
+  variations?: OrderItemVariations[]
   observations?: string[]
   extras?: ExtraType[]
   quantity?: number

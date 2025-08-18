@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { AddressType } from '@/models/address'
-import { PurchaseType } from '@/models/purchase'
+import { OrderType } from '@/models/order'
 import { cache } from 'react'
 
 export async function readUserConnectedAccountId(userId: string) {
@@ -38,25 +38,25 @@ export const readStoreAddress = storeProcedure
 
 export const readStoreAddressCached = cache(readStoreAddress)
 
-export async function readPurchaseItems(purchaseId: string): Promise<{
-  purchase: PurchaseType | null
-  purchaseError: any | null
+export async function readOrderItems(orderId: string): Promise<{
+  order: OrderType | null
+  orderError: any | null
 }> {
   const supabase = createClient()
 
-  const { data: purchase, error: purchaseError } = await supabase
-    .from('purchases')
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
     .select(
       `
         *,
-        purchase_items (
+        order_items (
           *,
           products (*)
         )
       `,
     )
-    .eq('id', purchaseId)
+    .eq('id', orderId)
     .single()
 
-  return { purchase, purchaseError }
+  return { order, orderError }
 }

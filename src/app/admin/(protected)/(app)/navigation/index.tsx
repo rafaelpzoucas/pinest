@@ -12,7 +12,7 @@ export const navLinks: LinkType[] = [
     icon: HomeIcon,
   },
   {
-    route: '/admin/purchases',
+    route: '/admin/orders',
     title: 'Pedidos',
     icon: Layers,
   },

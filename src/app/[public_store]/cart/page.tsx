@@ -29,7 +29,7 @@ export default function CartPage() {
 
   const productsPrice = calculateCartTotal(cart)
 
-  const finishPurchaseLink = !customer
+  const finishOrderLink = !customer
     ? createPath('/account?checkout=true', store?.store_subdomain)
     : createPath('/checkout?step=pickup', store?.store_subdomain)
 
@@ -51,7 +51,7 @@ export default function CartPage() {
             </div>
 
             <Link
-              href={finishPurchaseLink}
+              href={finishOrderLink}
               className={cn(buttonVariants(), 'w-full')}
             >
               Finalizar compra

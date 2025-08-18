@@ -10,9 +10,9 @@ import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
-import { readPurchaseById } from '../../purchases/deliveries/[id]/actions'
-import { readTableById } from '../../purchases/tables/[id]/actions'
-import { purchaseTest } from './purchase-test'
+import { readOrderById } from '../../orders/deliveries/[id]/actions'
+import { readTableById } from '../../orders/tables/[id]/actions'
+import { orderTest } from './order-test'
 import {
   printerSchema,
   PrinterType,
@@ -162,29 +162,29 @@ export const printTableReceipt = createServerAction()
     }
   })
 
-export const printPurchaseReceipt = createServerAction()
+export const printOrderReceipt = createServerAction()
   .input(
     z.object({
-      purchaseId: z.string().optional(),
-      purchaseType: z.enum(['DELIVERY', 'TAKEOUT']).optional(),
+      orderId: z.string().optional(),
+      orderType: z.enum(['DELIVERY', 'TAKEOUT']).optional(),
       reprint: z.boolean().optional().default(false),
     }),
   )
   .handler(async ({ input }) => {
-    const [[purchaseData], [printSettingsData], [printersData]] =
+    const [[orderData], [printSettingsData], [printersData]] =
       await Promise.all([
-        readPurchaseById({ id: input.purchaseId ?? '' }),
+        readOrderById({ id: input.orderId ?? '' }),
         readPrintingSettings(),
         readPrinters(),
       ])
 
-    const purchase = purchaseData?.purchase ?? purchaseTest
+    const order = orderData?.order ?? orderTest
     const printers = printersData?.printers || []
     const printingSettings = printSettingsData?.printingSettings
     const kitchenFontSize = printingSettings?.kitchen_font_size
     const deliveryFontSize = printingSettings?.font_size
 
-    const isDelivery = input.purchaseType === 'DELIVERY'
+    const isDelivery = input.orderType === 'DELIVERY'
 
     if (!printers.length) {
       return new Response('Nenhuma impressora encontrada', { status: 404 })
@@ -202,7 +202,7 @@ export const printPurchaseReceipt = createServerAction()
           printer.sectors.length === 0 ||
           printer.sectors.includes('kitchen')
         ) {
-          const textKitchen = buildReceiptKitchenESCPOS(purchase, input.reprint)
+          const textKitchen = buildReceiptKitchenESCPOS(order, input.reprint)
 
           await addToPrintQueue([
             {
@@ -218,10 +218,7 @@ export const printPurchaseReceipt = createServerAction()
           (isDelivery && printer.sectors.length === 0) ||
           printer.sectors.includes('delivery')
         ) {
-          const textDelivery = buildReceiptDeliveryESCPOS(
-            purchase,
-            input.reprint,
-          )
+          const textDelivery = buildReceiptDeliveryESCPOS(order, input.reprint)
 
           await addToPrintQueue([
             {

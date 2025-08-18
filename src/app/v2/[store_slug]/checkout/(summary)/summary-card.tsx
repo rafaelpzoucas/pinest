@@ -52,7 +52,7 @@ export function SummaryCard({
         : couponDiscount * -1
       : 0
 
-  const createPurchaseValues = {
+  const createOrderValues = {
     type: pickup,
     payment_type: payment,
     totalAmount: getDiscountedTotal(),

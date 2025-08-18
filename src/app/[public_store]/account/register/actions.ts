@@ -3,7 +3,7 @@
 import { storeProcedure } from '@/lib/zsa-procedures'
 import { CustomerType } from '@/models/customer'
 import { revalidatePath } from 'next/cache'
-import { readStoreCustomer } from '../../purchases/actions'
+import { readStoreCustomer } from '../../orders/actions'
 import { createCustomerSchema, updateCustomerSchema } from './schemas'
 
 export const createCustomer = storeProcedure

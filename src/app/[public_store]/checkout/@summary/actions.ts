@@ -1,6 +1,6 @@
 'use server'
 
-import { updatePurchaseStatus } from '@/app/admin/(protected)/(app)/purchases/deliveries/[id]/actions'
+import { updateOrderStatus } from '@/app/admin/(protected)/(app)/orders/deliveries/[id]/actions'
 
 import { notifySchema, NotifyType } from '@/app/api/v1/push/schemas'
 import { createClient } from '@/lib/supabase/server'
@@ -13,9 +13,9 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { clearCart, readCart } from '../../cart/actions'
-import { readStoreCustomer } from '../../purchases/actions'
-import { readPurchaseItems } from '../actions'
-import { createPurchaseSchema } from './schemas'
+import { readStoreCustomer } from '../../orders/actions'
+import { readOrderItems } from '../actions'
+import { createOrderSchema } from './schemas'
 
 export async function readAddressById(id: string): Promise<{
   address: AddressType | null
@@ -62,7 +62,7 @@ export async function readStoreByName(storeName: string): Promise<{
   return { store, storeError }
 }
 
-const updateStoreCustomerPurchasesQuantity = storeProcedure
+const updateStoreCustomerOrdersQuantity = storeProcedure
   .createServerAction()
   .input(z.object({ customerId: z.string().optional() }))
   .handler(async ({ ctx, input }) => {
@@ -82,8 +82,7 @@ const updateStoreCustomerPurchasesQuantity = storeProcedure
     const { error: updateCustomerError } = await supabase
       .from('store_customers')
       .update({
-        purchases_quantity:
-          storeCustomer && storeCustomer.purchases_quantity + 1,
+        orders_quantity: storeCustomer && storeCustomer.orders_quantity + 1,
       })
       .eq('id', storeCustomer?.id)
 
@@ -111,9 +110,9 @@ export const getNextDisplayId = storeProcedure
     return data // current_sequence retornado
   })
 
-export const createPurchase = storeProcedure
+export const createOrder = storeProcedure
   .createServerAction()
-  .input(createPurchaseSchema)
+  .input(createOrderSchema)
   .handler(async ({ ctx, input }) => {
     const { store, supabase } = ctx
 
@@ -194,7 +193,7 @@ export const createPurchase = storeProcedure
                 coupon_id: coupon.id,
                 customer_id: storeCustomer.id,
                 used_at: new Date().toISOString(),
-                purchase_id: null, // pode ser atualizado depois
+                order_id: null, // pode ser atualizado depois
               })
             }
           }
@@ -202,7 +201,7 @@ export const createPurchase = storeProcedure
       }
     }
 
-    const newPurchaseValues = {
+    const newOrderValues = {
       display_id: displayId,
       customer_id: storeCustomer?.id ?? null,
       status: 'accept',
@@ -225,23 +224,23 @@ export const createPurchase = storeProcedure
       coupon_code: input.coupon_code,
     }
 
-    const { data: createdPurchase, error: purchaseError } = await supabase
-      .from('purchases')
-      .insert(newPurchaseValues)
+    const { data: createdOrder, error: orderError } = await supabase
+      .from('orders')
+      .insert(newOrderValues)
       .select()
       .single()
 
-    if (purchaseError || !createdPurchase) {
-      console.error('Erro ao criar compra: ', purchaseError)
+    if (orderError || !createdOrder) {
+      console.error('Erro ao criar compra: ', orderError)
     }
 
     const deliveryFee =
       type === 'DELIVERY'
         ? {
-            purchase_id: createdPurchase?.id,
+            order_id: createdOrder?.id,
             is_paid: false,
             description: 'Taxa de entrega',
-            product_price: createdPurchase?.total?.shipping_price,
+            product_price: createdOrder?.total?.shipping_price,
             quantity: 1,
             observations: [],
             extras: [],
@@ -251,7 +250,7 @@ export const createPurchase = storeProcedure
     const cartItems =
       (cart &&
         cart.map((item) => ({
-          purchase_id: createdPurchase.id,
+          order_id: createdOrder.id,
           product_id: item?.product_id,
           quantity: item?.quantity,
           product_price: item?.product_price,
@@ -260,40 +259,37 @@ export const createPurchase = storeProcedure
         }))) ??
       []
 
-    const purchaseItemsArray = [
+    const orderItemsArray = [
       ...cartItems,
       ...(deliveryFee ? [deliveryFee] : []),
     ]
 
-    const { data: purchaseItems, error: purchaseItemsError } = await supabase
-      .from('purchase_items')
-      .insert(purchaseItemsArray)
+    const { data: orderItems, error: orderItemsError } = await supabase
+      .from('order_items')
+      .insert(orderItemsArray)
       .select('*')
 
-    if (purchaseItemsError || !purchaseItems) {
-      console.error('Erro ao adicionar itens da compra: ', purchaseItemsError)
+    if (orderItemsError || !orderItems) {
+      console.error('Erro ao adicionar itens da compra: ', orderItemsError)
     }
 
-    if (purchaseItems) {
-      for (const item of purchaseItems) {
+    if (orderItems) {
+      for (const item of orderItems) {
         if (item.product_id) {
           await updateAmountSoldAndStock(item.product_id, item.quantity)
         }
       }
     }
 
-    await handlePayment({ purchaseId: createdPurchase.id })
-    await updateStoreCustomerPurchasesQuantity({
+    await handlePayment({ orderId: createdOrder.id })
+    await updateStoreCustomerOrdersQuantity({
       customerId: storeCustomer?.customers?.id,
     })
 
     nofityStore({ storeId: store?.id })
 
     return redirect(
-      createPath(
-        `/purchases/${createdPurchase.id}?back=home`,
-        store.store_subdomain,
-      ),
+      createPath(`/orders/${createdOrder.id}?back=home`, store.store_subdomain),
     )
   })
 
@@ -355,19 +351,19 @@ export async function updateAmountSoldAndStock(
 
 export const handlePayment = storeProcedure
   .createServerAction()
-  .input(z.object({ purchaseId: z.string() }))
+  .input(z.object({ orderId: z.string() }))
   .handler(async ({ input, ctx }) => {
     const { store } = ctx
 
-    const { purchase } = await readPurchaseItems(input.purchaseId)
+    const { order } = await readOrderItems(input.orderId)
 
-    if (!purchase) {
+    if (!order) {
       return
     }
 
-    await updatePurchaseStatus({
+    await updateOrderStatus({
       newStatus: 'accept',
-      purchaseId: purchase.id,
+      orderId: order.id,
       isIfood: false,
     })
 

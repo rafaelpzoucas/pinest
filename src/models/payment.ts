@@ -3,10 +3,10 @@ export type PaymentType = {
   amount: number
   payment_type: 'PIX' | 'CASH' | 'CREDIT' | 'DEBIT' | 'DEFERRED'
   created_at: string
-  purchase_id: string
+  order_id: string
   table_id: string
   status: string
-  purchase_items: {
+  order_items: {
     id: string
   }[]
   type: 'INCOME' | 'EXPENSE'

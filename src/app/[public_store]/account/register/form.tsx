@@ -71,7 +71,7 @@ export function CustomerRegisterForm({
       return router.push(createPath(`/checkout?step=pickup`, storeSubdomain))
     }
 
-    return router.push(createPath('/purchases', storeSubdomain))
+    return router.push(createPath('/orders', storeSubdomain))
   }
 
   return (

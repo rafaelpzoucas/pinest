@@ -6,7 +6,7 @@ import { UserType } from '@/models/user'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { z } from 'zod'
-import { refreshIfoodAccessToken } from './purchases/deliveries/data-table/actions'
+import { refreshIfoodAccessToken } from './orders/deliveries/data-table/actions'
 
 export async function readOwner(): Promise<{
   owner: UserType | null
@@ -68,7 +68,7 @@ export const updateStoreStatus = adminProcedure
       return null
     }
 
-    revalidatePath('/admin/purchases')
+    revalidatePath('/admin/orders')
 
     return { data }
   })

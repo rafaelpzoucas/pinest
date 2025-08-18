@@ -5,8 +5,8 @@ import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
 import { ExtraType } from '@/models/extras'
+import { OrderItemVariations } from '@/models/order'
 import { ProductType } from '@/models/product'
-import { PurchaseItemVariations } from '@/models/purchase'
 import { usePublicStore } from '@/stores/public-store'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Plus } from 'lucide-react'
@@ -31,7 +31,7 @@ export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
   data?: ProductType
-  variations?: PurchaseItemVariations[]
+  variations?: OrderItemVariations[]
   observations?: string[]
   extras?: ExtraType[]
   quantity?: number

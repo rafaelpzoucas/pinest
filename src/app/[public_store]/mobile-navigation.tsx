@@ -37,7 +37,7 @@ export function MobileNavigation({
       icon: Home,
     },
     {
-      href: createPath('/purchases', storeSubdomain),
+      href: createPath('/orders', storeSubdomain),
       name: 'Pedidos',
       icon: ReceiptText,
     },

@@ -72,13 +72,13 @@ function emptyIfZero(value: number) {
 }
 
 export function CloseCashSession({
-  hasOpenPurchases,
+  hasOpenOrders,
   hasOpenTables,
   cashReceipts,
   payments,
   reports,
 }: {
-  hasOpenPurchases: boolean
+  hasOpenOrders: boolean
   hasOpenTables: boolean
   cashReceipts?: z.infer<typeof createCashReceiptsSchema>
   payments: PaymentType[]
@@ -469,7 +469,7 @@ export function CloseCashSession({
         </AlertDialogContent>
       </AlertDialog>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        {hasOpenPurchases || hasOpenTables ? (
+        {hasOpenOrders || hasOpenTables ? (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>

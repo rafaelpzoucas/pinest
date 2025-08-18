@@ -80,7 +80,7 @@ export function CustomerRegisterForm({
       return router.push(createPath(`/checkout?step=pickup`, storeSlug))
     }
 
-    return router.push(createPath('/purchases', storeSlug))
+    return router.push(createPath('/orders', storeSlug))
   }
 
   return (

@@ -1,4 +1,4 @@
-import { PurchaseItemsType } from '@/models/purchase'
+import { OrderItemsType } from '@/models/order'
 import { create } from 'zustand'
 
 type RowSelectionState = Record<string, boolean>
@@ -8,16 +8,16 @@ type Updater<T> = T | ((old: T) => T)
 interface TableStore {
   rowSelection: RowSelectionState
   setRowSelection: (newSelection: Updater<RowSelectionState>) => void
-  items: PurchaseItemsType[] // Estado dos itens da compra
-  setItems: (newItems: PurchaseItemsType[]) => void // Função para atualizar os itens
-  splitItem: (item: PurchaseItemsType, parts: number) => void // Função para dividir um item
+  items: OrderItemsType[] // Estado dos itens da compra
+  setItems: (newItems: OrderItemsType[]) => void // Função para atualizar os itens
+  splitItem: (item: OrderItemsType, parts: number) => void // Função para dividir um item
   updateItemPayment: (id: string, isPaid: boolean) => void // Atualiza o pagamento do item
 }
 
 // Função que divide um item em partes
-function splitItem(item: PurchaseItemsType, parts: number) {
+function splitItem(item: OrderItemsType, parts: number) {
   const partPrice = item.product_price / parts // Preço de cada parte
-  const newItems: PurchaseItemsType[] = []
+  const newItems: OrderItemsType[] = []
 
   for (let i = 0; i < parts; i++) {
     newItems.push({

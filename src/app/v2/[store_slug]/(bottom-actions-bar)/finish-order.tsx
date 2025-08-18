@@ -63,7 +63,7 @@ export function FinishOrder() {
 
   const isVisible = !!config.showFinishOrder
 
-  const finishPurchaseLink = !customerData
+  const finishOrderLink = !customerData
     ? createPath('/account?checkout=true', storeSlug)
     : createPath('/checkout?step=pickup', storeSlug)
 
@@ -154,7 +154,7 @@ export function FinishOrder() {
       <div className="bg-background">
         {!isInCheckout && !isLastStep && (
           <Link
-            href={finishPurchaseLink}
+            href={finishOrderLink}
             className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
               text-primary-foreground p-4 font-bold uppercase hover:opacity-80
               active:scale-[0.98] transition-all duration-75"

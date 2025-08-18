@@ -2,16 +2,16 @@
 
 import { useStoreNotifications } from '@/hooks/useStoreNotifications'
 import { createClient } from '@/lib/supabase/client'
-import { PurchaseType } from '@/models/purchase'
+import { OrderType } from '@/models/order'
 import { StoreType } from '@/models/store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function RealtimeNotifications({
-  purchases,
+  orders,
   store,
 }: {
-  purchases: PurchaseType[]
+  orders: OrderType[]
   store: StoreType | null
 }) {
   const supabase = createClient()
@@ -22,9 +22,7 @@ export function RealtimeNotifications({
   useStoreNotifications({ storeId: store?.id })
 
   useEffect(() => {
-    const hasPending = purchases.some(
-      (purchase) => purchase.status === 'accept',
-    )
+    const hasPending = orders.some((order) => order.status === 'accept')
 
     // Função que toca o som com debounce
     const playAudio = () => {
@@ -52,17 +50,17 @@ export function RealtimeNotifications({
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [purchases, canPlay])
+  }, [orders, canPlay])
 
   useEffect(() => {
     const channel = supabase
-      .channel('realtime-purchases')
+      .channel('realtime-orders')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'purchases',
+          table: 'orders',
         },
         () => {
           router.refresh()

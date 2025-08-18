@@ -7,7 +7,7 @@ export type StoreCustomerType = {
   store_id: string
   notes: string
   balance: number
-  purchases_quantity: number
+  orders_quantity: number
   customers: CustomerType
 }
 
@@ -18,6 +18,6 @@ export type AdminCustomerType = {
   store_id: string
   notes: string
   balance: number
-  purchases_quantity: number
+  orders_quantity: number
   customers: CustomerType
 }

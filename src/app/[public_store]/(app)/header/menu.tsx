@@ -15,7 +15,7 @@ import { usePathname, useRouter } from 'next/navigation'
 const menuOptions = [
   {
     title: 'Minhas compras',
-    href: '/purchases',
+    href: '/orders',
     icon: ScrollText,
   },
   {

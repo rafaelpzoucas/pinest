@@ -40,13 +40,13 @@ export function PublicStoreNavigation({
       icon: Home,
     },
     {
-      href: rootPath ? `/${rootPath}/purchases` : '/purchases',
+      href: rootPath ? `/${rootPath}/orders` : '/orders',
       name: 'Meus pedidos',
       icon: ScrollText,
     },
   ]
 
-  const finishPurchaseLink = !customer
+  const finishOrderLink = !customer
     ? createPath('/account?checkout=true', storeSubdomain)
     : createPath('/checkout?step=pickup', storeSubdomain)
 
@@ -109,7 +109,7 @@ export function PublicStoreNavigation({
                   <footer className="pt-3 bg-background">
                     {productsPrice > 0 && (
                       <Link
-                        href={finishPurchaseLink}
+                        href={finishOrderLink}
                         className={cn(
                           buttonVariants(),
                           'flex justify-between w-full',

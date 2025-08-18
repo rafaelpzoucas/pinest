@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const createPurchaseSchema = z.object({
+export const createOrderSchema = z.object({
   totalAmount: z.number(),
   discount: z.number(),
   shippingPrice: z.number(),

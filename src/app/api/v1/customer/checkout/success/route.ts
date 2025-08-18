@@ -1,36 +1,33 @@
-import { readPurchaseById } from '@/app/[public_store]/purchases/[id]/actions'
+import { readOrderById } from '@/app/[public_store]/orders/[id]/actions'
 import { readStoreById } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/actions'
 import { createClient } from '@/lib/supabase/server'
 import { ProdutoType, RequestSolicitarType } from '@/models/kangu-shipping'
 import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 
-async function updatePurchaseTrackingCode(
-  purchaseId: string,
-  trackingCode: string,
-) {
+async function updateOrderTrackingCode(orderId: string, trackingCode: string) {
   const supabse = createClient()
 
   const { error: updateTrackingCodeError } = await supabse
-    .from('purchases')
+    .from('orders')
     .update({ tracking_code: trackingCode })
-    .eq('id', purchaseId)
+    .eq('id', orderId)
 
   return { updateTrackingCodeError }
 }
 
-async function solicitShipping(purchaseId: string) {
-  const [purchaseData] = await readPurchaseById({ purchaseId })
+async function solicitShipping(orderId: string) {
+  const [orderData] = await readOrderById({ orderId })
 
-  const purchase = purchaseData?.purchase
+  const order = orderData?.order
 
-  if (!purchase) return
+  if (!order) return
 
-  const { store } = await readStoreById(purchase.store_id)
+  const { store } = await readStoreById(order.store_id)
 
   if (!store) return
 
-  const produtos = purchase?.purchase_items.map((item) => {
+  const produtos = order?.order_items.map((item) => {
     if (!item.products) return null
 
     return {
@@ -58,15 +55,15 @@ async function solicitShipping(purchaseId: string) {
   }
 
   const destinatario = {
-    nome: purchase.store_customers.customers.name,
+    nome: order.store_customers.customers.name,
     endereco: {
-      logradouro: purchase.store_customers.customers.address.street,
-      numero: purchase.store_customers.customers.address.number,
-      complemento: purchase.store_customers.customers.address.complement,
-      bairro: purchase.store_customers.customers.address.neighborhood,
-      cep: purchase.store_customers.customers.address.zip_code,
-      cidade: purchase.store_customers.customers.address.city,
-      uf: purchase.store_customers.customers.address.state,
+      logradouro: order.store_customers.customers.address.street,
+      numero: order.store_customers.customers.address.number,
+      complemento: order.store_customers.customers.address.complement,
+      bairro: order.store_customers.customers.address.neighborhood,
+      cep: order.store_customers.customers.address.zip_code,
+      cidade: order.store_customers.customers.address.city,
+      uf: order.store_customers.customers.address.state,
     },
   }
 
@@ -102,8 +99,8 @@ async function solicitShipping(purchaseId: string) {
     const responseData = await response.json()
     const trackingCode = responseData.codigo
 
-    const { updateTrackingCodeError } = await updatePurchaseTrackingCode(
-      purchaseId,
+    const { updateTrackingCodeError } = await updateOrderTrackingCode(
+      orderId,
       trackingCode,
     )
 
@@ -123,14 +120,14 @@ export async function GET(request: Request) {
 
   const requestUrl = new URL(request.url)
   const storeURL = requestUrl.searchParams.get('store_subdomain')
-  const purchaseId = requestUrl.searchParams.get('purchase')
+  const orderId = requestUrl.searchParams.get('order')
   const stripeAccountId = requestUrl.searchParams.get('stripe_account')
   const amount = requestUrl.searchParams.get('amount')
   const isShipping = requestUrl.searchParams.get('pickup') === 'shipping'
 
   const origin = requestUrl.origin
 
-  if (!storeURL || !purchaseId) {
+  if (!storeURL || !orderId) {
     const res = NextResponse.json(
       { error: 'Missing required parameters.' },
       { status: 400 },
@@ -143,13 +140,13 @@ export async function GET(request: Request) {
   }
 
   const { error } = await supabase
-    .from('purchases')
+    .from('orders')
     .update({ status: 'approved', updated_at: new Date().toISOString() })
-    .eq('id', purchaseId)
+    .eq('id', orderId)
 
   if (error) {
     const res = NextResponse.json(
-      { error: 'Failed to update purchase.' },
+      { error: 'Failed to update order.' },
       { status: 500 },
     )
     res.headers.set(
@@ -172,13 +169,13 @@ export async function GET(request: Request) {
   }
 
   if (isShipping) {
-    await solicitShipping(purchaseId)
+    await solicitShipping(orderId)
   }
 
-  revalidatePath('/purchases')
+  revalidatePath('/orders')
 
   const res = NextResponse.redirect(
-    `${origin}/${storeURL}/purchases?callback=home`,
+    `${origin}/${storeURL}/orders?callback=home`,
   )
   res.headers.set(
     'Cache-Control',

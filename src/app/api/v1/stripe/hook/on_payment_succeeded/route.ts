@@ -20,12 +20,12 @@ export async function POST(request: Request) {
 
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object
-    const { purchaseId, stripeAccountId, amount } = paymentIntent.metadata
+    const { orderId, stripeAccountId, amount } = paymentIntent.metadata
 
     const { error } = await supabase
-      .from('purchases')
+      .from('orders')
       .update({ status: 'approved', updated_at: new Date().toISOString() })
-      .eq('id', purchaseId)
+      .eq('id', orderId)
 
     if (error) console.error(error)
 

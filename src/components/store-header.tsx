@@ -36,7 +36,7 @@ export function Header({
 
   const CALLBACK_URLS = {
     home: `${rootPath ?? ''}`,
-    purchases: createPath('/purchases?callback=home', storeSubdomain),
+    orders: createPath('/orders?callback=home', storeSubdomain),
   }
 
   function redirect() {
