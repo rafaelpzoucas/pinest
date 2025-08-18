@@ -106,8 +106,11 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
               cartProduct?.observations?.length > 0 &&
               cartProduct.observations
                 .filter((obs) => obs !== '')
-                .map((obs) => (
-                  <p className="text-muted-foreground text-xs uppercase line-clamp-2">
+                .map((obs, index) => (
+                  <p
+                    key={index}
+                    className="text-muted-foreground text-xs uppercase line-clamp-2"
+                  >
                     obs: {obs}{' '}
                   </p>
                 ))}

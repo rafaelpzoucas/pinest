@@ -1,4 +1,3 @@
-// hooks/useCheckoutFlow.ts
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 
 const checkoutSteps = ['pickup', 'payment', 'summary'] as const

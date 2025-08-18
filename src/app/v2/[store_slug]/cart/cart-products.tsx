@@ -1,14 +1,25 @@
 'use client'
 
-import { useReadCart } from '@/features/store/cart-session/hooks'
+import { CartItem } from '@/features/store/cart-session/schemas'
 import { useCart } from '@/stores/cart-store'
 import { ShoppingCart } from 'lucide-react'
+import { useEffect } from 'react'
 import { CartProduct } from './cart-product'
 
-export function CartProducts({ storeSlug }: { storeSlug: string }) {
-  const { cart } = useCart()
+export function CartProducts({
+  cart,
+  storeSlug,
+}: {
+  cart?: CartItem[]
+  storeSlug: string
+}) {
+  const { setCart } = useCart()
 
-  useReadCart({ subdomain: storeSlug })
+  useEffect(() => {
+    if (cart) {
+      setCart(cart)
+    }
+  }, [cart, setCart])
 
   return (
     <div className="lg:h-[370px] p-1 pr-2">

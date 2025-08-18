@@ -3,8 +3,9 @@
 import { CopyTextButton } from '@/components/copy-text-button'
 import { buttonVariants } from '@/components/ui/button'
 import { useReadStore } from '@/features/store/store/hooks'
-import { createPath, formatCurrencyBRL, stringToNumber } from '@/lib/utils'
+import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
 import { cn } from '@/utils/cn'
+import { createPath } from '@/utils/createPath'
 import { Banknote, CreditCard } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -54,6 +55,7 @@ export function Payment() {
   } as const
 
   const paymentKey = payment as keyof typeof PAYMENT_METHODS
+
   return (
     <section className="flex flex-col items-center gap-2 text-center border-b p-6">
       {payment === 'CREDIT' && <CreditCard />}

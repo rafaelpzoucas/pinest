@@ -1,9 +1,11 @@
 'use client'
 
 import { buttonVariants } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useReadStoreAddress } from '@/features/store/addresses/hooks'
 import { useReadStoreCustomer } from '@/features/store/customers/hooks'
-import { cn, createPath, formatAddress } from '@/lib/utils'
+import { cn, formatAddress } from '@/lib/utils'
+import { createPath } from '@/utils/createPath'
 import { formatStoreAddress } from '@/utils/format-address'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
@@ -14,10 +16,12 @@ export function Pickup() {
   const searchParams = useSearchParams()
   const storeSlug = params.store_slug as string
 
-  const { data: customerData } = useReadStoreCustomer({ subdomain: storeSlug })
-  const { data: storeAddressData } = useReadStoreAddress({
-    subdomain: storeSlug,
-  })
+  const { data: customerData, isPending: isCustomerPending } =
+    useReadStoreCustomer({ subdomain: storeSlug })
+  const { data: storeAddressData, isPending: isStoreAddressPending } =
+    useReadStoreAddress({
+      subdomain: storeSlug,
+    })
 
   const customerAddress = customerData?.customer?.address
   const storeAddress = storeAddressData?.storeAddress
@@ -25,6 +29,25 @@ export function Pickup() {
   const pickup = searchParams.get('pickup') as 'DELIVERY' | 'TAKEOUT'
 
   const formattedAddress = storeAddress && formatStoreAddress(storeAddress)
+
+  const isLoading = isCustomerPending || isStoreAddressPending
+
+  if (isLoading) {
+    return (
+      <section className="flex flex-col items-center gap-2 text-center border-b p-6">
+        <Skeleton className="w-6 h-6" />
+
+        <Skeleton className="w-full h-4" />
+
+        <Skeleton className="w-full h-3" />
+        <Skeleton className="w-36 h-3" />
+
+        <div className="py-3">
+          <Skeleton className="w-52 h-4" />
+        </div>
+      </section>
+    )
+  }
 
   return (
     <div>

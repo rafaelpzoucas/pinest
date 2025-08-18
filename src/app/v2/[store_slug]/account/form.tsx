@@ -79,7 +79,7 @@ export function ReadCustomerForm() {
               active:scale-[0.98] transition-all duration-75"
             disabled={isPending}
           >
-            <span>
+            <span className="flex flex-row items-center">
               {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <span>Continuar</span>
             </span>

@@ -48,7 +48,7 @@ export function Cart() {
 
   return (
     <div
-      className="p-4 translate-y-full absolute opacity-0 data-[visible=true]:translate-y-0
+      className="p-3 translate-y-full absolute opacity-0 data-[visible=true]:translate-y-0
         data-[visible=true]:static data-[visible=true]:opacity-100 active:scale-[0.98]
         transition-all duration-200 z-40"
       data-visible={isVisible}

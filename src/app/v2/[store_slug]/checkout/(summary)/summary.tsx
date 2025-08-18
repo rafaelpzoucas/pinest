@@ -26,7 +26,11 @@ export default function SummaryStep() {
       <section className="flex flex-col items-start gap-2 py-6">
         {cart &&
           cart.map((item) => (
-            <CartProduct cartProduct={item} storeSlug={storeSlug} />
+            <CartProduct
+              key={item.id}
+              cartProduct={item}
+              storeSlug={storeSlug}
+            />
           ))}
       </section>
     </div>
