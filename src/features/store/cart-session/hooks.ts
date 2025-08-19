@@ -118,8 +118,6 @@ export function useAddToCart(options?: UseMutationOptions) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['cart-session'] })
 
-      toast.success('Produto(s) adicionado(s) ao carrinho.')
-
       resetCurrentCartItem()
 
       options?.onSuccess?.(data)
@@ -151,7 +149,6 @@ export function useUpdateCartProduct(options?: UseMutationOptions) {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['cart-session'] })
-      toast.success('Produto atualizado no carrinho.')
 
       resetCurrentCartItem()
 
@@ -214,7 +211,6 @@ export function useClearCartSession(options?: UseMutationOptions) {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['cart-session'] })
-      toast.success('Produto removido do carrinho.')
 
       setCart([])
 

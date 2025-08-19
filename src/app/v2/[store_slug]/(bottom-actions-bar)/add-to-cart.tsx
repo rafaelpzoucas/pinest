@@ -58,6 +58,7 @@ export function AddToCart() {
 
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart({
     onSuccess: () => {
+      router.back()
       setIsDrawerOpen(false)
     },
   })

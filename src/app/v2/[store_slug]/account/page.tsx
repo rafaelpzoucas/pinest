@@ -14,7 +14,7 @@ export default async function AccountPage({
   const customer = customerData?.customer
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4 mt-[68px]">
       {customer ? (
         <CustomerRegisterForm
           customer={customer}

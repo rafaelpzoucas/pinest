@@ -5,6 +5,7 @@ import { AddToCart } from './add-to-cart'
 import { Cart } from './cart'
 import { FinishOrder } from './finish-order'
 import { useBottomAction } from './hooks'
+import { Navbar } from './nav'
 
 export function BottomActionBar() {
   const { config } = useBottomAction()
@@ -20,6 +21,7 @@ export function BottomActionBar() {
         <Cart />
         <AddToCart />
         <FinishOrder />
+        <Navbar />
       </div>
     </footer>
   )

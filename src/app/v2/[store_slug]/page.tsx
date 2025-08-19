@@ -1,6 +1,7 @@
 import { getStoreInitialData } from '@/features/store/initial-data/read'
 import { StoreEdgeConfig } from '@/features/store/initial-data/schemas'
 import { extractSubdomainOrDomain } from '@/lib/helpers'
+import { calculateStoreStatus } from '@/utils/store-status'
 import { get } from '@vercel/edge-config'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -54,11 +55,15 @@ export default async function StorePage({ params }: StorePageProps) {
   const store = storeData.store
   const categories = storeData.categories
 
+  // CALCULA O STATUS NO SERVIDOR 🔥
+  const initialStatus = calculateStoreStatus(store)
+
   return (
     <div>
-      <StoreHeader store={store} />
+      {/* Passa o status inicial calculado no servidor */}
+      <StoreHeader store={store} initialStatus={initialStatus} />
 
-      <main className="mt-[45dvh] bg-background relative z-10 drop-shadow-lg pt-4">
+      <main className="mt-[45vh] bg-background relative z-10 drop-shadow-lg pt-4">
         <Categories categories={categories} />
         <Showcases store={store} />
         <ProductsList categories={categories} />

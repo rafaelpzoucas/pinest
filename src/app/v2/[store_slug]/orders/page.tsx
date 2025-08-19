@@ -58,7 +58,7 @@ export default async function OrdersPage({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4 mt-[68px]">
       <div className="flex flex-col gap-2 lg:grid grid-cols-4">
         {orders && orders.length > 0 ? (
           orders.map((order) => (
