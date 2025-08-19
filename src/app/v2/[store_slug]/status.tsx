@@ -1,7 +1,9 @@
 'use client'
 
 import { Store } from '@/features/store/initial-data/schemas'
+
 import { createClient } from '@/lib/supabase/client'
+import { StoreStatus } from '@/utils/store-status'
 import {
   addDays,
   differenceInMinutes,
@@ -14,15 +16,26 @@ import { ptBR } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-export function Status({ store }: { store: Store | null }) {
+interface StatusProps {
+  store: Store | null
+  initialStatus?: StoreStatus // <- Status inicial do servidor
+}
+
+export function Status({ store, initialStatus }: StatusProps) {
   const supabase = createClient()
   const router = useRouter()
-  const [minutesToClose, setMinutesToClose] = useState<number | null>(null)
-  const [isActuallyOpen, setIsActuallyOpen] = useState<boolean>(false)
+
+  // Usa o status inicial do servidor como valor padrão
+  const [minutesToClose, setMinutesToClose] = useState<number | null>(
+    initialStatus?.minutesToClose ?? null,
+  )
+  const [isActuallyOpen, setIsActuallyOpen] = useState<boolean>(
+    initialStatus?.isOpen ?? false,
+  )
   const [nextOpening, setNextOpening] = useState<{
     date: Date
     sameDay: boolean
-  } | null>(null)
+  } | null>(initialStatus?.nextOpening ?? null)
 
   const updateStatus = () => {
     if (!store?.store_hours) {
@@ -118,21 +131,30 @@ export function Status({ store }: { store: Store | null }) {
   }
 
   useEffect(() => {
+    if (!store || initialStatus) {
+      // Se temos status inicial, só configura o intervalo para updates futuros
+      const interval = setInterval(updateStatus, 60_000)
+      return () => clearInterval(interval)
+    }
+
+    // Se não temos status inicial, executa imediatamente e depois configura intervalo
     updateStatus()
     const interval = setInterval(updateStatus, 60_000)
     return () => clearInterval(interval)
   }, [store])
 
   useEffect(() => {
+    if (!store?.id) return
+
     const channel = supabase
-      .channel(`store-status-${store?.id}`)
+      .channel(`store-status-${store.id}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'stores',
-          filter: `id=eq.${store?.id}`,
+          filter: `id=eq.${store.id}`,
         },
         () => {
           router.refresh()
@@ -143,7 +165,7 @@ export function Status({ store }: { store: Store | null }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [store])
+  }, [store?.id])
 
   return (
     <span className="flex items-center text-sm gap-1 text-muted-foreground">

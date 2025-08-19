@@ -4,15 +4,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { Store } from '@/features/store/initial-data/schemas'
 import { formatCurrencyBRL } from '@/lib/utils'
+import { StoreStatus } from '@/utils/store-status'
 import { Pyramid, Timer } from 'lucide-react'
 import { Status } from './status'
 
-export function StoreHeader({ store }: { store: Store | null }) {
+export function StoreHeader({
+  store,
+  initialStatus,
+}: {
+  store: Store | null
+  initialStatus?: StoreStatus
+}) {
   const logoURL = store?.logo_url ?? undefined
   const delivery = store?.shippings && store?.shippings[0]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-0 h-[45dvh] flex items-center justify-center p-6">
+    <header className="fixed top-0 left-0 right-0 z-0 h-[45vh] flex items-center justify-center p-6">
       <div className="flex flex-col gap-3 items-center">
         <Avatar className="w-48 h-48">
           <AvatarImage src={logoURL} className="object-cover" />
@@ -25,7 +32,7 @@ export function StoreHeader({ store }: { store: Store | null }) {
           <h1 className="text-center text-2xl capitalize font-bold">
             {store?.name}
           </h1>
-          <Status store={store} />
+          <Status store={store} initialStatus={initialStatus} />
         </div>
         <div className="flex flex-row gap-2">
           {delivery?.pickup ? (

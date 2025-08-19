@@ -26,7 +26,7 @@ export default async function ProductPage({
     <div>
       <ProductImages images={productImages} />
 
-      <main className="mt-[45dvh] bg-background relative z-10 pb-24">
+      <main className="mt-[45vh] bg-background relative z-10 pb-24">
         <ProductInfo product={product} />
         <ExtrasSection storeId={storeData?.storeId} productId={product.id} />
       </main>

@@ -10,7 +10,7 @@ import Image from 'next/image'
 
 export function ProductImages({ images }: { images: ProductImage[] }) {
   return (
-    <div className="fixed top-0 left-0 right-0 z-0 h-[45dvh] overflow-hidden">
+    <div className="fixed top-0 left-0 right-0 z-0 h-[45vh] overflow-hidden">
       {images.length < 2 && (
         <div className="relative w-full h-full border-none">
           <Image
