@@ -11,6 +11,7 @@ type UseCartItemType = {
 
   // Ações para o cart completo
   setCart: (items: CartItem[]) => void
+  clearCart: () => void
 
   // Ações para o currentCartItem
   setCurrentCartItem: (item: Partial<CartItem> | null) => void
@@ -32,6 +33,7 @@ type UseCartItemType = {
 const initialCartItem: CartItem = {
   id: undefined,
   product_id: '',
+  session_id: undefined,
   products: {} as any,
   quantity: 1,
   product_price: 0,
@@ -51,6 +53,8 @@ export const useCart = create<UseCartItemType>((set, get) => ({
     set(() => ({
       cart: items,
     })),
+
+  clearCart: () => set(() => ({ cart: [] })),
 
   // Ações para o currentCartItem
   setCurrentCartItem: (item) =>

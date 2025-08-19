@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { createServerAction, ZSAError } from 'zsa'
 import { Customer, ReadCustomerSchema } from './schemas'
 
-export const readStoreCustomer = createServerAction()
+export const readCustomer = createServerAction()
   .input(ReadCustomerSchema)
   .handler(async ({ input }) => {
     const supabase = createClient()

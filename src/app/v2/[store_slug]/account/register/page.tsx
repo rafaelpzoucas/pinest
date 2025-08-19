@@ -1,4 +1,4 @@
-import { readStoreCustomer } from '@/features/store/customers/read'
+import { readCustomer } from '@/features/store/customers/read'
 import { CustomerRegisterForm } from './form'
 
 export default async function AccountRegisterPage({
@@ -6,7 +6,7 @@ export default async function AccountRegisterPage({
 }: {
   params: { store_slug: string }
 }) {
-  const [customerData] = await readStoreCustomer({
+  const [customerData] = await readCustomer({
     subdomain: params.store_slug,
   })
 

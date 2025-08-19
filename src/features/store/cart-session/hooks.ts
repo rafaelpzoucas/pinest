@@ -6,6 +6,7 @@ import { useCart } from '@/stores/cart-store'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { addProductToCart } from './add-product'
+import { clearCartSession } from './clear'
 import { getStoreCartSession } from './get-cart-session'
 import { readCart } from './read'
 import { readCartItem } from './read-item'
@@ -13,6 +14,8 @@ import { removeStoreCartProduct } from './remove-product'
 import {
   AddToCart,
   AddToCartSchema,
+  ClearCartSession,
+  ClearCartSessionSchema,
   RemoveCartItem,
   RemoveCartItemSchema,
   UpdateCartItem,
@@ -107,10 +110,7 @@ export function useAddToCart(options?: UseMutationOptions) {
       const parsed = AddToCartSchema.safeParse(data)
 
       if (!parsed.success) {
-        throw new Error(
-          'Error validating input on useAddToCart: ',
-          parsed.error,
-        )
+        throw new Error('Error validating input on useAddToCart: ', parsed.data)
       }
 
       await addProductToCart(data)
@@ -184,6 +184,39 @@ export function useRemoveCartProduct(options?: UseMutationOptions) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['cart-session'] })
       toast.success('Produto removido do carrinho.')
+
+      options?.onSuccess?.(data)
+    },
+    onError: (error) => {
+      toast.error('Erro ao remover produto do carrinho.')
+      console.error(error)
+      options?.onError?.(error)
+    },
+  })
+}
+
+export function useClearCartSession(options?: UseMutationOptions) {
+  const queryClient = useQueryClient()
+  const { setCart } = useCart()
+
+  return useMutation({
+    mutationFn: async (data: ClearCartSession) => {
+      const parsed = ClearCartSessionSchema.safeParse(data)
+
+      if (!parsed.success) {
+        throw new Error(
+          'Error validating input on useUpdateCartProduct: ',
+          parsed.error,
+        )
+      }
+
+      await clearCartSession(data.cartSessionId as string)
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['cart-session'] })
+      toast.success('Produto removido do carrinho.')
+
+      setCart([])
 
       options?.onSuccess?.(data)
     },

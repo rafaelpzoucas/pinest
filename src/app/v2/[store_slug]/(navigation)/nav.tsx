@@ -3,18 +3,32 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation'
 import { useCheckoutFlow } from '../checkout/hooks'
 import { useNavigation } from './hooks'
 
 export function HeaderNavigation() {
   const router = useRouter()
   const pathname = usePathname()
+  const params = useParams()
+  const searchParams = useSearchParams()
+
+  const back = searchParams.get('back')
 
   const { config } = useNavigation()
   const { step, prevStep } = useCheckoutFlow()
 
   const handleBack = () => {
+    if (back === 'home') {
+      router.push(`/v2/${params.store_slug}/`)
+      return
+    }
+
     if (pathname.includes('checkout') && step !== 'pickup') {
       prevStep()
       return

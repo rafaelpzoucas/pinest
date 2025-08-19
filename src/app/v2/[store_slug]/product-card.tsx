@@ -4,9 +4,9 @@ import defaultThumbUrl from '@/../public/default_thumb_url.png'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SelectedExtra } from '@/features/store/extras/schemas'
 import { Product } from '@/features/store/initial-data/schemas'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { ExtraType } from '@/models/extras'
 import { OrderItemVariations } from '@/models/order'
 import { usePublicStore } from '@/stores/public-store'
 import { createPath } from '@/utils/createPath'
@@ -34,7 +34,7 @@ export interface ProductCardProps
   data?: Product
   variations?: OrderItemVariations[]
   observations?: string[]
-  extras?: ExtraType[]
+  extras?: SelectedExtra[]
   quantity?: number
   storeSubdomain: string | null
 }
@@ -174,9 +174,9 @@ export function ProductCard({
 
           {extras &&
             extras.length > 0 &&
-            extras.map((extra) => (
+            extras.map((extra, index) => (
               <p
-                key={extra.id}
+                key={index}
                 className="flex flex-row items-center justify-between text-xs text-muted-foreground
                   line-clamp-2 w-full"
               >
@@ -191,8 +191,11 @@ export function ProductCard({
 
           {filteredObservations &&
             filteredObservations.length > 0 &&
-            filteredObservations.map((obs) => (
-              <p className="text-xs text-muted-foreground uppercase line-clamp-2">
+            filteredObservations.map((obs, index) => (
+              <p
+                key={index}
+                className="text-xs text-muted-foreground uppercase line-clamp-2"
+              >
                 obs: {obs}{' '}
               </p>
             ))}

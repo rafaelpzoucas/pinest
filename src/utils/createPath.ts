@@ -17,16 +17,6 @@ const isStagingEnvironment = () => {
   return isStaging
 }
 
-function getV2Prefix() {
-  if (typeof window !== 'undefined') {
-    const path = window.location.pathname
-    return path.startsWith('/v2') ? 'v2' : ''
-  }
-  // fallback no server
-  const pathname = process.env.NEXT_PUBLIC_PATHNAME || ''
-  return pathname.startsWith('/v2') ? 'v2' : ''
-}
-
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
   if (!storeSubdomain) return ''
 
@@ -36,14 +26,12 @@ export const getRootPath = (storeSubdomain: string | undefined | null) => {
       : process.env.NODE_ENV === 'development'
 
   const isStaging = isStagingEnvironment()
-  const v2Prefix = getV2Prefix()
 
   if (isLocalhost || isStaging) {
-    return [v2Prefix, storeSubdomain].filter(Boolean).join('/')
+    return `${storeSubdomain}`
   }
 
-  // produção usa rewrite
-  return v2Prefix
+  return '' // produção usa reescrita, não precisa prefixar
 }
 
 export const createPath = (
@@ -52,5 +40,5 @@ export const createPath = (
 ) => {
   const rootPath = getRootPath(storeSubdomain)
   if (!rootPath) return path
-  return `/${rootPath}${path}`
+  return `/v2/${rootPath}${path}`
 }

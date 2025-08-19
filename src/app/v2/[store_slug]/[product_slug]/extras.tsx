@@ -6,7 +6,7 @@ import { SelectedExtra } from '@/features/store/extras/schemas'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { useCart } from '@/stores/cart-store'
 import { Minus, Plus } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 type ExtrasSectionProps = {
   storeId?: string
@@ -26,31 +26,73 @@ export function ExtrasSection({ storeId, productId }: ExtrasSectionProps) {
     productId,
   })
 
+  // Mescla os extras disponíveis com os do carrinho
+  const mergedExtras = useMemo(() => {
+    if (!extrasData?.extras) return []
+
+    return extrasData.extras.map((extra) => {
+      // Procura se este extra já está no carrinho
+      const cartExtra = currentCartItem.extras.find(
+        (e) => e.extra_id === extra.id,
+      )
+
+      return {
+        extra_id: extra.id,
+        name: extra.name,
+        price: extra.price,
+        quantity: cartExtra?.quantity || 0,
+      } as SelectedExtra
+    })
+  }, [extrasData?.extras, currentCartItem.extras])
+
   function increase(extraId: string) {
-    const extra = currentCartItem.extras.find((e) => e.extra_id === extraId)
+    const extra = mergedExtras.find((e) => e.extra_id === extraId)
     if (extra) {
-      updateExtraQuantity(extraId, extra.quantity + 1)
+      const newQuantity = extra.quantity + 1
+      updateExtraQuantity(extraId, newQuantity)
+
+      // Atualiza o setExtras apenas com os extras que têm quantity > 0
+      updateFilteredExtras(extraId, newQuantity)
     }
   }
 
   function decrease(extraId: string) {
-    const extra = currentCartItem.extras.find((e) => e.extra_id === extraId)
-    if (extra) {
-      updateExtraQuantity(extraId, extra.quantity - 1)
+    const extra = mergedExtras.find((e) => e.extra_id === extraId)
+    if (extra && extra.quantity > 0) {
+      const newQuantity = extra.quantity - 1
+      updateExtraQuantity(extraId, newQuantity)
+
+      // Atualiza o setExtras apenas com os extras que têm quantity > 0
+      updateFilteredExtras(extraId, newQuantity)
     }
   }
 
+  function updateFilteredExtras(changedExtraId: string, newQuantity: number) {
+    const updatedMergedExtras = mergedExtras.map((extra) =>
+      extra.extra_id === changedExtraId
+        ? { ...extra, quantity: newQuantity }
+        : extra,
+    )
+
+    // Filtra apenas os extras com quantity > 0 para o currentCartItem
+    const filteredExtras = updatedMergedExtras.filter(
+      (extra) => extra.quantity > 0,
+    )
+    setExtras(filteredExtras)
+  }
+
   useEffect(() => {
-    if (extrasData?.extras) {
-      const defaultExtras = extrasData.extras.map((e) => ({
-        extra_id: e.id,
-        name: e.name,
-        price: e.price,
-        quantity: 0,
-      })) as SelectedExtra[]
-      setExtras(defaultExtras)
+    // Garante que os extras sempre iniciem como array vazio
+    if (extrasData?.extras && currentCartItem.extras.length > 0) {
+      // Se há extras no carrinho, verifica se todos têm quantity > 0
+      const filteredExtras = currentCartItem.extras.filter(
+        (extra) => extra.quantity > 0,
+      )
+      if (filteredExtras.length !== currentCartItem.extras.length) {
+        setExtras(filteredExtras)
+      }
     }
-  }, [extrasData?.extras, setExtras])
+  }, [extrasData?.extras, currentCartItem.extras, setExtras])
 
   // Estados de carregamento e erro
   if (isLoading) {
@@ -82,14 +124,14 @@ export function ExtrasSection({ storeId, productId }: ExtrasSectionProps) {
     )
   }
 
-  // Se não há extras, não renderiza nada
-  if (!currentCartItem.extras.length) return null
+  // Se não há extras disponíveis, não renderiza nada
+  if (!extrasData?.extras?.length) return null
 
   return (
     <section className="p-4">
       <h2 className="text-lg font-bold">Adicionais</h2>
 
-      {currentCartItem.extras.map((extra) => (
+      {mergedExtras.map((extra) => (
         <div
           key={extra.extra_id}
           className="flex flex-row items-center justify-between border-b last:border-0 py-2"

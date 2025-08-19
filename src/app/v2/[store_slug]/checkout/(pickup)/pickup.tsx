@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { useReadStoreAddress } from '@/features/store/addresses/hooks'
-import { useReadStoreCustomer } from '@/features/store/customers/hooks'
+import { useReadCustomer } from '@/features/store/customers/hooks'
 import { useReadStoreShippings } from '@/features/store/shippings/hooks'
 import { formatStoreAddress } from '@/utils/format-address'
 import { ChevronRight, Store } from 'lucide-react'
@@ -16,10 +16,9 @@ export function PickupStep() {
 
   const storeSlug = params.store_slug
 
-  const { data: customerData, isPending: isReadingCustomer } =
-    useReadStoreCustomer({
-      subdomain: storeSlug as string,
-    })
+  const { data: customerData, isPending: isReadingCustomer } = useReadCustomer({
+    subdomain: storeSlug as string,
+  })
   const { data: storeAddressData, isPending: isReadingStoreAddress } =
     useReadStoreAddress({
       subdomain: storeSlug as string,

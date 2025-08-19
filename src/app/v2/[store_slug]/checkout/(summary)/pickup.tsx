@@ -3,7 +3,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useReadStoreAddress } from '@/features/store/addresses/hooks'
-import { useReadStoreCustomer } from '@/features/store/customers/hooks'
+import { useReadCustomer } from '@/features/store/customers/hooks'
 import { cn, formatAddress } from '@/lib/utils'
 import { createPath } from '@/utils/createPath'
 import { formatStoreAddress } from '@/utils/format-address'
@@ -16,8 +16,9 @@ export function Pickup() {
   const searchParams = useSearchParams()
   const storeSlug = params.store_slug as string
 
-  const { data: customerData, isPending: isCustomerPending } =
-    useReadStoreCustomer({ subdomain: storeSlug })
+  const { data: customerData, isPending: isCustomerPending } = useReadCustomer({
+    subdomain: storeSlug,
+  })
   const { data: storeAddressData, isPending: isStoreAddressPending } =
     useReadStoreAddress({
       subdomain: storeSlug,

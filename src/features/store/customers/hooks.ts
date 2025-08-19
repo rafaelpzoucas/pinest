@@ -4,7 +4,7 @@ import { UseMutationOptions } from '@/features/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createStoreCustomer } from './create'
-import { readStoreCustomer } from './read'
+import { readCustomer } from './read'
 import {
   CreateCustomer,
   CreateCustomerSchema,
@@ -13,23 +13,20 @@ import {
 } from './schemas'
 import { updateStoreCustomer } from './update'
 
-interface UseReadStoreCustomerParams {
+interface UseReadCustomerParams {
   phone?: string
   subdomain: string
 }
 
-export function useReadStoreCustomer({
-  subdomain,
-  phone,
-}: UseReadStoreCustomerParams) {
+export function useReadCustomer({ subdomain, phone }: UseReadCustomerParams) {
   return useQuery({
-    queryKey: ['store-customer', phone, subdomain],
+    queryKey: ['customer', phone, subdomain],
     queryFn: async () => {
       if (!subdomain) {
         throw new Error('subdomain are required')
       }
 
-      const [data, error] = await readStoreCustomer({
+      const [data, error] = await readCustomer({
         phone,
         subdomain,
       })

@@ -29,6 +29,16 @@ export const navigationConfig: Record<string, NavigationConfig> = {
     variant: 'background',
     title: 'Finalizar pedido',
   },
+  '/v2/[store_slug]/orders': {
+    showBackButton: true,
+    variant: 'background',
+    title: 'Meus pedidos',
+  },
+  '/v2/[store_slug]/orders/[id]': {
+    showBackButton: true,
+    variant: 'background',
+    title: 'Meus pedidos',
+  },
   // Configuração padrão para rotas não especificadas
   '*': {
     showBackButton: true,

@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { PhoneInput } from '@/components/ui/input-phone'
-import { readStoreCustomer } from '@/features/store/customers/read'
+import { readCustomer } from '@/features/store/customers/read'
 import { ReadCustomerSchema } from '@/features/store/customers/schemas'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
@@ -36,7 +36,7 @@ export function ReadCustomerForm() {
     },
   })
 
-  const { execute, isPending } = useServerAction(readStoreCustomer, {
+  const { execute, isPending } = useServerAction(readCustomer, {
     onSuccess: () => {
       if (qCheckout) {
         router.push(`account/register?checkout=${qCheckout}`)

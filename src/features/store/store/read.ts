@@ -12,7 +12,12 @@ export const readStoreBySlug = createServerAction()
 
     const { data, error } = await supabase
       .from('stores')
-      .select('*')
+      .select(
+        `
+          *,
+          address:addresses!inner (*)
+        `,
+      )
       .eq('store_subdomain', input.storeSlug)
       .single()
 

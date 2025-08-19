@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createServerAction, ZSAError } from 'zsa'
-import { readStoreCustomer } from './read'
+import { readCustomer } from './read'
 import { UpdateCustomerSchema } from './schemas'
 
 export const updateStoreCustomer = createServerAction()
@@ -23,7 +23,7 @@ export const updateStoreCustomer = createServerAction()
 
     const [[storeCustomerData], { data: store, error: readStoreError }] =
       await Promise.all([
-        readStoreCustomer({}),
+        readCustomer({}),
         supabase
           .from('stores')
           .select('id')

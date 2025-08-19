@@ -13,12 +13,17 @@ export const ProductVariationSchema = z.object({
 
 export const CartItemSchema = z.object({
   id: z.string().optional(),
+  session_id: z.string().uuid().optional(),
   product_id: z.string().nullable(),
   products: productSchema,
   quantity: z.number(),
   product_price: z.number(),
   observations: z.array(z.string()),
   extras: z.array(selectedExtraSchema),
+})
+
+export const ClearCartSessionSchema = z.object({
+  cartSessionId: z.string().uuid().optional(),
 })
 
 export const UpdateCartItemSchema = CartItemSchema.omit({ products: true })
@@ -115,6 +120,7 @@ export type CartSession = z.infer<typeof CartSessionSchema>
 export type CartItem = z.infer<typeof CartItemSchema>
 export type UpdateCartItem = z.infer<typeof UpdateCartItemSchema>
 export type RemoveCartItem = z.infer<typeof RemoveCartItemSchema>
+export type ClearCartSession = z.infer<typeof ClearCartSessionSchema>
 export type CreateCartSession = z.infer<typeof CreateCartSessionSchema>
 export type UpdateCartSession = z.infer<typeof UpdateCartSessionSchema>
 export type CartSessionQuery = z.infer<typeof CartSessionQuerySchema>

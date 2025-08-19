@@ -1,25 +1,18 @@
 'use client'
 
-import { CartItem } from '@/features/store/cart-session/schemas'
+import { buttonVariants } from '@/components/ui/button'
+import { useReadCart } from '@/features/store/cart-session/hooks'
 import { useCart } from '@/stores/cart-store'
-import { ShoppingCart } from 'lucide-react'
-import { useEffect } from 'react'
+import { cn } from '@/utils/cn'
+import { createPath } from '@/utils/createPath'
+import { Plus, ShoppingCart } from 'lucide-react'
+import Link from 'next/link'
 import { CartProduct } from './cart-product'
 
-export function CartProducts({
-  cart,
-  storeSlug,
-}: {
-  cart?: CartItem[]
-  storeSlug: string
-}) {
-  const { setCart } = useCart()
+export function CartProducts({ storeSlug }: { storeSlug: string }) {
+  const { cart } = useCart()
 
-  useEffect(() => {
-    if (cart) {
-      setCart(cart)
-    }
-  }, [cart, setCart])
+  useReadCart({ subdomain: storeSlug })
 
   return (
     <div className="lg:h-[370px] p-1 pr-2">
@@ -40,6 +33,16 @@ export function CartProducts({
           <p className="text-center text-muted-foreground">
             Você não possui produtos no carrinho
           </p>
+          <Link
+            href={createPath('/', storeSlug)}
+            className={cn(
+              buttonVariants({ variant: 'secondary' }),
+              'w-full uppercase',
+            )}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar mais itens
+          </Link>
         </div>
       )}
     </div>
