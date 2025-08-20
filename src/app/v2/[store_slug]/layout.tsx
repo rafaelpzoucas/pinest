@@ -33,7 +33,10 @@ export default async function StoreLayout({
         initialThemeMode={themeMode}
         initialThemeColor={themeColor}
       >
-        <div className="flex lg:flex-row items-center justify-center pb-20 bg-background scroll-smooth">
+        <div
+          className="flex lg:flex-row items-center justify-center pb-20 bg-background scroll-smooth
+            select-none"
+        >
           <div className="w-full lg:max-w-7xl">
             <HeaderNavigation />
             {children}
