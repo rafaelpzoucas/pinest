@@ -35,6 +35,18 @@ export const bottomActionConfig: Record<string, BottomActionConfig> = {
     showAddToCart: false,
     showFinishOrder: false,
   },
+  '/v2/[store_slug]/orders': {
+    showCart: true,
+    showAddToCart: false,
+    showFinishOrder: false,
+  },
+  '/v2/[store_slug]/orders/[id]': {
+    showCart: true,
+    showAddToCart: false,
+    showFinishOrder: false,
+  },
+
+  // Só mostra finish order
   '/v2/[store_slug]/checkout': {
     showCart: false,
     showAddToCart: false,

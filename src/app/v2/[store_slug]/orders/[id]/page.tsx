@@ -64,7 +64,7 @@ export default async function OrderPage({
   const paymentKey = paymentType as keyof typeof PAYMENT_METHODS
 
   return (
-    <section className="flex flex-col items-center justify-center gap-4 p-4 mt-[68px]">
+    <section className="flex flex-col items-center justify-center gap-4 p-4 pb-24 mt-[68px]">
       {order && (
         <div className="flex flex-col gap-2 text-sm w-full max-w-lg">
           <Status order={order} customer={customer} />
