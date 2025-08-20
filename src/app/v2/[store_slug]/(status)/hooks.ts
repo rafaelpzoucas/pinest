@@ -1,102 +1,84 @@
-import { Store } from '@/features/store/initial-data/schemas'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
-import { calculateStoreStatus, StoreStatus } from './calculate'
+import { useStoreStatusStore } from '@/stores/store-status'
+import { useEffect } from 'react'
 
-interface UseStoreStatusOptions {
-  /**
-   * Habilita atualizações automáticas a cada minuto
-   * @default false
-   */
-  enableRealTime?: boolean
-  /**
-   * Habilita escuta de mudanças via Supabase realtime
-   * @default false
-   */
-  enableRealtimeSubscription?: boolean
-  /**
-   * Status inicial calculado no servidor (para hidratação)
-   */
-  initialStatus?: StoreStatus
+export function useStoreStatus() {
+  const store = useStoreStatusStore()
+
+  return {
+    // Estado
+    currentStore: store.currentStore,
+    status: store.status,
+    isLoading: store.isLoading,
+    error: store.error,
+
+    // Configurações
+    enableRealTime: store.enableRealTime,
+    enableRealtimeSubscription: store.enableRealtimeSubscription,
+
+    // Actions
+    setStore: store.setStore,
+    updateStatus: store.updateStatus,
+    setRealTimeEnabled: store.setRealTimeEnabled,
+    setRealtimeSubscriptionEnabled: store.setRealtimeSubscriptionEnabled,
+    reset: store.reset,
+    getStoreStatus: store.getStoreStatus,
+  }
 }
 
-/**
- * Hook para calcular e gerenciar o status de abertura de uma loja
- * Considera horários de funcionamento, fechamento manual (is_open) e override manual (is_open_override)
- */
-export function useStoreStatus(
-  store: Store | null,
-  options: UseStoreStatusOptions = {},
-) {
+// Hook para efeitos (pode ser usado em componentes que precisam dos side effects)
+export function useStoreStatusEffects() {
   const {
-    enableRealTime = false,
-    enableRealtimeSubscription = false,
-    initialStatus,
-  } = options
+    currentStore,
+    enableRealTime,
+    enableRealtimeSubscription,
+    updateStatus,
+    setRealTimeEnabled,
+    setRealtimeSubscriptionEnabled,
+  } = useStoreStatus()
 
-  const supabase = createClient()
-  const router = useRouter()
-
-  const [status, setStatus] = useState<StoreStatus>(
-    initialStatus || {
-      isOpen: false,
-      minutesToClose: null,
-      nextOpening: null,
-      isManuallyOverridden: false,
-    },
-  )
-
-  const updateStatus = useCallback(() => {
-    const newStatus = calculateStoreStatus(store)
-    setStatus(newStatus)
-  }, [store])
-
-  // Efeito para atualizações automáticas (tempo real)
   useEffect(() => {
     if (!enableRealTime) return
 
-    // Executa imediatamente se não temos status inicial
-    if (!initialStatus) {
-      updateStatus()
-    }
-
-    // Configura intervalo para atualizações
     const interval = setInterval(updateStatus, 60_000)
-    return () => clearInterval(interval)
-  }, [enableRealTime, initialStatus, updateStatus])
+    useStoreStatusStore.setState({ intervalId: interval })
 
-  // Efeito para subscição realtime do Supabase
+    return () => {
+      clearInterval(interval)
+      useStoreStatusStore.setState({ intervalId: null })
+    }
+  }, [enableRealTime, updateStatus])
+
   useEffect(() => {
-    if (!enableRealtimeSubscription || !store?.id) return
+    if (!enableRealtimeSubscription || !currentStore?.id) return
 
+    const supabase = createClient()
     const channel = supabase
-      .channel(`store-status-${store.id}`)
+      .channel(`store-status-${currentStore.id}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'stores',
-          filter: `id=eq.${store.id}`,
+          filter: `id=eq.${currentStore.id}`,
         },
         () => {
-          router.refresh()
+          updateStatus()
         },
       )
       .subscribe()
 
+    useStoreStatusStore.setState({ supabaseChannel: channel })
+
     return () => {
       supabase.removeChannel(channel)
+      useStoreStatusStore.setState({ supabaseChannel: null })
     }
-  }, [enableRealtimeSubscription, store?.id, router, supabase])
-
-  // Função para cálculo manual (útil para uso sem estado)
-  const getStoreStatus = useCallback(() => calculateStoreStatus(store), [store])
+  }, [enableRealtimeSubscription, currentStore?.id, updateStatus])
 
   return {
-    status,
-    getStoreStatus,
-    updateStatus,
+    setRealTimeEnabled,
+    setRealtimeSubscriptionEnabled,
   }
 }

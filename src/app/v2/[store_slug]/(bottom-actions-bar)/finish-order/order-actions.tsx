@@ -4,6 +4,7 @@ import { createPath } from '@/utils/createPath'
 import { ArrowRight, Loader2, Send } from 'lucide-react'
 import Link from 'next/link'
 import { memo } from 'react'
+import { useStoreStatus } from '../../(status)/hooks'
 
 interface OrderActionsProps {
   isInCheckout: boolean
@@ -24,6 +25,8 @@ export const OrderActions = memo(function OrderActions({
   hasCustomer,
   onCreateOrder,
 }: OrderActionsProps) {
+  const { status } = useStoreStatus()
+
   const finishOrderLink = !hasCustomer
     ? createPath('/account?checkout=true', storeSlug)
     : createPath('/checkout?step=pickup', storeSlug)
@@ -35,7 +38,8 @@ export const OrderActions = memo(function OrderActions({
           href={finishOrderLink}
           className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
             text-primary-foreground p-4 font-bold uppercase hover:opacity-80
-            active:scale-[0.98] transition-all duration-75"
+            active:scale-[0.98] transition-all duration-75 aria-[disabled=true]:opacity-50"
+          aria-disabled={!status.isOpen}
         >
           <span>Forma de entrega</span>
           <ArrowRight />
