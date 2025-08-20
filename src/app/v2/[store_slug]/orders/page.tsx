@@ -1,17 +1,48 @@
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { readCustomer } from '@/features/store/customers/read'
+import { StoreEdgeConfig } from '@/features/store/initial-data/schemas'
 import { readStoreCustomerOrders } from '@/features/store/orders/read'
 import { readStoreIdBySlug } from '@/features/store/store/read'
 import { readStoreCustomer } from '@/features/store/store/read-customer'
+import { extractSubdomainOrDomain } from '@/lib/helpers'
 import { cn, createPath, formatDate } from '@/lib/utils'
 import { statuses } from '@/models/statuses'
+import { get } from '@vercel/edge-config'
 import { Box, ChevronRight } from 'lucide-react'
+import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 type StatusKey = keyof typeof statuses
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { store_slug: string }
+}): Promise<Metadata> {
+  const sub =
+    params.store_slug !== 'undefined'
+      ? params.store_slug
+      : (extractSubdomainOrDomain() as string)
+
+  const store = (await get(`store_${sub}`)) as StoreEdgeConfig
+
+  if (!store) {
+    return { title: 'Pinest' }
+  }
+
+  const formattedTitle = store?.name
+    ?.toLowerCase()
+    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+
+  return {
+    title: `Meus pedidos | ${formattedTitle}`,
+    description: store?.description,
+    icons: { icon: store.logo_url },
+  }
+}
 
 export default async function OrdersPage({
   params,
