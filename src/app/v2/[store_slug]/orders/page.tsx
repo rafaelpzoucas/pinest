@@ -22,7 +22,7 @@ export default async function OrdersPage({
   const cookieStore = cookies()
 
   const [[customerData], [storeIdData]] = await Promise.all([
-    readCustomer({}),
+    readCustomer({ subdomain: params.store_slug }),
     readStoreIdBySlug({ storeSlug: params.store_slug }),
   ])
 
