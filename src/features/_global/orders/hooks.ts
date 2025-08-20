@@ -1,5 +1,6 @@
 import { useClearCartSession } from '@/features/store/cart-session/hooks'
 import { UseMutationOptions } from '@/features/types'
+import { useCouponStore } from '@/stores/couponStore'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -10,6 +11,7 @@ export function useCreateOrder(options?: UseMutationOptions) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { mutate: clearCart } = useClearCartSession()
+  const { setAppliedCoupon } = useCouponStore()
 
   return useMutation({
     mutationFn: async (data: CreateOrder) => {
@@ -29,6 +31,8 @@ export function useCreateOrder(options?: UseMutationOptions) {
       })
 
       clearCart({ cartSessionId: data.cartSessionId })
+      setAppliedCoupon(null)
+      // limpar o cupom
 
       toast.success('Pedido criado com sucesso!')
 

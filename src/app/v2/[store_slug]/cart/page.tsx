@@ -1,7 +1,13 @@
+import { buttonVariants } from '@/components/ui/button'
 import { StoreEdgeConfig } from '@/features/store/initial-data/schemas'
 import { extractSubdomainOrDomain } from '@/lib/helpers'
+import { cn } from '@/utils/cn'
+import { createPath } from '@/utils/createPath'
 import { get } from '@vercel/edge-config'
+import { Plus } from 'lucide-react'
 import { Metadata } from 'next'
+import Link from 'next/link'
+import { CouponField } from '../checkout/(summary)/coupon-field'
 import { CartProducts } from './cart-products'
 
 export async function generateMetadata({
@@ -38,6 +44,19 @@ export default async function CartPage({
 }) {
   return (
     <main className="mt-[68px] p-4 flex flex-col pb-32">
+      <CouponField />
+
+      <Link
+        href={createPath('/', params.store_slug)}
+        className={cn(
+          buttonVariants({ variant: 'secondary' }),
+          'w-full uppercase',
+        )}
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Adicionar mais itens
+      </Link>
+
       <CartProducts storeSlug={params.store_slug} />
     </main>
   )

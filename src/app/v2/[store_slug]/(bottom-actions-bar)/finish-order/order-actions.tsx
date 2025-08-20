@@ -1,9 +1,7 @@
 'use client'
 
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/utils/cn'
 import { createPath } from '@/utils/createPath'
-import { ArrowRight, Loader2, Plus, Send } from 'lucide-react'
+import { ArrowRight, Loader2, Send } from 'lucide-react'
 import Link from 'next/link'
 import { memo } from 'react'
 
@@ -32,21 +30,6 @@ export const OrderActions = memo(function OrderActions({
 
   return (
     <div className="bg-background">
-      {!isInCheckout && (
-        <div className="p-3">
-          <Link
-            href={createPath('/', storeSlug)}
-            className={cn(
-              buttonVariants({ variant: 'secondary' }),
-              'w-full uppercase',
-            )}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar mais itens
-          </Link>
-        </div>
-      )}
-
       {!isInCheckout && !isLastStep && (
         <Link
           href={finishOrderLink}

@@ -29,11 +29,7 @@ export function useValidateCoupon(options?: UseMutationOptions) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['coupon'] })
 
-      toast.success('Cupom aplicado com sucesso!')
-
       if (data?.valid) {
-        toast.success('Cupom aplicado com sucesso!')
-
         setAppliedCoupon(data)
       } else {
         toast.error(data?.error || 'Cupom inválido.')
