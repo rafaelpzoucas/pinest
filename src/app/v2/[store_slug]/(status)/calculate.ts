@@ -8,23 +8,69 @@ export interface StoreStatus {
     date: Date
     sameDay: boolean
   } | null
+  isManuallyOverridden: boolean
 }
 
+/**
+ * Calcula o status da loja considerando horários de funcionamento e overrides manuais
+ * Pode ser usada tanto no cliente quanto no servidor
+ */
 export function calculateStoreStatus(store: Store | null): StoreStatus {
-  if (!store?.store_hours) {
+  if (!store) {
     return {
       isOpen: false,
       minutesToClose: null,
       nextOpening: null,
+      isManuallyOverridden: false,
     }
   }
 
+  // Verifica override manual primeiro (maior prioridade)
+  if (store.is_open_override !== null) {
+    return {
+      isOpen: store.is_open_override,
+      minutesToClose: null,
+      nextOpening: store.is_open_override
+        ? null
+        : findNextOpening(new Date(), store.store_hours),
+      isManuallyOverridden: true,
+    }
+  }
+
+  // Verifica fechamento manual
+  if (store.is_open === false) {
+    return {
+      isOpen: false,
+      minutesToClose: null,
+      nextOpening: findNextOpening(new Date(), store.store_hours),
+      isManuallyOverridden: true,
+    }
+  }
+
+  // Se não há horários configurados
+  if (!store.store_hours || store.store_hours.length === 0) {
+    return {
+      isOpen: false,
+      minutesToClose: null,
+      nextOpening: null,
+      isManuallyOverridden: false,
+    }
+  }
+
+  // Calcula baseado nos horários de funcionamento
+  return calculateStoreStatusByHours(store)
+}
+
+/**
+ * Calcula o status baseado apenas nos horários de funcionamento
+ */
+function calculateStoreStatusByHours(store: Store): StoreStatus {
   const now = new Date()
   const dayOfWeek = now
     .toLocaleDateString('en-US', { weekday: 'long' })
     .toLowerCase()
 
-  const todayHours = store.store_hours.find(
+  const todayHours = store.store_hours?.find(
     (h) => h.day_of_week?.toLowerCase() === dayOfWeek && h.is_open,
   )
 
@@ -55,6 +101,7 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
         isOpen: false,
         minutesToClose: null,
         nextOpening: { date: openDate, sameDay: true },
+        isManuallyOverridden: false,
       }
     }
 
@@ -64,6 +111,7 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
         isOpen: false,
         minutesToClose: null,
         nextOpening: findNextOpening(now, store.store_hours),
+        isManuallyOverridden: false,
       }
     }
 
@@ -73,6 +121,7 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
       isOpen: diff > 0,
       minutesToClose: diff >= 0 ? diff : null,
       nextOpening: null,
+      isManuallyOverridden: false,
     }
   }
 
@@ -81,15 +130,25 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
     isOpen: false,
     minutesToClose: null,
     nextOpening: findNextOpening(now, store.store_hours),
+    isManuallyOverridden: false,
   }
 }
 
-function findNextOpening(start: Date, hours: Store['store_hours']) {
+/**
+ * Encontra a próxima data de abertura da loja
+ */
+function findNextOpening(
+  start: Date,
+  hours: Store['store_hours'],
+): { date: Date; sameDay: boolean } | null {
+  if (!hours) return null
+
   for (let i = 1; i <= 7; i++) {
     const date = addDays(start, i)
     const dow = date
       .toLocaleDateString('en-US', { weekday: 'long' })
       .toLowerCase()
+
     const dayHours = hours.find(
       (h) => h.day_of_week?.toLowerCase() === dow && h.is_open,
     )

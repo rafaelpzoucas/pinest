@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { AddToCart } from './add-to-cart'
 import { Cart } from './cart'
-import { FinishOrder } from './finish-order'
+import { FinishOrder } from './finish-order/finish-order'
 import { useBottomAction } from './hooks'
 import { Navbar } from './nav'
 

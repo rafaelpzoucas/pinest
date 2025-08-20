@@ -4,9 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { Store } from '@/features/store/initial-data/schemas'
 import { formatCurrencyBRL } from '@/lib/utils'
-import { StoreStatus } from '@/utils/store-status'
 import { Pyramid, Timer } from 'lucide-react'
-import { Status } from './status'
+import { StoreStatus } from './(status)/calculate'
+import { Status } from './(status)/status'
 
 export function StoreHeader({
   store,
