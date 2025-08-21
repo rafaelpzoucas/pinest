@@ -1,7 +1,7 @@
 'use client'
 
-import { SearchSheet } from '@/app/[public_store]/(app)/search/search-sheet'
-import { PublicStoreNavigation } from '@/app/[public_store]/navigation'
+import { SearchSheet } from '@/app/old-store/(app)/search/search-sheet'
+import { PublicStoreNavigation } from '@/app/old-store/navigation'
 import { Button } from '@/components/ui/button'
 import { createPath, getRootPath } from '@/lib/utils'
 import { CartProductType } from '@/models/cart'

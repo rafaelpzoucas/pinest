@@ -3,7 +3,7 @@
 import {
   createCustomerSchema,
   updateCustomerSchema,
-} from '@/app/[public_store]/account/register/schemas'
+} from '@/app/old-store/account/register/schemas'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { StoreCustomerType } from '@/models/store-customer'
 import { revalidatePath } from 'next/cache'

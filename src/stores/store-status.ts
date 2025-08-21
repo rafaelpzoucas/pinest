@@ -1,7 +1,7 @@
 import {
   calculateStoreStatus,
   StoreStatus,
-} from '@/app/v2/[store_slug]/(status)/calculate'
+} from '@/app/[store_slug]/(status)/calculate'
 import { Store } from '@/features/store/initial-data/schemas'
 import { createClient } from '@/lib/supabase/client'
 import { create } from 'zustand'

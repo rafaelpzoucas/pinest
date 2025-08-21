@@ -1,4 +1,4 @@
-import { addressSchema } from '@/app/[public_store]/account/register/schemas'
+import { addressSchema } from '@/app/old-store/account/register/schemas'
 import { z } from 'zod'
 import { orderItemsSchema } from '../../schemas'
 

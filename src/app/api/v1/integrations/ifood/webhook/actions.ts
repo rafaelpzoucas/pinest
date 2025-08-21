@@ -1,4 +1,4 @@
-import { nofityStore } from '@/app/[public_store]/checkout/@summary/actions'
+import { nofityStore } from '@/app/old-store/checkout/@summary/actions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { IfoodOrder } from '@/models/ifood'
 import { revalidatePath } from 'next/cache'

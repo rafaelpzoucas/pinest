@@ -1,6 +1,6 @@
 'use server'
 
-import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary/actions'
+import { updateAmountSoldAndStock } from '@/app/old-store/checkout/@summary/actions'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'

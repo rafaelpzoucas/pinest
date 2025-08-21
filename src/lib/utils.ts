@@ -1,8 +1,8 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-import { addressSchema } from '@/app/[public_store]/account/register/schemas'
 import { FileType } from '@/app/admin/(protected)/(app)/catalog/products/register/form/file-uploader'
+import { addressSchema } from '@/app/old-store/account/register/schemas'
 import { AddressType } from '@/models/address'
 import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
 import { ptBR } from 'date-fns/locale'

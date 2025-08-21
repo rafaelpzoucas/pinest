@@ -1,8 +1,8 @@
-import { addressSchema } from '@/app/[public_store]/account/register/schemas'
 import {
   orderTypeEnum,
   paymentTypeEnum,
 } from '@/app/admin/(protected)/(app)/orders/deliveries/register/schemas'
+import { addressSchema } from '@/app/old-store/account/register/schemas'
 import { z } from 'zod'
 import { CustomerType } from './customer'
 import { ExtraType } from './extras'

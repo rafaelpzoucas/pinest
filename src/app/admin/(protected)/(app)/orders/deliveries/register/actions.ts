@@ -1,6 +1,6 @@
 'use server'
 
-import { updateAmountSoldAndStock } from '@/app/[public_store]/checkout/@summary/actions'
+import { updateAmountSoldAndStock } from '@/app/old-store/checkout/@summary/actions'
 import { stringToNumber } from '@/lib/utils'
 import { adminProcedure } from '@/lib/zsa-procedures'
 import { redirect } from 'next/navigation'

@@ -5,7 +5,7 @@ import { useForm, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
 import { createAdminCustomer } from '@/actions/admin/customers/actions'
-import { createCustomerSchema } from '@/app/[public_store]/account/register/schemas'
+import { createCustomerSchema } from '@/app/old-store/account/register/schemas'
 import { Button } from '@/components/ui/button'
 import {
   Form,

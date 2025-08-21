@@ -1,4 +1,4 @@
-import { StoreSocials } from '@/app/[public_store]/(app)/footer/socials'
+import { StoreSocials } from '@/app/old-store/(app)/footer/socials'
 import { buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'

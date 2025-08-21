@@ -1,6 +1,6 @@
 'use client'
 
-import { StatusKey } from '@/app/[public_store]/orders/[id]/status'
+import { StatusKey } from '@/app/old-store/orders/[id]/status'
 import { Badge } from '@/components/ui/badge'
 import { formatAddress, formatCurrencyBRL, formatDate } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'

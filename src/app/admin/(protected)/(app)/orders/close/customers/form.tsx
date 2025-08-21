@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { createCustomerSchema } from '@/app/[public_store]/account/register/schemas'
+import { createCustomerSchema } from '@/app/old-store/account/register/schemas'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Form,
