@@ -2,7 +2,7 @@ import { BottomActionConfig } from './types'
 
 export const bottomActionConfig: Record<string, BottomActionConfig> = {
   // Páginas de produto - mostra AddToCart e carrinho
-  '/v2/[store_slug]/[product_slug]': {
+  '/[store_slug]/[product_slug]': {
     showCart: true,
     showAddToCart: true,
     showFinishOrder: false,
@@ -10,7 +10,7 @@ export const bottomActionConfig: Record<string, BottomActionConfig> = {
   },
 
   // Páginas de categoria/busca - só carrinho
-  '/v2/[store_slug]': {
+  '/[store_slug]': {
     showCart: true,
     showAddToCart: false,
     showFinishOrder: false,
@@ -18,36 +18,36 @@ export const bottomActionConfig: Record<string, BottomActionConfig> = {
   },
 
   // Só finish order
-  '/v2/[store_slug]/cart': {
+  '/[store_slug]/cart': {
     showCart: false,
     showAddToCart: false,
     showFinishOrder: true,
   },
 
   // Páginas onde não queremos mostrar
-  '/v2/[store_slug]/account': {
+  '/[store_slug]/account': {
     showCart: false,
     showAddToCart: false,
     showFinishOrder: false,
   },
-  '/v2/[store_slug]/account/register': {
+  '/[store_slug]/account/register': {
     showCart: false,
     showAddToCart: false,
     showFinishOrder: false,
   },
-  '/v2/[store_slug]/orders': {
+  '/[store_slug]/orders': {
     showCart: true,
     showAddToCart: false,
     showFinishOrder: false,
   },
-  '/v2/[store_slug]/orders/[id]': {
+  '/[store_slug]/orders/[id]': {
     showCart: true,
     showAddToCart: false,
     showFinishOrder: false,
   },
 
   // Só mostra finish order
-  '/v2/[store_slug]/checkout': {
+  '/[store_slug]/checkout': {
     showCart: false,
     showAddToCart: false,
     showFinishOrder: true,

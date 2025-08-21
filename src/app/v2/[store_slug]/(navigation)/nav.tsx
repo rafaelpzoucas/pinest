@@ -25,7 +25,7 @@ export function HeaderNavigation() {
 
   const handleBack = () => {
     if (back === 'home') {
-      router.push(`/v2/${params.store_slug}/`)
+      router.push(`/${params.store_slug}/`)
       return
     }
 

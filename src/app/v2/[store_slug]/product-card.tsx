@@ -37,6 +37,7 @@ export interface ProductCardProps
   extras?: SelectedExtra[]
   quantity?: number
   storeSubdomain: string | null
+  priority?: boolean // Nova prop para LCP
 }
 
 export function ProductCard({
@@ -48,6 +49,7 @@ export function ProductCard({
   extras,
   quantity,
   storeSubdomain,
+  priority = false, // Padrão false
 }: ProductCardProps) {
   const { store } = usePublicStore()
 
@@ -62,7 +64,6 @@ export function ProductCard({
   }
 
   const imageURL = getImageURL()
-
   const thumbURL = imageURL || (store?.logo_url ?? defaultThumbUrl)
 
   const filteredObservations =
@@ -74,12 +75,10 @@ export function ProductCard({
     return (
       <div className={cn(productCardVariants({ variant }))}>
         <Skeleton className="w-full min-w-14 aspect-square rounded-card" />
-
         <div className="flex flex-col gap-1">
           <div className="leading-4">
             <Skeleton className="w-2/3 h-3" />
           </div>
-
           <Skeleton className="w-full h-[0.875rem]" />
           <Skeleton className="w-1/2 h-[0.875rem]" />
         </div>
@@ -93,6 +92,7 @@ export function ProductCard({
     <div className="flex flex-row w-full items-center justify-between gap-4">
       <Link
         href={productLink}
+        prefetch={true} // Garantir prefetch
         className={cn(
           productCardVariants({ variant }),
           'focus:outline-none rounded-xl w-full',
@@ -110,9 +110,13 @@ export function ProductCard({
             <Image
               src={thumbURL}
               fill
-              alt=""
+              alt={data.name || ''}
               className="object-cover"
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 33vw"
+              priority={priority} // Usar priority quando necessário
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iaHNsKDI0MCAzLjclIDE1LjklKSIvPgo8L3N2Zz4K"
+              loading={priority ? 'eager' : 'lazy'}
             />
 
             {variant && data.stock === 0 && (
@@ -184,7 +188,6 @@ export function ProductCard({
                   <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{' '}
                   {extra.name}
                 </span>
-
                 <span>{formatCurrencyBRL(extra.price * extra.quantity)}</span>
               </p>
             ))}
@@ -210,12 +213,6 @@ export function ProductCard({
           </div>
         </div>
       </Link>
-
-      {/* {variant === 'default' && (
-        <Button variant={'outline'} size={'icon'} onClick={handleAddToCart}>
-          <Plus />
-        </Button>
-      )} */}
     </div>
   )
 }

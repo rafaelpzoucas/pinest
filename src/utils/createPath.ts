@@ -40,5 +40,5 @@ export const createPath = (
 ) => {
   const rootPath = getRootPath(storeSubdomain)
   if (!rootPath) return path
-  return `/v2/${rootPath}${path}`
+  return `/${rootPath}${path}`
 }
