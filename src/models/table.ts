@@ -1,4 +1,4 @@
-import { PurchaseItemsType } from './purchase'
+import { OrderItemsType } from './order'
 
 export type TableType = {
   id: string
@@ -6,5 +6,5 @@ export type TableType = {
   store_id: string
   number: number
   description: string
-  purchase_items: PurchaseItemsType[]
+  order_items: OrderItemsType[]
 }

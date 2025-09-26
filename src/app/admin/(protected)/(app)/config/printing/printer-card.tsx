@@ -18,7 +18,7 @@ import {
 import { Edit, Loader2, Printer, Trash } from 'lucide-react'
 import { useState } from 'react'
 import { useServerAction } from 'zsa-react'
-import { deletePrinter, printPurchaseReceipt } from './actions'
+import { deletePrinter, printOrderReceipt } from './actions'
 import { NewPrinterForm } from './new-printer-form'
 import { PrinterType } from './schemas'
 
@@ -35,7 +35,7 @@ export function PrinterCard({ printer }: { printer: PrinterType }) {
   const { execute: executeDelete, isPending: isDeleting } =
     useServerAction(deletePrinter)
   const { execute: executePrintReceipt, isPending: isPrinting } =
-    useServerAction(printPurchaseReceipt)
+    useServerAction(printOrderReceipt)
 
   return (
     <Card className="flex flex-row justify-between items-center pr-6">

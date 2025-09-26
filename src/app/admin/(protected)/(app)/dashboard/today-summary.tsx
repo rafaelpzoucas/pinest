@@ -1,22 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrencyBRL } from '@/lib/utils'
-import { getTotalPurchasesOfToday } from './actions'
+import { getTotalOrdersOfToday } from './actions'
 
 export async function TodaySummary() {
-  const { purchases, purchasesError, purchasesCount } =
-    await getTotalPurchasesOfToday()
+  const { orders, ordersError, ordersCount } = await getTotalOrdersOfToday()
 
-  if (purchasesError) {
-    console.error(purchasesError)
+  if (ordersError) {
+    console.error(ordersError)
   }
 
   const calculateTotalAmount = (): number => {
-    if (purchases && purchases.length > 0) {
-      return purchases.reduce((total, purchase) => {
-        const purchaseTotal = purchase.purchase_items.reduce((sum, item) => {
+    if (orders && orders.length > 0) {
+      return orders.reduce((total, order) => {
+        const orderTotal = order.order_items.reduce((sum, item) => {
           return sum + item.quantity * item.product_price
         }, 0)
-        return total + purchaseTotal
+        return total + orderTotal
       }, 0)
     } else {
       return 0
@@ -24,7 +23,7 @@ export async function TodaySummary() {
   }
 
   const totalAmount = calculateTotalAmount()
-  const AOV = purchasesCount ? totalAmount / purchasesCount : 0
+  const AOV = ordersCount ? totalAmount / ordersCount : 0
 
   return (
     <Card className="h-auto max-w-full break-inside-avoid">
@@ -34,7 +33,7 @@ export async function TodaySummary() {
       <CardContent>
         <div className="flex flex-row items-center justify-between w-full">
           <span className="text-muted-foreground">Total de pedidos</span>
-          <strong>{purchasesCount ?? 0}</strong>
+          <strong>{ordersCount ?? 0}</strong>
         </div>
         <div className="flex flex-row items-center justify-between w-full">
           <span className="text-muted-foreground">Faturamento total</span>

@@ -1,8 +1,8 @@
 'use client'
 
 import { formatCurrencyBRL, formatDate } from '@/lib/utils'
+import { PAYMENT_TYPES } from '@/models/order'
 import { PaymentType } from '@/models/payment'
-import { PAYMENT_TYPES } from '@/models/purchase'
 import { ColumnDef } from '@tanstack/react-table'
 
 export const columns: ColumnDef<PaymentType>[] = [

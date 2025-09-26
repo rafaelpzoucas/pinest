@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const createIfoodPurchaseSchema = z.object({
+export const createIfoodOrderSchema = z.object({
   id: z.string(),
   created_at: z.string(),
   status: z.string(),

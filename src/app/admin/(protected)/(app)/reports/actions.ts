@@ -5,7 +5,7 @@ import { endOfDay, startOfDay } from 'date-fns'
 import { cache } from 'react'
 import { getSalesReportInputSchema } from './schemas'
 
-interface PurchaseItem {
+interface OrderItem {
   quantity: number
   products: {
     id: string
@@ -14,8 +14,8 @@ interface PurchaseItem {
   }
 }
 
-// Função utilitária para processar purchases e gerar o relatório
-function processSalesReport(purchases: any[], payments: PaymentType[]) {
+// Função utilitária para processar orders e gerar o relatório
+function processSalesReport(orders: any[], payments: PaymentType[]) {
   const groupedPaymentTypes = payments.reduce<Record<string, number>>(
     (acc, payment) => {
       if (payment.type !== 'INCOME') return acc
@@ -31,14 +31,14 @@ function processSalesReport(purchases: any[], payments: PaymentType[]) {
     0,
   )
 
-  const deliveriesCount = purchases.filter(
-    (purchase) => purchase.type === 'DELIVERY',
+  const deliveriesCount = orders.filter(
+    (order) => order.type === 'DELIVERY',
   ).length
 
-  const productsSold = purchases.reduce<
+  const productsSold = orders.reduce<
     { name: string; quantity: number; totalAmount: number }[]
-  >((acc, purchase) => {
-    purchase.purchase_items?.forEach((item: PurchaseItem) => {
+  >((acc, order) => {
+    order.order_items?.forEach((item: OrderItem) => {
       const product = item.products
       if (!product) return
 
@@ -79,13 +79,13 @@ export const getSalesReportByDate = adminProcedure
     const startDate = startOfDay(input.start_date).toISOString()
     const endDate = endOfDay(input.end_date ?? input.start_date).toISOString()
 
-    const [purchasesResult, tablesResult, paymentsResult] = await Promise.all([
+    const [ordersResult, tablesResult, paymentsResult] = await Promise.all([
       supabase
-        .from('purchases')
+        .from('orders')
         .select(
           `
       id, payment_type, type, created_at, total,
-      purchase_items (
+      order_items (
         quantity,
         products ( id, name, price )
       )
@@ -100,7 +100,7 @@ export const getSalesReportByDate = adminProcedure
         .select(
           `
       id, created_at,
-      purchase_items (
+      order_items (
         quantity,
         products ( id, name, price )
       )
@@ -113,7 +113,7 @@ export const getSalesReportByDate = adminProcedure
       supabase
         .from('payments')
         .select(
-          `id, amount, payment_type, purchase_id, table_id, type, discount, status`,
+          `id, amount, payment_type, order_id, table_id, type, discount, status`,
         )
         .eq('store_id', store?.id)
         .neq('payment_type', null)
@@ -121,42 +121,39 @@ export const getSalesReportByDate = adminProcedure
         .lte('created_at', endDate),
     ])
 
-    const { data: purchases, error: purchasesError } = purchasesResult
+    const { data: orders, error: ordersError } = ordersResult
     const { data: tables, error: tablesError } = tablesResult
     const { data: payments, error: paymentsError } = paymentsResult
 
-    if (purchasesError || tablesError || paymentsError) {
+    if (ordersError || tablesError || paymentsError) {
       console.error('Error fetching report data:', {
-        purchasesError,
+        ordersError,
         tablesError,
         paymentsError,
       })
       return
     }
 
-    // Normalizar para formato de purchases
-    const tablePurchasesFormatted = (
-      (tables as unknown as TableType[]) ?? []
-    ).map((table) => ({
-      id: table.id,
-      payment_type: 'TABLE',
-      type: 'TABLE',
-      created_at: table.created_at,
-      total: {
-        total_amount: table.purchase_items.reduce(
-          (sum, item) => sum + item.quantity * item.products.price,
-          0,
-        ),
-      },
-      purchase_items: table.purchase_items,
-    }))
-
-    const allPurchases = [...(purchases ?? []), ...tablePurchasesFormatted]
-
-    return processSalesReport(
-      allPurchases,
-      payments as unknown as PaymentType[],
+    // Normalizar para formato de orders
+    const tableOrdersFormatted = ((tables as unknown as TableType[]) ?? []).map(
+      (table) => ({
+        id: table.id,
+        payment_type: 'TABLE',
+        type: 'TABLE',
+        created_at: table.created_at,
+        total: {
+          total_amount: table.order_items.reduce(
+            (sum, item) => sum + item.quantity * item.products.price,
+            0,
+          ),
+        },
+        order_items: table.order_items,
+      }),
     )
+
+    const allOrders = [...(orders ?? []), ...tableOrdersFormatted]
+
+    return processSalesReport(allOrders, payments as unknown as PaymentType[])
   })
 
 // Relatório por cash_session_id
@@ -165,13 +162,13 @@ export const getSalesReportByCashSessionId = cashProcedure
   .handler(async ({ ctx }) => {
     const { supabase, store, cashSession } = ctx
 
-    const [purchasesResult, tablesResult, paymentsResult] = await Promise.all([
+    const [ordersResult, tablesResult, paymentsResult] = await Promise.all([
       supabase
-        .from('purchases')
+        .from('orders')
         .select(
           `
             id, payment_type, type, created_at, total, cash_session_id,
-            purchase_items (
+            order_items (
               quantity,
               products ( id, name, price )
             )
@@ -186,7 +183,7 @@ export const getSalesReportByCashSessionId = cashProcedure
           `
         id,
         created_at,
-        purchase_items (
+        order_items (
           quantity,
           products ( id, name, price )
         )
@@ -198,49 +195,46 @@ export const getSalesReportByCashSessionId = cashProcedure
       supabase
         .from('payments')
         .select(
-          `id, amount, payment_type, purchase_id, table_id, type, discount, status`,
+          `id, amount, payment_type, order_id, table_id, type, discount, status`,
         )
         .eq('store_id', store?.id)
         .eq('cash_session_id', cashSession.id)
         .neq('payment_type', null),
     ])
 
-    const { data: purchases, error: purchasesError } = purchasesResult
+    const { data: orders, error: ordersError } = ordersResult
     const { data: tables, error: tablesError } = tablesResult
     const { data: payments, error: paymentsError } = paymentsResult
 
-    if (purchasesError || tablesError || paymentsError) {
+    if (ordersError || tablesError || paymentsError) {
       console.error('Error fetching report data:', {
-        purchasesError,
+        ordersError,
         tablesError,
         paymentsError,
       })
       return
     }
 
-    // Transformar dados das tables para o mesmo formato de purchases
-    const tablePurchasesFormatted = (
-      (tables as unknown as TableType[]) ?? []
-    ).map((table) => ({
-      id: table.id,
-      payment_type: 'TABLE',
-      type: 'TABLE',
-      created_at: table.created_at,
-      total: {
-        total_amount: table.purchase_items.reduce(
-          (sum, item) => sum + item.quantity * item.products.price,
-          0,
-        ),
-      },
-      purchase_items: table.purchase_items,
-    }))
-
-    const allPurchases = [...(purchases ?? []), ...tablePurchasesFormatted]
-
-    return processSalesReport(
-      allPurchases,
-      payments as unknown as PaymentType[],
+    // Transformar dados das tables para o mesmo formato de orders
+    const tableOrdersFormatted = ((tables as unknown as TableType[]) ?? []).map(
+      (table) => ({
+        id: table.id,
+        payment_type: 'TABLE',
+        type: 'TABLE',
+        created_at: table.created_at,
+        total: {
+          total_amount: table.order_items.reduce(
+            (sum, item) => sum + item.quantity * item.products.price,
+            0,
+          ),
+        },
+        order_items: table.order_items,
+      }),
     )
+
+    const allOrders = [...(orders ?? []), ...tableOrdersFormatted]
+
+    return processSalesReport(allOrders, payments as unknown as PaymentType[])
   })
 
 export const getSalesReportByDateCached = cache(getSalesReportByDate)

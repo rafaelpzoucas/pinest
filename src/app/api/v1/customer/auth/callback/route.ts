@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     redirectURL =
       checkout === 'true'
         ? `${domain}/account?checkout=pickup`
-        : `${domain}/purchases`
+        : `${domain}/orders`
   } else if (
     isStagingHost ||
     process.env.NODE_ENV !== 'production' ||
@@ -100,7 +100,7 @@ export async function GET(request: Request) {
   ) {
     // Em ambiente de desenvolvimento ou staging utilizamos createPath
     const accountPath =
-      checkout === 'true' ? '/account?checkout=pickup' : '/purchases'
+      checkout === 'true' ? '/account?checkout=pickup' : '/orders'
     redirectURL = `${origin}${createPath(accountPath, subdomain)}`
   } else {
     // Em produção utilizamos o formato subdomínio.pinest.com.br
@@ -112,7 +112,7 @@ export async function GET(request: Request) {
     redirectURL =
       checkout === 'true'
         ? `https://${subdomain}.pinest.com.br/account?checkout=pickup`
-        : `https://${subdomain}.pinest.com.br/purchases`
+        : `https://${subdomain}.pinest.com.br/orders`
   }
 
   return NextResponse.redirect(redirectURL)

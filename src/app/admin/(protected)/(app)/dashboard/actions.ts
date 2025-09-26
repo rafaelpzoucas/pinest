@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { adminProcedure } from '@/lib/zsa-procedures'
-import { PurchaseType } from '@/models/purchase'
+import { OrderType } from '@/models/order'
 import { StoreType } from '@/models/store'
 import { StoreCustomerType } from '@/models/store-customer'
 import {
@@ -14,10 +14,10 @@ import {
 } from 'date-fns'
 import { cache } from 'react'
 
-export async function getTotalPurchasesOfToday(): Promise<{
-  purchases: PurchaseType[] | null
-  purchasesError: any | null
-  purchasesCount: number | null
+export async function getTotalOrdersOfToday(): Promise<{
+  orders: OrderType[] | null
+  ordersError: any | null
+  ordersCount: number | null
 }> {
   const supabase = createClient()
 
@@ -25,27 +25,27 @@ export async function getTotalPurchasesOfToday(): Promise<{
   const todayEnd = endOfDay(new Date()).toISOString()
 
   const {
-    data: purchases,
-    error: purchasesError,
-    count: purchasesCount,
+    data: orders,
+    error: ordersError,
+    count: ordersCount,
   } = await supabase
-    .from('purchases')
+    .from('orders')
     .select(
       `
       *,
-      purchase_items (*)
+      order_items (*)
     `,
       { count: 'exact' },
     )
     .gte('created_at', todayStart)
     .lte('created_at', todayEnd)
 
-  return { purchases, purchasesCount, purchasesError }
+  return { orders, ordersCount, ordersError }
 }
 
-export async function getMonthlyPurchasesComparison(): Promise<{
-  currentMonthPurchases: PurchaseType[] | null
-  previousMonthPurchases: PurchaseType[] | null
+export async function getMonthlyOrdersComparison(): Promise<{
+  currentMonthOrders: OrderType[] | null
+  previousMonthOrders: OrderType[] | null
   error: any | null
 }> {
   const supabase = createClient()
@@ -63,11 +63,11 @@ export async function getMonthlyPurchasesComparison(): Promise<{
   try {
     // Busca as compras do mês atual
     const currentMonth = await supabase
-      .from('purchases')
+      .from('orders')
       .select(
         `
           *,
-          purchase_items (*)
+          order_items (*)
         `,
       )
       .gte('created_at', currentMonthStart)
@@ -75,25 +75,25 @@ export async function getMonthlyPurchasesComparison(): Promise<{
 
     // Busca as compras do mês anterior
     const previousMonth = await supabase
-      .from('purchases')
+      .from('orders')
       .select(
         `
         *,
-        purchase_items (*)
+        order_items (*)
       `,
       )
       .gte('created_at', previousMonthStart)
       .lte('created_at', previousMonthEnd)
 
     return {
-      currentMonthPurchases: currentMonth.data,
-      previousMonthPurchases: previousMonth.data,
+      currentMonthOrders: currentMonth.data,
+      previousMonthOrders: previousMonth.data,
       error: null,
     }
   } catch (error) {
     return {
-      currentMonthPurchases: null,
-      previousMonthPurchases: null,
+      currentMonthOrders: null,
+      previousMonthOrders: null,
       error,
     }
   }

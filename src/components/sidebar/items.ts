@@ -14,7 +14,7 @@ import {
 export const main = [
   {
     title: 'Pedidos',
-    url: '/admin/purchases',
+    url: '/admin/orders',
     icon: ReceiptText,
   },
   {

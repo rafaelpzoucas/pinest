@@ -154,13 +154,13 @@ export const readPaymentsByCashSessionId = adminProcedure
     return { payments }
   })
 
-export const readOpenPurchases = adminProcedure
+export const readOpenOrders = adminProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
     const { supabase, store } = ctx
 
-    const { data: openPurchases, error } = await supabase
-      .from('purchases')
+    const { data: openOrders, error } = await supabase
+      .from('orders')
       .select('*')
       .eq('store_id', store.id)
       .eq('is_paid', false)
@@ -170,7 +170,7 @@ export const readOpenPurchases = adminProcedure
       console.error('Error reading cash session payments:', error)
     }
 
-    return { openPurchases }
+    return { openOrders }
   })
 
 export const readOpenTables = adminProcedure
@@ -293,7 +293,7 @@ export const readCashSessionCached = cache(readCashSession)
 export const readPaymentsByCashSessionIdCached = cache(
   readPaymentsByCashSessionId,
 )
-export const readOpenPurchasesCached = cache(readOpenPurchases)
+export const readOpenOrdersCached = cache(readOpenOrders)
 export const readOpenTablesCached = cache(readOpenTables)
 export const readCashReceiptsCached = cache(readCashReceipts)
 export const readCashSessionPaymentsCached = cache(readCashSessionPayments)

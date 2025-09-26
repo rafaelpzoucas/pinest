@@ -1,4 +1,4 @@
-import { PAYMENT_TYPES, PurchaseType } from '@/models/purchase'
+import { OrderType, PAYMENT_TYPES } from '@/models/order'
 import { TableType } from '@/models/table'
 import { format } from 'date-fns'
 
@@ -8,23 +8,20 @@ import { formatAddress, formatCurrencyBRL } from '@/lib/utils'
 import { IfoodOrder } from '@/models/ifood'
 import { receipt } from './escpos'
 
-export function buildReceiptKitchenESCPOS(
-  purchase?: PurchaseType,
-  reprint = false,
-) {
-  if (!purchase) return ''
+export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
+  if (!order) return ''
 
-  const displayId = purchase?.display_id ?? purchase.id.substring(0, 4)
-  const isIfood = purchase?.is_ifood
+  const displayId = order?.display_id ?? order.id.substring(0, 4)
+  const isIfood = order?.is_ifood
 
   const customer = isIfood
-    ? purchase.ifood_order_data.customer
-    : purchase.store_customers.customers
+    ? order.ifood_order_data.customer
+    : order.store_customers.customers
 
   const customerName = `${customer.name.split(' ')[0]} ${customer.name.split(' ')[1]}`
   const itemsList = reprint
-    ? purchase.purchase_items
-    : purchase.purchase_items.filter((item) => !item.printed)
+    ? order.order_items
+    : order.order_items.filter((item) => !item.printed)
 
   const r = receipt()
     .left()
@@ -38,7 +35,7 @@ export function buildReceiptKitchenESCPOS(
     .h2(`PEDIDO #${displayId}`)
     .endStrong()
     .br()
-    .p(`DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}`)
+    .p(`DATA: ${format(new Date(order.created_at), 'dd/MM HH:mm:ss')}`)
     .hr()
 
   if (!isIfood) {
@@ -71,7 +68,7 @@ export function buildReceiptKitchenESCPOS(
       }
     }
   } else {
-    const ifoodItems = purchase.ifood_order_data.items
+    const ifoodItems = order.ifood_order_data.items
     const lastIfoodIndex = ifoodItems.length - 1
 
     for (const [index, item] of ifoodItems.entries()) {
@@ -97,35 +94,32 @@ export function buildReceiptKitchenESCPOS(
   return Buffer.from(escposString, 'binary').toString('base64')
 }
 
-export function buildReceiptDeliveryESCPOS(
-  purchase?: PurchaseType,
-  reprint = false,
-) {
-  if (!purchase) return ''
+export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
+  if (!order) return ''
 
-  const isIfood = purchase?.is_ifood
-  const ifoodOrder: IfoodOrder = isIfood && purchase.ifood_order_data
+  const isIfood = order?.is_ifood
+  const ifoodOrder: IfoodOrder = isIfood && order.ifood_order_data
 
   const customer = isIfood
-    ? purchase?.ifood_order_data.customer
-    : purchase?.store_customers.customers
+    ? order?.ifood_order_data.customer
+    : order?.store_customers.customers
 
   const customerName = customer.name
   const customerPhone = isIfood
     ? `${customer.phone.number} ID: ${customer.phone.localizer}`
     : customer.phone
   const customerAddress = isIfood
-    ? (purchase.delivery.address as unknown as string)
-    : formatAddress(purchase?.store_customers.customers.address)
+    ? (order.delivery.address as unknown as string)
+    : formatAddress(order?.store_customers.customers.address)
 
   const displayId = isIfood
     ? ifoodOrder.displayId
-    : (purchase?.display_id ?? purchase?.id.substring(0, 4))
+    : (order?.display_id ?? order?.id.substring(0, 4))
 
   const deliveryType = {
     TAKEOUT: 'RETIRAR NA LOJA',
     DELIVERY: 'ENTREGAR',
-  }[purchase.type]
+  }[order.type]
 
   // Inicia o builder ESC/POS
   const r = receipt().initialize()
@@ -144,7 +138,7 @@ export function buildReceiptDeliveryESCPOS(
     .left()
 
   // Adiciona informações básicas
-  r.p(`DATA: ${format(new Date(purchase.created_at), 'dd/MM HH:mm:ss')}`).br()
+  r.p(`DATA: ${format(new Date(order.created_at), 'dd/MM HH:mm:ss')}`).br()
 
   if (isIfood) {
     r.p(
@@ -159,10 +153,10 @@ export function buildReceiptDeliveryESCPOS(
     .p(`ENDEREÇO: ${String(customerAddress).toUpperCase()}`)
     .br()
 
-  if (purchase.observations || ifoodOrder?.delivery?.observations) {
+  if (order.observations || ifoodOrder?.delivery?.observations) {
     r.strong()
       .p(
-        `OBS: ${(ifoodOrder?.delivery?.observations ?? purchase.observations).toUpperCase().trim()}`,
+        `OBS: ${(ifoodOrder?.delivery?.observations ?? order.observations).toUpperCase().trim()}`,
       )
       .endStrong()
   }
@@ -171,7 +165,7 @@ export function buildReceiptDeliveryESCPOS(
 
   // Adiciona itens do pedido
   if (!isIfood) {
-    const items = purchase.purchase_items
+    const items = order.order_items
 
     for (const [index, item] of items.entries()) {
       if (!item.products) {
@@ -233,13 +227,12 @@ export function buildReceiptDeliveryESCPOS(
   }
 
   // Total do pedido
-  const total = formatCurrencyBRL(purchase.total.total_amount)
+  const total = formatCurrencyBRL(order.total.total_amount)
 
   // Forma de pagamento
-  if (purchase.payment_type) {
-    const isIfood = purchase.is_ifood
-    const ifoodOrder: IfoodOrder | undefined =
-      isIfood && purchase.ifood_order_data
+  if (order.payment_type) {
+    const isIfood = order.is_ifood
+    const ifoodOrder: IfoodOrder | undefined = isIfood && order.ifood_order_data
 
     let paymentLabel = ''
     if (isIfood) {
@@ -253,7 +246,7 @@ export function buildReceiptDeliveryESCPOS(
     } else {
       paymentLabel =
         PAYMENT_TYPES[
-          purchase.payment_type as keyof typeof PAYMENT_TYPES
+          order.payment_type as keyof typeof PAYMENT_TYPES
         ]?.toUpperCase() || 'INDEFINIDO'
     }
 
@@ -269,9 +262,8 @@ export function buildReceiptDeliveryESCPOS(
       .center()
       .h3(paymentLabel)
 
-    if (purchase.total.change_value > 0) {
-      const changeValue =
-        purchase.total.change_value - purchase.total.total_amount
+    if (order.total.change_value > 0) {
+      const changeValue = order.total.change_value - order.total.total_amount
 
       r.br()
         .strong()
@@ -295,8 +287,8 @@ export function buildReceiptTableESCPOS(
 ): string {
   const displayId = table.number
   const itemsList = reprint
-    ? table.purchase_items
-    : table.purchase_items.filter((item) => !item.printed)
+    ? table.order_items
+    : table.order_items.filter((item) => !item.printed)
 
   const r = receipt()
     .left()

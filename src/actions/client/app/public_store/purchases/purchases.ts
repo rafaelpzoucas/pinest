@@ -1,27 +1,27 @@
 import { createClient } from '@/lib/supabase/client'
-import { PurchaseType } from '@/models/purchase'
+import { OrderType } from '@/models/order'
 import { z } from 'zod'
 import { readCustomer } from '../cart/customer'
 
-const ReadPurchasesSchema = z.object({
+const ReadOrdersSchema = z.object({
   storeId: z.string().optional(),
   subdomain: z.string().optional(),
 })
 
-type ReadPurchases = z.infer<typeof ReadPurchasesSchema>
+type ReadOrders = z.infer<typeof ReadOrdersSchema>
 
-export async function readPurchasesData(input: ReadPurchases) {
+export async function readOrdersData(input: ReadOrders) {
   const supabase = createClient()
 
   const customerData = await readCustomer({ subdomain: input.subdomain })
   const storeCustomer = customerData?.customer
 
-  const { data: purchases, error } = await supabase
-    .from('purchases')
+  const { data: orders, error } = await supabase
+    .from('orders')
     .select(
       `
         *,
-        purchase_items (
+        order_items (
           *,
           products (
             *
@@ -33,9 +33,9 @@ export async function readPurchasesData(input: ReadPurchases) {
     .eq('store_id', input.storeId)
     .order('created_at', { ascending: false })
 
-  if (error || !purchases) {
+  if (error || !orders) {
     console.error('Não foi possível ler os pedidos.', error)
   }
 
-  return { purchases: purchases as PurchaseType[] }
+  return { orders: orders as OrderType[] }
 }

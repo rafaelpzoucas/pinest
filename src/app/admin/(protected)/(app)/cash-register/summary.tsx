@@ -12,13 +12,13 @@ import { CloseCashSession } from './close'
 import { createCashReceiptsSchema } from './schemas'
 
 export function CashRegisterSummary({
-  hasOpenPurchases,
+  hasOpenOrders,
   hasOpenTables,
   cashReceipts,
   payments,
   reports,
 }: {
-  hasOpenPurchases: boolean
+  hasOpenOrders: boolean
   hasOpenTables: boolean
   cashReceipts?: z.infer<typeof createCashReceiptsSchema>
   payments: PaymentType[]
@@ -164,7 +164,7 @@ export function CashRegisterSummary({
         </div>
 
         <CloseCashSession
-          hasOpenPurchases={hasOpenPurchases}
+          hasOpenOrders={hasOpenOrders}
           hasOpenTables={hasOpenTables}
           cashReceipts={cashReceipts}
           payments={payments}

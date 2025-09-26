@@ -1,26 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { PurchaseType } from '@/models/purchase'
-import { getMonthlyPurchasesComparison } from './actions'
+import { OrderType } from '@/models/order'
+import { getMonthlyOrdersComparison } from './actions'
 
 export async function TotalSales() {
   const {
-    currentMonthPurchases,
-    previousMonthPurchases,
-    error: purchasesError,
-  } = await getMonthlyPurchasesComparison()
+    currentMonthOrders,
+    previousMonthOrders,
+    error: ordersError,
+  } = await getMonthlyOrdersComparison()
 
-  if (purchasesError) {
-    console.error(purchasesError)
+  if (ordersError) {
+    console.error(ordersError)
   }
 
-  const calculateTotalAmount = (purchases: PurchaseType[]): number => {
-    if (purchases && purchases.length > 0) {
-      return purchases.reduce((total, purchase) => {
-        const purchaseTotal = purchase.purchase_items.reduce((sum, item) => {
+  const calculateTotalAmount = (orders: OrderType[]): number => {
+    if (orders && orders.length > 0) {
+      return orders.reduce((total, order) => {
+        const orderTotal = order.order_items.reduce((sum, item) => {
           return sum + item.quantity * item.product_price
         }, 0)
-        return total + purchaseTotal
+        return total + orderTotal
       }, 0)
     } else {
       return 0
@@ -43,12 +43,12 @@ export async function TotalSales() {
     return Number(difference.toFixed(2))
   }
 
-  if (!currentMonthPurchases || !previousMonthPurchases) {
+  if (!currentMonthOrders || !previousMonthOrders) {
     return null // Show a loading state or an error message here. Return null for now.
   }
 
-  const currentAmount = calculateTotalAmount(currentMonthPurchases)
-  const previousAmount = calculateTotalAmount(previousMonthPurchases)
+  const currentAmount = calculateTotalAmount(currentMonthOrders)
+  const previousAmount = calculateTotalAmount(previousMonthOrders)
 
   const percentageChange = calculatePercentageDifference(
     currentAmount,

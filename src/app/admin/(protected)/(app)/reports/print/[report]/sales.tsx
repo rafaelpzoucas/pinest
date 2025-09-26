@@ -1,5 +1,5 @@
 import { formatCurrencyBRL } from '@/lib/utils'
-import { PAYMENT_TYPES } from '@/models/purchase'
+import { PAYMENT_TYPES } from '@/models/order'
 import { SalesReportType } from '../../sales-report'
 
 export function SalesReportPrint({ data }: { data: SalesReportType }) {

@@ -1,4 +1,4 @@
-import { nofityStore } from '@/app/[public_store]/checkout/@summary/actions'
+import { nofityStore } from '@/app/old-store/checkout/@summary/actions'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { IfoodOrder } from '@/models/ifood'
 import { revalidatePath } from 'next/cache'
@@ -6,9 +6,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerAction } from 'zsa'
 import { webhookProcedure } from './procedures'
-import IfoodHandshakeDisputeSchema, {
-  createIfoodPurchaseSchema,
-} from './schemas'
+import IfoodHandshakeDisputeSchema, { createIfoodOrderSchema } from './schemas'
 
 export const readIntegration = webhookProcedure
   .createServerAction()
@@ -55,9 +53,9 @@ export const readStore = webhookProcedure
     return store
   })
 
-export const createPurchase = webhookProcedure
+export const createOrder = webhookProcedure
   .createServerAction()
-  .input(createIfoodPurchaseSchema)
+  .input(createIfoodOrderSchema)
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx
 
@@ -67,18 +65,17 @@ export const createPurchase = webhookProcedure
       merchantId: ifoodOrderData.merchant.id,
     })
 
-    const { data: createdPurchase, error: createdPurchaseError } =
-      await supabase
-        .from('purchases')
-        .insert({
-          ...input,
-          store_id: store.id,
-          delivery_time: store.delivery_time,
-        })
-        .select()
+    const { data: createdOrder, error: createdOrderError } = await supabase
+      .from('orders')
+      .insert({
+        ...input,
+        store_id: store.id,
+        delivery_time: store.delivery_time,
+      })
+      .select()
 
-    if (createdPurchaseError || !createdPurchase) {
-      console.error('Não foi possível criar o pedido.', createdPurchaseError)
+    if (createdOrderError || !createdOrder) {
+      console.error('Não foi possível criar o pedido.', createdOrderError)
       return
     }
 
@@ -88,7 +85,7 @@ export const createPurchase = webhookProcedure
       icon: '/ifood-icon.png',
     })
 
-    return { createdPurchase }
+    return { createdOrder }
   })
 
 export const refreshAccessToken = createServerAction()
@@ -221,7 +218,7 @@ export const handleOrderPlaced = webhookProcedure
 
     const { id, createdAt, orderType, payments, total, delivery } = orderData
 
-    const newPurchaseValues = {
+    const newOrderValues = {
       id,
       created_at: createdAt,
       status: 'accept',
@@ -249,14 +246,14 @@ export const handleOrderPlaced = webhookProcedure
       ifood_order_data: orderData,
     }
 
-    const validation = createIfoodPurchaseSchema.safeParse(newPurchaseValues)
+    const validation = createIfoodOrderSchema.safeParse(newOrderValues)
 
     if (!validation.success) {
       console.error('Erro de validação:', validation.error)
       return
     }
 
-    const [response] = await createPurchase(newPurchaseValues)
+    const [response] = await createOrder(newOrderValues)
 
     if (!response) {
       console.error('Erro ao criar pedido', response)
@@ -273,7 +270,7 @@ export const handleOrderNewStatus = webhookProcedure
     const { supabase } = ctx
 
     const { data, error } = await supabase
-      .from('purchases')
+      .from('orders')
       .update({ status: newStatus })
       .eq('id', orderId)
       .select()
@@ -294,7 +291,7 @@ export const handleCancelOrder = webhookProcedure
     const { supabase } = ctx
 
     const { data, error } = await supabase
-      .from('purchases')
+      .from('orders')
       .update({ status: 'cancelled' })
       .eq('id', orderId)
       .select()

@@ -5,7 +5,7 @@ import {
   readCashReceiptsCached,
   readCashSessionCached,
   readCashSessionPaymentsCached,
-  readOpenPurchasesCached,
+  readOpenOrdersCached,
   readOpenTablesCached,
 } from './actions'
 import { CreateTransactionForm } from './create-transaction-form'
@@ -20,14 +20,14 @@ export default async function CashRegister() {
   const [
     [cashSessionData],
     [paymentsData],
-    [openPurchasesData],
+    [openOrdersData],
     [openTablesData],
     [cashReceiptsData],
     [reportsData],
   ] = await Promise.all([
     readCashSessionCached(),
     readCashSessionPaymentsCached(),
-    readOpenPurchasesCached(),
+    readOpenOrdersCached(),
     readOpenTablesCached(),
     readCashReceiptsCached(),
     getSalesReportByCashSessionId(),
@@ -37,8 +37,7 @@ export default async function CashRegister() {
   const payments: PaymentType[] = paymentsData?.payments || []
   const cashReceipts = cashReceiptsData?.cashReceipts
 
-  const hasOpenPurchases =
-    (openPurchasesData?.openPurchases?.length as number) > 0
+  const hasOpenOrders = (openOrdersData?.openOrders?.length as number) > 0
   const hasOpenTables = (openTablesData?.openTables?.length as number) > 0
 
   return (
@@ -72,7 +71,7 @@ export default async function CashRegister() {
               <aside className="lg:sticky top-4 w-full lg:w-auto">
                 <CashRegisterSummary
                   payments={payments}
-                  hasOpenPurchases={hasOpenPurchases}
+                  hasOpenOrders={hasOpenOrders}
                   hasOpenTables={hasOpenTables}
                   cashReceipts={cashReceipts}
                   reports={reportsData}

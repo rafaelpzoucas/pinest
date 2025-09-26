@@ -13,7 +13,7 @@ export const createPlanCheckout = adminProcedure
 
     try {
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
+        payment_method_types: ['card', 'boleto'],
         mode: 'subscription',
         line_items: [{ price: input.price_id, quantity: 1 }],
         subscription_data: {
