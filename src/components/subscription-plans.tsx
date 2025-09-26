@@ -35,6 +35,11 @@ export async function SubscriptionPlans() {
     return PLANS_FEATURES_MAP[key]
   }
 
+  // Função para calcular o valor mensal do plano anual
+  function getMonthlyPrice(annualPrice: number): number {
+    return annualPrice / 12
+  }
+
   return (
     <section id="pricing" className="space-y-8">
       <h2 className="text-3xl font-bold text-center">
@@ -88,11 +93,21 @@ export async function SubscriptionPlans() {
                     <CardDescription className="text-lg">
                       {plan.name}
                     </CardDescription>
-                    <CardTitle className="text-2xl">
-                      {formatCurrencyBRL(plan.price)}{' '}
-                      <span className="text-base text-muted-foreground">
-                        (2 meses grátis + 14 dias de teste)
-                      </span>
+                    <CardTitle className="flex flex-col items-start gap-1">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold">
+                          {formatCurrencyBRL(getMonthlyPrice(plan.price))}
+                        </span>
+                        <span className="text-base text-muted-foreground font-normal">
+                          /mês
+                        </span>
+                      </div>
+                      <div className="text-sm text-muted-foreground font-normal">
+                        Cobrado anualmente: {formatCurrencyBRL(plan.price)}
+                      </div>
+                      <div className="text-xs text-green-600 font-medium">
+                        14 dias de teste + 2 meses grátis
+                      </div>
                     </CardTitle>
                   </CardHeader>
 
@@ -105,7 +120,7 @@ export async function SubscriptionPlans() {
                             key={feature}
                             className="flex flex-row items-center text-sm"
                           >
-                            <CheckCircle2 className="w-4 h-4 mr-2" />{' '}
+                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />{' '}
                             {getFeatureLabel(feature as FeatureKey)}
                           </li>
                         )
@@ -156,11 +171,18 @@ export async function SubscriptionPlans() {
                     <CardDescription className="text-lg">
                       {plan.name}
                     </CardDescription>
-                    <CardTitle className="text-2xl">
-                      {formatCurrencyBRL(plan.price)}{' '}
-                      <span className="text-base text-muted-foreground">
-                        (14 dias grátis)
-                      </span>
+                    <CardTitle className="flex flex-col items-start gap-1">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold">
+                          {formatCurrencyBRL(plan.price)}
+                        </span>
+                        <span className="text-base text-muted-foreground font-normal">
+                          /mês
+                        </span>
+                      </div>
+                      <div className="text-xs text-green-600 font-medium">
+                        14 dias grátis
+                      </div>
                     </CardTitle>
                   </CardHeader>
 
@@ -173,7 +195,7 @@ export async function SubscriptionPlans() {
                             key={feature}
                             className="flex flex-row items-center text-sm"
                           >
-                            <CheckCircle2 className="w-4 h-4 mr-2" />{' '}
+                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />{' '}
                             {getFeatureLabel(feature as FeatureKey)}
                           </li>
                         )
