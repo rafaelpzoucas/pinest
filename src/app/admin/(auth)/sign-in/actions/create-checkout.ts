@@ -41,7 +41,7 @@ export const createAdminSubscriptionCheckout = authenticatedProcedure
 
     try {
       const sessionParams: Stripe.Checkout.SessionCreateParams = {
-        payment_method_types: ['card'],
+        payment_method_types: ['card', 'boleto'],
         mode: 'subscription',
         line_items: [
           {
