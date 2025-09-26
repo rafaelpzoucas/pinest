@@ -18,20 +18,39 @@ const isStagingEnvironment = () => {
 }
 
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
-  if (!storeSubdomain) return ''
+  console.log('getRootPath called with:', { storeSubdomain })
 
-  const isLocalhost =
-    typeof window !== 'undefined'
-      ? window.location.hostname.startsWith('localhost')
-      : process.env.NODE_ENV === 'development'
-
-  const isStaging = isStagingEnvironment()
-
-  if (isLocalhost || isStaging) {
-    return `${storeSubdomain}`
+  if (!storeSubdomain) {
+    console.log('No storeSubdomain, returning empty')
+    return ''
   }
 
-  return '' // produção usa reescrita, não precisa prefixar
+  try {
+    const isLocalhost =
+      typeof window !== 'undefined'
+        ? window.location.hostname.startsWith('localhost')
+        : process.env.NODE_ENV === 'development'
+
+    console.log('Environment check:', {
+      isLocalhost,
+      nodeEnv: process.env.NODE_ENV,
+      hasWindow: typeof window !== 'undefined',
+    })
+
+    const isStaging = isStagingEnvironment()
+    console.log('Staging check:', { isStaging })
+
+    if (isLocalhost || isStaging) {
+      console.log('Returning prefixed path:', `/${storeSubdomain}`)
+      return `/${storeSubdomain}`
+    }
+
+    console.log('Returning empty path for production')
+    return ''
+  } catch (error) {
+    console.error('Error in getRootPath:', error)
+    return '' // fallback seguro
+  }
 }
 
 export const createPath = (
