@@ -41,7 +41,9 @@ export default async function StoreLayout({
         >
           <div className="w-full lg:max-w-7xl">
             <HeaderNavigation />
+
             {children}
+
             <BottomActionBar />
           </div>
         </div>

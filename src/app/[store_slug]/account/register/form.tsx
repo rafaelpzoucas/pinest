@@ -189,7 +189,7 @@ export function CustomerRegisterForm({
           />
         </Card>
 
-        <footer className="fixed bottom-0 left-0 right-0">
+        <footer className="fixed bottom-[68px] left-0 right-0">
           <button
             type="submit"
             className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
