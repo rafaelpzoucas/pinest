@@ -1,41 +1,41 @@
-'use client'
+"use client";
 
-import defaultThumbUrl from '@/../public/default_thumb_url.png'
-import { Card } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn, formatCurrencyBRL, getRootPath } from '@/lib/utils'
-import { ExtraType } from '@/models/extras'
-import { OrderItemVariations } from '@/models/order'
-import { ProductType } from '@/models/product'
-import { usePublicStore } from '@/stores/public-store'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { Plus } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Badge } from './ui/badge'
+import { cva, type VariantProps } from "class-variance-authority";
+import { Plus } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import defaultThumbUrl from "@/../public/default_thumb_url.png";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn, formatCurrencyBRL, getRootPath } from "@/lib/utils";
+import type { ExtraType } from "@/models/extras";
+import type { OrderItemVariations } from "@/models/order";
+import type { ProductType } from "@/models/product";
+import { usePublicStore } from "@/stores/public-store";
+import { Badge } from "./ui/badge";
 
-const productCardVariants = cva('text-sm leading-4', {
+const productCardVariants = cva("text-sm leading-4", {
   variants: {
     variant: {
-      default: 'grid grid-cols-[1fr_3fr] gap-4 items-start',
-      featured: 'flex flex-col gap-2',
-      bag_items: 'grid grid-cols-[1fr_5fr] gap-4 items-start',
+      default: "grid grid-cols-[1fr_3fr] gap-4 items-start",
+      featured: "flex flex-col gap-2",
+      bag_items: "grid grid-cols-[1fr_5fr] gap-4 items-start",
     },
   },
   defaultVariants: {
-    variant: 'default',
+    variant: "default",
   },
-})
+});
 
 export interface ProductCardProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof productCardVariants> {
-  data?: ProductType
-  variations?: OrderItemVariations[]
-  observations?: string[]
-  extras?: ExtraType[]
-  quantity?: number
-  storeSubdomain?: string
+  data?: ProductType;
+  variations?: OrderItemVariations[];
+  observations?: string[];
+  extras?: ExtraType[];
+  quantity?: number;
+  storeSubdomain?: string;
 }
 
 export function ProductCard({
@@ -48,27 +48,27 @@ export function ProductCard({
   quantity,
   storeSubdomain,
 }: ProductCardProps) {
-  const { store } = usePublicStore()
+  const { store } = usePublicStore();
 
-  const isPromotional = data?.promotional_price
+  const isPromotional = data?.promotional_price;
 
   function getImageURL() {
     if (data && data.product_images && data.product_images.length > 0) {
-      return data.product_images[0].image_url
+      return data.product_images[0].image_url;
     }
 
-    return ''
+    return "";
   }
 
-  const imageURL = getImageURL()
+  const imageURL = getImageURL();
 
   const thumbURL =
-    imageURL === '' ? (store?.logo_url ?? defaultThumbUrl) : imageURL
+    imageURL === "" ? (store?.logo_url ?? defaultThumbUrl) : imageURL;
 
   const filteredObservations =
     observations &&
     observations.length > 0 &&
-    observations?.filter((obs) => obs !== '')
+    observations?.filter((obs) => obs !== "");
 
   if (!data) {
     return (
@@ -84,30 +84,30 @@ export function ProductCard({
           <Skeleton className="w-1/2 h-[0.875rem]" />
         </div>
       </div>
-    )
+    );
   }
 
-  const rootPath = getRootPath(storeSubdomain)
+  const rootPath = getRootPath(storeSubdomain);
 
   const productLink = rootPath
     ? `/${rootPath}/${data.product_url}`
-    : `/${data.product_url}`
+    : `/${data.product_url}`;
 
   return (
     <Link
       href={productLink}
       className={cn(
         productCardVariants({ variant }),
-        'focus:outline-none focus:ring ring-offset-4 ring-offset-background rounded-xl',
+        "focus:outline-none focus:ring ring-offset-4 ring-offset-background rounded-xl",
         className,
       )}
     >
-      {variant === 'bag_items' ? (
+      {variant === "bag_items" ? (
         <h3 className="text-2xl font-bold">x{quantity}</h3>
       ) : (
         <Card
           className={cn(
-            'relative min-w-14 w-full aspect-square overflow-hidden border-0',
+            "relative min-w-14 w-full aspect-square overflow-hidden border-0",
           )}
         >
           <Image
@@ -129,18 +129,18 @@ export function ProductCard({
         </Card>
       )}
 
-      <div className={cn('flex flex-col gap-1')}>
+      <div className={cn("flex flex-col gap-1")}>
         <div
           className={cn(
-            variant === 'bag_items'
-              ? 'flex flex-row items-center justify-between'
-              : 'flex flex-col-reverse gap-1',
+            variant === "bag_items"
+              ? "flex flex-row items-center justify-between"
+              : "flex flex-col-reverse gap-1",
           )}
         >
           <p
             className={cn(
-              'line-clamp-2 text-sm',
-              variant === 'bag_items' && 'line-clamp-1',
+              "line-clamp-2 text-sm",
+              variant === "bag_items" && "line-clamp-1",
             )}
           >
             {data.name}
@@ -148,9 +148,9 @@ export function ProductCard({
           <div className="leading-4">
             <p
               className={cn(
-                'font-bold text-primary',
+                "font-bold text-primary",
                 isPromotional &&
-                  'font-light text-xs text-muted-foreground line-through',
+                  "font-light text-xs text-muted-foreground line-through",
               )}
             >
               {formatCurrencyBRL(data.price)}
@@ -159,8 +159,8 @@ export function ProductCard({
             {data.promotional_price && (
               <p
                 className={cn(
-                  'hidden font-bold text-primary',
-                  isPromotional && 'block',
+                  "hidden font-bold text-primary",
+                  isPromotional && "block",
                 )}
               >
                 {formatCurrencyBRL(data.promotional_price)}
@@ -169,7 +169,7 @@ export function ProductCard({
           </div>
         </div>
 
-        {variant !== 'bag_items' && (
+        {variant !== "bag_items" && (
           <p className="line-clamp-3 text-muted-foreground text-xs">
             {data.description}
           </p>
@@ -184,7 +184,7 @@ export function ProductCard({
                 line-clamp-2 w-full"
             >
               <span className="flex flex-row items-center">
-                <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{' '}
+                <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{" "}
                 {extra.name}
               </span>
 
@@ -194,9 +194,13 @@ export function ProductCard({
 
         {filteredObservations &&
           filteredObservations.length > 0 &&
-          filteredObservations.map((obs) => (
-            <p className="text-xs text-muted-foreground uppercase line-clamp-2">
-              obs: {obs}{' '}
+          filteredObservations.map((obs, index) => (
+            <p
+              className="text-xs text-muted-foreground uppercase line-clamp-2"
+              // biome-ignore lint/suspicious/noArrayIndexKey: index is fine here
+              key={index}
+            >
+              obs: {obs}{" "}
             </p>
           ))}
 
@@ -210,5 +214,5 @@ export function ProductCard({
         </div>
       </div>
     </Link>
-  )
+  );
 }

@@ -1,6 +1,17 @@
-import { productSchema } from '@/features/store/products/schemas'
-import { z } from 'zod'
-import { extraSchema, selectedExtraSchema } from '../extras/schemas'
+import { z } from "zod";
+import { productSchema } from "@/features/store/products/schemas";
+
+import { extraSchema, selectedExtraSchema } from "../extras/schemas";
+
+export const selectedChoiceSchema = z.object({
+  choice_id: z.string().uuid(),
+  name: z.string(),
+  size: z.string(),
+  price: z.number(),
+  quantity: z.number().int().min(0).default(0),
+});
+
+export type SelectedChoice = z.infer<typeof selectedChoiceSchema>;
 
 // Schema para variações de produto (JSONB)
 export const ProductVariationSchema = z.object({
@@ -8,8 +19,8 @@ export const ProductVariationSchema = z.object({
   name: z.string(),
   value: z.string(),
   price_modifier: z.number().optional(),
-  type: z.enum(['color', 'size', 'flavor', 'material', 'other']).optional(),
-})
+  type: z.enum(["color", "size", "flavor", "material", "other"]).optional(),
+});
 
 export const CartItemSchema = z.object({
   id: z.string().optional(),
@@ -20,15 +31,16 @@ export const CartItemSchema = z.object({
   product_price: z.number(),
   observations: z.array(z.string()),
   extras: z.array(selectedExtraSchema),
-})
+  choices: z.array(selectedChoiceSchema).default([]),
+});
 
 export const ClearCartSessionSchema = z.object({
   cartSessionId: z.string().uuid().optional(),
-})
+});
 
-export const UpdateCartItemSchema = CartItemSchema.omit({ products: true })
+export const UpdateCartItemSchema = CartItemSchema.omit({ products: true });
 
-export const RemoveCartItemSchema = z.object({ cartItemId: z.string() })
+export const RemoveCartItemSchema = z.object({ cartItemId: z.string() });
 
 // Schema principal para cart_sessions
 export const CartSessionSchema = z.object({
@@ -41,8 +53,9 @@ export const CartSessionSchema = z.object({
   product_price: z.number().nullable(),
   observations: z.array(z.string()).nullable().default([]),
   extras: z.array(extraSchema).default([]),
+  choices: z.array(selectedChoiceSchema).default([]),
   chat_id: z.string().nullable(),
-})
+});
 
 // Schema para criação (sem campos auto-gerados)
 export const CreateCartSessionSchema = CartSessionSchema.omit({
@@ -59,15 +72,15 @@ export const CreateCartSessionSchema = CartSessionSchema.omit({
     .nullable()
     .or(z.string().pipe(z.coerce.number()))
     .nullable(),
-})
+});
 
 export const CreateCartProductSchema = z.object({
   newItem: CartItemSchema,
   session_id: z.string().uuid().optional(),
-})
+});
 
 // Schema para atualização (todos os campos opcionais exceto id)
-export const UpdateCartSessionSchema = CreateCartSessionSchema.partial()
+export const UpdateCartSessionSchema = CreateCartSessionSchema.partial();
 
 // Schema para query/filtros
 export const CartSessionQuerySchema = z.object({
@@ -76,7 +89,7 @@ export const CartSessionQuerySchema = z.object({
   chat_id: z.string().optional(),
   limit: z.number().int().positive().max(100).default(20),
   offset: z.number().int().min(0).default(0),
-})
+});
 
 // Schema para resposta da API
 export const CartSessionResponseSchema = CartSessionSchema.extend({
@@ -90,16 +103,17 @@ export const CartSessionResponseSchema = CartSessionSchema.extend({
       image_url: z.string().url().nullable(),
     })
     .optional(),
-})
+});
 
 // Schema para cálculo de totais
 export const CartTotalSchema = z.object({
   subtotal: z.number(),
   total_variations: z.number(),
   total_extras: z.number(),
+  total_choices: z.number(),
   total: z.number(),
   items_count: z.number().int(),
-})
+});
 
 // Schema para agrupamento por sessão
 export const CartSessionGroupSchema = z.object({
@@ -108,35 +122,35 @@ export const CartSessionGroupSchema = z.object({
   totals: CartTotalSchema,
   created_at: z.date(),
   updated_at: z.date(),
-})
+});
 
 export const AddToCartSchema = z.object({
   subdomain: z.string(),
   newItem: CartItemSchema,
-})
+});
 
 // Types exportados
-export type CartSession = z.infer<typeof CartSessionSchema>
-export type CartItem = z.infer<typeof CartItemSchema>
-export type UpdateCartItem = z.infer<typeof UpdateCartItemSchema>
-export type RemoveCartItem = z.infer<typeof RemoveCartItemSchema>
-export type ClearCartSession = z.infer<typeof ClearCartSessionSchema>
-export type CreateCartSession = z.infer<typeof CreateCartSessionSchema>
-export type UpdateCartSession = z.infer<typeof UpdateCartSessionSchema>
-export type CartSessionQuery = z.infer<typeof CartSessionQuerySchema>
-export type CartSessionResponse = z.infer<typeof CartSessionResponseSchema>
-export type CartTotal = z.infer<typeof CartTotalSchema>
-export type CartSessionGroup = z.infer<typeof CartSessionGroupSchema>
-export type ProductVariation = z.infer<typeof ProductVariationSchema>
-export type ProductExtra = z.infer<typeof extraSchema>
-export type AddToCart = z.infer<typeof AddToCartSchema>
+export type CartSession = z.infer<typeof CartSessionSchema>;
+export type CartItem = z.infer<typeof CartItemSchema>;
+export type UpdateCartItem = z.infer<typeof UpdateCartItemSchema>;
+export type RemoveCartItem = z.infer<typeof RemoveCartItemSchema>;
+export type ClearCartSession = z.infer<typeof ClearCartSessionSchema>;
+export type CreateCartSession = z.infer<typeof CreateCartSessionSchema>;
+export type UpdateCartSession = z.infer<typeof UpdateCartSessionSchema>;
+export type CartSessionQuery = z.infer<typeof CartSessionQuerySchema>;
+export type CartSessionResponse = z.infer<typeof CartSessionResponseSchema>;
+export type CartTotal = z.infer<typeof CartTotalSchema>;
+export type CartSessionGroup = z.infer<typeof CartSessionGroupSchema>;
+export type ProductVariation = z.infer<typeof ProductVariationSchema>;
+export type ProductExtra = z.infer<typeof extraSchema>;
+export type AddToCart = z.infer<typeof AddToCartSchema>;
 
 // Validadores utilitários
 export const validateCartSession = (data: unknown) =>
-  CartSessionSchema.parse(data)
+  CartSessionSchema.parse(data);
 export const validateCreateCartSession = (data: unknown) =>
-  CreateCartSessionSchema.parse(data)
+  CreateCartSessionSchema.parse(data);
 export const validateUpdateCartSession = (data: unknown) =>
-  UpdateCartSessionSchema.parse(data)
+  UpdateCartSessionSchema.parse(data);
 export const validateCartSessionQuery = (data: unknown) =>
-  CartSessionQuerySchema.parse(data)
+  CartSessionQuerySchema.parse(data);

@@ -1,11 +1,13 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircle, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { useServerAction } from "zsa-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -13,36 +15,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { CheckCircle, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useServerAction } from 'zsa-react'
-import { insertIfoodMerchantId } from './actions'
-import { InsertMerchantIdFormSchema } from './schemas'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { insertIfoodMerchantId } from "./actions";
+import { InsertMerchantIdFormSchema } from "./schemas";
 
 export function MerchantIdForm({ merchantId }: { merchantId: string }) {
-  const router = useRouter()
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof InsertMerchantIdFormSchema>>({
     resolver: zodResolver(InsertMerchantIdFormSchema),
     defaultValues: {
       merchant_id: merchantId ?? undefined,
     },
-  })
+  });
 
   const { execute, isPending } = useServerAction(insertIfoodMerchantId, {
     onSuccess: () => {
-      router.refresh()
-      console.log('Merchant ID inserido com sucesso!')
+      router.refresh();
+      console.info("Merchant ID inserido com sucesso!");
     },
     onError: (error) => {
-      console.error('Erro ao salvar Merchant ID:', error)
+      console.error("Erro ao salvar Merchant ID:", error);
     },
-  })
+  });
 
   async function onSubmit(data: z.infer<typeof InsertMerchantIdFormSchema>) {
-    await execute(data)
+    await execute(data);
   }
 
   return (
@@ -72,7 +71,7 @@ export function MerchantIdForm({ merchantId }: { merchantId: string }) {
               disabled={isPending || !form.formState.isValid}
             >
               {isPending && <Loader2 className="animate-spin w-4 h-4 mr-2" />}
-              {isPending ? 'Integrando ao iFood' : 'Integrar ao iFood'}
+              {isPending ? "Integrando ao iFood" : "Integrar ao iFood"}
             </Button>
           </>
         ) : (
@@ -86,5 +85,5 @@ export function MerchantIdForm({ merchantId }: { merchantId: string }) {
         )}
       </form>
     </Form>
-  )
+  );
 }

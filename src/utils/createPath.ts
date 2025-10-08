@@ -1,66 +1,52 @@
 const isStagingEnvironment = () => {
-  if (typeof window !== 'undefined') {
-    return ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
+  if (typeof window !== "undefined") {
+    return ["staging.pinest.com.br", "staging-pinest.vercel.app"].includes(
       window.location.hostname,
-    )
+    );
   }
 
   // Detecção no servidor - melhorada
   const hostname =
-    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || ''
+    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || "";
   const isStaging =
-    hostname.includes('staging') ||
-    hostname.includes('staging-pinest') ||
-    process.env.VERCEL_ENV === 'preview' ||
-    process.env.VERCEL_GIT_COMMIT_REF === 'staging'
+    hostname.includes("staging") ||
+    hostname.includes("staging-pinest") ||
+    process.env.VERCEL_ENV === "preview" ||
+    process.env.VERCEL_GIT_COMMIT_REF === "staging";
 
-  return isStaging
-}
+  return isStaging;
+};
 
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
-  console.log('getRootPath called with:', { storeSubdomain })
-
   if (!storeSubdomain) {
-    console.log('No storeSubdomain, returning empty')
-    return ''
+    return "";
   }
 
   try {
     const isLocalhost =
-      typeof window !== 'undefined'
-        ? window.location.hostname.startsWith('localhost')
-        : process.env.NODE_ENV === 'development'
+      typeof window !== "undefined"
+        ? window.location.hostname.startsWith("localhost")
+        : process.env.NODE_ENV === "development";
 
-    console.log('Environment check:', {
-      isLocalhost,
-      nodeEnv: process.env.NODE_ENV,
-      hasWindow: typeof window !== 'undefined',
-    })
-
-    const isStaging = isStagingEnvironment()
-    console.log('Staging check:', { isStaging })
+    const isStaging = isStagingEnvironment();
 
     if (isLocalhost || isStaging) {
-      console.log('Returning prefixed path:', `/${storeSubdomain}`)
-      return `/${storeSubdomain}`
+      return `/${storeSubdomain}`;
     }
 
-    console.log('Returning empty path for production')
-    return ''
+    return "";
   } catch (error) {
-    console.error('Error in getRootPath:', error)
-    return '' // fallback seguro
+    console.error("Error in getRootPath:", error);
+    return ""; // fallback seguro
   }
-}
+};
 
 export const createPath = (
   path: string,
   storeSubdomain: string | undefined | null,
 ) => {
-  const rootPath = getRootPath(storeSubdomain)
-  if (!rootPath) return path
+  const rootPath = getRootPath(storeSubdomain);
+  if (!rootPath) return path;
 
-  console.log('Creating path with:', { rootPath, path })
-
-  return `/${rootPath}${path}`
-}
+  return `${rootPath}${path}`;
+};

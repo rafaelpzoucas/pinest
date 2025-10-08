@@ -1,26 +1,24 @@
-import { ThemeProvider } from '@/components/theme-provider'
-import ThemeDataProvider from '@/context/theme-data-provider'
-import { get } from '@vercel/edge-config'
-import { BottomActionBar } from './(bottom-actions-bar)/bottom-bar'
-import { HeaderNavigation } from './(navigation)/nav'
+import { get } from "@vercel/edge-config";
+import { ThemeProvider } from "@/components/theme-provider";
+import ThemeDataProvider from "@/context/theme-data-provider";
+import { BottomActionBar } from "./(bottom-actions-bar)/bottom-bar";
+import { HeaderNavigation } from "./(navigation)/nav";
 
 type PublicStoreLayoutProps = {
-  children: React.ReactNode
-  params: { store_slug: string }
-}
+  children: React.ReactNode;
+  params: { store_slug: string };
+};
 
 export default async function StoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
-  const store = (await get(`store_${params.store_slug}`)) as any
+  const store = (await get(`store_${params.store_slug}`)) as any;
 
-  console.log('Store data:', store, params)
+  const theme = store?.theme || { mode: "system", color: "Zinc" };
 
-  const theme = store?.theme || { mode: 'system', color: 'Zinc' }
-
-  const themeMode = theme?.mode
-  const themeColor = theme?.color
+  const themeMode = theme?.mode;
+  const themeColor = theme?.color;
 
   return (
     <ThemeProvider
@@ -49,5 +47,5 @@ export default async function StoreLayout({
         </div>
       </ThemeDataProvider>
     </ThemeProvider>
-  )
+  );
 }

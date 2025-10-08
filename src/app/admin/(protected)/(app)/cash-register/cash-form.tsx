@@ -1,22 +1,14 @@
-'use client'
+"use client";
 
-import { Button, buttonVariants } from '@/components/ui/button'
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 
-import { z } from 'zod'
+import { z } from "zod";
+import { useServerAction } from "zsa-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-
-import { Card } from '@/components/ui/card'
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -24,12 +16,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { useServerAction } from 'zsa-react'
-import { upsertCashReceipts } from './actions'
-import { createCashReceiptsSchema } from './schemas'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { upsertCashReceipts } from "./actions";
+import type { createCashReceiptsSchema } from "./schemas";
 
 const MONEY_VALUES = {
   cash_005: 0.05,
@@ -44,7 +43,7 @@ const MONEY_VALUES = {
   cash_50: 50,
   cash_100: 100,
   cash_200: 200,
-} as const
+} as const;
 
 const formSchema = z.object({
   cash_005: z.number(),
@@ -59,7 +58,7 @@ const formSchema = z.object({
   cash_50: z.number(),
   cash_100: z.number(),
   cash_200: z.number(),
-})
+});
 
 export function CashForm({
   receipts,
@@ -68,94 +67,94 @@ export function CashForm({
   computedValue = 0,
   setCashValue,
 }: {
-  receipts: z.infer<typeof createCashReceiptsSchema>
-  open: boolean
-  setOpen: (open: boolean) => void
-  computedValue?: number
-  setCashValue?: (v: string) => void
+  receipts: z.infer<typeof createCashReceiptsSchema>;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  computedValue?: number;
+  setCashValue?: (v: string) => void;
 }) {
   const cashTypes = [
-    'cash_005',
-    'cash_010',
-    'cash_025',
-    'cash_050',
-    'cash_1',
-    'cash_2',
-    'cash_5',
-    'cash_10',
-    'cash_20',
-    'cash_50',
-    'cash_100',
-    'cash_200',
-  ] as const
+    "cash_005",
+    "cash_010",
+    "cash_025",
+    "cash_050",
+    "cash_1",
+    "cash_2",
+    "cash_5",
+    "cash_10",
+    "cash_20",
+    "cash_50",
+    "cash_100",
+    "cash_200",
+  ] as const;
 
-  type CashType = (typeof cashTypes)[number]
+  type CashType = (typeof cashTypes)[number];
 
   const defaultValues = cashTypes.reduce(
     (acc, type) => {
-      const match = receipts.find((r) => r.type === type)
-      acc[type] = match ? match.amount : 0
-      return acc
+      const match = receipts.find((r) => r.type === type);
+      acc[type] = match ? match.amount : 0;
+      return acc;
     },
     {} as Record<CashType, number>,
-  )
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
-  })
+  });
 
   // Calcula o valor total das cédulas e moedas inseridas
-  const formValues = form.watch()
+  const formValues = form.watch();
   const totalCashAmount = Object.keys(formValues).reduce((acc, key) => {
-    const typedKey = key as keyof typeof MONEY_VALUES
-    const value = Number(MONEY_VALUES[typedKey] || 0)
-    const amount = Number(formValues[key as keyof typeof formValues] ?? 0) || 0
-    return acc + value * amount
-  }, 0)
+    const typedKey = key as keyof typeof MONEY_VALUES;
+    const value = Number(MONEY_VALUES[typedKey] || 0);
+    const amount = Number(formValues[key as keyof typeof formValues] ?? 0) || 0;
+    return acc + value * amount;
+  }, 0);
 
   // Diferença entre o valor computado e o total das cédulas/moedas
-  const difference = totalCashAmount - computedValue
+  const difference = totalCashAmount - computedValue;
 
   const { execute: createReceipts, isPending: isCreating } = useServerAction(
     upsertCashReceipts,
     {
       onSuccess: () => {
-        setOpen(false)
+        setOpen(false);
       },
       onError: ({ err }) => {
-        console.log('Erro ao salvar cédulas e moedas: ', err)
+        console.error("Erro ao salvar cédulas e moedas: ", err);
       },
     },
-  )
+  );
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const cashReceipts = (
         Object.keys(values) as (keyof typeof MONEY_VALUES)[]
       ).map((key) => {
-        const typedKey = key as keyof typeof MONEY_VALUES
-        const value = Number(MONEY_VALUES[typedKey] || 0)
-        const amount = Number(values[key] ?? 0) || 0
+        const typedKey = key as keyof typeof MONEY_VALUES;
+        const value = Number(MONEY_VALUES[typedKey] || 0);
+        const amount = Number(values[key] ?? 0) || 0;
 
         return {
           type: key,
           value,
           amount,
           total: Number((value * amount).toFixed(2)),
-        }
-      })
+        };
+      });
 
-      createReceipts(cashReceipts)
+      createReceipts(cashReceipts);
 
       // Atualiza o valor total no query param correspondente
       const total = cashReceipts.reduce(
         (acc, receipt) => acc + receipt.total,
         0,
-      )
-      if (setCashValue) setCashValue(String(total))
+      );
+      if (setCashValue) setCashValue(String(total));
     } catch (err) {
-      console.error('Erro de validação:', err)
+      console.error("Erro de validação:", err);
     }
   }
 
@@ -165,7 +164,7 @@ export function CashForm({
         <SheetHeader className="items-start mb-4">
           <div className="flex flex-row items-center gap-2">
             <SheetClose
-              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              className={buttonVariants({ variant: "ghost", size: "icon" })}
             >
               <ArrowLeft />
             </SheetClose>
@@ -192,7 +191,7 @@ export function CashForm({
                 <span>Diferença</span>
                 <span
                   className={
-                    difference === 0 ? 'text-green-600' : 'text-amber-600'
+                    difference === 0 ? "text-green-600" : "text-amber-600"
                   }
                 >
                   {formatCurrencyBRL(difference)}
@@ -385,5 +384,5 @@ export function CashForm({
         </Form>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

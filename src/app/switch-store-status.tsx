@@ -1,89 +1,89 @@
-'use client'
+"use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useServerAction } from "zsa-react";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form'
-import { Switch } from '@/components/ui/switch'
-import { createClient } from '@/lib/supabase/client'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
-import { updateStoreStatus } from './admin/(protected)/(app)/actions'
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { createClient } from "@/lib/supabase/client";
+import { updateStoreStatus } from "./admin/(protected)/(app)/actions";
 
 const FormSchema = z.object({
   is_open: z.boolean(),
-})
+});
 
 export function SwitchStoreStatus({
   isOpen,
   storeId,
 }: {
-  isOpen?: boolean
-  storeId?: string
+  isOpen?: boolean;
+  storeId?: string;
 }) {
-  const supabase = createClient()
-  const router = useRouter()
+  const supabase = createClient();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       is_open: isOpen,
     },
-  })
+  });
 
   const { execute, isPending } = useServerAction(updateStoreStatus, {
     onSuccess: () => {
-      console.log('Store status updated successfully')
+      console.info("Store status updated successfully");
     },
     onError: (error) => {
-      console.error('Error updating store status:', error)
+      console.error("Error updating store status:", error);
     },
-  })
+  });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    await execute({ isOpen: data.is_open })
+    await execute({ isOpen: data.is_open });
   }
 
-  const isSwitchOpen = form.watch('is_open')
+  const isSwitchOpen = form.watch("is_open");
 
   useEffect(() => {
     const channel = supabase
       .channel(`store-status-${storeId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'stores',
+          event: "UPDATE",
+          schema: "public",
+          table: "stores",
           filter: `id=eq.${storeId}`,
         },
         async () => {
           const { data, error } = await supabase
-            .from('stores')
-            .select('is_open')
-            .eq('id', storeId)
-            .single()
+            .from("stores")
+            .select("is_open")
+            .eq("id", storeId)
+            .single();
 
           if (!error && data) {
-            form.setValue('is_open', data.is_open)
+            form.setValue("is_open", data.is_open);
           }
-          router.refresh()
+          router.refresh();
         },
       )
-      .subscribe()
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [storeId])
+      supabase.removeChannel(channel);
+    };
+  }, [storeId]);
 
   return (
     <Form {...form}>
@@ -101,9 +101,9 @@ export function SwitchStoreStatus({
                       Atualizando...
                     </span>
                   ) : isSwitchOpen ? (
-                    'Loja aberta'
+                    "Loja aberta"
                   ) : (
-                    'Loja fechada'
+                    "Loja fechada"
                   )}
                 </FormLabel>
               </div>
@@ -112,8 +112,8 @@ export function SwitchStoreStatus({
                   disabled={isPending}
                   checked={field.value}
                   onCheckedChange={(value) => {
-                    field.onChange(value)
-                    form.handleSubmit(onSubmit)()
+                    field.onChange(value);
+                    form.handleSubmit(onSubmit)();
                   }}
                   className="ml-auto data-[state=unchecked]:bg-destructive
                     data-[state=checked]:bg-emerald-600"
@@ -124,5 +124,5 @@ export function SwitchStoreStatus({
         />
       </form>
     </Form>
-  )
+  );
 }

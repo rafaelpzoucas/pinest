@@ -1,7 +1,10 @@
-'use client'
+"use client";
 
-import { ProductCardImage } from '@/components/product-card-image'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Edit, Loader2, Plus, Trash } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { ProductCardImage } from "@/components/product-card-image";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -10,61 +13,59 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from '@/components/ui/drawer'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   useRemoveCartProduct,
   useUpdateCartProduct,
-} from '@/features/store/cart-session/hooks'
-import { CartItem } from '@/features/store/cart-session/schemas'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { createPath } from '@/utils/createPath'
-import { Edit, Loader2, Plus, Trash } from 'lucide-react'
-import Link from 'next/link'
-import { useState } from 'react'
+} from "@/features/store/cart-session/hooks";
+import type { CartItem } from "@/features/store/cart-session/schemas";
+import { cn, formatCurrencyBRL } from "@/lib/utils";
+import { createPath } from "@/utils/createPath";
 
 type CartProductPropsType = {
-  cartProduct: CartItem
-  storeSlug?: string
-}
+  cartProduct: CartItem;
+  storeSlug?: string;
+};
 
 export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
-  const [isQttOpen, setIsQttOpen] = useState(false)
-  const [amount, setAmount] = useState('')
+  const [isQttOpen, setIsQttOpen] = useState(false);
+  const [amount, setAmount] = useState("");
 
-  const product = cartProduct.products
+  const product = cartProduct.products;
 
   const totalPrice =
     cartProduct.product_price +
     (cartProduct.extras?.reduce(
       (acc, extra) => acc + extra.price * extra.quantity,
       0,
-    ) || 0)
+    ) || 0);
 
   const productExtras =
-    cartProduct.extras && cartProduct.extras.filter((e) => e.quantity > 0)
+    cartProduct.extras && cartProduct.extras.filter((e) => e.quantity > 0);
+  const productChoices = cartProduct.choices;
 
   const { mutate: updateCartProduct, isPending: isUpdatingCartProduct } =
-    useUpdateCartProduct()
+    useUpdateCartProduct();
   const { mutate: removeCartProduct, isPending: isRemovingCartProduct } =
-    useRemoveCartProduct()
+    useRemoveCartProduct();
 
   function handleUpdateQuantity(quantity: string) {
     if (cartProduct && cartProduct.id) {
-      updateCartProduct({ ...cartProduct, quantity: parseInt(quantity) })
+      updateCartProduct({ ...cartProduct, quantity: parseInt(quantity) });
     }
   }
 
   async function handleDeleteFromCart() {
     if (cartProduct && cartProduct.id) {
-      removeCartProduct({ cartItemId: cartProduct.id })
+      removeCartProduct({ cartItemId: cartProduct.id });
     }
   }
 
@@ -94,7 +95,7 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
                   line-clamp-2 w-full"
               >
                 <span className="flex flex-row items-center">
-                  <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{' '}
+                  <Plus className="w-4 h-4 mr-1" /> {extra.quantity} ad.{" "}
                   {extra.name}
                 </span>
 
@@ -102,16 +103,33 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
               </p>
             ))}
 
+            <ul>
+              {productChoices.map((choice) => (
+                <li
+                  key={choice.choice_id}
+                  className="flex flex-row items-center justify-between text-xs text-muted-foreground
+                    line-clamp-2 w-full"
+                >
+                  {choice.name}
+
+                  <span>
+                    {formatCurrencyBRL(choice.price * choice.quantity)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
             {cartProduct?.observations &&
               cartProduct?.observations?.length > 0 &&
               cartProduct.observations
-                .filter((obs) => obs !== '')
+                .filter((obs) => obs !== "")
                 .map((obs, index) => (
                   <p
+                    // biome-ignore lint/suspicious/noArrayIndexKey: index is fine here
                     key={index}
                     className="text-muted-foreground text-xs uppercase line-clamp-2"
                   >
-                    obs: {obs}{' '}
+                    obs: {obs}{" "}
                   </p>
                 ))}
           </div>
@@ -123,7 +141,7 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
           <Select
             defaultValue={cartProduct.quantity.toString()}
             onValueChange={(value) =>
-              value === 'more'
+              value === "more"
                 ? setIsQttOpen(true)
                 : handleUpdateQuantity(value)
             }
@@ -144,8 +162,8 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
               <SelectItem value="6">6 un.</SelectItem>
               <SelectItem value="more">
                 {cartProduct.quantity > 6
-                  ? cartProduct.quantity + ' un.'
-                  : 'Mais de 6 un.'}
+                  ? cartProduct.quantity + " un."
+                  : "Mais de 6 un."}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -154,7 +172,7 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
               `/${product.product_url}?cp_id=${cartProduct.id}`,
               storeSlug,
             )}
-            className={buttonVariants({ variant: 'outline', size: 'icon' })}
+            className={buttonVariants({ variant: "outline", size: "icon" })}
           >
             <Edit className="w-4 h-4" />
           </Link>
@@ -192,11 +210,11 @@ export function CartProduct({ cartProduct, storeSlug }: CartProductPropsType) {
         </Drawer>
 
         <div className="leading-4 flex flex-col ml-auto items-end">
-          <p className={cn('font-bold text-primary text-lg')}>
+          <p className={cn("font-bold text-primary text-lg")}>
             {formatCurrencyBRL(totalPrice * cartProduct.quantity)}
           </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }

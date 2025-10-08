@@ -1,22 +1,15 @@
-'use client'
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card } from '@/components/ui/card'
-import { Store } from '@/features/store/initial-data/schemas'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { Pyramid, Timer } from 'lucide-react'
-import { StoreStatus } from './(status)/calculate'
-import { Status } from './(status)/status'
+import { Pyramid, Timer } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
+import type { Store } from "@/features/store/initial-data/schemas";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { Status } from "./(status)/status";
 
-export function StoreHeader({
-  store,
-  initialStatus,
-}: {
-  store: Store | null
-  initialStatus?: StoreStatus
-}) {
-  const logoURL = store?.logo_url ?? undefined
-  const delivery = store?.shippings && store?.shippings[0]
+export function StoreHeader({ store }: { store: Store | null }) {
+  const logoURL = store?.logo_url ?? undefined;
+  const delivery = store?.shippings?.[0];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-0 h-[45vh] flex items-center justify-center p-6">
@@ -32,7 +25,7 @@ export function StoreHeader({
           <h1 className="text-center text-2xl capitalize font-bold">
             {store?.name}
           </h1>
-          <Status store={store} initialStatus={initialStatus} />
+          <Status />
         </div>
         <div className="flex flex-row gap-2">
           {delivery?.pickup ? (
@@ -60,5 +53,5 @@ export function StoreHeader({
         </div>
       </div>
     </header>
-  )
+  );
 }

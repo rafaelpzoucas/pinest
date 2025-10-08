@@ -1,15 +1,16 @@
-import { StoreEdgeConfig } from '@/features/store/initial-data/schemas'
-import { readProductBySlug } from '@/features/store/products/read'
-import { readStoreIdBySlug } from '@/features/store/store/read'
-import { extractSubdomainOrDomain } from '@/lib/helpers'
-import { formatSlug } from '@/utils/format-slug'
-import { get } from '@vercel/edge-config'
-import { Metadata } from 'next'
-import { Suspense } from 'react'
-import { ExtrasSection } from './extras'
-import { ProductImages } from './images'
-import { ProductInfo } from './info'
-import { ScrollToTop } from './scroll-to-top'
+import { get } from "@vercel/edge-config";
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import type { StoreEdgeConfig } from "@/features/store/initial-data/schemas";
+import { readProductBySlug } from "@/features/store/products/read";
+import { readStoreIdBySlug } from "@/features/store/store/read";
+import { extractSubdomainOrDomain } from "@/lib/helpers";
+import { formatSlug } from "@/utils/format-slug";
+import { ChoicesSection } from "./choices";
+import { ExtrasSection } from "./extras";
+import { ProductImages } from "./images";
+import { ProductInfo } from "./info";
+import { ScrollToTop } from "./scroll-to-top";
 
 // Componente de Loading para Suspense
 function ProductLoading() {
@@ -22,28 +23,28 @@ function ProductLoading() {
         <div className="h-12 bg-muted rounded"></div>
       </div>
     </div>
-  )
+  );
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { store_slug: string; product_slug: string }
+  params: { store_slug: string; product_slug: string };
 }): Promise<Metadata> {
   const sub =
-    params.store_slug !== 'undefined'
+    params.store_slug !== "undefined"
       ? params.store_slug
-      : (extractSubdomainOrDomain() as string)
+      : (extractSubdomainOrDomain() as string);
 
-  const store = (await get(`store_${sub}`)) as StoreEdgeConfig
+  const store = (await get(`store_${sub}`)) as StoreEdgeConfig;
 
   if (!store) {
-    return { title: 'Pinest' }
+    return { title: "Pinest" };
   }
 
   const formattedTitle = store?.name
     ?.toLowerCase()
-    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+    .replace(/\b\w/g, (char: string) => char.toUpperCase());
 
   return {
     title: `${formatSlug(params.product_slug)} | ${formattedTitle}`,
@@ -55,28 +56,28 @@ export async function generateMetadata({
       description: store?.description,
       images: store.logo_url ? [store.logo_url] : undefined,
     },
-  }
+  };
 }
 
 export default async function ProductPage({
   params,
 }: {
-  params: { store_slug: string; product_slug: string }
+  params: { store_slug: string; product_slug: string };
 }) {
   // Execute as consultas em paralelo para melhor performance
   const [storeData, productData] = await Promise.all([
     readStoreIdBySlug({ storeSlug: params.store_slug }),
     (async () => {
-      const [store] = await readStoreIdBySlug({ storeSlug: params.store_slug })
-      if (!store?.storeId) return [null]
+      const [store] = await readStoreIdBySlug({ storeSlug: params.store_slug });
+      if (!store?.storeId) return [null];
       return readProductBySlug({
         productSlug: params.product_slug,
         storeId: store.storeId,
-      })
+      });
     })(),
-  ])
+  ]);
 
-  const product = productData[0]?.product
+  const product = productData[0]?.product;
 
   if (!product) {
     return (
@@ -85,17 +86,17 @@ export default async function ProductPage({
           Produto não encontrado
         </h1>
       </div>
-    )
+    );
   }
 
-  const productImages = product?.product_images || []
+  const productImages = product?.product_images || [];
 
   return (
     <div>
       {/* Imagens com prioridade LCP */}
       <ProductImages images={productImages} />
 
-      <main className="mt-[45vh] bg-background relative z-10 pb-24">
+      <main className="mt-[45vh] bg-background relative z-10 pb-56">
         {/* Info do produto - crítico, sem Suspense */}
         <ProductInfo product={product} />
 
@@ -107,6 +108,14 @@ export default async function ProductPage({
             </div>
           }
         >
+          {product.need_choices &&
+            product?.product_choice_prices &&
+            product?.product_choice_prices?.length > 0 && (
+              <ChoicesSection
+                choices={product.product_choice_prices}
+                choiceLimit={product.choice_limit || 1}
+              />
+            )}
           <ExtrasSection
             storeId={storeData[0]?.storeId}
             productId={product.id}
@@ -116,8 +125,8 @@ export default async function ProductPage({
 
       <ScrollToTop />
     </div>
-  )
+  );
 }
 
 // Adicione ISR para páginas mais acessadas
-export const revalidate = 3600 // 1 hora
+export const revalidate = 3600; // 1 hora

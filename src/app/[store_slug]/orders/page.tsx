@@ -1,91 +1,85 @@
-import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
-import { readCustomer } from '@/features/store/customers/read'
-import { StoreEdgeConfig } from '@/features/store/initial-data/schemas'
-import { readStoreCustomerOrders } from '@/features/store/orders/read'
-import { readStoreIdBySlug } from '@/features/store/store/read'
-import { readStoreCustomer } from '@/features/store/store/read-customer'
-import { extractSubdomainOrDomain } from '@/lib/helpers'
-import { cn, createPath, formatDate } from '@/lib/utils'
-import { statuses } from '@/models/statuses'
-import { get } from '@vercel/edge-config'
-import { Box, ChevronRight } from 'lucide-react'
-import { Metadata } from 'next'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { get } from "@vercel/edge-config";
+import { Box, ChevronRight } from "lucide-react";
+import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { readCustomer } from "@/features/store/customers/read";
+import type { StoreEdgeConfig } from "@/features/store/initial-data/schemas";
+import { readStoreCustomerOrders } from "@/features/store/orders/read";
+import { readStoreIdBySlug } from "@/features/store/store/read";
+import { readStoreCustomer } from "@/features/store/store/read-customer";
+import { extractSubdomainOrDomain } from "@/lib/helpers";
+import { cn, createPath, formatDate } from "@/lib/utils";
+import { statuses } from "@/models/statuses";
 
-type StatusKey = keyof typeof statuses
+type StatusKey = keyof typeof statuses;
 
 export async function generateMetadata({
   params,
 }: {
-  params: { store_slug: string }
+  params: { store_slug: string };
 }): Promise<Metadata> {
   const sub =
-    params.store_slug !== 'undefined'
+    params.store_slug !== "undefined"
       ? params.store_slug
-      : (extractSubdomainOrDomain() as string)
+      : (extractSubdomainOrDomain() as string);
 
-  const store = (await get(`store_${sub}`)) as StoreEdgeConfig
+  const store = (await get(`store_${sub}`)) as StoreEdgeConfig;
 
   if (!store) {
-    return { title: 'Pinest' }
+    return { title: "Pinest" };
   }
 
   const formattedTitle = store?.name
     ?.toLowerCase()
-    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+    .replace(/\b\w/g, (char: string) => char.toUpperCase());
 
   return {
     title: `Meus pedidos | ${formattedTitle}`,
     description: store?.description,
     icons: { icon: store.logo_url },
-  }
+  };
 }
 
 export default async function OrdersPage({
   params,
 }: {
-  params: { store_slug: string }
+  params: { store_slug: string };
 }) {
-  const maxItems = 3
-  const cookieStore = cookies()
+  const maxItems = 3;
+  const cookieStore = cookies();
 
   const [[customerData], [storeIdData]] = await Promise.all([
     readCustomer({ subdomain: params.store_slug }),
     readStoreIdBySlug({ storeSlug: params.store_slug }),
-  ])
+  ]);
 
-  const customer = customerData?.customer
-  const storeId = storeIdData?.storeId
+  const customer = customerData?.customer;
+  const storeId = storeIdData?.storeId;
 
-  const [storeCustomerData] = await readStoreCustomer({
+  const [storeCustomer] = await readStoreCustomer({
     customerId: customer?.id,
     storeId,
-  })
-
-  const storeCustomer = storeCustomerData?.storeCustomer
+  });
 
   const [ordersData] = await readStoreCustomerOrders({
     storeCustomerId: storeCustomer?.id,
     storeId,
-  })
+  });
 
-  const orders = ordersData?.orders ?? []
+  const orders = ordersData?.orders ?? [];
 
   const storeCustomerPhone = cookieStore.get(
     `${params.store_slug}_customer_phone`,
-  )
+  );
 
   if (!storeCustomerPhone) {
-    const redirectPath = createPath('/account', params.store_slug)
-    console.log('Orders page redirect debug:', {
-      storeSubdomain: params.store_slug,
-      redirectPath,
-      createPathResult: createPath('/account', params.store_slug),
-    })
-    return redirect(redirectPath)
+    const redirectPath = createPath("/account", params.store_slug);
+
+    return redirect(redirectPath);
   }
 
   return (
@@ -102,17 +96,17 @@ export default async function OrdersPage({
                 </Badge>
 
                 <span className="text-sm text-muted-foreground">
-                  {formatDate(order?.created_at, 'dd/MM/yyyy')}
+                  {formatDate(order?.created_at, "dd/MM/yyyy")}
                 </span>
 
                 <div>
                   {order.order_items.slice(0, maxItems).map((item) => {
-                    if (!item.products) return null
+                    if (!item.products) return null;
                     return (
                       <div key={item.products.id}>
                         x{item.quantity} {item.products.name}
                       </div>
-                    )
+                    );
                   })}
                   {order.order_items.length > maxItems && <span>...</span>}
                 </div>
@@ -132,5 +126,5 @@ export default async function OrdersPage({
         )}
       </div>
     </div>
-  )
+  );
 }

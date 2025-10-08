@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { createPath } from '@/utils/createPath'
-import { ArrowRight, Loader2, Send } from 'lucide-react'
-import Link from 'next/link'
-import { memo } from 'react'
-import { useStoreStatus } from '../../(status)/hooks'
+import { ArrowRight, Loader2, Send } from "lucide-react";
+import Link from "next/link";
+import { memo } from "react";
+import { createPath } from "@/utils/createPath";
+import { useStoreStatus } from "../../(status)/hooks";
 
 interface OrderActionsProps {
-  isInCheckout: boolean
-  isLastStep: boolean
-  isCreatingOrder: boolean
-  isLoading: boolean
-  storeSlug: string
-  hasCustomer: boolean
-  onCreateOrder: () => void
+  isInCheckout: boolean;
+  isLastStep: boolean;
+  isCreatingOrder: boolean;
+  isLoading: boolean;
+  storeSlug: string;
+  hasCustomer: boolean;
+  onCreateOrder: () => void;
 }
 
 export const OrderActions = memo(function OrderActions({
@@ -25,11 +25,11 @@ export const OrderActions = memo(function OrderActions({
   hasCustomer,
   onCreateOrder,
 }: OrderActionsProps) {
-  const { status } = useStoreStatus()
+  const { status } = useStoreStatus();
 
   const finishOrderLink = !hasCustomer
-    ? createPath('/account?checkout=true', storeSlug)
-    : createPath('/checkout?step=pickup', storeSlug)
+    ? createPath("/account?checkout=true", storeSlug)
+    : createPath("/checkout?step=pickup", storeSlug);
 
   return (
     <div className="bg-background">
@@ -48,6 +48,7 @@ export const OrderActions = memo(function OrderActions({
 
       {isInCheckout && isLastStep && (
         <button
+          type="button"
           onClick={onCreateOrder}
           className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
             text-primary-foreground p-4 font-bold uppercase hover:opacity-80
@@ -68,5 +69,5 @@ export const OrderActions = memo(function OrderActions({
         </button>
       )}
     </div>
-  )
-})
+  );
+});

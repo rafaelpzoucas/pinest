@@ -1,69 +1,67 @@
-import { ThemeProvider } from '@/components/theme-provider'
-import ThemeDataProvider from '@/context/theme-data-provider'
-import { extractSubdomainOrDomain } from '@/lib/helpers'
-import { get } from '@vercel/edge-config'
-import { Metadata } from 'next'
-import React from 'react'
-import { readPublicStoreData } from './(app)/actions'
-import { CartInitializer } from './cart/cart-initializer'
-import { StoreHydrator } from './hydrator'
-import { MobileNavigation } from './mobile-navigation'
-import NotFound from './not-found'
+import { get } from "@vercel/edge-config";
+import type { Metadata } from "next";
+import type React from "react";
+import { ThemeProvider } from "@/components/theme-provider";
+import ThemeDataProvider from "@/context/theme-data-provider";
+import { extractSubdomainOrDomain } from "@/lib/helpers";
+import { readPublicStoreData } from "./(app)/actions";
+import { CartInitializer } from "./cart/cart-initializer";
+import { StoreHydrator } from "./hydrator";
+import { MobileNavigation } from "./mobile-navigation";
+import NotFound from "./not-found";
 
 type PublicStoreLayoutProps = {
-  children: React.ReactNode
-  params: { public_store: string }
-}
+  children: React.ReactNode;
+  params: { public_store: string };
+};
 
 export async function generateMetadata({
   params,
 }: {
-  params: { public_store: string }
+  params: { public_store: string };
 }): Promise<Metadata> {
   const sub =
-    params.public_store !== 'undefined'
+    params.public_store !== "undefined"
       ? params.public_store
-      : (extractSubdomainOrDomain() as string)
+      : (extractSubdomainOrDomain() as string);
 
-  const store = (await get(`store_${sub}`)) as any
+  const store = (await get(`store_${sub}`)) as any;
 
   if (!store) {
-    return { title: 'Pinest' }
+    return { title: "Pinest" };
   }
-
-  console.log({ store })
 
   const formattedTitle = store?.name
     ?.toLowerCase()
-    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+    .replace(/\b\w/g, (char: string) => char.toUpperCase());
 
   return {
     title: formattedTitle,
     description: store?.description,
     icons: { icon: store.logo_url },
-  }
+  };
 }
 
 export default async function PublicStoreLayout({
   children,
   params,
 }: PublicStoreLayoutProps) {
-  const [publicStoreData] = await readPublicStoreData()
+  const [publicStoreData] = await readPublicStoreData();
 
   const subdomain =
-    params.public_store !== 'undefined'
+    params.public_store !== "undefined"
       ? params.public_store
-      : (extractSubdomainOrDomain() as string)
+      : (extractSubdomainOrDomain() as string);
 
-  const store = (await get(`store_${subdomain}`)) as any
+  const store = (await get(`store_${subdomain}`)) as any;
 
   if (!store) {
-    return <NotFound />
+    return <NotFound />;
   }
 
   // Busca o tema da loja diretamente do Edge Config
-  const themeMode = store.theme?.mode || 'system'
-  const themeColor = store.theme?.color || 'Zinc'
+  const themeMode = store.theme?.mode || "system";
+  const themeColor = store.theme?.color || "Zinc";
 
   return (
     <ThemeProvider
@@ -89,5 +87,5 @@ export default async function PublicStoreLayout({
         </div>
       </ThemeDataProvider>
     </ThemeProvider>
-  )
+  );
 }

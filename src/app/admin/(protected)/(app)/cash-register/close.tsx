@@ -1,27 +1,13 @@
-'use client'
+"use client";
 
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-
-import { Button, buttonVariants } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { closeCashSessionSchema, createCashReceiptsSchema } from './schemas'
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { useServerAction } from "zsa-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +17,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -39,7 +26,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -48,27 +35,41 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   buildProductsSoldReportESCPOS,
   buildSalesReportESCPOS,
-} from '@/lib/receipts'
-import { cn, formatCurrencyBRL, stringToNumber } from '@/lib/utils'
-import { PaymentType } from '@/models/payment'
-import { ArrowLeft, Loader2, Plus } from 'lucide-react'
-import { parseAsString, useQueryState } from 'nuqs'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { useServerAction } from 'zsa-react'
-import { printMultipleReports } from '../config/printing/actions'
-import { closeCashSession } from './actions'
-import { CashForm } from './cash-form'
-import { ReceiptForm } from './receipt-form'
+} from "@/lib/receipts";
+import { cn, formatCurrencyBRL, stringToNumber } from "@/lib/utils";
+import type { PaymentType } from "@/models/payment";
+import { printMultipleReports } from "../config/printing/actions";
+import { closeCashSession } from "./actions";
+import { CashForm } from "./cash-form";
+import { ReceiptForm } from "./receipt-form";
+import {
+  closeCashSessionSchema,
+  type createCashReceiptsSchema,
+} from "./schemas";
 
 // Função utilitária para retornar string vazia se o valor for zero
 function emptyIfZero(value: number) {
-  return value === 0 ? '' : value.toString()
+  return value === 0 ? "" : value.toString();
 }
 
 export function CloseCashSession({
@@ -78,266 +79,269 @@ export function CloseCashSession({
   payments,
   reports,
 }: {
-  hasOpenOrders: boolean
-  hasOpenTables: boolean
-  cashReceipts?: z.infer<typeof createCashReceiptsSchema>
-  payments: PaymentType[]
-  reports: any
+  hasOpenOrders: boolean;
+  hasOpenTables: boolean;
+  cashReceipts?: z.infer<typeof createCashReceiptsSchema>;
+  payments: PaymentType[];
+  reports: any;
 }) {
-  const [sheet, setSheet] = useQueryState('sheet', parseAsString)
-  const isSheetOpen = sheet === 'close-cash'
-  const setIsSheetOpen = (open: boolean) => setSheet(open ? 'close-cash' : null)
-  const [isPrinting, setIsPrinting] = useState(false)
+  const [sheet, setSheet] = useQueryState("sheet", parseAsString);
+  const isSheetOpen = sheet === "close-cash";
+  const setIsSheetOpen = (open: boolean) =>
+    setSheet(open ? "close-cash" : null);
+  const [isPrinting, setIsPrinting] = useState(false);
   const [manualInputAllowed, setManualInputAllowed] = useState({
     pix: false,
     credit: false,
     debit: false,
-  })
+  });
   const [dialogOpen, setDialogOpen] = useState<
-    null | 'pix' | 'credit' | 'debit'
-  >(null)
-  const [cashManual, setCashManual] = useState(false)
-  const [pixManual, setPixManual] = useState(false)
-  const [creditManual, setCreditManual] = useState(false)
-  const [debitManual, setDebitManual] = useState(false)
-  const [showDifferenceDialog, setShowDifferenceDialog] = useState(false)
+    null | "pix" | "credit" | "debit"
+  >(null);
+  const [cashManual, setCashManual] = useState(false);
+  const [pixManual, setPixManual] = useState(false);
+  const [creditManual, setCreditManual] = useState(false);
+  const [debitManual, setDebitManual] = useState(false);
+  const [showDifferenceDialog, setShowDifferenceDialog] = useState(false);
   const [pendingValues, setPendingValues] = useState<z.infer<
     typeof closeCashSessionSchema
-  > | null>(null)
+  > | null>(null);
 
   // Estados dos valores dos campos via nuqs
-  const [pixValue, setPixValue] = useQueryState('pixValue', parseAsString)
+  const [pixValue, setPixValue] = useQueryState("pixValue", parseAsString);
   const [creditValue, setCreditValue] = useQueryState(
-    'creditValue',
+    "creditValue",
     parseAsString,
-  )
-  const [debitValue, setDebitValue] = useQueryState('debitValue', parseAsString)
-  const [cashValue, setCashValue] = useQueryState('cashValue', parseAsString)
+  );
+  const [debitValue, setDebitValue] = useQueryState(
+    "debitValue",
+    parseAsString,
+  );
+  const [cashValue, setCashValue] = useQueryState("cashValue", parseAsString);
 
   const cashReceiptsMoney =
-    cashReceipts?.filter((receipt) => receipt.type.startsWith('cash_')) || []
+    cashReceipts?.filter((receipt) => receipt.type.startsWith("cash_")) || [];
   const pixReceipts =
-    cashReceipts?.filter((receipt) => receipt.type === 'pix') || []
+    cashReceipts?.filter((receipt) => receipt.type === "pix") || [];
   const creditReceipts =
-    cashReceipts?.filter((receipt) => receipt.type === 'credit') || []
+    cashReceipts?.filter((receipt) => receipt.type === "credit") || [];
   const debitReceipts =
-    cashReceipts?.filter((receipt) => receipt.type === 'debit') || []
+    cashReceipts?.filter((receipt) => receipt.type === "debit") || [];
 
   const initialAmount = payments.find(
-    (payment) => payment.description === 'Abertura de caixa',
-  )?.amount
+    (payment) => payment.description === "Abertura de caixa",
+  )?.amount;
 
   const computedTotals = payments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: 'Credito',
-        DEBIT: 'Debito',
-        CASH: 'Dinheiro',
-        PIX: 'PIX',
-        DEFERRED: 'Prazo',
-      } as const
+        CREDIT: "Credito",
+        DEBIT: "Debito",
+        CASH: "Dinheiro",
+        PIX: "PIX",
+        DEFERRED: "Prazo",
+      } as const;
 
-      const key = typeMap[payment.payment_type as keyof typeof typeMap]
+      const key = typeMap[payment.payment_type as keyof typeof typeMap];
 
       if (key) {
-        acc[key] = (acc[key] || 0) + payment.amount
+        acc[key] = (acc[key] || 0) + payment.amount;
       }
 
-      return acc
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
-  const computedCash = (initialAmount || 0) + (computedTotals.Dinheiro || 0)
-  const computedPix = computedTotals.PIX || 0
-  const computedCredit = computedTotals.Credito || 0
-  const computedDebit = computedTotals.Debito || 0
+  const computedCash = (initialAmount || 0) + (computedTotals.Dinheiro || 0);
+  const computedPix = computedTotals.PIX || 0;
+  const computedCredit = computedTotals.Credito || 0;
+  const computedDebit = computedTotals.Debito || 0;
 
   const declaredCash = cashReceiptsMoney.reduce((acc, receipt) => {
-    return acc + receipt.total
-  }, 0)
+    return acc + receipt.total;
+  }, 0);
   const declaredPix = pixReceipts.reduce((acc, receipt) => {
-    return acc + receipt.total
-  }, 0)
+    return acc + receipt.total;
+  }, 0);
   const declaredCredit = creditReceipts.reduce((acc, receipt) => {
-    return acc + receipt.total
-  }, 0)
+    return acc + receipt.total;
+  }, 0);
   const declaredDebit = debitReceipts.reduce((acc, receipt) => {
-    return acc + receipt.total
-  }, 0)
+    return acc + receipt.total;
+  }, 0);
 
   const totalDeclaredInitial =
-    declaredCash + declaredPix + declaredCredit + declaredDebit
+    declaredCash + declaredPix + declaredCredit + declaredDebit;
 
   const form = useForm<z.infer<typeof closeCashSessionSchema>>({
     resolver: zodResolver(closeCashSessionSchema),
     defaultValues: {
-      pix_balance: pixValue ? String(stringToNumber(pixValue)) : '',
-      credit_balance: creditValue ? String(stringToNumber(creditValue)) : '',
-      debit_balance: debitValue ? String(stringToNumber(debitValue)) : '',
-      cash_balance: cashValue ? String(stringToNumber(cashValue)) : '',
+      pix_balance: pixValue ? String(stringToNumber(pixValue)) : "",
+      credit_balance: creditValue ? String(stringToNumber(creditValue)) : "",
+      debit_balance: debitValue ? String(stringToNumber(debitValue)) : "",
+      cash_balance: cashValue ? String(stringToNumber(cashValue)) : "",
       closing_balance: emptyIfZero(totalDeclaredInitial),
     },
-  })
+  });
 
   const totalComputed =
-    computedCash + computedPix + computedCredit + computedDebit
+    computedCash + computedPix + computedCredit + computedDebit;
   const totalDeclared =
-    stringToNumber(form.watch('cash_balance')) +
-    stringToNumber(form.watch('pix_balance')) +
-    stringToNumber(form.watch('credit_balance')) +
-    stringToNumber(form.watch('debit_balance'))
+    stringToNumber(form.watch("cash_balance")) +
+    stringToNumber(form.watch("pix_balance")) +
+    stringToNumber(form.watch("credit_balance")) +
+    stringToNumber(form.watch("debit_balance"));
 
-  const difference = totalDeclared - totalComputed
+  const difference = totalDeclared - totalComputed;
 
   const { execute: executePrintMultipleReports } = useServerAction(
     printMultipleReports,
     {
       onSuccess: (result) => {
-        console.log('Impressão múltipla concluída:', result)
+        console.info("Impressão múltipla concluída:", result);
       },
       onError: ({ err }) => {
-        console.log('Erro ao imprimir múltiplos relatórios', err)
+        console.error("Erro ao imprimir múltiplos relatórios", err);
       },
     },
-  )
+  );
 
   const { execute, isPending } = useServerAction(closeCashSession, {
     onSuccess: () => {
-      setIsSheetOpen(false)
-      form.reset()
+      setIsSheetOpen(false);
+      form.reset();
 
       // Limpa os query params após fechar o caixa
-      setPixValue(null)
-      setCreditValue(null)
-      setDebitValue(null)
-      setCashValue(null)
+      setPixValue(null);
+      setCreditValue(null);
+      setDebitValue(null);
+      setCashValue(null);
 
-      console.log('Imprimindo múltiplos relatórios')
-      const salesReportText = buildSalesReportESCPOS(reports.salesReport)
+      const salesReportText = buildSalesReportESCPOS(reports.salesReport);
       // if (difference !== 0) {
       //   salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE ${formatCurrencyBRL(Math.abs(difference))} ***\n`
       // }
       executePrintMultipleReports({
         reports: [
           {
-            name: 'Relatório de Vendas',
+            name: "Relatório de Vendas",
             raw: salesReportText,
           },
           {
-            name: 'Produtos Vendidos',
+            name: "Produtos Vendidos",
             raw: buildProductsSoldReportESCPOS(reports.productsSold),
           },
         ],
-      })
+      });
     },
     onError: (error) => {
-      console.error(error)
+      console.error(error);
     },
-  })
+  });
 
   function handleConfirmClose() {
     if (pendingValues) {
-      setIsPrinting(true)
-      execute(pendingValues)
-      setIsPrinting(false)
+      setIsPrinting(true);
+      execute(pendingValues);
+      setIsPrinting(false);
       toast(
         `Caixa fechado com diferença de ${formatCurrencyBRL(Math.abs(difference))}`,
-      )
-      setShowDifferenceDialog(false)
-      setPendingValues(null)
+      );
+      setShowDifferenceDialog(false);
+      setPendingValues(null);
     }
   }
 
   function onSubmit(values: z.infer<typeof closeCashSessionSchema>) {
     if (difference !== 0) {
-      setPendingValues(values)
-      setShowDifferenceDialog(true)
-      return
+      setPendingValues(values);
+      setShowDifferenceDialog(true);
+      return;
     }
-    setIsPrinting(true)
-    execute(values)
-    setIsPrinting(false)
+    setIsPrinting(true);
+    execute(values);
+    setIsPrinting(false);
   }
 
   // Inicializa os valores apenas uma vez quando o componente monta
   useEffect(() => {
     // Só inicializa se os campos estiverem vazios (primeira vez)
-    const currentValues = form.getValues()
+    const currentValues = form.getValues();
     if (
       !currentValues.cash_balance &&
       !currentValues.pix_balance &&
       !currentValues.credit_balance &&
       !currentValues.debit_balance
     ) {
-      form.setValue('cash_balance', emptyIfZero(declaredCash))
-      form.setValue('pix_balance', emptyIfZero(declaredPix))
-      form.setValue('credit_balance', emptyIfZero(declaredCredit))
-      form.setValue('debit_balance', emptyIfZero(declaredDebit))
-      form.setValue('closing_balance', emptyIfZero(totalDeclaredInitial))
+      form.setValue("cash_balance", emptyIfZero(declaredCash));
+      form.setValue("pix_balance", emptyIfZero(declaredPix));
+      form.setValue("credit_balance", emptyIfZero(declaredCredit));
+      form.setValue("debit_balance", emptyIfZero(declaredDebit));
+      form.setValue("closing_balance", emptyIfZero(totalDeclaredInitial));
     }
-  }, []) // Remove as dependências para executar apenas uma vez
+  }, []); // Remove as dependências para executar apenas uma vez
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (
-        name === 'cash_balance' ||
-        name === 'pix_balance' ||
-        name === 'credit_balance' ||
-        name === 'debit_balance'
+        name === "cash_balance" ||
+        name === "pix_balance" ||
+        name === "credit_balance" ||
+        name === "debit_balance"
       ) {
         const newTotal =
           stringToNumber(value.cash_balance) +
           stringToNumber(value.pix_balance) +
           stringToNumber(value.credit_balance) +
-          stringToNumber(value.debit_balance)
+          stringToNumber(value.debit_balance);
 
-        form.setValue('closing_balance', newTotal.toString())
+        form.setValue("closing_balance", newTotal.toString());
       }
-    })
+    });
 
-    return () => subscription.unsubscribe()
-  }, [form])
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   useEffect(() => {
     // CASH
     if (!cashManual) {
-      form.setValue('cash_balance', emptyIfZero(declaredCash))
+      form.setValue("cash_balance", emptyIfZero(declaredCash));
     }
     // PIX
     if (pixReceipts.length > 0 && pixManual) {
-      setPixManual(false)
-      form.setValue('pix_balance', emptyIfZero(declaredPix))
+      setPixManual(false);
+      form.setValue("pix_balance", emptyIfZero(declaredPix));
     }
     if (pixReceipts.length === 0 && !pixManual) {
-      form.setValue('pix_balance', emptyIfZero(declaredPix))
+      form.setValue("pix_balance", emptyIfZero(declaredPix));
     }
     // CREDIT
     if (creditReceipts.length > 0 && creditManual) {
-      setCreditManual(false)
-      form.setValue('credit_balance', emptyIfZero(declaredCredit))
+      setCreditManual(false);
+      form.setValue("credit_balance", emptyIfZero(declaredCredit));
     }
     if (creditReceipts.length === 0 && !creditManual) {
-      form.setValue('credit_balance', emptyIfZero(declaredCredit))
+      form.setValue("credit_balance", emptyIfZero(declaredCredit));
     }
     // DEBIT
     if (debitReceipts.length > 0 && debitManual) {
-      setDebitManual(false)
-      form.setValue('debit_balance', emptyIfZero(declaredDebit))
+      setDebitManual(false);
+      form.setValue("debit_balance", emptyIfZero(declaredDebit));
     }
     if (debitReceipts.length === 0 && !debitManual) {
-      form.setValue('debit_balance', emptyIfZero(declaredDebit))
+      form.setValue("debit_balance", emptyIfZero(declaredDebit));
     }
 
     form.setValue(
-      'closing_balance',
+      "closing_balance",
       emptyIfZero(
-        stringToNumber(form.getValues('cash_balance')) +
-          stringToNumber(form.getValues('pix_balance')) +
-          stringToNumber(form.getValues('credit_balance')) +
-          stringToNumber(form.getValues('debit_balance')),
+        stringToNumber(form.getValues("cash_balance")) +
+          stringToNumber(form.getValues("pix_balance")) +
+          stringToNumber(form.getValues("credit_balance")) +
+          stringToNumber(form.getValues("debit_balance")),
       ),
-    )
+    );
   }, [
     declaredCash,
     declaredPix,
@@ -349,76 +353,76 @@ export function CloseCashSession({
     pixManual,
     creditManual,
     debitManual,
-  ])
+  ]);
 
   useEffect(() => {
     if (isSheetOpen) {
       form.reset({
-        pix_balance: pixValue ? String(stringToNumber(pixValue)) : '',
-        credit_balance: creditValue ? String(stringToNumber(creditValue)) : '',
-        debit_balance: debitValue ? String(stringToNumber(debitValue)) : '',
-        cash_balance: cashValue ? String(stringToNumber(cashValue)) : '',
+        pix_balance: pixValue ? String(stringToNumber(pixValue)) : "",
+        credit_balance: creditValue ? String(stringToNumber(creditValue)) : "",
+        debit_balance: debitValue ? String(stringToNumber(debitValue)) : "",
+        cash_balance: cashValue ? String(stringToNumber(cashValue)) : "",
         closing_balance: emptyIfZero(totalDeclaredInitial),
-      })
+      });
     }
     // eslint-disable-next-line
-  }, [isSheetOpen])
+  }, [isSheetOpen]);
 
   // Função utilitária para abrir um filho e fechar o pai
   function handleOpenChildSheet(sheetKey: string) {
-    setSheet(sheetKey)
+    setSheet(sheetKey);
   }
 
   // Função utilitária para controlar reabertura do pai ao fechar o filho
   function handleChildSheetChange(open: boolean, sheetKey: string) {
     if (!open) {
-      setSheet('close-cash')
+      setSheet("close-cash");
     }
   }
 
-  const handleConfirmManualInput = (type: 'pix' | 'credit' | 'debit') => {
+  const handleConfirmManualInput = (type: "pix" | "credit" | "debit") => {
     // Limpa os recibos do tipo e libera o input
-    if (type === 'pix') {
-      pixReceipts.length = 0
-    } else if (type === 'credit') {
-      creditReceipts.length = 0
-    } else if (type === 'debit') {
-      debitReceipts.length = 0
+    if (type === "pix") {
+      pixReceipts.length = 0;
+    } else if (type === "credit") {
+      creditReceipts.length = 0;
+    } else if (type === "debit") {
+      debitReceipts.length = 0;
     }
-    setManualInputAllowed((prev) => ({ ...prev, [type]: true }))
-    setDialogOpen(null)
-  }
+    setManualInputAllowed((prev) => ({ ...prev, [type]: true }));
+    setDialogOpen(null);
+  };
 
   const INPUT_TYPES = [
     {
-      name: 'cash_balance',
-      label: 'Dinheiro',
-      form: 'cash-form',
+      name: "cash_balance",
+      label: "Dinheiro",
+      form: "cash-form",
       computed: computedCash,
-      type: 'cash',
+      type: "cash",
     },
     {
-      name: 'pix_balance',
-      label: 'PIX',
-      form: 'pix-form',
+      name: "pix_balance",
+      label: "PIX",
+      form: "pix-form",
       computed: computedPix,
-      type: 'pix',
+      type: "pix",
     },
     {
-      name: 'credit_balance',
-      label: 'Cartão de crédito',
-      form: 'credit-form',
+      name: "credit_balance",
+      label: "Cartão de crédito",
+      form: "credit-form",
       computed: computedCredit,
-      type: 'credit',
+      type: "credit",
     },
     {
-      name: 'debit_balance',
-      label: 'Cartão de débito',
-      form: 'debit-form',
+      name: "debit_balance",
+      label: "Cartão de débito",
+      form: "debit-form",
       computed: computedDebit,
-      type: 'debit',
+      type: "debit",
     },
-  ]
+  ];
 
   return (
     <>
@@ -453,7 +457,7 @@ export function CloseCashSession({
           <AlertDialogHeader>
             <AlertDialogTitle>Fechar caixa com diferença?</AlertDialogTitle>
             <AlertDialogDescription>
-              Existe uma diferença de {formatCurrencyBRL(Math.abs(difference))}{' '}
+              Existe uma diferença de {formatCurrencyBRL(Math.abs(difference))}{" "}
               entre o valor declarado e o esperado. Tem certeza que deseja
               fechar o caixa assim mesmo?
             </AlertDialogDescription>
@@ -483,7 +487,7 @@ export function CloseCashSession({
             </Tooltip>
           </TooltipProvider>
         ) : (
-          <SheetTrigger className={cn(buttonVariants(), 'w-full mt-2')}>
+          <SheetTrigger className={cn(buttonVariants(), "w-full mt-2")}>
             Fechar caixa
           </SheetTrigger>
         )}
@@ -491,7 +495,7 @@ export function CloseCashSession({
           <SheetHeader className="items-start mb-4">
             <div className="flex flex-row items-center gap-2">
               <SheetClose
-                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+                className={buttonVariants({ variant: "ghost", size: "icon" })}
               >
                 <ArrowLeft />
               </SheetClose>
@@ -506,56 +510,56 @@ export function CloseCashSession({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {INPUT_TYPES.map((input) => {
-                const type = input.type as 'cash' | 'pix' | 'credit' | 'debit'
+                const type = input.type as "cash" | "pix" | "credit" | "debit";
                 const hasReceipts =
-                  (type === 'pix' && pixReceipts.length > 0) ||
-                  (type === 'credit' && creditReceipts.length > 0) ||
-                  (type === 'debit' && debitReceipts.length > 0)
-                const isBlocked = hasReceipts && !manualInputAllowed[type]
+                  (type === "pix" && pixReceipts.length > 0) ||
+                  (type === "credit" && creditReceipts.length > 0) ||
+                  (type === "debit" && debitReceipts.length > 0);
+                const isBlocked = hasReceipts && !manualInputAllowed[type];
                 return (
                   <FormField
                     key={input.name}
                     control={form.control}
                     name={
                       input.name as unknown as
-                        | 'closing_balance'
-                        | 'cash_balance'
-                        | 'credit_balance'
-                        | 'debit_balance'
-                        | 'pix_balance'
+                        | "closing_balance"
+                        | "cash_balance"
+                        | "credit_balance"
+                        | "debit_balance"
+                        | "pix_balance"
                     }
                     render={({ field }) => {
                       const handleManualChange = (e: any) => {
-                        const rawValue = e.target.value
-                        const numericValue = String(stringToNumber(rawValue))
-                        if (type === 'pix') {
-                          setPixManual(true)
-                          setPixValue(numericValue)
+                        const rawValue = e.target.value;
+                        const numericValue = String(stringToNumber(rawValue));
+                        if (type === "pix") {
+                          setPixManual(true);
+                          setPixValue(numericValue);
                         }
-                        if (type === 'credit') {
-                          setCreditManual(true)
-                          setCreditValue(numericValue)
+                        if (type === "credit") {
+                          setCreditManual(true);
+                          setCreditValue(numericValue);
                         }
-                        if (type === 'debit') {
-                          setDebitManual(true)
-                          setDebitValue(numericValue)
+                        if (type === "debit") {
+                          setDebitManual(true);
+                          setDebitValue(numericValue);
                         }
-                        if (type === 'cash') {
-                          setCashManual(true)
-                          setCashValue(numericValue)
+                        if (type === "cash") {
+                          setCashManual(true);
+                          setCashValue(numericValue);
                         }
-                        field.onChange(e)
-                      }
+                        field.onChange(e);
+                      };
                       const handleBlur = () => {
                         // Se o campo for limpo, reseta o estado manual
                         if (!field.value) {
-                          if (type === 'pix') setPixManual(false)
-                          if (type === 'credit') setCreditManual(false)
-                          if (type === 'debit') setDebitManual(false)
-                          if (type === 'cash') setDebitManual(false)
+                          if (type === "pix") setPixManual(false);
+                          if (type === "credit") setCreditManual(false);
+                          if (type === "debit") setDebitManual(false);
+                          if (type === "cash") setDebitManual(false);
                         }
-                        if (field.onBlur) field.onBlur()
-                      }
+                        if (field.onBlur) field.onBlur();
+                      };
                       return (
                         <FormItem>
                           <div className="flex flex-row justify-between">
@@ -601,17 +605,17 @@ export function CloseCashSession({
                                 onClick={() => handleOpenChildSheet(input.form)}
                               >
                                 <Plus />
-                                Inserir{' '}
-                                {type === 'cash' ? 'cédulas' : 'recibos'}
+                                Inserir{" "}
+                                {type === "cash" ? "cédulas" : "recibos"}
                               </Button>
                             </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
-                      )
+                      );
                     }}
                   />
-                )
+                );
               })}
 
               <FormField
@@ -622,7 +626,7 @@ export function CloseCashSession({
                     <div className="flex flex-row justify-between">
                       <FormLabel>Saldo final</FormLabel>
                       <FormDescription>
-                        Esperado:{' '}
+                        Esperado:{" "}
                         {formatCurrencyBRL(
                           computedCash +
                             computedPix +
@@ -664,7 +668,7 @@ export function CloseCashSession({
                     <span>Fechando caixa</span>
                   </>
                 ) : (
-                  'Fechar caixa e imprimir'
+                  "Fechar caixa e imprimir"
                 )}
               </Button>
             </form>
@@ -675,35 +679,35 @@ export function CloseCashSession({
       {/* Sheets filhos controlados pelo pai */}
       <CashForm
         receipts={cashReceiptsMoney}
-        open={sheet === 'cash-form'}
-        setOpen={(open) => handleChildSheetChange(open, 'cash-form')}
+        open={sheet === "cash-form"}
+        setOpen={(open) => handleChildSheetChange(open, "cash-form")}
         computedValue={computedCash}
         setCashValue={setCashValue}
       />
       <ReceiptForm
         type="pix"
         receipts={pixReceipts}
-        open={sheet === 'pix-form'}
-        setOpen={(open) => handleChildSheetChange(open, 'pix-form')}
+        open={sheet === "pix-form"}
+        setOpen={(open) => handleChildSheetChange(open, "pix-form")}
         computedValue={computedPix}
         setPixValue={setPixValue}
       />
       <ReceiptForm
         type="credit"
         receipts={creditReceipts}
-        open={sheet === 'credit-form'}
-        setOpen={(open) => handleChildSheetChange(open, 'credit-form')}
+        open={sheet === "credit-form"}
+        setOpen={(open) => handleChildSheetChange(open, "credit-form")}
         computedValue={computedCredit}
         setCreditValue={setCreditValue}
       />
       <ReceiptForm
         type="debit"
         receipts={debitReceipts}
-        open={sheet === 'debit-form'}
-        setOpen={(open) => handleChildSheetChange(open, 'debit-form')}
+        open={sheet === "debit-form"}
+        setOpen={(open) => handleChildSheetChange(open, "debit-form")}
         computedValue={computedDebit}
         setDebitValue={setDebitValue}
       />
     </>
-  )
+  );
 }
