@@ -2,7 +2,7 @@
 
 import { AlertCircle, Loader2, MessageCircle, Minus, Plus } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -39,6 +39,7 @@ export function AddToCart() {
     increaseQuantity,
     decreaseQuantity,
     setObservations,
+    setCurrentCartItem,
   } = useCart();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -81,6 +82,18 @@ export function AddToCart() {
     : true;
 
   const canAddToCart = !needsChoices || hasRequiredChoices;
+
+  useEffect(() => {
+    if (!cartItemId && product) {
+      setCurrentCartItem({
+        product_id: product.id,
+        quantity: 1,
+        choices: [],
+        extras: [],
+        observations: [""],
+      });
+    }
+  }, [cartItemId, product, setCurrentCartItem]);
 
   // --- Hooks de leitura e mutação ---
   useReadCartItem({ cartItemId: cartItemId ?? "" });
