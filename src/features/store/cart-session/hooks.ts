@@ -52,29 +52,19 @@ export function useReadCart({ subdomain }: Props) {
   });
 }
 
-export function useReadCartItem({ cartItemId }: { cartItemId: string }) {
+export function useReadCartItem({ cartItemId }: { cartItemId?: string }) {
   const { setCurrentCartItem } = useCart();
 
   return useQuery({
     queryKey: ["cart-item", cartItemId],
     queryFn: async () => {
-      if (!cartItemId) {
-        throw new Error("cartItemId are required");
-      }
-
-      const [data, error] = await readCartItem({ cartItemId });
-
-      if (error) {
-        throw new Error("não foi possivel buscar o carrinho", error as Error);
-      }
-
+      const [data, error] = await readCartItem({ cartItemId: cartItemId! });
+      if (error) throw new Error("não foi possível buscar o carrinho");
       setCurrentCartItem(data.cartItem);
-
       return data;
     },
     enabled: !!cartItemId,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: 0, // força reexecução quando muda o id
   });
 }
 

@@ -2,7 +2,7 @@
 
 import { AlertCircle, Loader2, MessageCircle, Minus, Plus } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -31,41 +31,30 @@ export function AddToCart() {
   const { config } = useBottomAction();
   const { product } = useProduct();
 
-  const cartItemId = searchParams.get("cp_id");
-
+  const cartItemId = searchParams.get("cp_id") ?? undefined;
   const isUpdate = !!cartItemId;
 
   const {
     currentCartItem,
     increaseQuantity,
     decreaseQuantity,
-    setCurrentCartItem,
     setObservations,
   } = useCart();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const observations = currentCartItem.observations[0];
-
   const basePrice = product?.price ?? 0;
 
-  // Calcular o preço da pizza baseado na choice mais cara
-  const pizzaPrice = useMemo(() => {
-    const hasChoices = currentCartItem.choices.length > 0;
-
-    if (!hasChoices) {
-      return basePrice;
-    }
-
-    // Encontrar o preço mais alto entre as choices selecionadas
+  // --- Cálculo de preços ---
+  const choicesPrice = useMemo(() => {
+    if (!currentCartItem.choices.length) return basePrice;
     const choicePrices = currentCartItem.choices.map(
       (choice) => choice.price ?? 0,
     );
-
-    return Math.max(...choicePrices, basePrice); // Garante que nunca será menor que o preço base
+    return Math.max(...choicePrices, basePrice);
   }, [currentCartItem.choices, basePrice]);
 
-  // Calcular o total dos extras
   const extrasTotal = useMemo(() => {
     return currentCartItem.extras.reduce(
       (sum, extra) => sum + (extra.price ?? 0) * extra.quantity,
@@ -73,11 +62,11 @@ export function AddToCart() {
     );
   }, [currentCartItem.extras]);
 
-  // Calcular o preço total - usando o maior valor das choices
   const totalPrice = useMemo(() => {
-    return (pizzaPrice + extrasTotal) * currentCartItem.quantity;
-  }, [pizzaPrice, extrasTotal, currentCartItem.quantity]);
+    return (choicesPrice + extrasTotal) * currentCartItem.quantity;
+  }, [choicesPrice, extrasTotal, currentCartItem.quantity]);
 
+  // --- Lógica de choices obrigatórias ---
   const totalChoicesSelected = useMemo(() => {
     return currentCartItem.choices.reduce(
       (sum, choice) => sum + choice.quantity,
@@ -93,6 +82,7 @@ export function AddToCart() {
 
   const canAddToCart = !needsChoices || hasRequiredChoices;
 
+  // --- Hooks de leitura e mutação ---
   useReadCartItem({ cartItemId: cartItemId ?? "" });
 
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart({
@@ -112,33 +102,30 @@ export function AddToCart() {
 
   const isLoading = isAddingToCart || isUpdatingCartProduct;
 
+  // --- Ação principal ---
   function handleMutation() {
-    if (!canAddToCart) return;
+    if (!canAddToCart || !product) return;
+
+    const itemWithPrice = {
+      ...currentCartItem,
+      product_id: product.id,
+      products: { ...product, price: product.price ?? 0 },
+      product_price: totalPrice,
+    };
 
     if (isUpdate) {
-      updateCartProduct(currentCartItem);
-      return;
-    }
-
-    addToCart({
-      newItem: currentCartItem,
-      subdomain: params.store_slug as string,
-    });
-  }
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: no needed
-  useEffect(() => {
-    if (product && !isUpdate) {
-      setCurrentCartItem({
-        id: currentCartItem?.id,
-        product_id: product?.id,
-        products: { ...product, price: product?.price ?? 0 },
-        product_price: product?.price ?? 0,
+      updateCartProduct(itemWithPrice);
+    } else {
+      addToCart({
+        newItem: itemWithPrice,
+        subdomain: params.store_slug as string,
       });
     }
-  }, [product, isUpdate, setCurrentCartItem]);
+  }
 
   const isVisible = !!config.showAddToCart && !!product;
+
+  console.log({});
 
   return (
     <div
@@ -203,6 +190,7 @@ export function AddToCart() {
               <span>{formatCurrencyBRL(totalPrice)}</span>
             </button>
           </DrawerTrigger>
+
           <DrawerContent className="px-6 pb-16 space-y-4">
             <DrawerHeader>
               <span className="flex flex-row gap-3 items-center mx-auto">
@@ -210,7 +198,7 @@ export function AddToCart() {
                 <DrawerTitle>
                   {isUpdate ? "Editar" : "Alguma"} observação?
                 </DrawerTitle>
-                <DrawerDescription></DrawerDescription>
+                <DrawerDescription />
               </span>
             </DrawerHeader>
 
