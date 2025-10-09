@@ -35,7 +35,7 @@ export const OrderActions = memo(function OrderActions({
     <div className="bg-background">
       {!isInCheckout && !isLastStep && (
         <Link
-          href={finishOrderLink}
+          href={!status.isOpen ? "" : finishOrderLink}
           className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
             text-primary-foreground p-4 font-bold uppercase hover:opacity-80
             active:scale-[0.98] transition-all duration-75 aria-[disabled=true]:opacity-50"
