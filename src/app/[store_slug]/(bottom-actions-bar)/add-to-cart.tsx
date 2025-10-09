@@ -141,15 +141,7 @@ export function AddToCart() {
     }
   }
 
-  // Verifica se está em uma página de produto
-  const isProductPage =
-    pathname.split("/").filter(Boolean).length >= 2 &&
-    !pathname.includes("/cart") &&
-    !pathname.includes("/account") &&
-    !pathname.includes("/orders") &&
-    !pathname.includes("/checkout");
-
-  const isVisible = !!config.showAddToCart && !!product && isProductPage;
+  const isVisible = !!config.showAddToCart && !!product;
 
   return (
     <div
