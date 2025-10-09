@@ -1,7 +1,11 @@
 "use client";
-
 import { AlertCircle, Loader2, MessageCircle, Minus, Plus } from "lucide-react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,13 +31,12 @@ import { useBottomAction } from "./hooks";
 export function AddToCart() {
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { config } = useBottomAction();
-  const { product } = useProduct();
-
+  const { product, clearProduct } = useProduct();
   const cartItemId = searchParams.get("cp_id") ?? undefined;
   const isUpdate = !!cartItemId;
-
   const {
     currentCartItem,
     increaseQuantity,
@@ -41,11 +44,18 @@ export function AddToCart() {
     setObservations,
     setCurrentCartItem,
   } = useCart();
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
   const observations = currentCartItem.observations[0];
   const basePrice = product?.price ?? 0;
+
+  // --- Limpa o produto quando não estiver na página de produto ---
+  useEffect(() => {
+    return () => {
+      if (!config.showAddToCart) {
+        clearProduct();
+      }
+    };
+  }, [config.showAddToCart, clearProduct]);
 
   // --- Cálculo de preços ---
   const choicesPrice = useMemo(() => {
@@ -80,7 +90,6 @@ export function AddToCart() {
   const hasRequiredChoices = needsChoices
     ? totalChoicesSelected === choiceLimit
     : true;
-
   const canAddToCart = !needsChoices || hasRequiredChoices;
 
   useEffect(() => {
@@ -97,14 +106,12 @@ export function AddToCart() {
 
   // --- Hooks de leitura e mutação ---
   useReadCartItem({ cartItemId: cartItemId ?? "" });
-
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart({
     onSuccess: () => {
       router.back();
       setIsDrawerOpen(false);
     },
   });
-
   const { mutate: updateCartProduct, isPending: isUpdatingCartProduct } =
     useUpdateCartProduct({
       onSuccess: () => {
@@ -118,14 +125,12 @@ export function AddToCart() {
   // --- Ação principal ---
   function handleMutation() {
     if (!canAddToCart || !product) return;
-
     const itemWithPrice = {
       ...currentCartItem,
       product_id: product.id,
       products: { ...product, price: product.price ?? 0 },
       product_price: totalPrice,
     };
-
     if (isUpdate) {
       updateCartProduct(itemWithPrice);
     } else {
@@ -136,9 +141,15 @@ export function AddToCart() {
     }
   }
 
-  const isVisible = !!config.showAddToCart && !!product;
+  // Verifica se está em uma página de produto
+  const isProductPage =
+    pathname.split("/").filter(Boolean).length >= 2 &&
+    !pathname.includes("/cart") &&
+    !pathname.includes("/account") &&
+    !pathname.includes("/orders") &&
+    !pathname.includes("/checkout");
 
-  console.log({});
+  const isVisible = !!config.showAddToCart && !!product && isProductPage;
 
   return (
     <div
@@ -160,7 +171,6 @@ export function AddToCart() {
           </span>
         </div>
       )}
-
       <div className="flex flex-row">
         <div className="flex flex-row items-center gap-2 p-4 bg-secondary/40">
           <Button
@@ -188,7 +198,6 @@ export function AddToCart() {
             <Plus className="w-4 h-4" />
           </Button>
         </div>
-
         <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <DrawerTrigger asChild>
             <button
@@ -203,7 +212,6 @@ export function AddToCart() {
               <span>{formatCurrencyBRL(totalPrice)}</span>
             </button>
           </DrawerTrigger>
-
           <DrawerContent className="px-6 pb-16 space-y-4">
             <DrawerHeader>
               <span className="flex flex-row gap-3 items-center mx-auto">
@@ -214,13 +222,11 @@ export function AddToCart() {
                 <DrawerDescription />
               </span>
             </DrawerHeader>
-
             <Textarea
               placeholder="Ex: Tirar cebola..."
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
             />
-
             <DrawerFooter className="w-full px-0">
               <Button
                 onClick={handleMutation}
