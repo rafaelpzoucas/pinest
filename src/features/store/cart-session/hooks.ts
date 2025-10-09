@@ -58,6 +58,7 @@ export function useReadCartItem({ cartItemId }: { cartItemId?: string }) {
   return useQuery({
     queryKey: ["cart-item", cartItemId],
     queryFn: async () => {
+      // biome-ignore lint/style/noNonNullAssertion: its fine here
       const [data, error] = await readCartItem({ cartItemId: cartItemId! });
       if (error) throw new Error("não foi possível buscar o carrinho");
       setCurrentCartItem(data.cartItem);

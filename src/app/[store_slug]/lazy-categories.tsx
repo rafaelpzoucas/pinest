@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
 import {
   useIntersectionObserver,
   useLazyCategories,
-} from '@/features/store/initial-data/hooks'
-import { Category } from '@/features/store/initial-data/schemas'
-import { ProductCard } from './product-card'
+} from "@/features/store/initial-data/hooks";
+import type { Category } from "@/features/store/initial-data/schemas";
+import { ProductCard } from "./product-card";
 
 interface LazyCategorySectionProps {
-  category: Category
-  storeSubdomain: string
+  category: Category;
+  storeSubdomain: string;
 }
 
 export function LazyCategorySection({
@@ -18,15 +18,15 @@ export function LazyCategorySection({
 }: LazyCategorySectionProps) {
   const { ref, hasIntersected } = useIntersectionObserver({
     threshold: 0.1,
-    rootMargin: '200px',
-  })
+    rootMargin: "200px",
+  });
 
   const { data, isLoading, error } = useLazyCategories(
     category.id,
     hasIntersected,
-  )
+  );
 
-  const categoryWithProducts = data?.category
+  const categoryWithProducts = data?.category;
 
   return (
     <div ref={ref} id={category.name.toLowerCase()} className="flex flex-col">
@@ -39,14 +39,16 @@ export function LazyCategorySection({
           // Placeholder - categoria ainda não foi "vista"
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 pt-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ProductCard key={i} variant={'default'} storeSubdomain="" />
+              // biome-ignore lint/suspicious/noArrayIndexKey: index is fine here
+              <ProductCard key={i} variant={"default"} storeSubdomain="" />
             ))}
           </div>
         ) : isLoading ? (
           // Loading - fazendo a query com join
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 pt-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ProductCard key={i} variant={'default'} storeSubdomain="" />
+              // biome-ignore lint/suspicious/noArrayIndexKey: index is fine here
+              <ProductCard key={i} variant={"default"} storeSubdomain="" />
             ))}
           </div>
         ) : error ? (
@@ -75,5 +77,5 @@ export function LazyCategorySection({
         )}
       </div>
     </div>
-  )
+  );
 }
