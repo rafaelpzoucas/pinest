@@ -16,16 +16,6 @@ export const readProductBySlug = createServerAction()
         `
           *, 
           product_images(*),
-          product_choices_links(
-            choice_id,
-            product_choices(
-              id,
-              name,
-              description,
-              category_id,
-              is_active
-            )
-          ),
           product_choice_prices(
             id,
             choice_id,
