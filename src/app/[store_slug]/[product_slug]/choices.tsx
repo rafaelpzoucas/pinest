@@ -25,6 +25,7 @@ type ProductChoice = {
 type SelectedChoice = {
   choice_id: string;
   name: string;
+  description: string;
   size: string;
   price: number;
   quantity: number;
@@ -56,6 +57,7 @@ export function ChoicesSection({ choices, choiceLimit }: ChoicesSectionProps) {
       return {
         choice_id: choice.id,
         name: choice.product_choices.name,
+        description: choice.product_choices.description,
         size: choice.size,
         price: choice.price,
         quantity: cartChoice?.quantity || 0,
@@ -150,8 +152,9 @@ export function ChoicesSection({ choices, choiceLimit }: ChoicesSectionProps) {
             transition-opacity ${isDisabled ? "opacity-50" : "opacity-100"}`}
           >
             <div className="flex flex-col">
+              <span>{choice.name}</span>
               <span className="text-sm text-muted-foreground">
-                {choice.name}
+                {choice?.description}
               </span>
               <strong className="text-sm">
                 {formatCurrencyBRL(choice.price)}
