@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import { useSearchParams } from 'next/navigation'
-import { useCheckoutFlow } from '../../checkout/hooks'
-import { useBottomAction } from '../hooks'
-import { useFinishOrder } from './hooks'
-import { OrderActions } from './order-actions'
-import { OrderSummary } from './order-summary'
+import { useSearchParams } from "next/navigation";
+import { useCheckoutFlow } from "../../checkout/hooks";
+import { useBottomAction } from "../hooks";
+import { useFinishOrder } from "./hooks";
+import { OrderActions } from "./order-actions";
+import { OrderSummary } from "./order-summary";
 
 export function FinishOrder() {
-  const searchParams = useSearchParams()
-  const { config } = useBottomAction()
-  const { isLastStep } = useCheckoutFlow()
+  const searchParams = useSearchParams();
+  const { config } = useBottomAction();
+  const { isLastStep } = useCheckoutFlow();
 
   const {
     cart,
@@ -25,10 +25,10 @@ export function FinishOrder() {
     isLoading,
     isCreatingOrder,
     handleCreateOrder,
-  } = useFinishOrder()
+  } = useFinishOrder();
 
-  const isInCheckout = !!searchParams.get('step')
-  const isVisible = !!config.showFinishOrder && cart.length > 0
+  const isInCheckout = !!searchParams.get("step");
+  const isVisible = !!config.showFinishOrder && cart.length > 0;
 
   return (
     <div
@@ -59,5 +59,5 @@ export function FinishOrder() {
         onCreateOrder={handleCreateOrder}
       />
     </div>
-  )
+  );
 }

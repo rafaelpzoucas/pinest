@@ -1,6 +1,12 @@
-'use client'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Loader2, Trash } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useServerAction } from "zsa-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -8,9 +14,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
@@ -18,51 +24,45 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, Loader2, Trash } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
-import { deleteCashReceipt, upsertCashReceipts } from './actions'
-import { createCashReceiptsSchema } from './schemas'
+} from "@/components/ui/sheet";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { deleteCashReceipt, upsertCashReceipts } from "./actions";
+import type { createCashReceiptsSchema } from "./schemas";
 
 const TITLES = {
-  pix: 'PIX',
-  credit: 'Cartão de crédito',
-  debit: 'Cartão de débito',
-  cash: 'Dinheiro',
-}
+  pix: "PIX",
+  credit: "Cartão de crédito",
+  debit: "Cartão de débito",
+  cash: "Dinheiro",
+};
 const DESCRIPTIONS = {
-  pix: 'Insira cada transação de PIX',
-  credit: 'Insira cada transação de Cartão de crédito',
-  debit: 'Insira cada transação de Cartão de débito',
-  cash: 'Insira cada transação em dinheiro',
-}
+  pix: "Insira cada transação de PIX",
+  credit: "Insira cada transação de Cartão de crédito",
+  debit: "Insira cada transação de Cartão de débito",
+  cash: "Insira cada transação em dinheiro",
+};
 const BUTTONS = {
-  pix: 'Salvar PIX',
-  credit: 'Salvar cartão de crédito',
-  debit: 'Salvar cartão de débito',
-  cash: 'Salvar dinheiro',
-}
+  pix: "Salvar PIX",
+  credit: "Salvar cartão de crédito",
+  debit: "Salvar cartão de débito",
+  cash: "Salvar dinheiro",
+};
 
 const formSchema = z.object({
   transactions: z.array(z.number()),
-})
+});
 
 type ReceiptFormProps = {
-  type: 'pix' | 'credit' | 'debit' | 'cash'
-  receipts: z.infer<typeof createCashReceiptsSchema>
-  open: boolean
-  setOpen: (open: boolean) => void
-  computedValue?: number // valor computado esperado
-  setPixValue?: (v: string) => void
-  setCreditValue?: (v: string) => void
-  setDebitValue?: (v: string) => void
-  setCashValue?: (v: string) => void
-}
+  type: "pix" | "credit" | "debit" | "cash";
+  receipts: z.infer<typeof createCashReceiptsSchema>;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  computedValue?: number; // valor computado esperado
+  setPixValue?: (v: string) => void;
+  setCreditValue?: (v: string) => void;
+  setDebitValue?: (v: string) => void;
+  setCashValue?: (v: string) => void;
+};
 
 export function ReceiptForm({
   type,
@@ -77,65 +77,65 @@ export function ReceiptForm({
 }: ReceiptFormProps) {
   const defaultValues = {
     transactions: receipts.map((receipt) => receipt.value) || [],
-  }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
-  })
+  });
 
-  const { execute: deleteReceipt } = useServerAction(deleteCashReceipt)
+  const { execute: deleteReceipt } = useServerAction(deleteCashReceipt);
   const { execute: createReceipts, isPending: isCreating } = useServerAction(
     upsertCashReceipts,
     {
       onSuccess: () => {
-        setOpen(false)
+        setOpen(false);
       },
       onError: ({ err }) => {
-        console.log('Erro ao salvar transações.', err)
+        console.error("Erro ao salvar transações.", err);
       },
     },
-  )
+  );
 
-  const [inputValue, setInputValue] = useState('')
-  const transactions = form.watch('transactions')
+  const [inputValue, setInputValue] = useState("");
+  const transactions = form.watch("transactions");
   // Soma das transações adicionadas
   const totalTransactions = transactions.reduce(
     (acc, curr) => acc + Number(curr),
     0,
-  )
+  );
   // Diferença entre o valor computado e o total das transações
-  const difference = totalTransactions - computedValue
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const difference = totalTransactions - computedValue;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open && inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [open])
+  }, [open]);
 
   const addTransaction = () => {
-    const parsedValue = parseFloat(inputValue)
+    const parsedValue = parseFloat(inputValue);
     if (!isNaN(parsedValue) && parsedValue > 0) {
-      form.setValue('transactions', [
-        ...form.getValues('transactions'),
+      form.setValue("transactions", [
+        ...form.getValues("transactions"),
         parsedValue,
-      ])
-      setInputValue('')
+      ]);
+      setInputValue("");
     }
-  }
+  };
 
   const removeTransaction = async (index: number, id?: string) => {
     if (id) {
-      setDeletingId(id)
-      await deleteReceipt({ id })
-      setDeletingId(null)
+      setDeletingId(id);
+      await deleteReceipt({ id });
+      setDeletingId(null);
     }
-    const updated = [...form.getValues('transactions')]
-    updated.splice(index, 1)
-    form.setValue('transactions', updated)
-  }
+    const updated = [...form.getValues("transactions")];
+    updated.splice(index, 1);
+    form.setValue("transactions", updated);
+  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const cashReceipts = values.transactions.map((transaction) => ({
@@ -143,17 +143,17 @@ export function ReceiptForm({
       value: Number(transaction),
       amount: 1,
       total: Number(transaction),
-    })) as z.infer<typeof createCashReceiptsSchema>
-    createReceipts(cashReceipts)
+    })) as z.infer<typeof createCashReceiptsSchema>;
+    createReceipts(cashReceipts);
 
     // Atualiza o valor total no query param correspondente
     const total = String(
       values.transactions.reduce((acc, curr) => acc + Number(curr), 0),
-    )
-    if (type === 'pix' && setPixValue) setPixValue(total)
-    if (type === 'credit' && setCreditValue) setCreditValue(total)
-    if (type === 'debit' && setDebitValue) setDebitValue(total)
-    if (type === 'cash' && setCashValue) setCashValue(total)
+    );
+    if (type === "pix" && setPixValue) setPixValue(total);
+    if (type === "credit" && setCreditValue) setCreditValue(total);
+    if (type === "debit" && setDebitValue) setDebitValue(total);
+    if (type === "cash" && setCashValue) setCashValue(total);
   }
 
   return (
@@ -163,7 +163,7 @@ export function ReceiptForm({
           <SheetHeader className="items-start mb-4">
             <div className="flex flex-row items-center gap-2">
               <SheetClose
-                className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+                className={buttonVariants({ variant: "ghost", size: "icon" })}
               >
                 <ArrowLeft />
               </SheetClose>
@@ -188,7 +188,7 @@ export function ReceiptForm({
               <span>Diferença</span>
               <span
                 className={
-                  difference === 0 ? 'text-green-600' : 'text-amber-600'
+                  difference === 0 ? "text-green-600" : "text-amber-600"
                 }
               >
                 {formatCurrencyBRL(difference)}
@@ -200,6 +200,7 @@ export function ReceiptForm({
             <div className="space-y-2 pb-8">
               {transactions.map((transaction, index) => (
                 <Card
+                  // biome-ignore lint/suspicious/noArrayIndexKey: index is fine here
                   key={index}
                   className="flex items-center justify-between p-2"
                 >
@@ -243,9 +244,9 @@ export function ReceiptForm({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          addTransaction()
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addTransaction();
                         }
                       }}
                     />
@@ -275,5 +276,5 @@ export function ReceiptForm({
         </ScrollArea>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

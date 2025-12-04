@@ -1,18 +1,18 @@
-'use server'
+"use server";
 
-import { createClient } from '@/lib/supabase/server'
-import { createServerAction, ZSAError } from 'zsa'
-import { CreateCartProductSchema } from './schemas'
+import { createServerAction, ZSAError } from "zsa";
+import { createClient } from "@/lib/supabase/server";
+import { CreateCartProductSchema } from "./schemas";
 
 export const createCartProduct = createServerAction()
   .input(CreateCartProductSchema)
   .handler(async ({ input }) => {
-    const supabase = createClient()
+    const supabase = createClient();
 
-    const { newItem } = input
+    const { newItem } = input;
 
     const { error: insertedCartProductError } = await supabase
-      .from('cart_sessions')
+      .from("cart_sessions")
       .insert({
         session_id: input.session_id,
         product_id: newItem.product_id,
@@ -20,13 +20,14 @@ export const createCartProduct = createServerAction()
         product_price: newItem.product_price,
         observations: newItem.observations,
         extras: newItem.extras,
+        choices: newItem.choices,
       })
-      .select()
+      .select();
 
     if (insertedCartProductError) {
       throw new ZSAError(
-        'INTERNAL_SERVER_ERROR',
+        "INTERNAL_SERVER_ERROR",
         insertedCartProductError.message,
-      )
+      );
     }
-  })
+  });

@@ -1,47 +1,66 @@
-import { NavigationConfig } from './types'
+import { NavigationConfig } from "./types";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
+const storePrefix = isDevelopment ? "/[store_slug]" : "";
 
 export const navigationConfig: Record<string, NavigationConfig> = {
-  '/[store_slug]': {
+  // Página inicial
+  [`${storePrefix}/`]: {
     showBackButton: false,
-    variant: 'default',
+    variant: "default",
   },
-  '/[store_slug]/[product_slug]': {
+
+  // Produto
+  [`${storePrefix}/[product_slug]`]: {
     showBackButton: true,
-    variant: 'default',
+    variant: "default",
   },
-  '/[store_slug]/cart': {
+
+  // Carrinho
+  [`${storePrefix}/cart`]: {
     showBackButton: true,
-    variant: 'background',
-    title: 'Carrinho',
+    variant: "background",
+    title: "Carrinho",
   },
-  '/[store_slug]/account': {
+
+  // Conta
+  [`${storePrefix}/account`]: {
     showBackButton: true,
-    variant: 'background',
-    title: 'Minha conta',
+    variant: "background",
+    title: "Minha conta",
   },
-  '/[store_slug]/account/register': {
+
+  // Registro
+  [`${storePrefix}/account/register`]: {
     showBackButton: true,
-    variant: 'background',
-    title: 'Minha conta',
+    variant: "background",
+    title: "Minha conta",
   },
-  '/[store_slug]/checkout': {
+
+  // Checkout
+  [`${storePrefix}/checkout`]: {
     showBackButton: true,
-    variant: 'background',
-    title: 'Finalizar pedido',
+    variant: "background",
+    title: "Finalizar pedido",
   },
-  '/[store_slug]/orders': {
+
+  // Pedidos
+  [`${storePrefix}/orders`]: {
     showBackButton: true,
-    variant: 'background',
-    title: 'Meus pedidos',
+    variant: "background",
+    title: "Meus pedidos",
   },
-  '/[store_slug]/orders/[id]': {
+
+  // Detalhes do pedido
+  [`${storePrefix}/orders/[id]`]: {
     showBackButton: true,
-    variant: 'background',
-    title: 'Meus pedidos',
+    variant: "background",
+    title: "Meus pedidos",
   },
-  // Configuração padrão para rotas não especificadas
-  '*': {
+
+  // Configuração padrão
+  "*": {
     showBackButton: true,
-    variant: 'default',
+    variant: "default",
   },
-}
+};

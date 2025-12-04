@@ -1,5 +1,5 @@
-import { readStorePlan } from '@/app/admin/(protected)/(app)/actions'
-import { Badge } from '@/components/ui/badge'
+import { readStorePlan } from "@/app/admin/(protected)/(app)/actions";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -7,51 +7,52 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { FeatureKey, PLANS_FEATURES_MAP } from '@/models/plans'
-import { CheckCircle2, Star } from 'lucide-react'
-import { SubscriptionPlansButton } from './subscription-plans-button'
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { cn, formatCurrencyBRL } from "@/lib/utils";
+import { FeatureKey, PLANS_FEATURES_MAP } from "@/models/plans";
+import { CheckCircle2, Star } from "lucide-react";
+import { SubscriptionPlansButton } from "./subscription-plans-button";
 
 export async function SubscriptionPlans() {
-  const supabase = createAdminClient()
+  const supabase = createAdminClient();
 
-  const [currentPlan] = await readStorePlan()
+  const [currentPlan] = await readStorePlan();
 
   const { data: plans, error: plansError } = await supabase
-    .from('plans')
-    .select('*')
-    .order('price', { ascending: false })
-    .eq('environment', process.env.NODE_ENV)
+    .from("plans")
+    .select("*")
+    .order("price", { ascending: false })
+    .eq("environment", process.env.NODE_ENV);
 
   if (plansError) {
-    console.error('Error fetching plans:', plansError)
-    return null
+    console.error("Error fetching plans:", plansError);
+    return null;
   }
 
   function getFeatureLabel(key: FeatureKey): string {
-    return PLANS_FEATURES_MAP[key]
+    return PLANS_FEATURES_MAP[key];
   }
 
   // Função para calcular o valor mensal do plano anual
   function getMonthlyPrice(annualPrice: number): number {
-    return annualPrice / 12
+    return annualPrice / 12;
   }
 
   return (
+    // biome-ignore lint/correctness/useUniqueElementIds: fixed id is necessary for linking from other sections
     <section id="pricing" className="space-y-8">
       <h2 className="text-3xl font-bold text-center">
         {currentPlan
-          ? 'Faça Upgrade de Plano'
-          : 'Experimente o Pinest grátis por 14 dias'}
+          ? "Faça Upgrade de Plano"
+          : "Experimente o Pinest grátis por 14 dias"}
       </h2>
 
       <p className="text-center mt-4 text-muted-foreground">
         {currentPlan
-          ? 'Esta funcionalidade não está disponível no seu plano atual. Faça upgrade para desbloquear.'
-          : 'Teste todas as funcionalidades da Pinest sem compromisso. Não cobramos nada nos primeiros 14 dias.'}
+          ? "Esta funcionalidade não está disponível no seu plano atual. Faça upgrade para desbloquear."
+          : "Teste todas as funcionalidades da Pinest sem compromisso. Não cobramos nada nos primeiros 14 dias."}
       </p>
 
       <Tabs defaultValue="annualy" className="flex flex-col items-center">
@@ -66,13 +67,13 @@ export async function SubscriptionPlans() {
         <TabsContent value="annualy" className="w-full">
           <div className="flex flex-col md:flex-row md:items-start justify-center gap-8 mt-8">
             {plans
-              ?.filter((plan) => plan.recurrence === 'annualy')
+              ?.filter((plan) => plan.recurrence === "annualy")
               .map((plan, index) => (
                 <Card
                   key={plan.name}
                   className={cn(
-                    'relative w-full max-w-xs',
-                    index === 0 && 'border-2 border-primary',
+                    "relative w-full max-w-xs",
+                    index === 0 && "border-2 border-primary",
                   )}
                 >
                   {index === 0 && (
@@ -114,16 +115,19 @@ export async function SubscriptionPlans() {
                   <CardContent>
                     <ul className="mt-4 space-y-2">
                       {Object.keys(plan.features).map((feature) => {
-                        if (!plan.features[feature]) return null
+                        const value = plan.features[feature];
+
+                        // só renderiza se não for false
+                        if (value === false) return null;
                         return (
                           <li
                             key={feature}
                             className="flex flex-row items-center text-sm"
                           >
-                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />{' '}
+                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />{" "}
                             {getFeatureLabel(feature as FeatureKey)}
                           </li>
-                        )
+                        );
                       })}
                     </ul>
                   </CardContent>
@@ -144,13 +148,13 @@ export async function SubscriptionPlans() {
         <TabsContent value="monthly" className="w-full">
           <div className="flex flex-col md:flex-row md:items-start justify-center gap-8 mt-8">
             {plans
-              ?.filter((plan) => plan.recurrence === 'monthly')
+              ?.filter((plan) => plan.recurrence === "monthly")
               .map((plan, index) => (
                 <Card
                   key={plan.name}
                   className={cn(
-                    'relative w-full max-w-xs',
-                    index === 0 && 'border-2 border-primary',
+                    "relative w-full max-w-xs",
+                    index === 0 && "border-2 border-primary",
                   )}
                 >
                   {index === 0 && (
@@ -189,16 +193,16 @@ export async function SubscriptionPlans() {
                   <CardContent>
                     <ul className="mt-4 space-y-2">
                       {Object.keys(plan.features).map((feature) => {
-                        if (!plan.features[feature]) return null
+                        if (!plan.features[feature]) return null;
                         return (
                           <li
                             key={feature}
                             className="flex flex-row items-center text-sm"
                           >
-                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />{' '}
+                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />{" "}
                             {getFeatureLabel(feature as FeatureKey)}
                           </li>
-                        )
+                        );
                       })}
                     </ul>
                   </CardContent>
@@ -218,5 +222,5 @@ export async function SubscriptionPlans() {
         </TabsContent>
       </Tabs>
     </section>
-  )
+  );
 }

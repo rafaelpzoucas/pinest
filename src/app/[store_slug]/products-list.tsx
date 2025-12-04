@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { Category } from '@/features/store/initial-data/schemas'
-import { Box } from 'lucide-react'
-import { useParams } from 'next/navigation'
-import { LazyCategorySection } from './lazy-categories'
+import { Box } from "lucide-react";
+import { useParams } from "next/navigation";
+import type { Category } from "@/features/store/initial-data/schemas";
+import { LazyCategorySection } from "./lazy-categories";
 
 export function ProductsList({ categories }: { categories: Category[] }) {
-  const params = useParams()
+  const params = useParams();
 
-  const subdomain = params.store_slug as string
+  const subdomain = params.store_slug as string;
 
   if (!categories) {
-    return <p>Carregando...</p>
+    return <p>Carregando...</p>;
   }
 
   if (!categories || categories.length === 0) {
@@ -25,11 +25,11 @@ export function ProductsList({ categories }: { categories: Category[] }) {
           Não encontramos nenhuma categoria
         </p>
       </div>
-    )
+    );
   }
 
   return (
-    <section className="flex flex-col gap-8 p-4 pb-16">
+    <section className="flex flex-col gap-8 p-4 pb-36">
       {categories.map((category) => (
         <LazyCategorySection
           key={category.id}
@@ -38,5 +38,5 @@ export function ProductsList({ categories }: { categories: Category[] }) {
         />
       ))}
     </section>
-  )
+  );
 }

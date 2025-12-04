@@ -1,24 +1,24 @@
-'use client'
+"use client";
 
-import { Card } from '@/components/ui/card'
-import { useReadStoreAddress } from '@/features/store/addresses/hooks'
-import { useReadCustomer } from '@/features/store/customers/hooks'
-import { useReadStoreShippings } from '@/features/store/shippings/hooks'
-import { formatStoreAddress } from '@/utils/format-address'
-import { ChevronRight, Store } from 'lucide-react'
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Delivery } from './delivery-card'
-import PickupOptionsLoading from './loading'
+import { ChevronRight, Store } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { useReadStoreAddress } from "@/features/store/addresses/hooks";
+import { useReadCustomer } from "@/features/store/customers/hooks";
+import { useReadStoreShippings } from "@/features/store/shippings/hooks";
+import { formatStoreAddress } from "@/utils/format-address";
+import { Delivery } from "./delivery-card";
+import PickupOptionsLoading from "./loading";
 
 export function PickupStep() {
-  const params = useParams()
-  const storeSlug = params.store_slug as string
-  const [timeoutReached, setTimeoutReached] = useState(false)
+  const params = useParams();
+  const storeSlug = params.store_slug as string;
+  const [timeoutReached, setTimeoutReached] = useState(false);
 
   // Adiciona validação do storeSlug
-  const isValidSlug = Boolean(storeSlug && typeof storeSlug === 'string')
+  const isValidSlug = Boolean(storeSlug && typeof storeSlug === "string");
 
   const {
     data: customerData,
@@ -26,7 +26,7 @@ export function PickupStep() {
     isError: isCustomerError,
   } = useReadCustomer({
     subdomain: storeSlug,
-  })
+  });
 
   const {
     data: storeAddressData,
@@ -34,7 +34,7 @@ export function PickupStep() {
     isError: isStoreAddressError,
   } = useReadStoreAddress({
     subdomain: storeSlug,
-  })
+  });
 
   const {
     data: storeShippingsData,
@@ -42,71 +42,45 @@ export function PickupStep() {
     isError: isStoreShippingsError,
   } = useReadStoreShippings({
     subdomain: storeSlug,
-  })
+  });
 
-  // Log para debug em desenvolvimento
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('PickupStep Debug:', {
-        storeSlug,
-        isValidSlug,
-        isReadingCustomer,
-        isReadingStoreAddress,
-        isReadingStoreShippings,
-        isCustomerError,
-        isStoreAddressError,
-        isStoreShippingsError,
-        timeoutReached,
-      })
-    }
-  }, [
-    storeSlug,
-    isValidSlug,
-    isReadingCustomer,
-    isReadingStoreAddress,
-    isReadingStoreShippings,
-    isCustomerError,
-    isStoreAddressError,
-    isStoreShippingsError,
-    timeoutReached,
-  ])
+  const customer = customerData?.customer;
+  const customerAddress = customer?.address;
+  const storeAddress = storeAddressData?.storeAddress;
+  const shipping = storeShippingsData?.storeShippings;
 
-  const customer = customerData?.customer
-  const customerAddress = customer?.address
-  const storeAddress = storeAddressData?.storeAddress
-  const shipping = storeShippingsData?.storeShippings
-
-  const formattedStoreAddress = storeAddress && formatStoreAddress(storeAddress)
+  const formattedStoreAddress =
+    storeAddress && formatStoreAddress(storeAddress);
 
   const isPending =
-    isReadingCustomer || isReadingStoreAddress || isReadingStoreShippings
+    isReadingCustomer || isReadingStoreAddress || isReadingStoreShippings;
   const hasError =
-    isCustomerError || isStoreAddressError || isStoreShippingsError
+    isCustomerError || isStoreAddressError || isStoreShippingsError;
 
   // Timeout para detectar loading infinito
   useEffect(() => {
-    if (!isValidSlug) return
+    if (!isValidSlug) return;
 
     const timer = setTimeout(() => {
       if (isPending) {
-        setTimeoutReached(true)
-        console.warn('PickupStep: Loading timeout reached after 10 seconds')
+        setTimeoutReached(true);
+        console.warn("PickupStep: Loading timeout reached after 10 seconds");
       }
-    }, 10000) // 10 segundos
+    }, 10000); // 10 segundos
 
-    return () => clearTimeout(timer)
-  }, [isPending, isValidSlug])
+    return () => clearTimeout(timer);
+  }, [isPending, isValidSlug]);
 
   // Reset timeout quando não está mais pending
   useEffect(() => {
     if (!isPending) {
-      setTimeoutReached(false)
+      setTimeoutReached(false);
     }
-  }, [isPending])
+  }, [isPending]);
 
   // Se não tem slug válido, retorna loading
   if (!isValidSlug) {
-    return <PickupOptionsLoading />
+    return <PickupOptionsLoading />;
   }
 
   // Se atingiu timeout, mostra opção de reload
@@ -124,9 +98,10 @@ export function PickupStep() {
             Parece que há algum problema na conexão. Tente recarregar a página.
           </p>
           <button
+            type="button"
             onClick={() => {
-              setTimeoutReached(false)
-              window.location.reload()
+              setTimeoutReached(false);
+              window.location.reload();
             }}
             className="text-sm text-primary hover:underline"
           >
@@ -134,12 +109,12 @@ export function PickupStep() {
           </button>
         </Card>
       </div>
-    )
+    );
   }
 
   // Se está carregando, mostra loading
   if (isPending) {
-    return <PickupOptionsLoading />
+    return <PickupOptionsLoading />;
   }
 
   // Se teve erro, mostra uma mensagem e permite retry manual
@@ -158,6 +133,7 @@ export function PickupStep() {
           </p>
           <div className="space-x-2">
             <button
+              type="button"
               onClick={() => window.location.reload()}
               className="text-sm text-primary hover:underline"
             >
@@ -166,7 +142,7 @@ export function PickupStep() {
           </div>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -200,5 +176,5 @@ export function PickupStep() {
         <Delivery shipping={shipping} customerAddress={customerAddress} />
       </div>
     </div>
-  )
+  );
 }

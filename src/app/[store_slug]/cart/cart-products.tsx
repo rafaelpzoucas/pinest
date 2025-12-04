@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useReadCart } from '@/features/store/cart-session/hooks'
-import { useCart } from '@/stores/cart-store'
-import { ShoppingCart } from 'lucide-react'
-import { CartProduct } from './cart-product'
+import { ShoppingCart } from "lucide-react";
+import { useReadCart } from "@/features/store/cart-session/hooks";
+import { useCart } from "@/stores/cart-store";
+import { CartProduct } from "./cart-product";
 
 export function CartProducts({ storeSlug }: { storeSlug: string }) {
-  const { cart } = useCart()
+  const { cart } = useCart();
 
-  useReadCart({ subdomain: storeSlug })
+  useReadCart({ subdomain: storeSlug });
 
   return (
     <div className="lg:h-[370px] p-1 pr-2">
@@ -32,5 +32,5 @@ export function CartProducts({ storeSlug }: { storeSlug: string }) {
         </div>
       )}
     </div>
-  )
+  );
 }

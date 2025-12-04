@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import { Card } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { useMemo } from 'react'
+import { useMemo } from "react";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrencyBRL } from "@/lib/utils";
 
 interface OrderSummaryProps {
-  totalItems: number
-  subtotal: number
-  discount: number
-  deliveryPrice: number
-  isDelivery: boolean
-  appliedCouponCode?: string
-  isLoading?: boolean
+  totalItems: number;
+  subtotal: number;
+  discount: number;
+  deliveryPrice: number;
+  isDelivery: boolean;
+  appliedCouponCode?: string;
+  isLoading?: boolean;
 }
 
 export function OrderSummary({
@@ -27,7 +27,7 @@ export function OrderSummary({
   const totalPrice = useMemo(
     () => subtotal - discount + (isDelivery ? deliveryPrice : 0),
     [subtotal, discount, isDelivery, deliveryPrice],
-  )
+  );
 
   return (
     <Card className="p-4 w-full space-y-3">
@@ -75,5 +75,5 @@ export function OrderSummary({
         </strong>
       </div>
     </Card>
-  )
+  );
 }

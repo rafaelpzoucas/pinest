@@ -1,118 +1,117 @@
-'use client'
+"use client";
 
-import { useCreateOrder } from '@/features/_global/orders/hooks'
-import {
+import { useParams, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo } from "react";
+import { useCreateOrder } from "@/features/_global/orders/hooks";
+import type {
   CreateOrder,
   OrderTypeEnum,
   PaymentTypeEnum,
-} from '@/features/_global/orders/schemas'
-import { useReadCart } from '@/features/store/cart-session/hooks'
-import { useReadCustomer } from '@/features/store/customers/hooks'
-import { CustomerAddress } from '@/features/store/customers/schemas'
-import { useReadStoreShippings } from '@/features/store/shippings/hooks'
+} from "@/features/_global/orders/schemas";
+import { useReadCart } from "@/features/store/cart-session/hooks";
+import { useReadCustomer } from "@/features/store/customers/hooks";
+import type { CustomerAddress } from "@/features/store/customers/schemas";
+import { useReadStoreShippings } from "@/features/store/shippings/hooks";
 import {
   useReadStoreCustomer,
   useReadStoreId,
-} from '@/features/store/store/hooks'
-import { stringToNumber } from '@/lib/utils'
-import { useCart } from '@/stores/cart-store'
-import { useCouponStore } from '@/stores/couponStore'
-import { useParams, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo } from 'react'
+} from "@/features/store/store/hooks";
+import { stringToNumber } from "@/lib/utils";
+import { useCart } from "@/stores/cart-store";
+import { useCouponStore } from "@/stores/couponStore";
 
 export function useFinishOrder() {
-  const params = useParams()
-  const searchParams = useSearchParams()
+  const params = useParams();
+  const searchParams = useSearchParams();
 
-  const { cart, deliveryPrice, setDeliveryPrice } = useCart()
-  const { appliedCoupon } = useCouponStore()
+  const { cart, deliveryPrice, setDeliveryPrice } = useCart();
+  const { appliedCoupon } = useCouponStore();
 
-  const pickup = searchParams.get('pickup') as OrderTypeEnum
-  const paymentType = searchParams.get('payment') as PaymentTypeEnum
-  const changeValue = searchParams.get('changeValue') ?? '0'
-  const storeSlug = params?.store_slug as string
+  const pickup = searchParams.get("pickup") as OrderTypeEnum;
+  const paymentType = searchParams.get("payment") as PaymentTypeEnum;
+  const changeValue = searchParams.get("changeValue") ?? "0";
+  const storeSlug = params?.store_slug as string;
 
-  const isDelivery = pickup === 'DELIVERY'
+  const isDelivery = pickup === "DELIVERY";
 
   // Queries
-  useReadCart({ subdomain: storeSlug })
+  useReadCart({ subdomain: storeSlug });
 
   const { data: storeIdData, isPending: isStoreIdPending } = useReadStoreId({
     storeSlug,
-  })
+  });
   const { data: customerData, isPending: isCustomerPending } = useReadCustomer({
     subdomain: storeSlug,
-  })
+  });
   const { data: shippingsData, isPending: isShippingsPending } =
-    useReadStoreShippings({ subdomain: storeSlug })
-  const { data: storeCustomerData, isPending: isStoreCustomerPending } =
-    useReadStoreCustomer({
-      customerId: customerData?.customer.id,
-      storeId: storeIdData?.storeId,
-    })
-  const { mutate: createOrder, isPending: isCreatingOrder } = useCreateOrder()
+    useReadStoreShippings({ subdomain: storeSlug });
+  const { data: storeCustomer } = useReadStoreCustomer({
+    customerId: customerData?.customer.id ?? "",
+    storeId: storeIdData?.storeId ?? "",
+  });
+
+  const { mutate: createOrder, isPending: isCreatingOrder } = useCreateOrder();
 
   // Derived data
-  const customer = customerData?.customer
-  const storeCustomer = storeCustomerData?.storeCustomer
-  const storeId = storeIdData?.storeId
-  const customerAddress = customer?.address as CustomerAddress
-  const deliveryTime = shippingsData?.storeShippings.delivery_time ?? 0
-  const takeoutTime = shippingsData?.storeShippings.pickup_time ?? 0
-  const shippingPrice = shippingsData?.storeShippings.price ?? 0
-  const cartSessionId = cart && cart.length > 0 ? cart[0].session_id : undefined
+  const customer = customerData?.customer;
+  const storeId = storeIdData?.storeId;
+  const customerAddress = customer?.address as CustomerAddress;
+  const deliveryTime = shippingsData?.storeShippings.delivery_time ?? 0;
+  const takeoutTime = shippingsData?.storeShippings.pickup_time ?? 0;
+  const shippingPrice = shippingsData?.storeShippings.price ?? 0;
+  const cartSessionId =
+    cart && cart.length > 0 ? cart[0].session_id : undefined;
 
   // Calculations
   const totalItems = useMemo(
     () => cart.reduce((total, item) => total + item.quantity, 0),
     [cart],
-  )
+  );
 
   const subtotal = useMemo(
     () =>
       cart.reduce((total, item) => {
-        const itemTotal = item.product_price
+        const itemTotal = item.product_price;
         const extrasTotal =
           item.extras?.reduce(
             (total, extra) => total + extra.price * extra.quantity,
             0,
-          ) || 0
-        return total + (itemTotal + extrasTotal) * item.quantity
+          ) || 0;
+        return total + (itemTotal + extrasTotal) * item.quantity;
       }, 0),
     [cart],
-  )
+  );
 
-  const discount = appliedCoupon?.discount ?? 0
+  const discount = appliedCoupon?.discount ?? 0;
   const totalPrice = useMemo(
     () => subtotal - discount + (isDelivery ? deliveryPrice : 0),
     [subtotal, discount, isDelivery, deliveryPrice],
-  )
+  );
 
   // Loading states
   const isLoading =
     isStoreIdPending ||
     isCustomerPending ||
     isShippingsPending ||
-    isCreatingOrder ||
-    isStoreCustomerPending
+    isCreatingOrder;
 
   // Effects
   useEffect(() => {
     if (isDelivery) {
-      setDeliveryPrice(shippingPrice)
+      setDeliveryPrice(shippingPrice);
     }
-  }, [shippingPrice, isDelivery, setDeliveryPrice])
+  }, [shippingPrice, isDelivery, setDeliveryPrice]);
 
   // Actions
   const handleCreateOrder = useCallback(async () => {
     if (isCreatingOrder || !cartSessionId || !storeCustomer?.id || !storeId)
-      return
+      return;
 
     const newOrderData: CreateOrder = {
       cart_session_id: cartSessionId,
       store_subdomain: storeSlug,
       customer_id: storeCustomer.id,
-      status: 'accept',
+      status: "accept",
       store_id: storeId,
       type: pickup,
       payment_type: paymentType,
@@ -136,9 +135,9 @@ export function useFinishOrder() {
         total_amount: totalPrice,
         change_value: stringToNumber(changeValue) ?? 0,
       },
-    }
+    };
 
-    createOrder(newOrderData)
+    createOrder(newOrderData);
   }, [
     isCreatingOrder,
     cartSessionId,
@@ -160,7 +159,7 @@ export function useFinishOrder() {
     totalPrice,
     changeValue,
     createOrder,
-  ])
+  ]);
 
   return {
     // Data
@@ -181,5 +180,5 @@ export function useFinishOrder() {
 
     // Actions
     handleCreateOrder,
-  }
+  };
 }

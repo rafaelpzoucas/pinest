@@ -1,9 +1,11 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { useServerAction } from "zsa-react";
 import {
   Form,
   FormControl,
@@ -12,42 +14,48 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { PhoneInput } from '@/components/ui/input-phone'
-import { readCustomer } from '@/features/store/customers/read'
-import { ReadCustomerSchema } from '@/features/store/customers/schemas'
-import { ArrowRight, Loader2 } from 'lucide-react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useServerAction } from 'zsa-react'
+} from "@/components/ui/form";
+import { PhoneInput } from "@/components/ui/input-phone";
+import { readCustomer } from "@/features/store/customers/read";
+import { ReadCustomerSchema } from "@/features/store/customers/schemas";
 
 export function ReadCustomerForm() {
-  const router = useRouter()
-  const params = useParams()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
 
-  const storeSlug = params.store_slug as string
-  const qCheckout = searchParams.get('checkout')
+  const storeSlug = params.store_slug as string;
+  const qCheckout = searchParams.get("checkout");
 
   const form = useForm<z.infer<typeof ReadCustomerSchema>>({
     resolver: zodResolver(ReadCustomerSchema),
     defaultValues: {
-      phone: '',
+      phone: "",
       subdomain: storeSlug,
     },
-  })
+  });
 
   const { execute, isPending } = useServerAction(readCustomer, {
     onSuccess: () => {
       if (qCheckout) {
-        router.push(`account/register?checkout=${qCheckout}`)
+        router.push(`account/register?checkout=${qCheckout}`);
       } else {
-        router.push(`account/register`)
+        router.push(`account/register`);
       }
     },
-  })
+    onError: ({ err }) => {
+      if (qCheckout) {
+        router.push(`account/register?checkout=${qCheckout}`);
+      } else {
+        router.push(`account/register`);
+      }
+
+      console.error("Erro ao buscar cliente: ", err);
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof ReadCustomerSchema>) {
-    execute(values)
+    execute(values);
   }
 
   return (
@@ -71,7 +79,7 @@ export function ReadCustomerForm() {
           )}
         />
 
-        <footer className="fixed bottom-0 left-0 right-0">
+        <footer className="fixed bottom-[68px] left-0 right-0">
           <button
             type="submit"
             className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
@@ -88,5 +96,5 @@ export function ReadCustomerForm() {
         </footer>
       </form>
     </Form>
-  )
+  );
 }

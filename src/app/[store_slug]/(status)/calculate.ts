@@ -1,14 +1,14 @@
-import { Store } from '@/features/store/initial-data/schemas'
-import { addDays, differenceInMinutes, isAfter, isBefore, set } from 'date-fns'
+import { addDays, differenceInMinutes, isAfter, isBefore, set } from "date-fns";
+import type { Store } from "@/features/store/initial-data/schemas";
 
 export interface StoreStatus {
-  isOpen: boolean
-  minutesToClose: number | null
+  isOpen: boolean;
+  minutesToClose: number | null;
   nextOpening: {
-    date: Date
-    sameDay: boolean
-  } | null
-  isManuallyOverridden: boolean
+    date: Date;
+    sameDay: boolean;
+  } | null;
+  isManuallyOverridden: boolean;
 }
 
 /**
@@ -22,7 +22,7 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
       minutesToClose: null,
       nextOpening: null,
       isManuallyOverridden: false,
-    }
+    };
   }
 
   // Verifica override manual primeiro (maior prioridade)
@@ -34,7 +34,7 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
         ? null
         : findNextOpening(new Date(), store.store_hours),
       isManuallyOverridden: true,
-    }
+    };
   }
 
   // Verifica fechamento manual
@@ -44,7 +44,7 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
       minutesToClose: null,
       nextOpening: findNextOpening(new Date(), store.store_hours),
       isManuallyOverridden: true,
-    }
+    };
   }
 
   // Se não há horários configurados
@@ -54,46 +54,46 @@ export function calculateStoreStatus(store: Store | null): StoreStatus {
       minutesToClose: null,
       nextOpening: null,
       isManuallyOverridden: false,
-    }
+    };
   }
 
   // Calcula baseado nos horários de funcionamento
-  return calculateStoreStatusByHours(store)
+  return calculateStoreStatusByHours(store);
 }
 
 /**
  * Calcula o status baseado apenas nos horários de funcionamento
  */
 function calculateStoreStatusByHours(store: Store): StoreStatus {
-  const now = new Date()
+  const now = new Date();
   const dayOfWeek = now
-    .toLocaleDateString('en-US', { weekday: 'long' })
-    .toLowerCase()
+    .toLocaleDateString("en-US", { weekday: "long" })
+    .toLowerCase();
 
   const todayHours = store.store_hours?.find(
     (h) => h.day_of_week?.toLowerCase() === dayOfWeek && h.is_open,
-  )
+  );
 
   // Se hoje tem expediente
   if (todayHours?.open_time && todayHours?.close_time) {
-    const [openH, openM, openS] = todayHours.open_time.split(':').map(Number)
+    const [openH, openM, openS] = todayHours.open_time.split(":").map(Number);
     const [closeH, closeM, closeS] = todayHours.close_time
-      .split(':')
-      .map(Number)
+      .split(":")
+      .map(Number);
 
     const openDate = set(now, {
       hours: openH,
       minutes: openM,
       seconds: openS || 0,
       milliseconds: 0,
-    })
+    });
 
     const closeDate = set(now, {
       hours: closeH,
       minutes: closeM,
       seconds: closeS || 0,
       milliseconds: 0,
-    })
+    });
 
     // Antes da abertura
     if (isBefore(now, openDate)) {
@@ -102,7 +102,7 @@ function calculateStoreStatusByHours(store: Store): StoreStatus {
         minutesToClose: null,
         nextOpening: { date: openDate, sameDay: true },
         isManuallyOverridden: false,
-      }
+      };
     }
 
     // Depois do fechamento
@@ -112,17 +112,17 @@ function calculateStoreStatusByHours(store: Store): StoreStatus {
         minutesToClose: null,
         nextOpening: findNextOpening(now, store.store_hours),
         isManuallyOverridden: false,
-      }
+      };
     }
 
     // Aberta agora
-    const diff = differenceInMinutes(closeDate, now)
+    const diff = differenceInMinutes(closeDate, now);
     return {
       isOpen: diff > 0,
       minutesToClose: diff >= 0 ? diff : null,
       nextOpening: null,
       isManuallyOverridden: false,
-    }
+    };
   }
 
   // Hoje não abre → pega próximo dia
@@ -131,7 +131,7 @@ function calculateStoreStatusByHours(store: Store): StoreStatus {
     minutesToClose: null,
     nextOpening: findNextOpening(now, store.store_hours),
     isManuallyOverridden: false,
-  }
+  };
 }
 
 /**
@@ -139,30 +139,30 @@ function calculateStoreStatusByHours(store: Store): StoreStatus {
  */
 function findNextOpening(
   start: Date,
-  hours: Store['store_hours'],
+  hours: Store["store_hours"],
 ): { date: Date; sameDay: boolean } | null {
-  if (!hours) return null
+  if (!hours) return null;
 
   for (let i = 1; i <= 7; i++) {
-    const date = addDays(start, i)
+    const date = addDays(start, i);
     const dow = date
-      .toLocaleDateString('en-US', { weekday: 'long' })
-      .toLowerCase()
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toLowerCase();
 
     const dayHours = hours.find(
       (h) => h.day_of_week?.toLowerCase() === dow && h.is_open,
-    )
+    );
 
     if (dayHours?.open_time) {
-      const [h, m, s] = dayHours.open_time.split(':').map(Number)
+      const [h, m, s] = dayHours.open_time.split(":").map(Number);
       const openDate = set(date, {
         hours: h,
         minutes: m,
         seconds: s || 0,
         milliseconds: 0,
-      })
-      return { date: openDate, sameDay: false }
+      });
+      return { date: openDate, sameDay: false };
     }
   }
-  return null
+  return null;
 }

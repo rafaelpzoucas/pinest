@@ -1,6 +1,12 @@
-'use client'
+"use client";
 
-import { Card } from '@/components/ui/card'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { parseCookies } from "nookies";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -9,78 +15,78 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { PhoneInput } from '@/components/ui/input-phone'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/input-phone";
 import {
   useCreateStoreCustomer,
   useUpdateStoreCustomer,
-} from '@/features/store/customers/hooks'
+} from "@/features/store/customers/hooks";
 import {
   CreateCustomerSchema,
-  Customer,
-} from '@/features/store/customers/schemas'
-import { createPath } from '@/utils/createPath'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRight, Loader2 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { parseCookies } from 'nookies'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+  type Customer,
+  type StoreCustomer,
+} from "@/features/store/customers/schemas";
+import { createPath } from "@/utils/createPath";
 
 export function CustomerRegisterForm({
   customer,
+  storeCustomer,
   storeSlug,
 }: {
-  customer?: Customer
-  storeSlug?: string
+  customer?: Customer;
+  storeCustomer?: StoreCustomer | null;
+  storeSlug?: string;
 }) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const cookies = parseCookies()
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const cookies = parseCookies();
 
-  const qCheckout = searchParams.get('checkout')
+  const qCheckout = searchParams.get("checkout");
 
-  const phone = cookies[`${storeSlug}_customer_phone`]
+  const phone = cookies[`${storeSlug}_customer_phone`];
 
   const form = useForm<z.infer<typeof CreateCustomerSchema>>({
     resolver: zodResolver(CreateCustomerSchema),
     defaultValues: {
-      subdomain: storeSlug ?? '',
-      name: customer?.name ?? '',
-      phone: customer?.phone ?? phone ?? '',
+      subdomain: storeSlug ?? "",
+      name: customer?.name ?? "",
+      phone: customer?.phone ?? phone ?? "",
       address: {
-        street: customer?.address.street ?? '',
-        number: customer?.address.number ?? '',
-        neighborhood: customer?.address.neighborhood ?? '',
-        complement: customer?.address.complement ?? '',
-        observations: customer?.address.observations ?? '',
+        street: customer?.address.street ?? "",
+        number: customer?.address.number ?? "",
+        neighborhood: customer?.address.neighborhood ?? "",
+        complement: customer?.address.complement ?? "",
+        observations: customer?.address.observations ?? "",
       },
     },
-  })
+  });
 
   const { mutate: createCustomer, isPending: isCreatingCustomer } =
-    useCreateStoreCustomer()
+    useCreateStoreCustomer();
   const { mutate: updateCustomer, isPending: isUpdatingCustomer } =
-    useUpdateStoreCustomer()
+    useUpdateStoreCustomer();
 
-  const isPending = isCreatingCustomer || isUpdatingCustomer
+  const isPending = isCreatingCustomer || isUpdatingCustomer;
 
   async function onSubmit(values: z.infer<typeof CreateCustomerSchema>) {
-    if (customer) {
+    if (customer && storeCustomer) {
       updateCustomer({
         ...values,
         id: customer.id,
-      })
+      });
     } else {
-      createCustomer(values)
+      createCustomer({
+        ...values,
+        customerId: customer?.id,
+      });
     }
 
     if (qCheckout) {
-      return router.push(createPath(`/checkout?step=pickup`, storeSlug))
+      return router.push(createPath(`/checkout?step=pickup`, storeSlug));
     }
 
-    return router.push(createPath('/orders', storeSlug))
+    return router.push(createPath("/orders", storeSlug));
   }
 
   return (
@@ -189,7 +195,7 @@ export function CustomerRegisterForm({
           />
         </Card>
 
-        <footer className="fixed bottom-0 left-0 right-0">
+        <footer className="fixed bottom-[68px] left-0 right-0">
           <button
             type="submit"
             className="flex flex-row items-center justify-between w-full max-w-md h-[68px] bg-primary
@@ -206,5 +212,5 @@ export function CustomerRegisterForm({
         </footer>
       </form>
     </Form>
-  )
+  );
 }
