@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import logoDark from "../../../../../public/logo-dark.svg";
 import { SignInWithGoogle } from "./google";
 
 export default async function AdminSignIn({
@@ -29,7 +28,7 @@ export default async function AdminSignIn({
 
   return (
     <main className="flex flex-col items-center justify-center gap-6 p-8 h-screen">
-      <Image src={logoDark} alt="pinest" width={175} />
+      <Image src="/logo-dark.svg" alt="pinest" width={175} />
 
       <SignInWithGoogle />
 
