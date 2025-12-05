@@ -1,12 +1,11 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, UseFormReturn } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 
-import { createAdminCustomer } from '@/actions/admin/customers/actions'
-import { createCustomerSchema } from '@/app/old-store/account/register/schemas'
-import { Button } from '@/components/ui/button'
+import { createAdminCustomer } from "@/actions/admin/customers/actions";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,28 +14,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { PhoneInput } from '@/components/ui/input-phone'
-import { SheetFooter } from '@/components/ui/sheet'
-import { StoreCustomerType } from '@/models/store-customer'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
-import { useEffect } from 'react'
-import { toast } from 'sonner'
-import { useServerAction } from 'zsa-react'
-import { createOrderFormSchema } from '../schemas'
-import { updateCustomer } from './actions'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/input-phone";
+import { SheetFooter } from "@/components/ui/sheet";
+import { StoreCustomerType } from "@/models/store-customer";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { useServerAction } from "zsa-react";
+import { createOrderFormSchema } from "../schemas";
+import { updateCustomer } from "./actions";
+import { CreateCustomerSchema } from "@/features/store/customers/schemas";
 
 type CustomersFormProps = {
-  selectedCustomer?: StoreCustomerType
-  closeSheet: () => void
-  orderForm: UseFormReturn<z.infer<typeof createOrderFormSchema>>
-  phoneQuery: string | null
-  setPhoneQuery: (value: string | null) => void
-  storeId: string
-  customerForm: string | null
-}
+  selectedCustomer?: StoreCustomerType;
+  closeSheet: () => void;
+  orderForm: UseFormReturn<z.infer<typeof createOrderFormSchema>>;
+  phoneQuery: string | null;
+  setPhoneQuery: (value: string | null) => void;
+  storeId: string;
+  customerForm: string | null;
+};
 
 export function CustomersForm({
   selectedCustomer,
@@ -47,91 +47,91 @@ export function CustomersForm({
   storeId,
   customerForm,
 }: CustomersFormProps) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const isUpdate =
-    !phoneQuery && !!selectedCustomer && customerForm === 'update'
+    !phoneQuery && !!selectedCustomer && customerForm === "update";
 
-  const form = useForm<z.infer<typeof createCustomerSchema>>({
-    resolver: zodResolver(createCustomerSchema),
+  const form = useForm<z.infer<typeof CreateCustomerSchema>>({
+    resolver: zodResolver(CreateCustomerSchema),
     defaultValues: {
-      name: '',
-      phone: '+55',
+      name: "",
+      phone: "+55",
       address: {
-        street: '',
-        number: '',
-        neighborhood: '',
-        complement: '',
-        observations: '',
+        street: "",
+        number: "",
+        neighborhood: "",
+        complement: "",
+        observations: "",
       },
     },
-  })
+  });
 
   const { mutate: createCustomer, isPending: isCreating } = useMutation({
     mutationFn: createAdminCustomer,
     onSuccess: ({ createdStoreCustomer }) => {
-      const newCustomer = createdStoreCustomer
-      setPhoneQuery(null)
+      const newCustomer = createdStoreCustomer;
+      setPhoneQuery(null);
 
-      queryClient.setQueryData<StoreCustomerType[]>(['customers'], (old) =>
+      queryClient.setQueryData<StoreCustomerType[]>(["customers"], (old) =>
         old ? [...old, newCustomer] : [newCustomer],
-      )
+      );
 
-      orderForm.setValue('customer_id', newCustomer.id)
-      closeSheet()
+      orderForm.setValue("customer_id", newCustomer.id);
+      closeSheet();
     },
     onError: ({ message }) => {
-      console.error('Não foi possível criar o cliente.', message)
-      toast.error('Não foi possível criar o cliente.')
+      console.error("Não foi possível criar o cliente.", message);
+      toast.error("Não foi possível criar o cliente.");
     },
-  })
+  });
 
   const { execute: executeUpdate, isPending: isUpdating } = useServerAction(
     updateCustomer,
     {
       onSuccess: () => {
-        toast.success('Cliente atualizado com sucesso!')
-        queryClient.invalidateQueries({ queryKey: ['customers'] })
-        closeSheet()
+        toast.success("Cliente atualizado com sucesso!");
+        queryClient.invalidateQueries({ queryKey: ["customers"] });
+        closeSheet();
       },
       onError: ({ err }) => {
-        console.error('Não foi possível atualizar o cliente.', err)
-        toast.error('Não foi possível atualizar o cliente.')
+        console.error("Não foi possível atualizar o cliente.", err);
+        toast.error("Não foi possível atualizar o cliente.");
       },
     },
-  )
+  );
 
-  function onSubmit(values: z.infer<typeof createCustomerSchema>) {
+  function onSubmit(values: z.infer<typeof CreateCustomerSchema>) {
     if (isUpdate) {
-      executeUpdate({ ...values, id: selectedCustomer.customers.id })
+      executeUpdate({ ...values, id: selectedCustomer.customers.id });
     } else {
-      createCustomer({ ...values, storeId })
+      createCustomer({ ...values, storeId });
     }
   }
 
   useEffect(() => {
     if (!isUpdate) {
-      form.setValue('phone', `+55${phoneQuery}`)
+      form.setValue("phone", `+55${phoneQuery}`);
     }
-  }, [phoneQuery, selectedCustomer, form])
+  }, [phoneQuery, selectedCustomer, form]);
 
   useEffect(() => {
     if (isUpdate) {
-      orderForm.setValue('customer_id', selectedCustomer.id)
+      orderForm.setValue("customer_id", selectedCustomer.id);
 
       form.reset({
-        name: selectedCustomer.customers.name || '',
-        phone: selectedCustomer.customers.phone || '+55',
+        name: selectedCustomer.customers.name || "",
+        phone: selectedCustomer.customers.phone || "+55",
         address: {
-          street: selectedCustomer.customers.address?.street || '',
-          number: selectedCustomer.customers.address?.number || '',
-          neighborhood: selectedCustomer.customers.address?.neighborhood || '',
-          complement: selectedCustomer.customers.address?.complement || '',
-          observations: selectedCustomer.customers.address?.observations || '',
+          street: selectedCustomer.customers.address?.street || "",
+          number: selectedCustomer.customers.address?.number || "",
+          neighborhood: selectedCustomer.customers.address?.neighborhood || "",
+          complement: selectedCustomer.customers.address?.complement || "",
+          observations: selectedCustomer.customers.address?.observations || "",
         },
-      })
+      });
     }
-  }, [])
+  }, []);
 
   return (
     <Form {...form}>
@@ -249,10 +249,10 @@ export function CustomersForm({
             {(isCreating || isUpdating) && (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             )}
-            {isUpdate ? 'Atualizar' : 'Cadastrar'} cliente
+            {isUpdate ? "Atualizar" : "Cadastrar"} cliente
           </Button>
         </SheetFooter>
       </form>
     </Form>
-  )
+  );
 }

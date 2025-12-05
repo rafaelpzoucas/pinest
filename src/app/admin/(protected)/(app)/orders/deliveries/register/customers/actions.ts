@@ -1,81 +1,81 @@
-'use server'
+"use server";
 
 import {
-  createCustomerSchema,
-  updateCustomerSchema,
-} from '@/app/old-store/account/register/schemas'
-import { adminProcedure } from '@/lib/zsa-procedures'
-import { StoreCustomerType } from '@/models/store-customer'
-import { revalidatePath } from 'next/cache'
-import { cache } from 'react'
-import { z } from 'zod'
+  CreateCustomerSchema,
+  UpdateCustomerSchema,
+} from "@/features/store/customers/schemas";
+import { adminProcedure } from "@/lib/zsa-procedures";
+import { StoreCustomerType } from "@/models/store-customer";
+import { revalidatePath } from "next/cache";
+import { cache } from "react";
+import { z } from "zod";
 
 export const createCustomer = adminProcedure
   .createServerAction()
-  .input(createCustomerSchema)
+  .input(CreateCustomerSchema)
   .handler(async ({ ctx, input }) => {
-    const { store, supabase } = ctx
+    const { store, supabase } = ctx;
 
     const { data: createdCustomer, error: createCustomerError } = await supabase
-      .from('customers')
+      .from("customers")
       .insert(input)
       .select()
-      .single()
+      .single();
 
     if (createCustomerError || !createdCustomer) {
-      console.error('Não foi possível criar o cliente.', createCustomerError)
+      console.error("Não foi possível criar o cliente.", createCustomerError);
     }
 
     const { data: createdStoreCustomer, error: createStoreCustomerError } =
       await supabase
-        .from('store_customers')
+        .from("store_customers")
         .insert({ customer_id: createdCustomer?.id, store_id: store.id })
         .select()
-        .single()
+        .single();
 
     if (createStoreCustomerError || !createdStoreCustomer) {
       console.error(
-        'Não foi possível adicionar o cliente à loja',
+        "Não foi possível adicionar o cliente à loja",
         createStoreCustomerError,
-      )
+      );
     }
 
     const createdStoreCustomerData: StoreCustomerType = {
       ...createdStoreCustomer,
       customers: createCustomer,
-    }
+    };
 
-    return { createdStoreCustomer: createdStoreCustomerData }
-  })
+    return { createdStoreCustomer: createdStoreCustomerData };
+  });
 
 export const updateCustomer = adminProcedure
   .createServerAction()
-  .input(updateCustomerSchema)
+  .input(UpdateCustomerSchema)
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase } = ctx;
 
-    const { id, ...dataToUpdate } = input
+    const { id, ...dataToUpdate } = input;
 
     const { error: updateCustomerError } = await supabase
-      .from('customers')
+      .from("customers")
       .update(dataToUpdate)
-      .eq('id', id)
+      .eq("id", id);
 
     if (updateCustomerError) {
       throw new Error(
         `Não foi possível atualizar os dados do cliente: ${updateCustomerError.message}`,
-      )
+      );
     }
-  })
+  });
 
 export const readCustomerLastOrders = adminProcedure
   .createServerAction()
   .input(z.object({ customerId: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase, store } = ctx
+    const { supabase, store } = ctx;
 
     const { data: lastOrders, error: readLastOrdersError } = await supabase
-      .from('orders')
+      .from("orders")
       .select(
         `
           *,
@@ -87,17 +87,17 @@ export const readCustomerLastOrders = adminProcedure
           )  
         `,
       )
-      .eq('store_id', store.id)
-      .eq('customer_id', input.customerId)
-      .order('created_at', { ascending: false })
+      .eq("store_id", store.id)
+      .eq("customer_id", input.customerId)
+      .order("created_at", { ascending: false });
 
     if (readLastOrdersError || !lastOrders) {
-      throw new Error('Error creating customer', readLastOrdersError)
+      throw new Error("Error creating customer", readLastOrdersError);
     }
 
-    revalidatePath('/admin/orders')
+    revalidatePath("/admin/orders");
 
-    return { lastOrders }
-  })
+    return { lastOrders };
+  });
 
-export const readCustomerLastOrdersCached = cache(readCustomerLastOrders)
+export const readCustomerLastOrdersCached = cache(readCustomerLastOrders);

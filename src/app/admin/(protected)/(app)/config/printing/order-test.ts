@@ -28,7 +28,11 @@ export const orderTest: OrderType = {
       number: "123",
       neighborhood: "Bairro Teste",
       complement: "",
-      observations: "",
+      city: "Cidade Teste",
+      state: "SP",
+      zip_code: "1231231231",
+      created_at: "2025-06-05T19:00:00Z",
+      id: "1234123412341234",
     },
   },
   order_items: [

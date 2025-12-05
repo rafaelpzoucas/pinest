@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import { nofityCustomer } from '@/actions/admin/notifications/actions'
-import { Button } from '@/components/ui/button'
-import { OrderType } from '@/models/order'
-import { statuses } from '@/models/statuses'
-import { Check, FastForward, Loader2 } from 'lucide-react'
-import { useServerAction } from 'zsa-react'
-import { printOrderReceipt } from '../../../config/printing/actions'
-import { acceptOrder, updateOrderStatus } from '../[id]/actions'
+import { nofityCustomer } from "@/actions/admin/notifications/actions";
+import { Button } from "@/components/ui/button";
+import { OrderType } from "@/models/order";
+import { statuses } from "@/models/statuses";
+import { Check, FastForward, Loader2 } from "lucide-react";
+import { useServerAction } from "zsa-react";
+import { printOrderReceipt } from "../../../config/printing/actions";
+import { acceptOrder, updateOrderStatus } from "../[id]/actions";
 
-type StatusKey = keyof typeof statuses
+type StatusKey = keyof typeof statuses;
 
 export function UpdateStatusButton({ order }: { order: OrderType }) {
-  const orderId = order?.id
-  const currentStatus = order?.status
-  const isIfood = order?.is_ifood
-  const type = order?.type
+  const orderId = order?.id;
+  const currentStatus = order?.status;
+  const isIfood = !!order?.is_ifood;
+  const type = order?.type;
 
-  const accepted = currentStatus !== 'accept'
+  const accepted = currentStatus !== "accept";
 
-  const customerPhone = order.store_customers.customers.phone
+  const customerPhone = order.store_customers.customers.phone;
 
-  const { execute: executePrintReceipt } = useServerAction(printOrderReceipt)
+  const { execute: executePrintReceipt } = useServerAction(printOrderReceipt);
 
   const { execute: executeAccept, isPending: isAcceptPending } =
     useServerAction(acceptOrder, {
@@ -30,15 +30,15 @@ export function UpdateStatusButton({ order }: { order: OrderType }) {
           orderId: order.id,
           orderType: order.type,
           reprint: false,
-        })
+        });
 
         nofityCustomer({
-          title: 'O seu pedido foi aceito!',
+          title: "O seu pedido foi aceito!",
           customerPhone,
           url: `/orders/${order.id}`,
-        })
+        });
       },
-    })
+    });
 
   const { execute, isPending } = useServerAction(updateOrderStatus, {
     onSuccess: () => {
@@ -46,33 +46,33 @@ export function UpdateStatusButton({ order }: { order: OrderType }) {
         title: statuses[currentStatus as StatusKey].next_step as string,
         customerPhone,
         url: `/orders/${order.id}`,
-      })
+      });
     },
-  })
+  });
 
   async function handleUpdateStatus(status: string) {
     if (!accepted) {
-      await executeAccept({ orderId })
-      return
+      await executeAccept({ orderId });
+      return;
     }
 
     const newStatus =
-      status === 'shipped' && type === 'TAKEOUT' ? 'readyToPickup' : status
+      status === "shipped" && type === "TAKEOUT" ? "readyToPickup" : status;
 
-    await execute({ newStatus, orderId, isIfood })
+    await execute({ newStatus, orderId, isIfood });
   }
 
   if (
-    currentStatus === 'processing' ||
-    currentStatus === 'delivered' ||
-    currentStatus === 'cancelled' ||
-    currentStatus === 'returned' ||
-    currentStatus === 'refunded' ||
-    currentStatus === 'payment_failed' ||
-    currentStatus === 'awaiting_payment' ||
-    currentStatus === 'under_review'
+    currentStatus === "processing" ||
+    currentStatus === "delivered" ||
+    currentStatus === "cancelled" ||
+    currentStatus === "returned" ||
+    currentStatus === "refunded" ||
+    currentStatus === "payment_failed" ||
+    currentStatus === "awaiting_payment" ||
+    currentStatus === "under_review"
   ) {
-    return null
+    return null;
   }
 
   return (
@@ -105,12 +105,12 @@ export function UpdateStatusButton({ order }: { order: OrderType }) {
         </>
       ) : (
         <>
-          <FastForward className="w-5 h-5" />
           <span>
             {statuses[currentStatus as StatusKey]?.action_text as string}
           </span>
+          <FastForward className="w-5 h-5" />
         </>
       )}
     </Button>
-  )
+  );
 }

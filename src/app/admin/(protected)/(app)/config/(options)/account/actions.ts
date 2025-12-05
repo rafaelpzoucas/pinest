@@ -6,9 +6,7 @@ import { cache } from "react";
 import { z } from "zod";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
-import { adminProcedure, storeProcedure } from "@/lib/zsa-procedures";
-import type { HourType } from "@/models/hour";
-import type { SocialMediaType } from "@/models/social";
+import { adminProcedure } from "@/lib/zsa-procedures";
 import type { StoreType } from "@/models/store";
 import type { UserType } from "@/models/user";
 
@@ -90,58 +88,6 @@ export async function readStoreByStoreURL(storeURL: string) {
   return { store, readStoreError };
 }
 
-export const readStoreSocials = storeProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { supabase, store } = ctx;
-
-    const { data: socials, error: readSocialsError } = await supabase
-      .from("store_socials")
-      .select("*")
-      .eq("store_id", store?.id);
-
-    if (readSocialsError) {
-      return { socials: null, readSocialsError };
-    }
-
-    return { socials: socials as SocialMediaType[] };
-  });
-
-export const readOpeningHours = storeProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { supabase, store } = ctx;
-
-    const { data: hours, error: readHoursError } = await supabase
-      .from("store_hours")
-      .select("*")
-      .eq("store_id", store?.id);
-
-    if (readHoursError || !hours) {
-      console.error("Erro ao buscar horários de abertura.", readHoursError);
-      return;
-    }
-
-    // Ordem dos dias da semana para referência
-    const dayOrder = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
-
-    // Ordenar os horários com base na referência
-    const sortedHours = hours?.sort(
-      (a, b) =>
-        dayOrder.indexOf(a.day_of_week) - dayOrder.indexOf(b.day_of_week),
-    );
-
-    return { hours: sortedHours as HourType[] };
-  });
-
 export async function readStoreTheme(storeURL: string): Promise<{
   themeColor: string;
   themeMode: string;
@@ -222,5 +168,4 @@ export const cancelSubscription = adminProcedure
     revalidatePath("/");
   });
 
-export const readOpeningHoursCached = cache(readOpeningHours);
 export const readAccountDataCached = cache(readAccountData);

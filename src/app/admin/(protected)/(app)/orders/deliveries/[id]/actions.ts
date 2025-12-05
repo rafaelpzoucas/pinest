@@ -1,41 +1,41 @@
-'use server'
+"use server";
 
-import { createClient } from '@/lib/supabase/server'
-import { adminProcedure } from '@/lib/zsa-procedures'
-import { OrderType } from '@/models/order'
-import { revalidatePath } from 'next/cache'
-import { cache } from 'react'
-import { z } from 'zod'
-import { getValidIfoodAccessToken } from '../../../config/integrations/ifood/actions'
+import { createClient } from "@/lib/supabase/server";
+import { adminProcedure } from "@/lib/zsa-procedures";
+import { OrderType } from "@/models/order";
+import { revalidatePath } from "next/cache";
+import { cache } from "react";
+import { z } from "zod";
+import { getValidIfoodAccessToken } from "../../../config/integrations/ifood/actions";
 
 export const verifyIsIfood = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
-    const { orderId } = input
+    const { supabase } = ctx;
+    const { orderId } = input;
 
     const { data: order, error: readOrderError } = await supabase
-      .from('orders')
-      .select('is_ifood')
-      .eq('id', orderId)
-      .single()
+      .from("orders")
+      .select("is_ifood")
+      .eq("id", orderId)
+      .single();
 
     if (readOrderError || !order) {
-      console.error('Erro ao buscar o pedido', readOrderError)
-      return
+      console.error("Erro ao buscar o pedido", readOrderError);
+      return;
     }
 
-    return order.is_ifood
-  })
+    return order.is_ifood;
+  });
 
 export const readOrderById = adminProcedure
   .createServerAction()
   .input(z.object({ id: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase } = ctx;
     const { data: order, error: readOrderError } = await supabase
-      .from('orders')
+      .from("orders")
       .select(
         `
           *,
@@ -56,91 +56,91 @@ export const readOrderById = adminProcedure
           )
         `,
       )
-      .eq('id', input.id)
-      .single()
+      .eq("id", input.id)
+      .single();
 
     if (readOrderError) {
-      console.error('Error reading order.', readOrderError)
-      return
+      console.error("Error reading order.", readOrderError);
+      return;
     }
 
-    return { order: order as OrderType }
-  })
+    return { order: order as OrderType };
+  });
 
-export const readOrderByIdCached = cache(readOrderById)
+export const readOrderByIdCached = cache(readOrderById);
 
 export const acceptOrder = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
-    const { orderId } = input
+    const { supabase } = ctx;
+    const { orderId } = input;
 
-    await updateIfoodOrderStatus({ orderId, newStatus: 'preparing' })
+    await updateIfoodOrderStatus({ orderId, newStatus: "preparing" });
 
     const { error: updateStatusError } = await supabase
-      .from('orders')
-      .update({ status: 'preparing' })
-      .eq('id', orderId)
+      .from("orders")
+      .update({ status: "preparing" })
+      .eq("id", orderId);
 
     if (updateStatusError) {
-      console.error(updateStatusError)
+      console.error(updateStatusError);
     }
 
-    revalidatePath('/orders')
-  })
+    revalidatePath("/orders");
+  });
 
 export const cancelOrder = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string() }))
   .handler(async ({ input }) => {
-    const supabase = createClient()
+    const supabase = createClient();
 
     const { error: updateStatusError } = await supabase
-      .from('orders')
-      .update({ status: 'cancelled' })
-      .eq('id', input.orderId)
+      .from("orders")
+      .update({ status: "cancelled" })
+      .eq("id", input.orderId);
 
     if (updateStatusError) {
-      console.error(updateStatusError)
+      console.error(updateStatusError);
     }
 
-    revalidatePath('/orders')
-  })
+    revalidatePath("/orders");
+  });
 
 export const updateOrderPrintedItems = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase } = ctx;
 
     // Update em lote: marca todos os itens do pedido como impressos de uma vez
     const { error } = await supabase
-      .from('order_items')
+      .from("order_items")
       .update({ printed: true })
-      .eq('order_id', input.orderId)
+      .eq("order_id", input.orderId);
 
     if (error) {
-      console.error('Error updating printed status of order items.', error)
-      return
+      console.error("Error updating printed status of order items.", error);
+      return;
     }
 
-    revalidatePath('/')
-  })
+    revalidatePath("/");
+  });
 
 export async function updateDiscount(orderId: string, discount: number) {
-  const supabase = createClient()
+  const supabase = createClient();
 
   const { error } = await supabase
-    .from('orders')
+    .from("orders")
     .update({ discount })
-    .eq('id', orderId)
+    .eq("id", orderId);
 
   if (error) {
-    console.error('Erro ao atualizar o desconto: ', error)
+    console.error("Erro ao atualizar o desconto: ", error);
   }
 
-  revalidatePath('/admin/orders')
+  revalidatePath("/admin/orders");
 }
 
 export const updateOrderStatus = adminProcedure
@@ -153,85 +153,85 @@ export const updateOrderStatus = adminProcedure
     }),
   )
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx
+    const { supabase } = ctx;
 
     const { error: updateStatusError } = await supabase
-      .from('orders')
+      .from("orders")
       .update({ status: input.newStatus })
-      .eq('id', input.orderId)
+      .eq("id", input.orderId);
 
     if (updateStatusError) {
-      console.error('Erro ao atualizar o status.', updateStatusError)
+      console.error("Erro ao atualizar o status.", updateStatusError);
     }
 
-    revalidatePath('/orders')
+    revalidatePath("/orders");
 
-    if (!input.isIfood) return null
+    if (!input.isIfood) return null;
     await updateIfoodOrderStatus({
       orderId: input.orderId,
       newStatus: input.newStatus,
-    })
-  })
+    });
+  });
 
 export const updateIfoodOrderStatus = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string(), newStatus: z.string() }))
   .handler(async ({ input }) => {
-    const { orderId } = input
+    const { orderId } = input;
 
-    const isIfood = await verifyIsIfood({ orderId })
+    const isIfood = await verifyIsIfood({ orderId });
 
     // Verifica se o pedido é do iFood
     if (!isIfood) {
-      return
+      return;
     }
 
-    const api = process.env.IFOOD_API_BASE_URL
+    const api = process.env.IFOOD_API_BASE_URL;
 
-    const [accessToken] = await getValidIfoodAccessToken()
+    const [accessToken] = await getValidIfoodAccessToken();
 
     if (!accessToken?.success) {
       console.error(
-        'Erro ao buscar access_token no banco.',
+        "Erro ao buscar access_token no banco.",
         accessToken?.message,
-      )
-      return
+      );
+      return;
     }
 
     const newStatusMap = {
-      pending: 'confirm',
-      preparing: 'startPreparation',
-      readyToPickup: 'readyToPickup',
-      shipped: 'dispatch',
-      cancelled: 'cancelled',
-    } as const
+      pending: "confirm",
+      preparing: "startPreparation",
+      readyToPickup: "readyToPickup",
+      shipped: "dispatch",
+      cancelled: "cancelled",
+    } as const;
 
-    type Status = keyof typeof newStatusMap
+    type Status = keyof typeof newStatusMap;
 
-    const status: Status = input.newStatus as Status
+    const status: Status = input.newStatus as Status;
 
     try {
       // Enviar a requisição para o iFood
       const response = await fetch(
         `${api}/order/v1.0/orders/${orderId}/${newStatusMap[status]}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken?.accessToken}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
+            "Content-Type": "application/x-www-form-urlencoded",
           },
         },
-      )
+      );
 
       // Verificar se a resposta foi bem-sucedida
       if (!response.ok) {
-        console.error('Erro ao atualizar o pedido', response.statusText)
-        throw new Error('Erro ao atualizar o pedido no iFood.')
+        console.error("Erro ao atualizar o pedido", response.statusText);
+        throw new Error("Erro ao atualizar o pedido no iFood.");
       }
 
-      console.log('Pedido atualizado com sucesso', response.status)
+      console.log("Pedido atualizado com sucesso", response.status);
     } catch (error) {
-      console.error('Erro ao fazer a requisição', error)
-      throw new Error('Erro ao fazer a requisição de atualização do pedido.')
+      console.error("Erro ao fazer a requisição", error);
+      throw new Error("Erro ao fazer a requisição de atualização do pedido.");
     }
-  })
+  });

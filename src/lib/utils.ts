@@ -1,277 +1,283 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-import { FileType } from '@/app/admin/(protected)/(app)/catalog/products/register/form/file-uploader'
-import { addressSchema } from '@/app/old-store/account/register/schemas'
-import { AddressType } from '@/models/address'
-import { format, formatDistance, formatDistanceToNow, isFuture } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
-import { z } from 'zod'
+import { FileType } from "@/app/admin/(protected)/(app)/catalog/products/register/form/file-uploader";
+
+import { AddressType } from "@/models/address";
+import {
+  format,
+  formatDistance,
+  formatDistanceToNow,
+  isFuture,
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { z } from "zod";
+import { addressSchema } from "@/features/admin/address/schemas";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatCurrencyBRL(number: number) {
-  const formatted = Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(number)
+  const formatted = Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(number);
 
-  return formatted.replace(/\u00A0/g, ' ')
+  return formatted.replace(/\u00A0/g, " ");
 }
 
 export function formatDate(date: string, dateFormat: string) {
   return format(new Date(date), dateFormat, {
     locale: ptBR,
-  })
+  });
 }
 
 export function formatDistanceToNowDate(date: string) {
   return formatDistanceToNow(new Date(date), {
     locale: ptBR,
-  })
+  });
 }
 
 export function formatDistanceToFuture(dataFutura: Date): string {
-  const hoje = new Date()
+  const hoje = new Date();
 
   // Verifica se a data é futura e calcula a distância
   const distancia = formatDistance(dataFutura, hoje, {
     locale: ptBR, // Localização em português
     addSuffix: false, // Não adiciona o "em" automático do date-fns
-  })
+  });
 
-  return isFuture(dataFutura) ? `em até ${distancia}` : `há ${distancia}`
+  return isFuture(dataFutura) ? `em até ${distancia}` : `há ${distancia}`;
 }
 
 export function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text)
+  navigator.clipboard.writeText(text);
 }
 
 export function queryParamsLink(params: any | null) {
-  const queryParams = new URLSearchParams()
+  const queryParams = new URLSearchParams();
 
   if (params) {
     Object.keys(params).forEach((key) => {
-      const value = params[key]
+      const value = params[key];
       if (value !== null) {
-        queryParams.append(key, String(value))
+        queryParams.append(key, String(value));
       }
-    })
+    });
   }
 
-  return queryParams.toString()
+  return queryParams.toString();
 }
 
 export function formatAddress(
   address: AddressType | z.infer<typeof addressSchema> | null | undefined,
 ): string | null {
-  if (!address) return null
+  if (!address) return null;
 
-  const { street, number, complement, neighborhood } = address
+  const { street, number, complement, neighborhood } = address;
 
   const parts = [
     `${street}, ${number}`,
     complement,
     neighborhood ? `- ${neighborhood}` : null,
-  ]
+  ];
 
-  return parts.filter(Boolean).join(' ')
+  return parts.filter(Boolean).join(" ");
 }
 
 export function formatBytes(bytes: number, decimals = 2) {
-  if (!+bytes) return '0 Bytes'
+  if (!+bytes) return "0 Bytes";
 
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb']
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"];
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 export function normalizeString(str: string) {
   return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
-    .trim() // Remove espaços no início e no final
+    .replace(/[^a-z0-9\s-]/g, "") // Remove caracteres especiais
+    .trim(); // Remove espaços no início e no final
 }
 
 export function stringToNumber(string?: string) {
-  if (string === '' || !string) {
-    return 0
+  if (string === "" || !string) {
+    return 0;
   }
 
-  if (typeof string === 'string') {
+  if (typeof string === "string") {
     // Remove todos os caracteres que não são dígitos, vírgulas ou pontos.
-    let numberString = string.replace(/[^0-9,.-]+/g, '')
+    let numberString = string.replace(/[^0-9,.-]+/g, "");
 
     // Se a string contiver uma vírgula e ponto, remover os pontos (separadores de milhar).
-    if (numberString.includes('.') && numberString.includes(',')) {
-      numberString = numberString.replace(/\./g, '')
+    if (numberString.includes(".") && numberString.includes(",")) {
+      numberString = numberString.replace(/\./g, "");
     }
 
     // Substitui a última vírgula pelo ponto decimal.
-    numberString = numberString.replace(',', '.')
+    numberString = numberString.replace(",", ".");
 
-    const number = parseFloat(numberString)
+    const number = parseFloat(numberString);
 
-    return number
+    return number;
   }
 
-  return 0
+  return 0;
 }
 
 export function generateSlug(str: string): string {
-  return normalizeString(str).replace(/\s+/g, '') // Substitui espaços por hífens
+  return normalizeString(str).replace(/\s+/g, ""); // Substitui espaços por hífens
 }
 
 export const dayTranslation: Record<string, string> = {
-  monday: 'segunda',
-  tuesday: 'terça',
-  wednesday: 'quarta',
-  thursday: 'quinta',
-  friday: 'sexta',
-  saturday: 'sábado',
-  sunday: 'domingo',
-}
+  monday: "segunda",
+  tuesday: "terça",
+  wednesday: "quarta",
+  thursday: "quinta",
+  friday: "sexta",
+  saturday: "sábado",
+  sunday: "domingo",
+};
 
 export async function isSameCity(cep1: string, cep2: string) {
   const fetchCep = async (cep: string) => {
-    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
 
     if (!res.ok) {
       throw new Error(
         `Erro ao buscar o CEP ${cep}: ${res.status} ${res.statusText}`,
-      )
+      );
     }
 
-    const data = await res.json()
+    const data = await res.json();
     if (data.erro) {
-      throw new Error(`CEP ${cep} não encontrado.`)
+      throw new Error(`CEP ${cep} não encontrado.`);
     }
 
-    return data
-  }
+    return data;
+  };
 
   try {
     const [dadosCep1, dadosCep2] = await Promise.all([
       fetchCep(cep1),
       fetchCep(cep2),
-    ])
+    ]);
 
     return (
       dadosCep1.localidade === dadosCep2.localidade &&
       dadosCep1.uf === dadosCep2.uf
-    )
+    );
   } catch (error) {
-    console.error(error)
-    return false
+    console.error(error);
+    return false;
   }
 }
 
 const isStagingEnvironment = () => {
-  if (typeof window !== 'undefined') {
-    return ['staging.pinest.com.br', 'staging-pinest.vercel.app'].includes(
+  if (typeof window !== "undefined") {
+    return ["staging.pinest.com.br", "staging-pinest.vercel.app"].includes(
       window.location.hostname,
-    )
+    );
   }
 
   // Detecção no servidor - melhorada
   const hostname =
-    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || ''
+    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || "";
   const isStaging =
-    hostname.includes('staging') ||
-    hostname.includes('staging-pinest') ||
-    process.env.VERCEL_ENV === 'preview' ||
-    process.env.VERCEL_GIT_COMMIT_REF === 'staging'
+    hostname.includes("staging") ||
+    hostname.includes("staging-pinest") ||
+    process.env.VERCEL_ENV === "preview" ||
+    process.env.VERCEL_GIT_COMMIT_REF === "staging";
 
-  return isStaging
-}
+  return isStaging;
+};
 
 export const getRootPath = (storeSubdomain: string | undefined | null) => {
-  if (!storeSubdomain) return ''
+  if (!storeSubdomain) return "";
 
   const isLocalhost =
-    typeof window !== 'undefined'
-      ? window.location.hostname.startsWith('localhost')
-      : process.env.NODE_ENV === 'development'
+    typeof window !== "undefined"
+      ? window.location.hostname.startsWith("localhost")
+      : process.env.NODE_ENV === "development";
 
-  const isStaging = isStagingEnvironment()
+  const isStaging = isStagingEnvironment();
 
   if (isLocalhost || isStaging) {
-    return `${storeSubdomain}`
+    return `${storeSubdomain}`;
   }
 
-  return '' // produção usa reescrita, não precisa prefixar
-}
+  return ""; // produção usa reescrita, não precisa prefixar
+};
 
 export const createPath = (
   path: string,
   storeSubdomain: string | undefined | null,
 ) => {
-  const rootPath = getRootPath(storeSubdomain)
-  if (!rootPath) return path
-  return `/${rootPath}${path}`
-}
+  const rootPath = getRootPath(storeSubdomain);
+  if (!rootPath) return path;
+  return `/${rootPath}${path}`;
+};
 
 export function normalizeHost(hostname: string): string {
-  return hostname.startsWith('www.') ? hostname.slice(4) : hostname
+  return hostname.startsWith("www.") ? hostname.slice(4) : hostname;
 }
 
 export function calculateCartTotal(cart: any[]) {
-  if (!cart) return 0
+  if (!cart) return 0;
 
   return cart.reduce((acc: number, cartProduct: any) => {
-    const productTotal = cartProduct.product_price
+    const productTotal = cartProduct.product_price;
     const extrasTotal =
       cartProduct.extras?.reduce(
         (sum: number, extra: any) => sum + extra.price * extra.quantity,
         0,
-      ) || 0
+      ) || 0;
 
-    const itemTotal = (productTotal + extrasTotal) * cartProduct.quantity
-    return acc + itemTotal
-  }, 0)
+    const itemTotal = (productTotal + extrasTotal) * cartProduct.quantity;
+    return acc + itemTotal;
+  }, 0);
 }
 
 export function compressImage(file: File, quality = 0.7): Promise<FileType> {
   return new Promise((resolve, reject) => {
-    const image = new Image()
+    const image = new Image();
     image.onload = () => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return reject(new Error('Canvas não suportado'))
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(new Error("Canvas não suportado"));
 
       // Redimensionamento opcional
-      const maxWidth = 1920
-      const scale = Math.min(1, maxWidth / image.width)
-      canvas.width = image.width * scale
-      canvas.height = image.height * scale
+      const maxWidth = 1920;
+      const scale = Math.min(1, maxWidth / image.width);
+      canvas.width = image.width * scale;
+      canvas.height = image.height * scale;
 
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob(
         (blob) => {
-          if (!blob) return reject(new Error('Falha ao converter imagem'))
+          if (!blob) return reject(new Error("Falha ao converter imagem"));
 
           // <-- Coloque aqui: criação do FileType com preview
           const fileWithPreview = Object.assign(
             new File([blob], file.name, { type: blob.type }),
             { preview: URL.createObjectURL(blob) },
-          )
+          );
 
-          resolve(fileWithPreview)
+          resolve(fileWithPreview);
         },
-        'image/jpeg',
+        "image/jpeg",
         quality,
-      )
-    }
-    image.onerror = (e) => reject(new Error('Erro ao carregar a imagem'))
-    image.src = URL.createObjectURL(file)
-  })
+      );
+    };
+    image.onerror = (e) => reject(new Error("Erro ao carregar a imagem"));
+    image.src = URL.createObjectURL(file);
+  });
 }

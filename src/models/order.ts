@@ -3,13 +3,13 @@ import type {
   orderTypeEnum,
   paymentTypeEnum,
 } from "@/app/admin/(protected)/(app)/orders/deliveries/register/schemas";
-import type { addressSchema } from "@/app/old-store/account/register/schemas";
 import type { ProductChoice } from "@/features/store/products/schemas";
 import type { CustomerType } from "./customer";
 import type { ExtraType } from "./extras";
 import type { ProductType, ProductVariationType } from "./product";
 import type { StoreCustomerType } from "./store-customer";
 import type { UserType } from "./user";
+import { addressSchema } from "@/features/admin/address/schemas";
 
 export const PAYMENT_TYPES = {
   CREDIT: "Cartão de crédito",

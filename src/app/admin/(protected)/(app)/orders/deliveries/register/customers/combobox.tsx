@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -8,30 +8,30 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { FormField, FormItem, FormMessage } from '@/components/ui/form'
+} from "@/components/ui/command";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn, formatAddress, formatCurrencyBRL } from '@/lib/utils'
-import { StoreCustomerType } from '@/models/store-customer'
-import { ChevronsUpDown, Edit, Loader2, Plus } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { UseFormReturn } from 'react-hook-form'
-import { z } from 'zod'
-import { createOrderFormSchema } from '../schemas'
+} from "@/components/ui/popover";
+import { cn, formatAddress, formatCurrencyBRL } from "@/lib/utils";
+import { StoreCustomerType } from "@/models/store-customer";
+import { ChevronsUpDown, Edit, Loader2, Plus } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { createOrderFormSchema } from "../schemas";
 
 type CustomersComboboxProps = {
-  form: UseFormReturn<z.infer<typeof createOrderFormSchema>>
-  storeCustomers?: StoreCustomerType[]
-  isLoading: boolean
-  phoneQuery: string | null
-  setPhoneQuery: (value: string | null) => void
-  setCustomerForm: (value: string | null) => void
-}
+  form: UseFormReturn<z.infer<typeof createOrderFormSchema>>;
+  storeCustomers?: StoreCustomerType[];
+  isLoading: boolean;
+  phoneQuery: string | null;
+  setPhoneQuery: (value: string | null) => void;
+  setCustomerForm: (value: string | null) => void;
+};
 
 export function CustomersCombobox({
   storeCustomers,
@@ -41,39 +41,39 @@ export function CustomersCombobox({
   isLoading,
   setCustomerForm,
 }: CustomersComboboxProps) {
-  const searchParams = useSearchParams()
-  const orderId = searchParams.get('order_id')
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("order_id");
 
-  const [open, setOpen] = useState(!orderId)
-  const [searchValue, setSearchValue] = useState('')
+  const [open, setOpen] = useState(!orderId);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (phoneQuery) {
-      setSearchValue(phoneQuery)
+      setSearchValue(phoneQuery);
     }
-  }, [phoneQuery])
+  }, [phoneQuery]);
 
   const handleSearchChange = (value: string) => {
-    setSearchValue(value)
+    setSearchValue(value);
     if (/^\d+$/.test(value)) {
-      setPhoneQuery(value || null)
+      setPhoneQuery(value || null);
     } else if (phoneQuery) {
-      setPhoneQuery(null)
+      setPhoneQuery(null);
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchValue && /^\d+$/.test(searchValue)) {
+    if (e.key === "Enter" && searchValue && /^\d+$/.test(searchValue)) {
       const hasCustomers = storeCustomers?.some((customer) =>
         customer.customers.phone.includes(searchValue),
-      )
+      );
 
       if (!hasCustomers) {
-        setCustomerForm('create')
-        e.preventDefault()
+        setCustomerForm("create");
+        e.preventDefault();
       }
     }
-  }
+  };
 
   return (
     <FormField
@@ -85,9 +85,9 @@ export function CustomersCombobox({
             <PopoverTrigger className="rounded-lg focus:outline outline-primary">
               <div
                 className={cn(
-                  buttonVariants({ variant: 'outline' }),
-                  'w-full justify-between h-fit cursor-pointer',
-                  !field.value && 'text-muted-foreground',
+                  buttonVariants({ variant: "outline" }),
+                  "w-full justify-between h-fit cursor-pointer",
+                  !field.value && "text-muted-foreground",
                 )}
               >
                 {field.value ? (
@@ -117,7 +117,7 @@ export function CustomersCombobox({
                     </p>
                   </div>
                 ) : (
-                  'Selecione um cliente'
+                  "Selecione um cliente"
                 )}
                 <ChevronsUpDown className="w-4 h-4 opacity-50" />
               </div>
@@ -138,7 +138,7 @@ export function CustomersCombobox({
                   <Button
                     type="button"
                     className="w-full"
-                    onClick={() => setCustomerForm('create')}
+                    onClick={() => setCustomerForm("create")}
                   >
                     <Plus /> Criar cliente
                   </Button>
@@ -152,7 +152,7 @@ export function CustomersCombobox({
                         <span>Carregando clientes...</span>
                       </div>
                     ) : (
-                      'Nenhum cliente encontrado.'
+                      "Nenhum cliente encontrado."
                     )}
                   </CommandEmpty>
                   <CommandGroup>
@@ -161,8 +161,8 @@ export function CustomersCombobox({
                         value={`${storeCustomer.customers.name} ${storeCustomer.customers.phone} ${storeCustomer.customers.address.street}`}
                         key={storeCustomer.id}
                         onSelect={() => {
-                          setPhoneQuery(null)
-                          setSearchValue('')
+                          setPhoneQuery(null);
+                          setSearchValue("");
                           form.reset({
                             ...form.getValues(), // preserva os outros campos atuais
                             customer_id: storeCustomer.id,
@@ -179,8 +179,8 @@ export function CustomersCombobox({
                                   storeCustomer.customers.address.observations,
                               },
                             },
-                          })
-                          setOpen(false)
+                          });
+                          setOpen(false);
                         }}
                       >
                         <div className="flex flex-col w-full">
@@ -195,10 +195,13 @@ export function CustomersCombobox({
                                 size="icon"
                                 className="w-7 h-7"
                                 onClick={(e) => {
-                                  e.stopPropagation()
-                                  setCustomerForm('update')
-                                  setPhoneQuery(null)
-                                  form.setValue('customer_id', storeCustomer.id)
+                                  e.stopPropagation();
+                                  setCustomerForm("update");
+                                  setPhoneQuery(null);
+                                  form.setValue(
+                                    "customer_id",
+                                    storeCustomer.id,
+                                  );
                                 }}
                               >
                                 <Edit className="w-4 h-4" />
@@ -228,5 +231,5 @@ export function CustomersCombobox({
         </FormItem>
       )}
     />
-  )
+  );
 }

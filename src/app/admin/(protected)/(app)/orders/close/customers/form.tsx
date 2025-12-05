@@ -1,11 +1,10 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { createCustomerSchema } from '@/app/old-store/account/register/schemas'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,10 +13,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { PhoneInput } from '@/components/ui/input-phone'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/input-phone";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
@@ -26,93 +25,100 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { StoreCustomerType } from '@/models/store-customer'
-import { ArrowLeft, Loader2, Plus } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { Dispatch, SetStateAction, useEffect } from 'react'
-import { useServerAction } from 'zsa-react'
+} from "@/components/ui/sheet";
+import { cn, formatCurrencyBRL } from "@/lib/utils";
+import { StoreCustomerType } from "@/models/store-customer";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { useServerAction } from "zsa-react";
 import {
   createCustomer,
   updateCustomer,
-} from '../../deliveries/register/customers/actions'
+} from "../../deliveries/register/customers/actions";
+import { CreateCustomerSchema } from "@/features/store/customers/schemas";
 
 type CustomersFormProps = {
-  sheetState: [boolean, Dispatch<SetStateAction<boolean>>]
-  selectedCustomer?: StoreCustomerType
-}
+  sheetState: [boolean, Dispatch<SetStateAction<boolean>>];
+  selectedCustomer?: StoreCustomerType;
+};
 export function CustomersForm({
   sheetState,
   selectedCustomer,
 }: CustomersFormProps) {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [isSheetOpen, setIsSheetOpen] = sheetState
+  const [isSheetOpen, setIsSheetOpen] = sheetState;
 
-  const form = useForm<z.infer<typeof createCustomerSchema>>({
-    resolver: zodResolver(createCustomerSchema),
+  const form = useForm<z.infer<typeof CreateCustomerSchema>>({
+    resolver: zodResolver(CreateCustomerSchema),
     defaultValues: {
       name: undefined,
-      phone: '+55',
+      phone: "+55",
       address: undefined,
     },
-  })
+  });
 
   const { execute: executeCreate, isPending: isCreating } = useServerAction(
     createCustomer,
     {
       onSuccess: () => {
-        form.reset()
-        setIsSheetOpen(false)
+        form.reset();
+        setIsSheetOpen(false);
       },
     },
-  )
+  );
   const { execute: executeUpdate, isPending: isUpdating } = useServerAction(
     updateCustomer,
     {
       onSuccess: () => {
-        form.reset()
-        setIsSheetOpen(false)
+        form.reset();
+        setIsSheetOpen(false);
       },
     },
-  )
+  );
 
-  function onSubmit(values: z.infer<typeof createCustomerSchema>) {
+  function onSubmit(values: z.infer<typeof CreateCustomerSchema>) {
     if (selectedCustomer) {
-      executeUpdate({ ...values, id: selectedCustomer.id })
+      executeUpdate({ ...values, id: selectedCustomer.id });
     } else {
-      executeCreate(values)
+      executeCreate(values);
     }
   }
 
   useEffect(() => {
     if (selectedCustomer) {
-      form.setValue('name', selectedCustomer.customers.name)
-      form.setValue('phone', selectedCustomer.customers.phone)
-      form.setValue('address.street', selectedCustomer.customers.address.street)
-      form.setValue('address.number', selectedCustomer.customers.address.number)
+      form.setValue("name", selectedCustomer.customers.name);
+      form.setValue("phone", selectedCustomer.customers.phone);
       form.setValue(
-        'address.neighborhood',
+        "address.street",
+        selectedCustomer.customers.address.street,
+      );
+      form.setValue(
+        "address.number",
+        selectedCustomer.customers.address.number,
+      );
+      form.setValue(
+        "address.neighborhood",
         selectedCustomer.customers.address.neighborhood,
-      )
+      );
       form.setValue(
-        'address.complement',
+        "address.complement",
         selectedCustomer.customers.address.complement,
-      )
+      );
       form.setValue(
-        'address.observations',
+        "address.observations",
         selectedCustomer.customers.address.observations,
-      )
+      );
     }
-  }, [selectedCustomer])
+  }, [selectedCustomer]);
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger
         className={cn(
-          buttonVariants({ variant: 'secondary' }),
-          'w-full max-w-sm',
+          buttonVariants({ variant: "secondary" }),
+          "w-full max-w-sm",
         )}
       >
         <Plus className="w-4 h-4 mr-2" />
@@ -122,12 +128,12 @@ export function CustomersForm({
       <SheetContent className="!p-0">
         <SheetHeader className="flex flex-row items-center gap-2 p-4">
           <SheetClose
-            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
           >
             <ArrowLeft />
           </SheetClose>
           <SheetTitle className="!mt-0">
-            {selectedCustomer ? 'Editando' : 'Novo'} cliente
+            {selectedCustomer ? "Editando" : "Novo"} cliente
           </SheetTitle>
         </SheetHeader>
 
@@ -247,7 +253,7 @@ export function CustomersForm({
                 {(isCreating || isUpdating) && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 )}
-                {selectedCustomer ? 'Atualizar' : 'Cadastrar'} cliente
+                {selectedCustomer ? "Atualizar" : "Cadastrar"} cliente
               </Button>
             </SheetFooter>
           </form>
@@ -265,5 +271,5 @@ export function CustomersForm({
         )}
       </SheetContent>
     </Sheet>
-  )
+  );
 }
