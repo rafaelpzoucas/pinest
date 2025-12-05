@@ -1,22 +1,22 @@
-'use client'
+"use client";
 
-import { OpenCashSession } from '@/app/admin/(protected)/(app)/cash-register/open'
-import { X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Card } from './ui/card'
+import { OpenCashSession } from "@/app/(protected)/(app)/cash-register/open";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Card } from "./ui/card";
 
 export function OpenCashSessionToast({
   cashSession,
 }: {
-  cashSession: boolean
+  cashSession: boolean;
 }) {
-  const isCashSessionOpen = cashSession !== null
+  const isCashSessionOpen = cashSession !== null;
 
-  const [isOpen, setIsOpen] = useState(!isCashSessionOpen)
+  const [isOpen, setIsOpen] = useState(!isCashSessionOpen);
 
   useEffect(() => {
-    setIsOpen(!isCashSessionOpen)
-  }, [cashSession])
+    setIsOpen(!isCashSessionOpen);
+  }, [cashSession]);
 
   return (
     <Card
@@ -40,5 +40,5 @@ export function OpenCashSessionToast({
         <OpenCashSession />
       </section>
     </Card>
-  )
+  );
 }

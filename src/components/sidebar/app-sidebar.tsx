@@ -1,4 +1,4 @@
-import { readStore } from '@/app/admin/(protected)/(app)/config/(options)/layout/actions'
+import { readStore } from "@/app/(protected)/(app)/config/(options)/layout/actions";
 import {
   Sidebar,
   SidebarContent,
@@ -6,16 +6,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
-import { Home } from 'lucide-react'
-import Link from 'next/link'
-import { Footer } from './footer'
-import { Header } from './header'
-import { SidebarButtons } from './menu-buttons'
+} from "@/components/ui/sidebar";
+import { Home } from "lucide-react";
+import Link from "next/link";
+import { Footer } from "./footer";
+import { Header } from "./header";
+import { SidebarButtons } from "./menu-buttons";
 
 export async function AppSidebar() {
-  const [storeData] = await readStore()
-  const store = storeData?.store
+  const [storeData] = await readStore();
+  const store = storeData?.store;
 
   return (
     <Sidebar collapsible="icon" className="relative">
@@ -26,7 +26,7 @@ export async function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href={'/admin/dashboard'}>
+                <Link href={"/dashboard"}>
                   <Home />
                   <span>Página inicial</span>
                 </Link>
@@ -40,5 +40,5 @@ export async function AppSidebar() {
 
       <Footer />
     </Sidebar>
-  )
+  );
 }

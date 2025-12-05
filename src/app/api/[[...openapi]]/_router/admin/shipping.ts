@@ -1,9 +1,9 @@
-import { readAdminShippingServer } from '@/actions/admin/shipping'
-import { createOpenApiServerActionRouter } from 'zsa-openapi'
+import { readAdminShippingServer } from "@/actions/admin/shipping";
+import { createOpenApiServerActionRouter } from "zsa-openapi";
 
 export const adminShippingRouter = createOpenApiServerActionRouter({
-  pathPrefix: '/api/v1/admin/shipping',
+  pathPrefix: "/api/v1/admin/shipping",
   defaults: {
-    tags: ['Admin Shipping'],
+    tags: ["Admin Shipping"],
   },
-}).get('/', readAdminShippingServer)
+}).get("/", readAdminShippingServer);

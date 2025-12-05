@@ -1,75 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { ROOT_DOMAIN, STAGING_HOSTS } from './lib/helpers'
-import { normalizeHost } from './lib/utils'
+// middleware.ts
+import { createServerClient } from "@supabase/ssr";
+import { NextRequest, NextResponse } from "next/server";
 
-// caminhos que não devem passar pelo rewrite
-const IGNORED_PATHS = [
-  '/_next',
-  '/api',
-  '/favicon.ico',
-  '/admin',
-  '/sw.js',
-  '/docs',
-]
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
 
-// mapeamento de domínios customizados para slugs de loja
-export const CUSTOM_DOMAIN_MAP: Record<string, string> = {
-  'sandubadaleyla.com.br': 'sandubadaleyla',
-  // adicione outros domínios customizados aqui
+  // cria o client no edge com manipulação de cookies
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name) => req.cookies.get(name)?.value,
+        set: (name, value, options) => {
+          res.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove: (name, options) => {
+          res.cookies.delete({
+            name,
+            ...options,
+          });
+        },
+      },
+    },
+  );
+
+  // apenas força o Supabase a reidratar/atualizar cookies
+  await supabase.auth.getSession();
+
+  return res;
 }
 
-export function isCustomDomainMapped(host: string): boolean {
-  const normalizedHost = normalizeHost(host)
-  return Object.prototype.hasOwnProperty.call(CUSTOM_DOMAIN_MAP, normalizedHost)
-}
-
-export function middleware(request: NextRequest) {
-  const { hostname, pathname } = request.nextUrl
-
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-pathname', pathname)
-
-  const isStaging = STAGING_HOSTS.includes(hostname)
-  const isProdHost = hostname.endsWith(`.${ROOT_DOMAIN}`) && !isStaging
-  const isCustomDomain = isCustomDomainMapped(hostname)
-
-  // ignorar assets, API e paths estáticos
-  const shouldIgnore =
-    IGNORED_PATHS.some((p) => pathname.startsWith(p)) ||
-    /\.(svg|png|jpg|jpeg|gif|webp|ico|js|css|map)$/.test(pathname)
-
-  if (shouldIgnore) {
-    return NextResponse.next({ request: { headers: requestHeaders } })
-  }
-
-  // custom domain: reescreve para o slug configurado
-  if (isCustomDomain) {
-    const storeSlug = CUSTOM_DOMAIN_MAP[hostname]
-    const url = request.nextUrl.clone()
-    url.pathname = `/${storeSlug}${pathname === '/' ? '' : pathname}`
-
-    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
-  }
-
-  // produção com subdomínio: shop.example.com → /shop/*
-  if (isProdHost) {
-    const subdomain = hostname.replace(`.${ROOT_DOMAIN}`, '').split('.')[0]
-
-    if (subdomain === 'www') {
-      return NextResponse.next({ request: { headers: requestHeaders } })
-    }
-
-    const url = request.nextUrl.clone()
-    url.pathname = `/${subdomain}${pathname === '/' ? '' : pathname}`
-
-    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
-  }
-
-  return NextResponse.next({ request: { headers: requestHeaders } })
-}
-
+// middleware roda em *todas* as rotas, exceto assets
 export const config = {
-  matcher: [
-    '/((?!_next|api|admin|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|css|map)$).*)',
-  ],
-}
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};

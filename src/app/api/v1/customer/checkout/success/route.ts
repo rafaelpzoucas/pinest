@@ -1,34 +1,35 @@
-import { readStoreById } from '@/app/admin/(protected)/(app)/config/(options)/layout/register/store/actions'
-import { readOrderById } from '@/app/old-store/orders/[id]/actions'
-import { createClient } from '@/lib/supabase/server'
-import { ProdutoType, RequestSolicitarType } from '@/models/kangu-shipping'
-import { revalidatePath } from 'next/cache'
-import { NextResponse } from 'next/server'
+import { readStoreById } from "@/app/(protected)/(app)/config/(options)/layout/register/store/actions";
+import { readOrderById } from "@/app/(protected)/(app)/orders/deliveries/[id]/actions";
+
+import { createClient } from "@/lib/supabase/server";
+import { ProdutoType, RequestSolicitarType } from "@/models/kangu-shipping";
+import { revalidatePath } from "next/cache";
+import { NextResponse } from "next/server";
 
 async function updateOrderTrackingCode(orderId: string, trackingCode: string) {
-  const supabse = createClient()
+  const supabse = createClient();
 
   const { error: updateTrackingCodeError } = await supabse
-    .from('orders')
+    .from("orders")
     .update({ tracking_code: trackingCode })
-    .eq('id', orderId)
+    .eq("id", orderId);
 
-  return { updateTrackingCodeError }
+  return { updateTrackingCodeError };
 }
 
 async function solicitShipping(orderId: string) {
-  const [orderData] = await readOrderById({ orderId })
+  const [orderData] = await readOrderById({ id: orderId });
 
-  const order = orderData?.order
+  const order = orderData?.order;
 
-  if (!order) return
+  if (!order) return;
 
-  const { store } = await readStoreById(order.store_id)
+  const { store } = await readStoreById(order.store_id);
 
-  if (!store) return
+  if (!store) return;
 
   const produtos = order?.order_items.map((item) => {
-    if (!item.products) return null
+    if (!item.products) return null;
 
     return {
       peso: item.products.pkg_weight,
@@ -37,8 +38,8 @@ async function solicitShipping(orderId: string) {
       comprimento: item.products.pkg_length,
       valor: item.products.price,
       produto: item.products.name,
-    }
-  }) as unknown as ProdutoType[]
+    };
+  }) as unknown as ProdutoType[];
 
   const remetente = {
     nome: store.name,
@@ -52,7 +53,7 @@ async function solicitShipping(orderId: string) {
       cidade: store.addresses[0].city,
       uf: store.addresses[0].state,
     },
-  }
+  };
 
   const destinatario = {
     nome: order.store_customers.customers.name,
@@ -65,121 +66,121 @@ async function solicitShipping(orderId: string) {
       cidade: order.store_customers.customers.address.city,
       uf: order.store_customers.customers.address.state,
     },
-  }
+  };
 
   const solicitData: RequestSolicitarType = {
     gerarPdf: false,
     pedido: {
-      tipo: 'D',
+      tipo: "D",
     },
     remetente,
     destinatario,
     produtos,
-    servicos: ['E'],
+    servicos: ["E"],
     usarTransportadoraContrato: false,
-  }
+  };
 
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/shipping/solicit`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ storeId: store.id, solicitData }),
       },
-    )
+    );
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Erro: ${errorText}`)
+      const errorText = await response.text();
+      throw new Error(`Erro: ${errorText}`);
     }
 
-    const responseData = await response.json()
-    const trackingCode = responseData.codigo
+    const responseData = await response.json();
+    const trackingCode = responseData.codigo;
 
     const { updateTrackingCodeError } = await updateOrderTrackingCode(
       orderId,
       trackingCode,
-    )
+    );
 
     if (updateTrackingCodeError) {
       console.error(
-        'Erro ao atualizar código de rastreamento:',
+        "Erro ao atualizar código de rastreamento:",
         updateTrackingCodeError,
-      )
+      );
     }
   } catch (error) {
-    console.error('Erro ao simular frete:', error)
+    console.error("Erro ao simular frete:", error);
   }
 }
 
 export async function GET(request: Request) {
-  const supabase = createClient()
+  const supabase = createClient();
 
-  const requestUrl = new URL(request.url)
-  const storeURL = requestUrl.searchParams.get('store_subdomain')
-  const orderId = requestUrl.searchParams.get('order')
-  const stripeAccountId = requestUrl.searchParams.get('stripe_account')
-  const amount = requestUrl.searchParams.get('amount')
-  const isShipping = requestUrl.searchParams.get('pickup') === 'shipping'
+  const requestUrl = new URL(request.url);
+  const storeURL = requestUrl.searchParams.get("store_subdomain");
+  const orderId = requestUrl.searchParams.get("order");
+  const stripeAccountId = requestUrl.searchParams.get("stripe_account");
+  const amount = requestUrl.searchParams.get("amount");
+  const isShipping = requestUrl.searchParams.get("pickup") === "shipping";
 
-  const origin = requestUrl.origin
+  const origin = requestUrl.origin;
 
   if (!storeURL || !orderId) {
     const res = NextResponse.json(
-      { error: 'Missing required parameters.' },
+      { error: "Missing required parameters." },
       { status: 400 },
-    )
+    );
     res.headers.set(
-      'Cache-Control',
-      'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-    )
-    return res
+      "Cache-Control",
+      "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+    );
+    return res;
   }
 
   const { error } = await supabase
-    .from('orders')
-    .update({ status: 'approved', updated_at: new Date().toISOString() })
-    .eq('id', orderId)
+    .from("orders")
+    .update({ status: "approved", updated_at: new Date().toISOString() })
+    .eq("id", orderId);
 
   if (error) {
     const res = NextResponse.json(
-      { error: 'Failed to update order.' },
+      { error: "Failed to update order." },
       { status: 500 },
-    )
+    );
     res.headers.set(
-      'Cache-Control',
-      'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-    )
-    return res
+      "Cache-Control",
+      "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+    );
+    return res;
   }
 
   if (!amount || !stripeAccountId) {
     const res = NextResponse.json(
-      { error: 'Missing required parameters. (amount & stripeAccountId)' },
+      { error: "Missing required parameters. (amount & stripeAccountId)" },
       { status: 400 },
-    )
+    );
     res.headers.set(
-      'Cache-Control',
-      'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-    )
-    return res
+      "Cache-Control",
+      "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+    );
+    return res;
   }
 
   if (isShipping) {
-    await solicitShipping(orderId)
+    await solicitShipping(orderId);
   }
 
-  revalidatePath('/orders')
+  revalidatePath("/orders");
 
   const res = NextResponse.redirect(
     `${origin}/${storeURL}/orders?callback=home`,
-  )
+  );
   res.headers.set(
-    'Cache-Control',
-    'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-  )
-  return res
+    "Cache-Control",
+    "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+  );
+  return res;
 }

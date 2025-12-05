@@ -1,9 +1,9 @@
-'use server'
+"use server";
 
-import { createClient } from '@/lib/supabase/server'
-import { z } from 'zod'
-import { createServerAction, ZSAError } from 'zsa'
-import { Extra } from './schemas'
+import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+import { createServerAction, ZSAError } from "zsa";
+import { Extra } from "../extras/schemas";
 
 export const readProductExtras = createServerAction()
   .input(
@@ -13,16 +13,16 @@ export const readProductExtras = createServerAction()
     }),
   )
   .handler(async ({ input }) => {
-    const supabase = createClient()
+    const supabase = createClient();
 
-    const { data, error } = await supabase.rpc('get_extras_for_product', {
+    const { data, error } = await supabase.rpc("get_extras_for_product", {
       p_store_id: input.storeId,
       p_product_id: input.productId || null,
-    })
+    });
 
     if (error) {
-      throw new ZSAError('INTERNAL_SERVER_ERROR', error.message)
+      throw new ZSAError("INTERNAL_SERVER_ERROR", error.message);
     }
 
-    return { extras: data as Extra[] }
-  })
+    return { extras: data as Extra[] };
+  });

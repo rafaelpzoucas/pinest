@@ -1,9 +1,9 @@
-import { adminAuthCallback } from '@/app/admin/(auth)/sign-in/actions'
-import { createOpenApiServerActionRouter } from 'zsa-openapi'
+import { adminAuthCallback } from "@/app/(auth)/sign-in/actions";
+import { createOpenApiServerActionRouter } from "zsa-openapi";
 
 export const adminSubscriptionsRouter = createOpenApiServerActionRouter({
-  pathPrefix: '/api/v1/admin/subscriptions',
+  pathPrefix: "/api/v1/admin/subscriptions",
   defaults: {
-    tags: ['Admin Subscriptions'],
+    tags: ["Admin Subscriptions"],
   },
-}).post('/create', adminAuthCallback)
+}).post("/create", adminAuthCallback);
