@@ -1,5 +1,5 @@
-import { addressSchema } from '@/features/admin/address/schemas'
-import { z } from 'zod'
+import { addressSchema } from "@/features/admin/address/schemas";
+import { z } from "zod";
 
 // Schema base da tabela stores
 export const StoreSchema = z.object({
@@ -21,16 +21,16 @@ export const StoreSchema = z.object({
   pix_key: z.string().nullable(),
   custom_domain: z.string().nullable(),
   address: addressSchema,
-})
+});
 
 export const ReadStoreCustomerSchema = z.object({
   storeId: z.string().uuid().optional(),
   customerId: z.string().uuid().optional(),
-})
+});
 
 // Tipos inferidos
-export type Store = z.infer<typeof StoreSchema>
-export type ReadStoreCustomer = z.infer<typeof ReadStoreCustomerSchema>
+export type Store = z.infer<typeof StoreSchema>;
+export type ReadStoreCustomer = z.infer<typeof ReadStoreCustomerSchema>;
 
 // Schema para criação (sem campos automáticos/defaults)
 export const CreateStoreSchema = StoreSchema.omit({
@@ -50,7 +50,7 @@ export const CreateStoreSchema = StoreSchema.omit({
   cnpj: true,
   pix_key: true,
   custom_domain: true,
-})
+});
 
 // Schema para update (tudo opcional)
-export const UpdateStoreSchema = CreateStoreSchema.partial()
+export const UpdateStoreSchema = CreateStoreSchema.partial();

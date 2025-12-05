@@ -2,7 +2,7 @@ import type { z } from "zod";
 import type {
   orderTypeEnum,
   paymentTypeEnum,
-} from "@/app/admin/(protected)/(app)/orders/deliveries/register/schemas";
+} from "@/app/(protected)/(app)/orders/deliveries/register/schemas";
 import type { ProductChoice } from "@/features/store/products/schemas";
 import type { CustomerType } from "./customer";
 import type { ExtraType } from "./extras";

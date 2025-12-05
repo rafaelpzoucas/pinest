@@ -1,12 +1,12 @@
-import { ifoodOrderSchema } from '@/features/admin/integrations/ifood/schemas'
-import { ProductVariationSchema } from '@/features/store/cart-session/schemas'
+import { ifoodOrderSchema } from "@/features/admin/integrations/ifood/schemas";
+import { ProductVariationSchema } from "@/features/store/cart-session/schemas";
 import {
   CustomerAddressSchema,
   CustomerSchema,
-} from '@/features/store/customers/schemas'
-import { selectedExtraSchema } from '@/features/store/extras/schemas'
-import { productSchema } from '@/features/store/products/schemas'
-import { z } from 'zod'
+} from "@/features/store/customers/schemas";
+import { selectedExtraSchema } from "@/features/store/extras/schemas";
+import { productSchema } from "@/features/store/products/schemas";
+import { z } from "zod";
 
 // Order Items
 export const orderItemSchema = z.object({
@@ -22,7 +22,7 @@ export const orderItemSchema = z.object({
   printed: z.boolean().optional(),
   extras: z.array(selectedExtraSchema),
   description: z.string().optional(),
-})
+});
 
 // Order Item Variations (corrigido para order_item_id)
 export const orderItemVariationsSchema = z.object({
@@ -31,18 +31,18 @@ export const orderItemVariationsSchema = z.object({
   variation_id: z.string(),
   order_item_id: z.string(), // corrigido!
   product_variations: ProductVariationSchema,
-})
+});
 
-export const orderTypeEnum = z.enum(['DELIVERY', 'TAKEOUT'], {
-  message: 'Escolha o tipo do pedido.',
-})
+export const orderTypeEnum = z.enum(["DELIVERY", "TAKEOUT"], {
+  message: "Escolha o tipo do pedido.",
+});
 
 export const paymentTypeEnum = z.enum(
-  ['CREDIT', 'DEBIT', 'PIX', 'CASH', 'PAID'],
+  ["CREDIT", "DEBIT", "PIX", "CASH", "PAID"],
   {
-    message: 'Escolha a forma de pagamento.',
+    message: "Escolha a forma de pagamento.",
   },
-)
+);
 
 // Order
 export const orderSchema = z.object({
@@ -76,29 +76,29 @@ export const orderSchema = z.object({
     address: CustomerAddressSchema,
   }),
   products: productSchema.optional(),
-})
+});
 
 export const createOrderItemSchema = orderItemSchema.omit({
   id: true,
   created_at: true,
   products: true,
-})
+});
 
 export const updateOrderItemSchema = createOrderItemSchema.partial().extend({
   id: z.string(),
-})
+});
 
 export const createOrderItemVariationSchema = orderItemVariationsSchema.omit({
   id: true,
   created_at: true,
   product_variations: true,
-})
+});
 
 export const updateOrderItemVariationSchema = createOrderItemVariationSchema
   .partial()
   .extend({
     id: z.string(),
-  })
+  });
 
 export const createOrderSchema = orderSchema
   .omit({
@@ -118,25 +118,25 @@ export const createOrderSchema = orderSchema
     store_subdomain: z.string(),
     order_items: z.array(createOrderItemSchema),
     order_item_variations: z.array(createOrderItemVariationSchema).optional(),
-  })
+  });
 
 export const updateOrderSchema = createOrderSchema.partial().extend({
   id: z.string(),
-})
+});
 
-export type Order = z.infer<typeof orderSchema>
-export type OrderItem = z.infer<typeof orderItemSchema>
+export type Order = z.infer<typeof orderSchema>;
+export type OrderItem = z.infer<typeof orderItemSchema>;
 
-export type CreateOrderItem = z.infer<typeof createOrderItemSchema>
-export type UpdateOrderItem = z.infer<typeof updateOrderItemSchema>
+export type CreateOrderItem = z.infer<typeof createOrderItemSchema>;
+export type UpdateOrderItem = z.infer<typeof updateOrderItemSchema>;
 export type CreateOrderItemVariation = z.infer<
   typeof createOrderItemVariationSchema
->
+>;
 export type UpdateOrderItemVariation = z.infer<
   typeof updateOrderItemVariationSchema
->
-export type CreateOrder = z.infer<typeof createOrderSchema>
-export type UpdateOrder = z.infer<typeof updateOrderSchema>
+>;
+export type CreateOrder = z.infer<typeof createOrderSchema>;
+export type UpdateOrder = z.infer<typeof updateOrderSchema>;
 
-export type OrderTypeEnum = z.infer<typeof orderTypeEnum>
-export type PaymentTypeEnum = z.infer<typeof paymentTypeEnum>
+export type OrderTypeEnum = z.infer<typeof orderTypeEnum>;
+export type PaymentTypeEnum = z.infer<typeof paymentTypeEnum>;

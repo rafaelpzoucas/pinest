@@ -1,5 +1,5 @@
-import { readStoreById } from "@/app/admin/(protected)/(app)/config/(options)/layout/register/store/actions";
-import { readOrderById } from "@/app/admin/(protected)/(app)/orders/deliveries/[id]/actions";
+import { readStoreById } from "@/app/(protected)/(app)/config/(options)/layout/register/store/actions";
+import { readOrderById } from "@/app/(protected)/(app)/orders/deliveries/[id]/actions";
 
 import { createClient } from "@/lib/supabase/server";
 import { ProdutoType, RequestSolicitarType } from "@/models/kangu-shipping";

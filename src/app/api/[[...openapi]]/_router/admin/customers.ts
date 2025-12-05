@@ -1,14 +1,14 @@
 import {
   createAdminCustomerServer,
   readAdminCustomersServer,
-} from '@/actions/admin/customers'
-import { createOpenApiServerActionRouter } from 'zsa-openapi'
+} from "@/actions/admin/customers";
+import { createOpenApiServerActionRouter } from "zsa-openapi";
 
 export const adminCustomersRouter = createOpenApiServerActionRouter({
-  pathPrefix: '/api/v1/admin/customers',
+  pathPrefix: "/api/v1/admin/customers",
   defaults: {
-    tags: ['Admin Customers'],
+    tags: ["Admin Customers"],
   },
 })
-  .get('/', readAdminCustomersServer)
-  .post('/create', createAdminCustomerServer)
+  .get("/", readAdminCustomersServer)
+  .post("/create", createAdminCustomerServer);
