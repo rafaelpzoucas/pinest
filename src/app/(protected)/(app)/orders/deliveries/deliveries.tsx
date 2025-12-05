@@ -1,171 +1,177 @@
-'use client'
+"use client";
 
-import { buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { createClient } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
-import { OrderType } from '@/models/order'
-import { useCashRegister } from '@/stores/cashRegisterStore'
-import { Plus, Search } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useServerAction } from 'zsa-react'
-import { readCashSession } from '../../cash-register/actions'
-import { columns } from './data-table/columns'
-import { DataTable } from './data-table/table'
-import { OrderCard } from './order-card'
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+import { OrderType } from "@/models/order";
+import { useCashRegister } from "@/stores/cashRegisterStore";
+import { Plus, Search } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
+import { useServerAction } from "zsa-react";
+import { readCashSession } from "../../cash-register/actions";
+import { columns } from "./data-table/columns";
+import { DataTable } from "./data-table/table";
+import { OrderCard } from "./order-card";
 
 type OrderStatus =
-  | 'accept'
-  | 'pending'
-  | 'preparing'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled'
+  | "accept"
+  | "pending"
+  | "preparing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
-  const supabase = createClient()
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("in_progress");
 
-  const router = useRouter()
+  // Criar cliente Supabase uma única vez usando useMemo
+  const supabase = useMemo(() => createClient(), []);
 
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('in_progress')
+  const normalizeString = (str: string | undefined) => str?.toLowerCase() || "";
 
-  const normalizeString = (str: string | undefined) => str?.toLowerCase() || ''
-
-  const searchStr = normalizeString(search)
-
-  const statusFilters = [
-    {
-      status: 'in_progress',
-      title: 'andamento',
-      status_length: getStatusLengths([
-        'accept',
-        'pending',
-        'preparing',
-        'shipped',
-        'readyToPickup',
-      ]),
-    },
-    {
-      status: 'delivered',
-      title: 'finalizada(s)',
-      status_length: getStatusLengths(['delivered']),
-    },
-    {
-      status: 'cancelled',
-      title: 'cancelada(s)',
-      status_length: getStatusLengths(['cancelled']),
-    },
-  ]
+  const searchStr = normalizeString(search);
 
   function getStatusLengths(statuses: string[]) {
     return (
       deliveries?.filter((delivery) => {
-        const isDelivered = statuses.includes('delivered')
+        const isDelivered = statuses.includes("delivered");
         const isInProgress =
-          statuses.includes('accept') ||
-          statuses.includes('pending') ||
-          statuses.includes('preparing') ||
-          statuses.includes('shipped') ||
-          statuses.includes('readyToPickup')
+          statuses.includes("accept") ||
+          statuses.includes("pending") ||
+          statuses.includes("preparing") ||
+          statuses.includes("shipped") ||
+          statuses.includes("readyToPickup");
 
         if (isDelivered && !isInProgress) {
-          // contagem para "Finalizadas"
-          return delivery.status === 'delivered' && delivery.is_paid === true
+          return delivery.status === "delivered" && delivery.is_paid === true;
         }
 
         if (isInProgress) {
-          // contagem para "Em andamento", incluindo delivered não pago
           return (
             statuses.includes(delivery.status) ||
-            (delivery.status === 'delivered' && delivery.is_paid === false)
-          )
+            (delivery.status === "delivered" && delivery.is_paid === false)
+          );
         }
 
-        // fallback
-        return statuses.includes(delivery.status)
+        return statuses.includes(delivery.status);
       }).length || 0
-    )
+    );
   }
 
+  const statusFilters = [
+    {
+      status: "in_progress",
+      title: "andamento",
+      status_length: getStatusLengths([
+        "accept",
+        "pending",
+        "preparing",
+        "shipped",
+        "readyToPickup",
+      ]),
+    },
+    {
+      status: "delivered",
+      title: "finalizada(s)",
+      status_length: getStatusLengths(["delivered"]),
+    },
+    {
+      status: "cancelled",
+      title: "cancelada(s)",
+      status_length: getStatusLengths(["cancelled"]),
+    },
+  ];
+
   const filteredDeliveries = deliveries?.filter((delivery) => {
-    const { store_customers: storeCustomers, status, id } = delivery
+    const { store_customers: storeCustomers, status, id } = delivery;
 
     const matchesSearch =
       normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
-      id.includes(searchStr)
+      id.includes(searchStr);
 
     const matchesStatus =
-      statusFilter === 'in_progress'
+      statusFilter === "in_progress"
         ? [
-            'accept',
-            'pending',
-            'preparing',
-            'shipped',
-            'readyToPickup',
+            "accept",
+            "pending",
+            "preparing",
+            "shipped",
+            "readyToPickup",
           ].includes(status) ||
-          (status === 'delivered' && delivery.is_paid === false)
-        : statusFilter === 'delivered'
-          ? status === 'delivered' && delivery.is_paid === true
+          (status === "delivered" && delivery.is_paid === false)
+        : statusFilter === "delivered"
+          ? status === "delivered" && delivery.is_paid === true
           : statusFilter
             ? status === statusFilter
-            : true
+            : true;
 
-    return matchesSearch && matchesStatus
-  })
+    return matchesSearch && matchesStatus;
+  });
 
   function handleStatusClick(status: string) {
-    setStatusFilter((prevStatus) => (prevStatus === status ? '' : status))
+    setStatusFilter((prevStatus) => (prevStatus === status ? "" : status));
   }
 
-  useEffect(() => {
-    const channel = supabase
-      .channel('realtime-orders')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'orders',
-        },
-        () => {
-          router.refresh()
-        },
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [supabase, router])
-
-  const { setIsCashOpen } = useCashRegister()
+  const { setIsCashOpen } = useCashRegister();
 
   const { execute, data } = useServerAction(readCashSession, {
     onSuccess: () => {
-      const isOpen = !!data?.cashSession
-
-      setIsCashOpen(isOpen)
+      const isOpen = !!data?.cashSession;
+      setIsCashOpen(isOpen);
     },
-  })
+  });
 
-  async function handleReadCashSession() {
-    await execute()
-  }
-
+  // Carregar cash session
   useEffect(() => {
-    handleReadCashSession()
-  }, [])
+    execute();
+  }, [execute]);
+
+  // Configurar realtime
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime-orders")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders",
+        },
+        (payload) => {
+          console.log("Realtime event received:", payload);
+          router.refresh();
+        },
+      )
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+
+        if (status === "SUBSCRIBED") {
+          console.log("✅ Realtime conectado com sucesso!");
+        }
+
+        if (status === "CHANNEL_ERROR") {
+          console.error("❌ Erro na conexão realtime");
+        }
+      });
+
+    return () => {
+      console.log("Desconectando realtime...");
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, router]);
 
   return (
     <section className="flex flex-col gap-4 text-sm pb-16">
       <header className="flex flex-col lg:flex-row gap-4">
         <Link
           href="orders/deliveries/register"
-          className={cn(buttonVariants(), 'w-full max-w-sm')}
+          className={cn(buttonVariants(), "w-full max-w-sm")}
         >
           <Plus className="w-4 h-4 mr-2" />
           Criar pedido
@@ -188,7 +194,7 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
           <Card
             key={filter.status}
             className={`p-2 px-4 flex flex-col text-xl select-none cursor-pointer
-            ${statusFilter === filter.status ? 'border-primary' : ''}`}
+            ${statusFilter === filter.status ? "border-primary" : ""}`}
             onClick={() => handleStatusClick(filter.status)}
           >
             <strong>{filter.status_length}</strong>
@@ -208,7 +214,7 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
           ? filteredDeliveries?.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))
-          : search !== '' && (
+          : search !== "" && (
               <div>
                 Não encontramos nenhum resultado para &apos;{search}&apos;
               </div>
@@ -221,5 +227,5 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
         )}
       </div>
     </section>
-  )
+  );
 }
