@@ -1,3 +1,5 @@
+"use client";
+
 import { readSocialsData } from "@/actions/client/app/public_store/socials";
 import { usePublicStore } from "@/stores/public-store";
 import { useQuery } from "@tanstack/react-query";
