@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { uploadImages } from '@/app/admin/(protected)/(app)/catalog/products/register/client-actions'
+import { uploadImages } from "@/app/(protected)/(app)/catalog/products/register/client-actions";
 import {
   FileType,
   FileUploader,
-} from '@/app/admin/(protected)/(app)/catalog/products/register/form/file-uploader'
+} from "@/app/(protected)/(app)/catalog/products/register/form/file-uploader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,26 +15,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -42,332 +42,332 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Textarea } from '@/components/ui/textarea'
-import { createClient } from '@/lib/supabase/client'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { Edit, Plus, Trash2, X } from 'lucide-react'
-import Image from 'next/image'
-import { useQueryState } from 'nuqs'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { createClient } from "@/lib/supabase/client";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { Edit, Plus, Trash2, X } from "lucide-react";
+import Image from "next/image";
+import { useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Product = {
-  id: string
-  created_at: string
-  name: string
-  description?: string
-  price: number | null
-  promotional_price: number | null
-  stock: number | null
-  category_id: string
-  amount_sold: number
-  store_id: string | null
-  sku: string | null
-  pkg_weight: number | null
-  pkg_length: number | null
-  pkg_width: number | null
-  pkg_height: number | null
-  product_url: string | null
-  allows_extras: boolean
-  need_choices: boolean | null
-  status: 'active' | 'inactive'
-}
+  id: string;
+  created_at: string;
+  name: string;
+  description?: string;
+  price: number | null;
+  promotional_price: number | null;
+  stock: number | null;
+  category_id: string;
+  amount_sold: number;
+  store_id: string | null;
+  sku: string | null;
+  pkg_weight: number | null;
+  pkg_length: number | null;
+  pkg_width: number | null;
+  pkg_height: number | null;
+  product_url: string | null;
+  allows_extras: boolean;
+  need_choices: boolean | null;
+  status: "active" | "inactive";
+};
 
 type ProductImage = {
-  id: string
-  created_at: string
-  product_id: string
-  image_url: string
-}
+  id: string;
+  created_at: string;
+  product_id: string;
+  image_url: string;
+};
 
 type Category = {
-  id: string
-  name: string
-}
+  id: string;
+  name: string;
+};
 
 type Store = {
-  id: string
-  name: string
-}
+  id: string;
+  name: string;
+};
 
-const initialProduct: Omit<Product, 'id' | 'created_at' | 'amount_sold'> = {
-  name: '',
-  description: '',
+const initialProduct: Omit<Product, "id" | "created_at" | "amount_sold"> = {
+  name: "",
+  description: "",
   price: null,
   promotional_price: null,
   stock: null,
-  category_id: '',
+  category_id: "",
   store_id: null,
-  sku: '',
+  sku: "",
   pkg_weight: null,
   pkg_length: null,
   pkg_width: null,
   pkg_height: null,
-  product_url: '',
+  product_url: "",
   allows_extras: true,
   need_choices: false,
-  status: 'active',
-}
+  status: "active",
+};
 
 export default function ProductManagement() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [stores, setStores] = useState<Store[]>([]) // <-- adicionado
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [stores, setStores] = useState<Store[]>([]); // <-- adicionado
   const [productImages, setProductImages] = useState<
     Record<string, ProductImage[]>
-  >({})
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [formData, setFormData] = useState(initialProduct)
-  const [files, setFiles] = useState<FileType[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [viewingImages, setViewingImages] = useState<string | null>(null)
+  >({});
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState(initialProduct);
+  const [files, setFiles] = useState<FileType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string | null>(null);
 
   // filtros com nuqs
-  const [storeFilter, setStoreFilter] = useQueryState('store', {
-    defaultValue: 'all',
-  })
-  const [searchQuery, setSearchQuery] = useQueryState('search', {
-    defaultValue: '',
-  })
+  const [storeFilter, setStoreFilter] = useQueryState("store", {
+    defaultValue: "all",
+  });
+  const [searchQuery, setSearchQuery] = useQueryState("search", {
+    defaultValue: "",
+  });
 
-  const supabase = createClient()
+  const supabase = createClient();
 
   useEffect(() => {
-    loadStores()
-  }, [])
+    loadStores();
+  }, []);
 
   // Carregar dados sempre que filtros mudarem
   useEffect(() => {
-    loadProducts()
-    loadCategories()
-  }, [storeFilter, searchQuery])
+    loadProducts();
+    loadCategories();
+  }, [storeFilter, searchQuery]);
 
   const loadStores = async () => {
     try {
       const { data, error } = await supabase
-        .from('stores')
-        .select('id, name')
-        .order('name')
+        .from("stores")
+        .select("id, name")
+        .order("name");
 
-      if (error) throw error
-      setStores(data || [])
+      if (error) throw error;
+      setStores(data || []);
     } catch (error) {
-      console.error('Erro ao carregar lojas:', error)
+      console.error("Erro ao carregar lojas:", error);
     }
-  }
+  };
 
   const loadProducts = async () => {
     try {
-      let query = supabase.from('products').select('*').order('created_at', {
+      let query = supabase.from("products").select("*").order("created_at", {
         ascending: false,
-      })
+      });
 
-      if (storeFilter && storeFilter !== 'all') {
-        query = query.eq('store_id', storeFilter)
+      if (storeFilter && storeFilter !== "all") {
+        query = query.eq("store_id", storeFilter);
       }
 
       if (searchQuery) {
-        query = query.ilike('name', `%${searchQuery}%`)
+        query = query.ilike("name", `%${searchQuery}%`);
       }
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
-      if (error) throw error
-      setProducts(data || [])
+      if (error) throw error;
+      setProducts(data || []);
 
       if (data && data.length > 0) {
-        const productIds = data.map((p) => p.id)
-        loadProductImages(productIds)
+        const productIds = data.map((p) => p.id);
+        loadProductImages(productIds);
       }
     } catch (error) {
-      console.error('Erro ao carregar produtos:', error)
-      toast.error('Erro ao carregar produtos')
+      console.error("Erro ao carregar produtos:", error);
+      toast.error("Erro ao carregar produtos");
     }
-  }
+  };
 
   const loadCategories = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('name')
+        .from("categories")
+        .select("id, name")
+        .order("name");
 
-      if (error) throw error
-      setCategories(data || [])
+      if (error) throw error;
+      setCategories(data || []);
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error)
+      console.error("Erro ao carregar categorias:", error);
     }
-  }
+  };
 
   const loadProductImages = async (productIds: string[]) => {
     try {
       const { data, error } = await supabase
-        .from('product_images')
-        .select('*')
-        .in('product_id', productIds)
+        .from("product_images")
+        .select("*")
+        .in("product_id", productIds);
 
-      if (error) throw error
+      if (error) throw error;
 
-      const imagesByProduct: Record<string, ProductImage[]> = {}
+      const imagesByProduct: Record<string, ProductImage[]> = {};
       data?.forEach((image) => {
         if (!imagesByProduct[image.product_id]) {
-          imagesByProduct[image.product_id] = []
+          imagesByProduct[image.product_id] = [];
         }
-        imagesByProduct[image.product_id].push(image)
-      })
+        imagesByProduct[image.product_id].push(image);
+      });
 
-      setProductImages(imagesByProduct)
+      setProductImages(imagesByProduct);
     } catch (error) {
-      console.error('Erro ao carregar imagens:', error)
+      console.error("Erro ao carregar imagens:", error);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      let productId: string
+      let productId: string;
 
       if (selectedProduct) {
         const { error } = await supabase
-          .from('products')
+          .from("products")
           .update(formData)
-          .eq('id', selectedProduct.id)
+          .eq("id", selectedProduct.id);
 
-        if (error) throw error
-        productId = selectedProduct.id
-        toast.success('Produto atualizado com sucesso!')
+        if (error) throw error;
+        productId = selectedProduct.id;
+        toast.success("Produto atualizado com sucesso!");
       } else {
         const { data, error } = await supabase
-          .from('products')
+          .from("products")
           .insert([formData])
           .select()
-          .single()
+          .single();
 
-        if (error) throw error
-        productId = data.id
-        toast.success('Produto criado com sucesso!')
+        if (error) throw error;
+        productId = data.id;
+        toast.success("Produto criado com sucesso!");
       }
 
       if (files.length > 0) {
         const { uploadErrors, insertErrors } = await uploadImages(
           files,
           productId,
-        )
+        );
 
         if (uploadErrors || insertErrors) {
-          console.error('Erros no upload:', { uploadErrors, insertErrors })
-          toast.error('Algumas imagens não foram salvas')
+          console.error("Erros no upload:", { uploadErrors, insertErrors });
+          toast.error("Algumas imagens não foram salvas");
         } else {
-          toast.success('Imagens enviadas com sucesso!')
+          toast.success("Imagens enviadas com sucesso!");
         }
       }
 
-      setFormData(initialProduct)
-      setFiles([])
-      setSelectedProduct(null)
-      setIsDialogOpen(false)
-      loadProducts()
+      setFormData(initialProduct);
+      setFiles([]);
+      setSelectedProduct(null);
+      setIsDialogOpen(false);
+      loadProducts();
     } catch (error) {
-      console.error('Erro ao salvar produto:', error)
-      toast.error('Erro ao salvar produto')
+      console.error("Erro ao salvar produto:", error);
+      toast.error("Erro ao salvar produto");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleDelete = async (productId: string) => {
     try {
       const { error } = await supabase
-        .from('products')
+        .from("products")
         .delete()
-        .eq('id', productId)
+        .eq("id", productId);
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast.success('Produto excluído com sucesso!')
-      loadProducts()
+      toast.success("Produto excluído com sucesso!");
+      loadProducts();
     } catch (error) {
-      console.error('Erro ao excluir produto:', error)
-      toast.error('Erro ao excluir produto')
+      console.error("Erro ao excluir produto:", error);
+      toast.error("Erro ao excluir produto");
     }
-  }
+  };
 
   const handleDeleteImage = async (imageId: string, productId: string) => {
     try {
       const { error } = await supabase
-        .from('product_images')
+        .from("product_images")
         .delete()
-        .eq('id', imageId)
+        .eq("id", imageId);
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast.success('Imagem excluída com sucesso!')
-      loadProductImages([productId])
+      toast.success("Imagem excluída com sucesso!");
+      loadProductImages([productId]);
     } catch (error) {
-      console.error('Erro ao excluir imagem:', error)
-      toast.error('Erro ao excluir imagem')
+      console.error("Erro ao excluir imagem:", error);
+      toast.error("Erro ao excluir imagem");
     }
-  }
+  };
 
   const openEditDialog = (product: Product) => {
-    setSelectedProduct(product)
+    setSelectedProduct(product);
     setFormData({
       name: product.name,
-      description: product.description || '',
+      description: product.description || "",
       price: product.price,
       promotional_price: product.promotional_price,
       stock: product.stock,
       category_id: product.category_id,
       store_id: product.store_id,
-      sku: product.sku || '',
+      sku: product.sku || "",
       pkg_weight: product.pkg_weight,
       pkg_length: product.pkg_length,
       pkg_width: product.pkg_width,
       pkg_height: product.pkg_height,
-      product_url: product.product_url || '',
+      product_url: product.product_url || "",
       allows_extras: product.allows_extras,
       need_choices: product.need_choices || false,
       status: product.status,
-    })
-    setFiles([])
-    setIsDialogOpen(true)
-  }
+    });
+    setFiles([]);
+    setIsDialogOpen(true);
+  };
 
   const openCreateDialog = () => {
-    setSelectedProduct(null)
-    setFormData(initialProduct)
-    setFiles([])
-    setIsDialogOpen(true)
-  }
+    setSelectedProduct(null);
+    setFormData(initialProduct);
+    setFiles([]);
+    setIsDialogOpen(true);
+  };
 
   const [pendingFiles, setPendingFiles] = useState<Record<string, FileType[]>>(
     {},
-  )
+  );
 
   useEffect(() => {
     Object.entries(pendingFiles).forEach(([productId, files]) => {
       if (files.length > 0) {
-        ;(async () => {
+        (async () => {
           const { uploadErrors, insertErrors } = await uploadImages(
             files,
             productId,
-          )
+          );
 
           if (uploadErrors || insertErrors) {
-            toast.error(`Erro ao enviar imagens para o produto ${productId}`)
+            toast.error(`Erro ao enviar imagens para o produto ${productId}`);
           } else {
-            toast.success('Imagens enviadas com sucesso!')
-            loadProductImages([productId])
-            setPendingFiles((prev) => ({ ...prev, [productId]: [] })) // limpa
+            toast.success("Imagens enviadas com sucesso!");
+            loadProductImages([productId]);
+            setPendingFiles((prev) => ({ ...prev, [productId]: [] })); // limpa
           }
-        })()
+        })();
       }
-    })
-  }, [pendingFiles])
+    });
+  }, [pendingFiles]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -438,10 +438,10 @@ export default function ProductManagement() {
                             setPendingFiles((prev) => ({
                               ...prev,
                               [product.id]:
-                                typeof newFilesOrUpdater === 'function'
+                                typeof newFilesOrUpdater === "function"
                                   ? newFilesOrUpdater(prev[product.id] ?? [])
                                   : newFilesOrUpdater,
-                            }))
+                            }));
                           }}
                         />
 
@@ -474,7 +474,7 @@ export default function ProductManagement() {
                     </TableCell>
                     <TableCell>{product.description}</TableCell>
                     <TableCell>
-                      {product.price ? formatCurrencyBRL(product.price) : '-'}
+                      {product.price ? formatCurrencyBRL(product.price) : "-"}
                     </TableCell>
                     <TableCell>
                       {product.promotional_price ? (
@@ -482,14 +482,14 @@ export default function ProductManagement() {
                           {formatCurrencyBRL(product.promotional_price)}
                         </span>
                       ) : (
-                        '-'
+                        "-"
                       )}
                     </TableCell>
                     <TableCell>{product.stock || 0}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          product.status === 'active' ? 'default' : 'secondary'
+                          product.status === "active" ? "default" : "secondary"
                         }
                       >
                         {product.status}
@@ -545,7 +545,7 @@ export default function ProductManagement() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedProduct ? 'Editar Produto' : 'Novo Produto'}
+              {selectedProduct ? "Editar Produto" : "Novo Produto"}
             </DialogTitle>
           </DialogHeader>
 
@@ -580,7 +580,7 @@ export default function ProductManagement() {
                   id="price"
                   type="number"
                   step="0.01"
-                  value={formData.price || ''}
+                  value={formData.price || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -596,7 +596,7 @@ export default function ProductManagement() {
                   id="promotional_price"
                   type="number"
                   step="0.01"
-                  value={formData.promotional_price || ''}
+                  value={formData.promotional_price || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -613,7 +613,7 @@ export default function ProductManagement() {
                 <Input
                   id="stock"
                   type="number"
-                  value={formData.stock || ''}
+                  value={formData.stock || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -649,7 +649,7 @@ export default function ProductManagement() {
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value: 'active' | 'inactive') =>
+                  onValueChange={(value: "active" | "inactive") =>
                     setFormData({ ...formData, status: value })
                   }
                 >
@@ -728,10 +728,10 @@ export default function ProductManagement() {
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading
-                  ? 'Salvando...'
+                  ? "Salvando..."
                   : selectedProduct
-                    ? 'Atualizar'
-                    : 'Criar'}
+                    ? "Atualizar"
+                    : "Criar"}
               </Button>
             </div>
           </form>
@@ -749,7 +749,7 @@ export default function ProductManagement() {
               Imagens do Produto
               {viewingImages && (
                 <span className="font-normal text-muted-foreground">
-                  {' - ' + products.find((p) => p.id === viewingImages)?.name}
+                  {" - " + products.find((p) => p.id === viewingImages)?.name}
                 </span>
               )}
             </DialogTitle>
@@ -805,5 +805,5 @@ export default function ProductManagement() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { createClient } from "@/lib/supabase/client";
-import { updateStoreStatus } from "./admin/(protected)/(app)/actions";
+import { updateStoreStatus } from "./(protected)/(app)/actions";
 
 const FormSchema = z.object({
   is_open: z.boolean(),

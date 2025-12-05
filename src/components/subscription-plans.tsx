@@ -1,4 +1,4 @@
-import { readStorePlan } from "@/app/admin/(protected)/(app)/actions";
+import { readStorePlan } from "@/app/(protected)/(app)/actions";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,11 +9,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createAdminClient } from "@/lib/supabase/admin";
+
 import { cn, formatCurrencyBRL } from "@/lib/utils";
 import { FeatureKey, PLANS_FEATURES_MAP } from "@/models/plans";
 import { CheckCircle2, Star } from "lucide-react";
 import { SubscriptionPlansButton } from "./subscription-plans-button";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function SubscriptionPlans() {
   const supabase = createAdminClient();

@@ -1,5 +1,5 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,27 +7,27 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { FeatureKey, PLANS_FEATURES_MAP } from '@/models/plans'
-import { CheckCircle2, Star } from 'lucide-react'
+} from "@/components/ui/card";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { cn, formatCurrencyBRL } from "@/lib/utils";
+import { FeatureKey, PLANS_FEATURES_MAP } from "@/models/plans";
+import { CheckCircle2, Star } from "lucide-react";
 
 export async function PricingSection() {
-  const supabase = createAdminClient()
+  const supabase = createAdminClient();
 
   const { data: plans, error: plansError } = await supabase
-    .from('plans')
-    .select('*')
-    .order('price', { ascending: false })
+    .from("plans")
+    .select("*")
+    .order("price", { ascending: false });
 
   if (plansError) {
-    console.error('Error fetching plans:', plansError)
-    return null
+    console.error("Error fetching plans:", plansError);
+    return null;
   }
 
   function getFeatureLabel(key: FeatureKey): string {
-    return PLANS_FEATURES_MAP[key]
+    return PLANS_FEATURES_MAP[key];
   }
 
   return (
@@ -46,8 +46,8 @@ export async function PricingSection() {
           <Card
             key={plan.name}
             className={cn(
-              'relative w-full max-w-xs',
-              index === 0 && 'border-2 border-primary',
+              "relative w-full max-w-xs",
+              index === 0 && "border-2 border-primary",
             )}
           >
             {index === 0 && (
@@ -65,16 +65,16 @@ export async function PricingSection() {
             <CardContent>
               <ul className="mt-4 space-y-2">
                 {Object.keys(plan.features).map((feature) => {
-                  if (!plan.features[feature]) return null
+                  if (!plan.features[feature]) return null;
                   return (
                     <li
                       key={feature}
                       className="flex flex-row items-center text-sm"
                     >
-                      <CheckCircle2 className="w-4 h-4 mr-2" />{' '}
+                      <CheckCircle2 className="w-4 h-4 mr-2" />{" "}
                       {getFeatureLabel(feature as FeatureKey)}
                     </li>
-                  )
+                  );
                 })}
               </ul>
             </CardContent>
@@ -82,7 +82,7 @@ export async function PricingSection() {
             <CardFooter>
               <Button
                 className="w-full"
-                variant={index === 0 ? 'default' : 'secondary'}
+                variant={index === 0 ? "default" : "secondary"}
               >
                 Começar Agora
               </Button>
@@ -91,5 +91,5 @@ export async function PricingSection() {
         ))}
       </div>
     </section>
-  )
+  );
 }

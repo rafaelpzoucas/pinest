@@ -1,6 +1,6 @@
 import { format } from "date-fns";
-import type { ProductsSoldReportType } from "@/app/admin/(protected)/(app)/reports/products-sold";
-import type { SalesReportType } from "@/app/admin/(protected)/(app)/reports/sales-report";
+import type { ProductsSoldReportType } from "@/app/(protected)/(app)/reports/products-sold";
+import type { SalesReportType } from "@/app/(protected)/(app)/reports/sales-report";
 import { formatAddress, formatCurrencyBRL } from "@/lib/utils";
 import type { IfoodOrder } from "@/models/ifood";
 import { type OrderType, PAYMENT_TYPES } from "@/models/order";

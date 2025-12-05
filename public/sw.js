@@ -26,7 +26,7 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   // Pega a URL dos dados da notificação ou usa fallback
-  const targetUrl = event.notification.data?.url || "/admin/orders";
+  const targetUrl = event.notification.data?.url || "/orders";
 
   event.waitUntil(
     self.clients

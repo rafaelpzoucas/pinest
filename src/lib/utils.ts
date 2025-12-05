@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { FileType } from "@/app/admin/(protected)/(app)/catalog/products/register/form/file-uploader";
+import { FileType } from "@/app/(protected)/(app)/catalog/products/register/form/file-uploader";
 
 import { AddressType } from "@/models/address";
 import {
