@@ -46,6 +46,7 @@ export default async function OrderPage({
     CREDIT: "Cartão de crédito",
     DEBIT: "Cartão de débito",
     CASH: "Dinheiro",
+    PIX: "PIX",
     ONLINE: "Pago online",
   } as const;
 
@@ -120,12 +121,12 @@ export default async function OrderPage({
               <strong>Forma de pagamento</strong>
 
               <p>
-                <span>
+                <Badge className="text-lg" variant="secondary">
                   {PAYMENT_TYPES[ifoodPaymentType ?? order?.payment_type]}
                   {isIfood && ifoodOrderData.payments.methods[0].card?.brand
                     ? ` - ${ifoodOrderData.payments.methods[0].card?.brand}`
                     : ""}
-                </span>
+                </Badge>
               </p>
             </div>
 
