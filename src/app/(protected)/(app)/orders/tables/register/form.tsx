@@ -1,40 +1,40 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Form } from '@/components/ui/form'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { TableType } from '@/models/table'
-import { X } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
-import { toast } from 'sonner'
-import { useServerAction } from 'zsa-react'
-import { createTable, updateTable } from './actions'
-import { SelectedProducts } from './products/selected-products'
-import { createTableSchema } from './schemas'
-import { Summary } from './summary'
+} from "@/components/ui/sheet";
+import { TableType } from "@/models/table";
+import { X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { useServerAction } from "zsa-react";
+import { createTable, updateTable } from "./actions";
+import { SelectedProducts } from "./products/selected-products";
+import { createTableSchema } from "./schemas";
+import { Summary } from "./summary";
 
 export function CreateSaleForm({
   storeId,
   table,
 }: {
-  storeId?: string
-  table: TableType
+  storeId?: string;
+  table: TableType;
 }) {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
-  const isEdit = searchParams.get('edit') === 'true'
+  const isEdit = searchParams.get("edit") === "true";
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof createTableSchema>>({
@@ -44,25 +44,25 @@ export function CreateSaleForm({
       description: table?.description ?? undefined,
       order_items: isEdit ? table.order_items : [],
     },
-  })
+  });
 
-  const orderItems = form.watch('order_items')
+  const orderItems = form.watch("order_items");
 
   const { execute: executeCreateTable, isPending: isCreatePending } =
     useServerAction(createTable, {
       onError: ({ err }) => {
-        toast.error(err.message)
+        toast.error(err.message);
       },
-    })
+    });
   const { execute: executeUpdateTable, isPending: isUpdatePending } =
     useServerAction(updateTable, {
       onSuccess: () => {
-        toast.success('Mesa atualizada com sucesso!')
+        toast.success("Mesa atualizada com sucesso!");
       },
       onError: () => {
-        toast.error('Ocorreu um erro ao atualizar a mesa.')
+        toast.error("Ocorreu um erro ao atualizar a mesa.");
       },
-    })
+    });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createTableSchema>) {
@@ -71,21 +71,21 @@ export function CreateSaleForm({
         id: table.id,
         is_edit: isEdit,
         ...values,
-      })
+      });
 
       if (err && !data) {
-        console.error({ err })
-        return null
+        console.error({ err });
+        return null;
       }
 
-      return
+      return;
     }
 
-    const [data, err] = await executeCreateTable(values)
+    const [data, err] = await executeCreateTable(values);
 
     if (err && !data) {
-      console.error({ err })
-      return null
+      console.error({ err });
+      return null;
     }
   }
 
@@ -93,6 +93,13 @@ export function CreateSaleForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
+        onSubmitCapture={(e) => {
+          // se o submit veio do Enter e não do botão submit
+          const submitter = (e.nativeEvent as SubmitEvent).submitter;
+          if (!submitter) {
+            e.preventDefault();
+          }
+        }}
         className="flex flex-col items-start gap-4 w-full h-full"
       >
         <Card className="flex lg:hidden flex-col gap-4 p-4 fixed bottom-2 left-2 right-2">
@@ -138,5 +145,5 @@ export function CreateSaleForm({
         <SelectedProducts form={form} storeId={storeId} />
       </form>
     </Form>
-  )
+  );
 }

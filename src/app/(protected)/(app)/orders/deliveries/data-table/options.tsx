@@ -1,44 +1,44 @@
-'use client'
+"use client";
 
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { OrderType } from '@/models/order'
-import { MoreVertical } from 'lucide-react'
-import { CancelOrderButton } from './cancel-order-button'
-import { CloseSaleButton } from './close-sale-button'
-import { EditButton } from './edit-button'
-import { Printbutton } from './print-button'
-import { UpdateStatusButton } from './update-status-button'
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { MoreVertical } from "lucide-react";
+import { CancelOrderButton } from "./cancel-order-button";
+import { CloseSaleButton } from "./close-sale-button";
+import { EditButton } from "./edit-button";
+import { Printbutton } from "./print-button";
+import { UpdateStatusButton } from "./update-status-button";
+import { Order } from "@/features/admin/orders/schemas";
 
-export function OrderOptions({ order }: { order: OrderType }) {
-  const currentStatus = order?.status
+export function OrderOptions({ order }: { order: Order }) {
+  const currentStatus = order?.status;
 
-  const accepted = currentStatus !== 'accept'
+  const accepted = currentStatus !== "accept";
 
   const options = [
     {
-      name: 'edit',
+      name: "edit",
       component: <EditButton order={order} />,
-      title: 'Editar pedido',
+      title: "Editar pedido",
     },
     {
-      name: 'print',
+      name: "print",
       component: <Printbutton order={order} />,
-      title: 'Imprimir',
+      title: "Imprimir",
     },
-  ]
+  ];
 
   return (
     <>
@@ -78,9 +78,9 @@ export function OrderOptions({ order }: { order: OrderType }) {
         <DropdownMenu>
           <DropdownMenuTrigger
             className={cn(
-              buttonVariants({ variant: 'ghost', size: 'icon' }),
-              !accepted && 'hidden',
-              'lg:hidden',
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              !accepted && "hidden",
+              "lg:hidden",
             )}
           >
             <MoreVertical />
@@ -95,5 +95,5 @@ export function OrderOptions({ order }: { order: OrderType }) {
         </DropdownMenu>
       </div>
     </>
-  )
+  );
 }

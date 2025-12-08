@@ -1,35 +1,35 @@
-import { formatAddress } from '@/lib/utils'
-import { IfoodOrder } from '@/models/ifood'
-import { OrderType } from '@/models/order'
-import { format } from 'date-fns'
+import { IfoodOrderData, Order } from "@/features/admin/orders/schemas";
+import { formatAddress } from "@/lib/utils";
+
+import { format } from "date-fns";
 
 export const DELIVERY_TYPES = {
-  TAKEOUT: 'Retirar na loja',
-  DELIVERY: 'Entregar',
-}
+  TAKEOUT: "Retirar na loja",
+  DELIVERY: "Entregar",
+};
 
-export function Info({ order }: { order?: OrderType }) {
-  const isIfood = order?.is_ifood
-  const ifoodOrder: IfoodOrder = isIfood && order.ifood_order_data
+export function Info({ order }: { order?: Order }) {
+  const isIfood = order?.is_ifood;
+  const ifoodOrder: IfoodOrderData = isIfood && order.ifood_order_data;
 
   const customer = isIfood
     ? order?.ifood_order_data.customer
-    : order?.store_customers.customers
+    : order?.store_customers?.customers;
 
-  const customerName = customer.name
+  const customerName = customer.name;
   const customerPhone = isIfood
     ? `${customer.phone.number} ID: ${customer.phone.localizer}`
-    : customer.phone
+    : customer.phone;
   const customerAddress = isIfood
-    ? (order.delivery.address as unknown as string)
-    : formatAddress(order?.store_customers.customers.address)
+    ? (order?.delivery?.address as unknown as string)
+    : formatAddress(order?.store_customers?.customers?.address);
 
   const displayId = isIfood
     ? ifoodOrder.displayId
-    : (order?.display_id ?? order?.id.substring(0, 4))
+    : (order?.display_id ?? order?.id.substring(0, 4));
 
   if (!order) {
-    return null
+    return null;
   }
 
   return (
@@ -48,11 +48,11 @@ export function Info({ order }: { order?: OrderType }) {
       >
         {isIfood && <p className="text-center">{ifoodOrder.merchant.name}</p>}
 
-        <p>Data do pedido: {format(order?.created_at, 'dd/MM HH:mm:ss')}</p>
+        <p>Data do pedido: {format(order?.created_at, "dd/MM HH:mm:ss")}</p>
         {isIfood && (
           <p>
-            Data da entrega:{' '}
-            {format(ifoodOrder.delivery.deliveryDateTime, 'dd/MM HH:mm:ss')}
+            Data da entrega:{" "}
+            {format(ifoodOrder.delivery.deliveryDateTime, "dd/MM HH:mm:ss")}
           </p>
         )}
         <p className="flex flex-row items-start gap-2">
@@ -64,11 +64,11 @@ export function Info({ order }: { order?: OrderType }) {
         {((isIfood && ifoodOrder.delivery.observations) ||
           order?.observations) && (
           <p className="uppercase text-xs">
-            Observações:{' '}
+            Observações:{" "}
             {ifoodOrder?.delivery?.observations ?? order.observations}
           </p>
         )}
       </div>
     </section>
-  )
+  );
 }

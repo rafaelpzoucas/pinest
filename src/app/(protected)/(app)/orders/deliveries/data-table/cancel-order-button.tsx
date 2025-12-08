@@ -35,17 +35,17 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CancellationReasonsType } from "@/models/ifood";
-import { OrderType } from "@/models/order";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useServerAction } from "zsa-react";
 import { nofityCustomer } from "@/actions/admin/notifications/actions";
+import { Order } from "@/features/admin/orders/schemas";
 
 const FormSchema = z.object({
   code: z.string(),
 });
 
-export function CancelOrderButton({ order }: { order: OrderType }) {
+export function CancelOrderButton({ order }: { order: Order }) {
   const orderId = order.id;
 
   const currentStatus = order?.status;
@@ -54,7 +54,7 @@ export function CancelOrderButton({ order }: { order: OrderType }) {
   const accepted = currentStatus !== "accept";
   const delivered = currentStatus === "delivered";
 
-  const customerPhone = order.store_customers.customers.phone;
+  const customerPhone = order.store_customers?.customers?.phone;
 
   const [cancellationReasons, setCancellationReasons] = useState<
     CancellationReasonsType[]
