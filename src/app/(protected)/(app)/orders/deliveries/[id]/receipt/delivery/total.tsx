@@ -1,18 +1,18 @@
-import { formatCurrencyBRL } from '@/lib/utils'
-import { IfoodOrder } from '@/models/ifood'
-import { OrderType } from '@/models/order'
+import { Order } from "@/features/admin/orders/schemas";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { IfoodOrder } from "@/models/ifood";
 
-export function Total({ order }: { order?: OrderType }) {
+export function Total({ order }: { order?: Order }) {
   if (!order) {
-    return null
+    return null;
   }
 
-  const isIfood = order.is_ifood
-  const ifoodOrder: IfoodOrder = isIfood && order.ifood_order_data
+  const isIfood = order.is_ifood;
+  const ifoodOrder: IfoodOrder = isIfood && order.ifood_order_data;
 
-  const subtotal = order.total.subtotal
-  const deliveryFee = order?.total?.shipping_price
-  const totalAmount = order?.total?.total_amount
+  const subtotal = order?.total?.subtotal;
+  const deliveryFee = order?.total?.shipping_price;
+  const totalAmount = order?.total?.total_amount;
 
   return (
     <section
@@ -22,15 +22,15 @@ export function Total({ order }: { order?: OrderType }) {
       <h3 className="mx-auto uppercase">Total</h3>
 
       <p className="flex flex-row items-center justify-between">
-        <span>Subtotal:</span> <span>{formatCurrencyBRL(subtotal)}</span>
+        <span>Subtotal:</span> <span>{formatCurrencyBRL(subtotal || 0)}</span>
       </p>
       <p className="flex flex-row items-center justify-between">
-        <span>Taxa de entrega:</span>{' '}
-        <span>{formatCurrencyBRL(deliveryFee)}</span>
+        <span>Taxa de entrega:</span>{" "}
+        <span>{formatCurrencyBRL(deliveryFee || 0)}</span>
       </p>
       {isIfood && ifoodOrder.total.additionalFees ? (
         <p className="flex flex-row items-center justify-between">
-          <span>Taxa adicional:</span>{' '}
+          <span>Taxa adicional:</span>{" "}
           <span>{formatCurrencyBRL(ifoodOrder.total.additionalFees)}</span>
         </p>
       ) : null}
@@ -39,22 +39,22 @@ export function Total({ order }: { order?: OrderType }) {
         <p className="flex flex-row items-center justify-between">
           <span>
             Desconto: ({ifoodOrder.benefits[0].sponsorshipValues[0].name})
-          </span>{' '}
+          </span>{" "}
           <span>{formatCurrencyBRL(ifoodOrder.benefits[0].value * -1)}</span>
         </p>
       ) : null}
 
       {order?.total?.discount ? (
         <p className="flex flex-row items-center justify-between">
-          <span>Desconto:</span>{' '}
+          <span>Desconto:</span>{" "}
           <span>{formatCurrencyBRL(order?.total?.discount * -1)}</span>
         </p>
       ) : null}
 
       <strong className="flex flex-row items-center justify-between uppercase">
-        <span>Total do pedido:</span>{' '}
-        <span>{formatCurrencyBRL(totalAmount)}</span>
+        <span>Total do pedido:</span>{" "}
+        <span>{formatCurrencyBRL(totalAmount || 0)}</span>
       </strong>
     </section>
-  )
+  );
 }

@@ -1,41 +1,66 @@
+"use client";
+
 import { AdminHeader } from "@/app/admin-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn, formatAddress, formatCurrencyBRL } from "@/lib/utils";
-import { IfoodItem, IfoodOrder } from "@/models/ifood";
 import { statuses } from "@/models/statuses";
 import { addHours, format } from "date-fns";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { OrderOptions } from "../data-table/options";
 // ATENÇÃO: Não usar versão cacheada, pois esta tela depende de tempo real
-import { readOrderById } from "./actions";
+import { useOrderById } from "@/features/admin/orders/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
+import { IfoodOrderData } from "@/features/admin/orders/schemas";
+import { IfoodItem } from "@/features/admin/integrations/ifood/schemas";
+import { useParams } from "next/navigation";
 
 type StatusKey = keyof typeof statuses;
 
-export default async function OrderPage({
-  params,
-}: {
-  params: { id: string; print: string };
-}) {
-  const [orderData] = await readOrderById({ id: params.id });
+export default async function OrderPage() {
+  const params = useParams();
 
-  const order = orderData?.order;
+  const orderId = params.id as string;
 
-  if (!order) {
-    return null;
+  const { data: order, isLoading, error } = useOrderById(orderId);
+
+  if (isLoading) {
+    return (
+      <section className="flex flex-col gap-4 p-4 lg:px-0 pb-16">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-96 w-full" />
+          </div>
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </section>
+    );
   }
 
-  const displayId = order.display_id ?? params.id.substring(0, 4);
+  if (error || !order) {
+    return (
+      <section className="flex flex-col gap-4 p-4">
+        <AdminHeader title="Pedido não encontrado" withBackButton />
+        <p className="text-muted-foreground">
+          Não foi possível carregar os detalhes do pedido.
+        </p>
+      </section>
+    );
+  }
+
+  const displayId = order.display_id ?? orderId.substring(0, 4);
   const isIfood = order?.is_ifood;
-  const ifoodOrderData: IfoodOrder = isIfood && order?.ifood_order_data;
+  const ifoodOrderData: IfoodOrderData = isIfood && order?.ifood_order_data;
   const ifoodItems: IfoodItem[] = ifoodOrderData?.items;
   const ifoodAddress = ifoodOrderData?.delivery?.deliveryAddress;
 
   const orderItems = order?.order_items;
   const customer = order?.store_customers?.customers;
   const customerAddress = !isIfood
-    ? formatAddress(order?.store_customers.customers.address)
+    ? formatAddress(order?.store_customers?.customers?.address)
     : `${ifoodAddress?.streetName}, ${ifoodAddress?.streetNumber}`;
 
   const variations = order?.order_item_variations;
@@ -57,7 +82,7 @@ export default async function OrderPage({
   const ifoodCashChangeAmount =
     ifoodOrderData?.payments?.methods[0]?.cash?.changeFor &&
     ifoodOrderData?.payments?.methods[0]?.cash?.changeFor -
-      order?.total?.total_amount;
+      (order?.total?.total_amount || 0);
 
   const deliveryDateTime = addHours(
     ifoodOrderData?.delivery?.deliveryDateTime,
@@ -68,8 +93,9 @@ export default async function OrderPage({
     3,
   );
 
-  const subTotal = isIfood ? ifoodItemsTotal : order.total.subtotal;
-  const change = order?.total?.change_value - order?.total?.total_amount;
+  const subTotal = isIfood ? ifoodItemsTotal : order?.total?.subtotal || 0;
+  const change =
+    (order?.total?.change_value || 0) - (order?.total?.total_amount || 0);
 
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0 pb-16">
@@ -147,7 +173,7 @@ export default async function OrderPage({
                 <div className="flex flex-row items-center justify-between text-sm w-full">
                   <strong>Entrega</strong>
                   <strong>
-                    {formatCurrencyBRL(order?.total.shipping_price ?? 0)}
+                    {formatCurrencyBRL(order?.total?.shipping_price || 0)}
                   </strong>
                 </div>
               )}
@@ -163,7 +189,7 @@ export default async function OrderPage({
 
               {!isIfood &&
                 order.payment_type === "CASH" &&
-                order.total.change_value && (
+                order?.total?.change_value && (
                   <div className="flex flex-row items-center justify-between text-sm w-full">
                     <strong>Troco</strong>
                     <strong>{formatCurrencyBRL(change ?? 0)}</strong>
@@ -182,7 +208,7 @@ export default async function OrderPage({
                 </p>
               )}
 
-              {order.total.discount ? (
+              {order?.total?.discount ? (
                 <div className="flex flex-row items-center justify-between text-sm w-full">
                   <strong>Desconto</strong>
                   <strong>
@@ -194,7 +220,7 @@ export default async function OrderPage({
               <div className="flex flex-row items-center justify-between text-sm w-full">
                 <strong>Total da venda</strong>
                 <strong>
-                  {formatCurrencyBRL(order?.total.total_amount ?? 0)}
+                  {formatCurrencyBRL(order?.total?.total_amount ?? 0)}
                 </strong>
               </div>
 

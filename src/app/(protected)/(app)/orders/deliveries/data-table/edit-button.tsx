@@ -1,12 +1,12 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
+import { Order } from "@/features/admin/orders/schemas";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { OrderType } from "@/models/order";
 import { Edit } from "lucide-react";
 import Link from "next/link";
 
-export function EditButton({ order }: { order: OrderType }) {
+export function EditButton({ order }: { order: Order }) {
   const isMobile = useIsMobile();
 
   const currentStatus = order?.status;

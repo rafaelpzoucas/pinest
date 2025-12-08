@@ -1,39 +1,39 @@
-import { IfoodItem } from '@/models/ifood'
-import { format } from 'date-fns'
-import { Asterisk, Plus } from 'lucide-react'
+import { format } from "date-fns";
+import { Asterisk, Plus } from "lucide-react";
 // ATENÇÃO: Não usar versão cacheada, pois esta tela depende de tempo real
-import { readOrderById } from '../actions'
-import { DELIVERY_TYPES } from './info'
-import { Printer } from './printer'
+import { readOrderById } from "../actions";
+import { DELIVERY_TYPES } from "./info";
+import { Printer } from "./printer";
+import { IfoodItem } from "@/features/admin/orders/schemas";
 
 export default async function PrintKitchenReceipt({
   params,
   searchParams,
 }: {
-  params: { id: string }
-  searchParams: { reprint: string }
+  params: { id: string };
+  searchParams: { reprint: string };
 }) {
-  const [orderData] = await readOrderById({ id: params.id })
+  const [orderData] = await readOrderById({ id: params.id });
 
-  const order = orderData?.order
+  const order = orderData?.order;
 
-  const displayId = order?.display_id ?? order?.id.substring(0, 4)
+  const displayId = order?.display_id ?? order?.id.substring(0, 4);
 
   if (!order) {
-    return null
+    return null;
   }
 
-  const reprint = searchParams.reprint
-  const unprintedItems = order.order_items.filter((item) => !item.printed)
+  const reprint = searchParams.reprint;
+  const unprintedItems = order.order_items.filter((item) => !item.printed);
 
-  const itemsList = reprint ? order.order_items : unprintedItems
+  const itemsList = reprint ? order.order_items : unprintedItems;
 
-  const isIfood = order.is_ifood
-  const ifoodItems: IfoodItem[] = isIfood && order.ifood_order_data.items
+  const isIfood = order.is_ifood;
+  const ifoodItems: IfoodItem[] = isIfood && order.ifood_order_data.items;
 
   const customer = isIfood
     ? order.ifood_order_data.customer
-    : order.store_customers.customers
+    : order.store_customers.customers;
 
   return (
     <div
@@ -41,7 +41,7 @@ export default async function PrintKitchenReceipt({
         text-black print-container m-4"
     >
       <h1 className="uppercase text-base">
-        {reprint ? 'reimpressão - ' : ''}cozinha
+        {reprint ? "reimpressão - " : ""}cozinha
       </h1>
 
       <h2 className="uppercase text-base">Pedido #{displayId}</h2>
@@ -54,11 +54,11 @@ export default async function PrintKitchenReceipt({
         className="w-full border-b border-dashed last:border-0 py-4 break-inside-avoid
           print-section text-xs"
       >
-        <p>Data: {format(order.created_at, 'dd/MM HH:mm:ss')}</p>
+        <p>Data: {format(order.created_at, "dd/MM HH:mm:ss")}</p>
         <p>Cliente: {customer.name}</p>
         {order.observations && (
           <p className="text-base font-bold uppercase">
-            {' '}
+            {" "}
             OBS: {order.observations}
           </p>
         )}
@@ -74,7 +74,7 @@ export default async function PrintKitchenReceipt({
           {!isIfood
             ? itemsList.map((item) => {
                 if (!item.products) {
-                  return null
+                  return null;
                 }
 
                 return (
@@ -93,7 +93,7 @@ export default async function PrintKitchenReceipt({
                             key={extra.id}
                             className="flex flex-row items-center w-full border-b border-dotted last:border-0"
                           >
-                            <Plus className="w-3 h-3 mr-1" /> {extra.quantity}{' '}
+                            <Plus className="w-3 h-3 mr-1" /> {extra.quantity}{" "}
                             ad. {extra.name}
                           </p>
                         ))}
@@ -110,7 +110,7 @@ export default async function PrintKitchenReceipt({
                       </div>
                     </div>
                   </li>
-                )
+                );
               })
             : ifoodItems.map((item) => (
                 <li
@@ -128,7 +128,7 @@ export default async function PrintKitchenReceipt({
                         key={option.id}
                         className="flex flex-row items-center w-full text-xs"
                       >
-                        <Plus className="w-3 h-3 mr-1" /> {option.quantity} ad.{' '}
+                        <Plus className="w-3 h-3 mr-1" /> {option.quantity} ad.{" "}
                         {option.name}
                       </p>
                     ))}
@@ -141,5 +141,5 @@ export default async function PrintKitchenReceipt({
 
       <Printer orderId={order.id} />
     </div>
-  )
+  );
 }

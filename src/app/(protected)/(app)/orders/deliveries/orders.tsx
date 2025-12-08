@@ -3,19 +3,17 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { OrderType } from "@/models/order";
 import { useCashRegister } from "@/stores/cashRegisterStore";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useServerAction } from "zsa-react";
 import { readCashSession } from "../../cash-register/actions";
 import { columns } from "./data-table/columns";
 import { DataTable } from "./data-table/table";
 import { OrderCard } from "./order-card";
+import { useOrders } from "@/features/admin/orders/hooks";
 
 type OrderStatus =
   | "accept"
@@ -23,23 +21,22 @@ type OrderStatus =
   | "preparing"
   | "shipped"
   | "delivered"
-  | "cancelled";
+  | "cancelled"
+  | "readyToPickup";
 
-export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
-  const router = useRouter();
+export function Deliveries() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("in_progress");
 
-  // Criar cliente Supabase uma única vez usando useMemo
-  const supabase = useMemo(() => createClient(), []);
+  // Hook com realtime integrado
+  const { data: orders, isLoading } = useOrders();
 
   const normalizeString = (str: string | undefined) => str?.toLowerCase() || "";
-
   const searchStr = normalizeString(search);
 
-  function getStatusLengths(statuses: string[]) {
+  function getStatusLengths(statuses: OrderStatus[]) {
     return (
-      deliveries?.filter((delivery) => {
+      orders?.filter((order) => {
         const isDelivered = statuses.includes("delivered");
         const isInProgress =
           statuses.includes("accept") ||
@@ -49,17 +46,17 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
           statuses.includes("readyToPickup");
 
         if (isDelivered && !isInProgress) {
-          return delivery.status === "delivered" && delivery.is_paid === true;
+          return order.status === "delivered" && order.is_paid === true;
         }
 
         if (isInProgress) {
           return (
-            statuses.includes(delivery.status) ||
-            (delivery.status === "delivered" && delivery.is_paid === false)
+            statuses.includes(order.status as OrderStatus) ||
+            (order.status === "delivered" && order.is_paid === false)
           );
         }
 
-        return statuses.includes(delivery.status);
+        return statuses.includes(order.status as OrderStatus);
       }).length || 0
     );
   }
@@ -88,8 +85,8 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
     },
   ];
 
-  const filteredDeliveries = deliveries?.filter((delivery) => {
-    const { store_customers: storeCustomers, status, id } = delivery;
+  const filteredOrders = orders?.filter((order) => {
+    const { store_customers: storeCustomers, status, id } = order;
 
     const matchesSearch =
       normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
@@ -104,9 +101,9 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
             "shipped",
             "readyToPickup",
           ].includes(status) ||
-          (status === "delivered" && delivery.is_paid === false)
+          (status === "delivered" && order.is_paid === false)
         : statusFilter === "delivered"
-          ? status === "delivered" && delivery.is_paid === true
+          ? status === "delivered" && order.is_paid === true
           : statusFilter
             ? status === statusFilter
             : true;
@@ -132,45 +129,26 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
     execute();
   }, [execute]);
 
-  // Configurar realtime
-  useEffect(() => {
-    const channel = supabase
-      .channel("realtime-orders")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "orders",
-        },
-        (payload) => {
-          console.log("Realtime event received:", payload);
-          router.refresh();
-        },
-      )
-      .subscribe((status) => {
-        console.log("Subscription status:", status);
-
-        if (status === "SUBSCRIBED") {
-          console.log("✅ Realtime conectado com sucesso!");
-        }
-
-        if (status === "CHANNEL_ERROR") {
-          console.error("❌ Erro na conexão realtime");
-        }
-      });
-
-    return () => {
-      console.log("Desconectando realtime...");
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, router]);
+  if (isLoading) {
+    return (
+      <section className="flex flex-col gap-4 text-sm pb-16">
+        <div className="animate-pulse">
+          <div className="h-10 bg-muted rounded-md mb-4" />
+          <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-16 bg-muted rounded-md" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col gap-4 text-sm pb-16">
       <header className="flex flex-col lg:flex-row gap-4">
         <Link
-          href="orders/deliveries/register"
+          href="orders/orders/register"
           className={cn(buttonVariants(), "w-full max-w-sm")}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -193,7 +171,7 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
         {statusFilters.map((filter) => (
           <Card
             key={filter.status}
-            className={`p-2 px-4 flex flex-col text-xl select-none cursor-pointer
+            className={`p-2 px-4 flex flex-col text-xl select-none cursor-pointer transition-colors
             ${statusFilter === filter.status ? "border-primary" : ""}`}
             onClick={() => handleStatusClick(filter.status)}
           >
@@ -206,12 +184,12 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
       </section>
 
       <span className="text-xs text-muted-foreground">
-        Exibindo {filteredDeliveries?.length} pedido(s)
+        Exibindo {filteredOrders?.length || 0} pedido(s)
       </span>
 
       <div className="lg:hidden flex flex-col gap-2">
-        {filteredDeliveries && filteredDeliveries.length > 0
-          ? filteredDeliveries?.map((order) => (
+        {filteredOrders && filteredOrders.length > 0
+          ? filteredOrders?.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))
           : search !== "" && (
@@ -222,8 +200,8 @@ export function Deliveries({ deliveries }: { deliveries: OrderType[] | null }) {
       </div>
 
       <div className="hidden lg:flex w-full">
-        {filteredDeliveries && (
-          <DataTable columns={columns} data={filteredDeliveries} />
+        {filteredOrders && (
+          <DataTable columns={columns} data={filteredOrders} />
         )}
       </div>
     </section>

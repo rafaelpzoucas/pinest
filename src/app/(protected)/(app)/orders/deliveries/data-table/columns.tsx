@@ -1,18 +1,16 @@
 "use client";
-
 import { Badge } from "@/components/ui/badge";
 import { formatAddress, formatCurrencyBRL, formatDate } from "@/lib/utils";
-import { IfoodOrder } from "@/models/ifood";
-import { OrderType } from "@/models/order";
 import { statuses } from "@/models/statuses";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";
 import { OrderOptions } from "./options";
+import { Order } from "@/features/admin/orders/schemas";
 
 export type StatusKey = keyof typeof statuses;
 
-export const columns: ColumnDef<OrderType>[] = [
+export const columns: ColumnDef<Order>[] = [
   {
     accessorKey: "display_id",
     header: "ID",
@@ -24,7 +22,6 @@ export const columns: ColumnDef<OrderType>[] = [
     header: "Data",
     cell: ({ row }) => {
       const date = row.getValue("created_at") as string;
-
       return formatDate(date, "dd/MM - HH:mm:ss");
     },
     meta: { clickable: true },
@@ -33,11 +30,12 @@ export const columns: ColumnDef<OrderType>[] = [
     accessorKey: "type",
     header: "Tipo",
     cell: ({ row }) => {
-      const isIfood = row.original.is_ifood;
-      const ifoodOrderData: IfoodOrder =
-        isIfood && row.original.ifood_order_data;
+      const order = row.original;
+      const isIfood = order.is_ifood;
+      const ifoodOrderData = isIfood ? order.ifood_order_data : null;
       const deliveryDateTime = ifoodOrderData?.delivery?.deliveryDateTime;
       const preparationStartDateTime = ifoodOrderData?.preparationStartDateTime;
+      const orderTiming = ifoodOrderData?.orderTiming;
 
       return (
         <div className="flex flex-col gap-3 items-center justify-center">
@@ -47,23 +45,24 @@ export const columns: ColumnDef<OrderType>[] = [
                 <Image src="/ifood.png" alt="" width={30} height={15} />
               )}
             </span>
-
-            <span>
-              {row.original.type === "DELIVERY" ? "Entrega" : "Retirada"}
-            </span>
+            <span>{order.type === "DELIVERY" ? "Entrega" : "Retirada"}</span>
           </div>
-
           {ifoodOrderData &&
             preparationStartDateTime &&
-            ifoodOrderData.orderTiming === "SCHEDULED" && (
+            orderTiming === "SCHEDULED" &&
+            deliveryDateTime && (
               <div className="flex flex-row gap-2">
                 <Badge className="flex flex-col w-fit">
                   <span>AGENDADO</span>
-                  <span>{format(deliveryDateTime, "dd/MM HH:mm")}</span>
+                  <span>
+                    {format(new Date(deliveryDateTime), "dd/MM HH:mm")}
+                  </span>
                 </Badge>
                 <Badge className="flex flex-col w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
                   <span>INICIAR PREPARO</span>
-                  <span>{format(preparationStartDateTime, "dd/MM HH:mm")}</span>
+                  <span>
+                    {format(new Date(preparationStartDateTime), "dd/MM HH:mm")}
+                  </span>
                 </Badge>
               </div>
             )}
@@ -80,15 +79,20 @@ export const columns: ColumnDef<OrderType>[] = [
       const isIfood = order.is_ifood;
 
       const customer = isIfood
-        ? order.ifood_order_data.customer
-        : order.store_customers.customers;
+        ? order.ifood_order_data?.customer
+        : order.store_customers?.customers;
+
       const type = order.type;
+
       const customerAddress = isIfood
-        ? (order.delivery.address as unknown as string)
-        : formatAddress(order.store_customers.customers.address);
+        ? (order.delivery?.address as string)
+        : formatAddress(order.store_customers?.customers?.address);
+
+      const customerName = customer?.name?.toLowerCase() || "Cliente";
+
       return (
         <div className="max-w-[280px]">
-          <p className="capitalize">{(customer?.name).toLowerCase()}</p>
+          <p className="capitalize">{customerName}</p>
           <p className="text-xs text-muted-foreground">
             {type === "DELIVERY" ? customerAddress : "Retirada na loja"}
           </p>
@@ -97,7 +101,6 @@ export const columns: ColumnDef<OrderType>[] = [
     },
     meta: { clickable: true },
   },
-
   {
     accessorKey: "status",
     header: "Status",
@@ -105,7 +108,6 @@ export const columns: ColumnDef<OrderType>[] = [
       const status = row.getValue("status");
       const isPaid = row.original.is_paid;
       const cancelled = status === "cancelled";
-
       return (
         <Badge variant="secondary" className="hover:bg-secondary">
           {statuses[status as StatusKey].status}{" "}
@@ -119,18 +121,19 @@ export const columns: ColumnDef<OrderType>[] = [
     accessorKey: "change_value",
     header: "Troco",
     cell: ({ row }) => {
-      const isIfood = row.original.is_ifood;
-      const changeValue = row.original?.total?.change_value ?? 0;
-      const totalAmount = row.original?.total?.total_amount ?? 0;
-      const ifoodOrderData: IfoodOrder =
-        isIfood && row.original?.ifood_order_data;
-      const ifoodCashChangeAmount =
-        isIfood && ifoodOrderData?.payments.methods[0].cash
-          ? ifoodOrderData.payments.methods[0].cash.changeFor
-          : 0;
+      const order = row.original;
+      const isIfood = order.is_ifood;
+      const changeValue = order.total?.change_value ?? 0;
+      const totalAmount = order.total?.total_amount ?? 0;
 
-      return changeValue ? (
-        formatCurrencyBRL((ifoodCashChangeAmount || changeValue) - totalAmount)
+      const ifoodOrderData = isIfood ? order.ifood_order_data : null;
+      const ifoodCashChangeAmount =
+        ifoodOrderData?.payments?.methods?.[0]?.cash?.changeFor ?? 0;
+
+      const finalChangeValue = ifoodCashChangeAmount || changeValue;
+
+      return finalChangeValue ? (
+        formatCurrencyBRL(finalChangeValue - totalAmount)
       ) : (
         <p>-</p>
       );
@@ -141,8 +144,7 @@ export const columns: ColumnDef<OrderType>[] = [
     accessorKey: "discount",
     header: "Desconto",
     cell: ({ row }) => {
-      const discount = row.original?.total?.discount;
-
+      const discount = row.original.total?.discount;
       return discount ? formatCurrencyBRL(discount * -1) : <p>-</p>;
     },
     meta: { clickable: true },
@@ -151,10 +153,7 @@ export const columns: ColumnDef<OrderType>[] = [
     accessorKey: "total",
     header: "Total",
     cell: ({ row }) => {
-      const order = row.original;
-
-      const totalAmount = order?.total?.total_amount;
-
+      const totalAmount = row.original.total?.total_amount ?? 0;
       return (
         <div>
           <p>{formatCurrencyBRL(totalAmount)}</p>
@@ -167,7 +166,7 @@ export const columns: ColumnDef<OrderType>[] = [
     accessorKey: "id",
     header: "Ações",
     cell: ({ row }) => {
-      return <OrderOptions order={row.original as OrderType} />;
+      return <OrderOptions order={row.original} />;
     },
   },
 ];
