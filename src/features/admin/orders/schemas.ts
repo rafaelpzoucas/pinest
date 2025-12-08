@@ -171,7 +171,7 @@ export const ifoodOrderDataSchema = z.any();
 export const customerSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
-  phone: z.string().optional().nullable(),
+  phone: z.string().optional(),
   email: z.string().optional().nullable(),
   address: z.any().optional().nullable(),
 });
