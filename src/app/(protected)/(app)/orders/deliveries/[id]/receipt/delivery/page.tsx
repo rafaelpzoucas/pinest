@@ -1,18 +1,18 @@
-import { readOrderById } from '../../actions'
-import { Info } from '../info'
-import { Items } from './items'
-import { Payment } from './payment'
-import { Printer } from './printer'
-import { Total } from './total'
+"use client";
+
+import { useOrderById } from "@/features/admin/orders/hooks";
+import { Info } from "../info";
+import { Items } from "./items";
+import { Payment } from "./payment";
+import { Printer } from "./printer";
+import { Total } from "./total";
 
 export default async function PrintDeliveryReceipt({
   params,
 }: {
-  params: { id: string }
+  params: { id: string };
 }) {
-  const [orderData] = await readOrderById({ id: params.id })
-
-  const order = orderData?.order
+  const { data: order } = useOrderById(params.id);
 
   return (
     <div
@@ -29,5 +29,5 @@ export default async function PrintDeliveryReceipt({
 
       <Printer />
     </div>
-  )
+  );
 }

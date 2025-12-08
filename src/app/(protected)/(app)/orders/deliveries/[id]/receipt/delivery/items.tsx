@@ -1,15 +1,18 @@
-import { formatCurrencyBRL } from '@/lib/utils'
-import { IfoodItem, IfoodOrder } from '@/models/ifood'
-import { OrderType } from '@/models/order'
-import { Asterisk, Plus } from 'lucide-react'
+import {
+  IfoodItem,
+  IfoodOrderData,
+  Order,
+} from "@/features/admin/orders/schemas";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { Asterisk, Plus } from "lucide-react";
 
-export function Items({ order }: { order?: OrderType }) {
-  const isIfood = order?.is_ifood
-  const ifoodOrder: IfoodOrder = isIfood && order?.ifood_order_data
-  const ifoodItems: IfoodItem[] = ifoodOrder?.items ?? []
+export function Items({ order }: { order?: Order }) {
+  const isIfood = order?.is_ifood;
+  const ifoodOrder: IfoodOrderData = isIfood && order?.ifood_order_data;
+  const ifoodItems: IfoodItem[] = ifoodOrder?.items ?? [];
 
   if (!order) {
-    return null
+    return null;
   }
 
   return (
@@ -18,20 +21,20 @@ export function Items({ order }: { order?: OrderType }) {
 
       <ul>
         {!isIfood
-          ? order.order_items.map((item) => {
+          ? order?.order_items?.map((item) => {
               // Calculando o total do item (produto base)
-              const itemTotal = item.product_price
+              const itemTotal = item.product_price;
 
               // Calculando o total dos extras
               const extrasTotal = item.extras.reduce((acc, extra) => {
-                return acc + extra.price * extra.quantity
-              }, 0)
+                return acc + extra.price * extra.quantity;
+              }, 0);
 
               // Somando o total do item com o total dos extras
-              const total = (itemTotal + extrasTotal) * item.quantity
+              const total = (itemTotal + extrasTotal) * item.quantity;
 
               if (!item?.products) {
-                return null
+                return null;
               }
 
               return (
@@ -52,7 +55,7 @@ export function Items({ order }: { order?: OrderType }) {
                         className="flex flex-row items-center justify-between w-full"
                       >
                         <span className="flex flex-row items-center">
-                          <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{' '}
+                          <Plus className="w-3 h-3 mr-1" /> {extra.quantity} ad.{" "}
                           {extra.name}
                         </span>
                         <span>
@@ -74,25 +77,25 @@ export function Items({ order }: { order?: OrderType }) {
 
                   <footer className="flex flex-row items-center justify-between">
                     <p>Total:</p>
-                    <span>{formatCurrencyBRL(total)}</span>{' '}
+                    <span>{formatCurrencyBRL(total)}</span>{" "}
                     {/* Exibindo o total calculado */}
                   </footer>
                 </li>
-              )
+              );
             })
           : ifoodItems.map((item) => {
               // Calculando o total do item (produto base)
-              const itemTotal = item.price
+              const itemTotal = item.price;
 
               // Calculando o total dos extras
               const extrasTotal = item.options
                 ? item.options.reduce((acc, extra) => {
-                    return acc + extra.price * extra.quantity
+                    return acc + extra.price * extra.quantity;
                   }, 0)
-                : 0
+                : 0;
 
               // Somando o total do item com o total dos extras
-              const total = (itemTotal + extrasTotal) * item.quantity
+              const total = (itemTotal + extrasTotal) * item.quantity;
 
               return (
                 <li
@@ -113,7 +116,7 @@ export function Items({ order }: { order?: OrderType }) {
                         className="flex flex-row items-center justify-between w-full"
                       >
                         <span className="flex flex-row items-center">
-                          <Plus className="w-3 h-3 mr-1" /> {option.quantity}{' '}
+                          <Plus className="w-3 h-3 mr-1" /> {option.quantity}{" "}
                           ad. {option.name}
                         </span>
                         <span>
@@ -130,13 +133,13 @@ export function Items({ order }: { order?: OrderType }) {
 
                   <footer className="flex flex-row items-center justify-between">
                     <p>Total:</p>
-                    <span>{formatCurrencyBRL(total)}</span>{' '}
+                    <span>{formatCurrencyBRL(total)}</span>{" "}
                     {/* Exibindo o total calculado */}
                   </footer>
                 </li>
-              )
+              );
             })}
       </ul>
     </section>
-  )
+  );
 }

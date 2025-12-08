@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { OrderType } from '@/models/order'
-import { Loader2, Printer } from 'lucide-react'
-import { useServerAction } from 'zsa-react'
-import { printOrderReceipt } from '../../../config/printing/actions'
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2, Printer } from "lucide-react";
+import { useServerAction } from "zsa-react";
+import { printOrderReceipt } from "../../../config/printing/actions";
+import { Order } from "@/features/admin/orders/schemas";
 
-export function Printbutton({ order }: { order: OrderType }) {
-  const currentStatus = order?.status
+export function Printbutton({ order }: { order: Order }) {
+  const currentStatus = order?.status;
 
-  const accepted = currentStatus !== 'accept'
+  const accepted = currentStatus !== "accept";
 
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   const { execute: executePrintReceipt, isPending: isPrinting } =
-    useServerAction(printOrderReceipt)
+    useServerAction(printOrderReceipt);
 
   if (!accepted) {
-    return null
+    return null;
   }
 
   return (
     <Button
       variant="ghost"
-      size={isMobile ? 'default' : 'icon'}
+      size={isMobile ? "default" : "icon"}
       onClick={() =>
         executePrintReceipt({
           orderId: order.id,
@@ -40,7 +40,7 @@ export function Printbutton({ order }: { order: OrderType }) {
         <Printer className="w-5 h-5" />
       )}
 
-      {isMobile && 'Imprimir'}
+      {isMobile && "Imprimir"}
     </Button>
-  )
+  );
 }

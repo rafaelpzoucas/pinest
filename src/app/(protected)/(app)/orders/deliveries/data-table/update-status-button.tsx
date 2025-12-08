@@ -2,16 +2,16 @@
 
 import { nofityCustomer } from "@/actions/admin/notifications/actions";
 import { Button } from "@/components/ui/button";
-import { OrderType } from "@/models/order";
 import { statuses } from "@/models/statuses";
 import { Check, FastForward, Loader2 } from "lucide-react";
 import { useServerAction } from "zsa-react";
 import { printOrderReceipt } from "../../../config/printing/actions";
 import { acceptOrder, updateOrderStatus } from "../[id]/actions";
+import { Order } from "@/features/admin/orders/schemas";
 
 type StatusKey = keyof typeof statuses;
 
-export function UpdateStatusButton({ order }: { order: OrderType }) {
+export function UpdateStatusButton({ order }: { order: Order }) {
   const orderId = order?.id;
   const currentStatus = order?.status;
   const isIfood = !!order?.is_ifood;
@@ -19,7 +19,7 @@ export function UpdateStatusButton({ order }: { order: OrderType }) {
 
   const accepted = currentStatus !== "accept";
 
-  const customerPhone = order.store_customers.customers.phone;
+  const customerPhone = order.store_customers?.customers?.phone;
 
   const { execute: executePrintReceipt } = useServerAction(printOrderReceipt);
 
@@ -62,16 +62,7 @@ export function UpdateStatusButton({ order }: { order: OrderType }) {
     await execute({ newStatus, orderId, isIfood });
   }
 
-  if (
-    currentStatus === "processing" ||
-    currentStatus === "delivered" ||
-    currentStatus === "cancelled" ||
-    currentStatus === "returned" ||
-    currentStatus === "refunded" ||
-    currentStatus === "payment_failed" ||
-    currentStatus === "awaiting_payment" ||
-    currentStatus === "under_review"
-  ) {
+  if (currentStatus === "delivered" || currentStatus === "cancelled") {
     return null;
   }
 

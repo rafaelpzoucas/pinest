@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { OrderType } from "@/models/order";
 import { useCashRegister } from "@/stores/cashRegisterStore";
 import { BadgeDollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -10,8 +9,9 @@ import { closeBills } from "../../close/actions";
 
 import { useQueryState } from "nuqs";
 import { OpenCashSession } from "../../../cash-register/open";
+import { Order } from "@/features/admin/orders/schemas";
 
-export function CloseSaleButton({ order }: { order: OrderType }) {
+export function CloseSaleButton({ order }: { order: Order }) {
   const [tab] = useQueryState("tab");
 
   const currentStatus = order?.status;

@@ -1,20 +1,20 @@
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { TableType } from '@/models/table'
-import { ArrowLeft, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { UseFormReturn } from 'react-hook-form'
-import { z } from 'zod'
-import { createTableSchema } from './schemas'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { TableType } from "@/models/table";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { createTableSchema } from "./schemas";
 
 export function Summary({
   form,
@@ -23,26 +23,31 @@ export function Summary({
   isUpdatePending,
   onSubmit,
 }: {
-  form: UseFormReturn<z.infer<typeof createTableSchema>>
-  table: TableType
-  isCreatePending: boolean
-  isUpdatePending: boolean
-  onSubmit: (values: z.infer<typeof createTableSchema>) => void
+  form: UseFormReturn<z.infer<typeof createTableSchema>>;
+  table: TableType;
+  isCreatePending: boolean;
+  isUpdatePending: boolean;
+  onSubmit: (values: z.infer<typeof createTableSchema>) => void;
 }) {
-  const router = useRouter()
+  const router = useRouter();
 
-  const orderItems = form.watch('order_items')
+  const orderItems = form.watch("order_items");
 
   const totalAmount = orderItems.reduce(
     (sum, item) => sum + item.product_price * item.quantity,
     0,
-  )
+  );
   return (
     <Card
       className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
         lg:border"
     >
-      <Button onClick={() => router.back()} variant="ghost" size="icon">
+      <Button
+        type="button"
+        onClick={() => router.back()}
+        variant="ghost"
+        size="icon"
+      >
         <ArrowLeft />
       </Button>
 
@@ -104,13 +109,13 @@ export function Summary({
           {isCreatePending || isUpdatePending ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              <span>{table?.id ? 'Atualizando' : 'Criando'} mesa</span>
+              <span>{table?.id ? "Atualizando" : "Criando"} mesa</span>
             </>
           ) : (
-            <span>{table?.id ? 'Atualizar' : 'Criar'} mesa</span>
+            <span>{table?.id ? "Atualizar" : "Criar"} mesa</span>
           )}
         </Button>
       </div>
     </Card>
-  )
+  );
 }
