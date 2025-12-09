@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { usePrinterExtensionStore } from '@/stores/printerExtensionStore'
-import { Download } from 'lucide-react'
+} from "@/components/ui/card";
+import { usePrinterExtensionStore } from "@/stores/printerExtensionStore";
+import { Download } from "lucide-react";
 
 export function Extension() {
-  const { isActive } = usePrinterExtensionStore()
+  const { isActive } = usePrinterExtensionStore();
 
   return (
     <Card>
@@ -36,7 +36,7 @@ export function Extension() {
         ) : (
           <Button variant="secondary" asChild>
             <a
-              href="https://uguiyoavathssoqpzxrq.supabase.co/storage/v1/object/public/printer//impressora-pinest.exe"
+              href="https://uguiyoavathssoqpzxrq.supabase.co/storage/v1/object/public/printer/PinestPrinter_Setup.exe"
               download
               target="_blank"
               rel="noopener noreferrer"
@@ -48,5 +48,5 @@ export function Extension() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
