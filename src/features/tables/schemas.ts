@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { orderItemSchema } from "../admin/orders/schemas";
 
 // Schema base da tabela
 export const tableSchema = z.object({
@@ -9,6 +10,7 @@ export const tableSchema = z.object({
   description: z.string().nullable(),
   status: z.enum(["open", "occupied", "reserved", "closed"]).default("open"),
   cash_session_id: z.string().uuid().nullable(),
+  order_items: z.array(orderItemSchema),
 });
 
 // Tipo inferido do schema

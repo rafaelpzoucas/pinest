@@ -1,44 +1,50 @@
-import { PaymentType } from '@/models/payment'
-import { DollarSign } from 'lucide-react'
-import { getSalesReportByCashSessionId } from '../reports/actions'
-import {
-  readCashReceiptsCached,
-  readCashSessionCached,
-  readCashSessionPaymentsCached,
-  readOpenOrdersCached,
-  readOpenTablesCached,
-} from './actions'
-import { CreateTransactionForm } from './create-transaction-form'
-import { columns } from './data-table/columns'
-import { DataTable } from './data-table/table'
-import { OpenCashSession } from './open'
-import { CashRegisterSummary } from './summary'
+"use client";
 
-export default async function CashRegister() {
-  const today = new Date()
+import { DollarSign, Loader2 } from "lucide-react";
+import { CreateTransactionForm } from "./create-transaction-form";
+import { columns } from "./data-table/columns";
+import { DataTable } from "./data-table/table";
+import { OpenCashSession } from "./open";
+import { CashRegisterSummary } from "./summary";
+import { getSalesReportByCashSessionId } from "../reports/actions";
+import { useQuery } from "@tanstack/react-query";
+import { useReadCashSession } from "@/features/cash-register/hooks";
+import { useReadCashSessionPayments } from "@/features/cash-register/transactions/hooks";
 
-  const [
-    [cashSessionData],
-    [paymentsData],
-    [openOrdersData],
-    [openTablesData],
-    [cashReceiptsData],
-    [reportsData],
-  ] = await Promise.all([
-    readCashSessionCached(),
-    readCashSessionPaymentsCached(),
-    readOpenOrdersCached(),
-    readOpenTablesCached(),
-    readCashReceiptsCached(),
-    getSalesReportByCashSessionId(),
-  ])
+export default function CashRegister() {
+  // Hooks para buscar dados
+  const { data: cashSession, isLoading: loadingSession } = useReadCashSession();
+  const { data: payments = [], isLoading: loadingPayments } =
+    useReadCashSessionPayments();
 
-  const cashSession = cashSessionData?.cashSession
-  const payments: PaymentType[] = paymentsData?.payments || []
-  const cashReceipts = cashReceiptsData?.cashReceipts
+  // Hook para buscar reports apenas se houver sessão
+  const { data: reports, isLoading: loadingReports } = useQuery({
+    queryKey: ["sales-report", cashSession?.id],
+    queryFn: async () => {
+      const [data, error] = await getSalesReportByCashSessionId();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!cashSession?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
 
-  const hasOpenOrders = (openOrdersData?.openOrders?.length as number) > 0
-  const hasOpenTables = (openTablesData?.openTables?.length as number) > 0
+  const isLoading = loadingSession || loadingPayments;
+
+  // Loading state inicial
+  if (isLoading) {
+    return (
+      <div className="space-y-6 p-4 pb-16 lg:px-0 w-screen lg:w-full">
+        <div
+          className="w-full h-[60vh] flex flex-col gap-4 items-center justify-center
+            text-muted-foreground"
+        >
+          <Loader2 className="w-12 h-12 animate-spin" />
+          <p>Carregando caixa...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 pb-16 lg:px-0 w-screen lg:w-full">
@@ -69,18 +75,12 @@ export default async function CashRegister() {
               <DataTable data={payments} columns={columns} />
 
               <aside className="lg:sticky top-4 w-full lg:w-auto">
-                <CashRegisterSummary
-                  payments={payments}
-                  hasOpenOrders={hasOpenOrders}
-                  hasOpenTables={hasOpenTables}
-                  cashReceipts={cashReceipts}
-                  reports={reportsData}
-                />
+                <CashRegisterSummary payments={payments} reports={reports} />
               </aside>
             </div>
           </section>
         )}
       </div>
     </div>
-  )
+  );
 }

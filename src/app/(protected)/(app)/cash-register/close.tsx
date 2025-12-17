@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { useServerAction } from "zsa-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,13 +58,12 @@ import {
 import { cn, formatCurrencyBRL, stringToNumber } from "@/lib/utils";
 import type { PaymentType } from "@/models/payment";
 import { printMultipleReports } from "../config/printing/actions";
-import { closeCashSession } from "./actions";
+
 import { CashForm } from "./cash-form";
 import { ReceiptForm } from "./receipt-form";
-import {
-  closeCashSessionSchema,
-  type createCashReceiptsSchema,
-} from "./schemas";
+import { closeCashSessionSchema } from "./schemas";
+import { useCloseCashSession } from "@/features/cash-register/hooks";
+import { createCashReceiptsSchema } from "@/features/cash-register/schemas";
 
 // Função utilitária para retornar string vazia se o valor for zero
 function emptyIfZero(value: number) {
@@ -195,34 +193,14 @@ export function CloseCashSession({
 
   const difference = totalDeclared - totalComputed;
 
-  const { execute: executePrintMultipleReports } = useServerAction(
-    printMultipleReports,
-    {
-      onSuccess: (result) => {
-        console.info("Impressão múltipla concluída:", result);
-      },
-      onError: ({ err }) => {
-        console.error("Erro ao imprimir múltiplos relatórios", err);
-      },
-    },
-  );
+  // Hook do react-query para fechar caixa
+  const { mutate: closeCash, isPending } = useCloseCashSession();
 
-  const { execute, isPending } = useServerAction(closeCashSession, {
-    onSuccess: () => {
-      setIsSheetOpen(false);
-      form.reset();
-
-      // Limpa os query params após fechar o caixa
-      setPixValue(null);
-      setCreditValue(null);
-      setDebitValue(null);
-      setCashValue(null);
-
+  async function handlePrintReports() {
+    try {
       const salesReportText = buildSalesReportESCPOS(reports.salesReport);
-      // if (difference !== 0) {
-      //   salesReportText += `\n\n*** FECHADO COM DIFERENÇA DE ${formatCurrencyBRL(Math.abs(difference))} ***\n`
-      // }
-      executePrintMultipleReports({
+
+      const [, error] = await printMultipleReports({
         reports: [
           {
             name: "Relatório de Vendas",
@@ -234,22 +212,41 @@ export function CloseCashSession({
           },
         ],
       });
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
+
+      if (error) {
+        console.error("Erro ao imprimir múltiplos relatórios", error);
+      }
+    } catch (error) {
+      console.error("Erro ao imprimir relatórios:", error);
+    }
+  }
 
   function handleConfirmClose() {
     if (pendingValues) {
       setIsPrinting(true);
-      execute(pendingValues);
-      setIsPrinting(false);
-      toast(
-        `Caixa fechado com diferença de ${formatCurrencyBRL(Math.abs(difference))}`,
-      );
-      setShowDifferenceDialog(false);
-      setPendingValues(null);
+      closeCash(pendingValues, {
+        onSuccess: () => {
+          handlePrintReports();
+          setIsSheetOpen(false);
+          form.reset();
+
+          // Limpa os query params após fechar o caixa
+          setPixValue(null);
+          setCreditValue(null);
+          setDebitValue(null);
+          setCashValue(null);
+
+          toast(
+            `Caixa fechado com diferença de ${formatCurrencyBRL(Math.abs(difference))}`,
+          );
+          setIsPrinting(false);
+          setShowDifferenceDialog(false);
+          setPendingValues(null);
+        },
+        onError: () => {
+          setIsPrinting(false);
+        },
+      });
     }
   }
 
@@ -259,9 +256,26 @@ export function CloseCashSession({
       setShowDifferenceDialog(true);
       return;
     }
+
     setIsPrinting(true);
-    execute(values);
-    setIsPrinting(false);
+    closeCash(values, {
+      onSuccess: () => {
+        handlePrintReports();
+        setIsSheetOpen(false);
+        form.reset();
+
+        // Limpa os query params após fechar o caixa
+        setPixValue(null);
+        setCreditValue(null);
+        setDebitValue(null);
+        setCashValue(null);
+
+        setIsPrinting(false);
+      },
+      onError: () => {
+        setIsPrinting(false);
+      },
+    });
   }
 
   // Inicializa os valores apenas uma vez quando o componente monta

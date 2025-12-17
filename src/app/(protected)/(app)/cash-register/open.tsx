@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Sheet,
@@ -8,13 +8,13 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from "@/components/ui/sheet";
 
-import { Button, buttonVariants } from '@/components/ui/button'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { openCashSessionSchema } from './schemas'
+import { Button, buttonVariants } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { openCashSessionSchema } from "./schemas";
 
 import {
   Form,
@@ -23,36 +23,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { ArrowLeft, Loader2 } from 'lucide-react'
-import { useState } from 'react'
-import { useServerAction } from 'zsa-react'
-import { createCashSession } from './actions'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useCreateCashSession } from "@/features/cash-register/hooks";
 
 export function OpenCashSession() {
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const form = useForm<z.infer<typeof openCashSessionSchema>>({
     resolver: zodResolver(openCashSessionSchema),
     defaultValues: {
-      opening_balance: '',
+      opening_balance: "",
     },
-  })
+  });
 
-  const { execute, isPending } = useServerAction(createCashSession, {
-    onSuccess: () => {
-      setIsSheetOpen(false)
-      form.reset()
-    },
-    onError: (error) => {
-      console.error(error)
-    },
-  })
+  const { mutate, isPending } = useCreateCashSession();
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof openCashSessionSchema>) {
-    execute(values)
+    mutate(values);
   }
 
   return (
@@ -62,7 +53,7 @@ export function OpenCashSession() {
         <SheetHeader className="items-start mb-4">
           <div className="flex flex-row items-center gap-2">
             <SheetClose
-              className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+              className={buttonVariants({ variant: "ghost", size: "icon" })}
             >
               <ArrowLeft />
             </SheetClose>
@@ -99,12 +90,12 @@ export function OpenCashSession() {
                   <span>Abrindo caixa</span>
                 </>
               ) : (
-                'Abrir caixa'
+                "Abrir caixa"
               )}
             </Button>
           </form>
         </Form>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

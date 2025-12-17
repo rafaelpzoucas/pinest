@@ -1,16 +1,10 @@
-'use client'
+"use client";
 
-import { Button, buttonVariants } from '@/components/ui/button'
-
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
-import { useState } from 'react'
-import { useServerAction } from 'zsa-react'
-import { createCashSessionTransaction } from './actions'
-import { createTransactionFormSchema } from './schemas'
-
+import { Button, buttonVariants } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useState } from "react";
 import {
   Sheet,
   SheetClose,
@@ -18,9 +12,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { ArrowLeft, Loader2, Plus } from 'lucide-react'
-
+} from "@/components/ui/sheet";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -28,52 +21,41 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { createTransactionFormSchema } from "@/features/cash-register/schemas";
+import { useCreateCashSessionTransaction } from "@/features/cash-register/transactions/hooks";
 
 export function CreateTransactionForm() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [receiptType, setReceiptType] = useState<
-    'pix' | 'credit' | 'debit' | null
-  >(null)
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<z.infer<typeof createTransactionFormSchema>>({
     resolver: zodResolver(createTransactionFormSchema),
-  })
+  });
 
-  const { execute, isPending } = useServerAction(createCashSessionTransaction, {
-    onSuccess: () => {
-      setIsOpen(false)
-      form.reset()
-    },
-    onError: (error) => {
-      // Handle transaction creation errors.
-      console.error(error)
-    },
-  })
+  const { mutate: createTransaction, isPending } =
+    useCreateCashSessionTransaction();
 
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof createTransactionFormSchema>) {
-    execute(values)
-  }
-
-  // Adiciona função para abrir o form de recibo
-  const openReceiptForm = (type: 'pix' | 'credit' | 'debit') => {
-    setReceiptType(type)
-    setIsOpen(true)
+    createTransaction(values, {
+      onSuccess: () => {
+        setIsOpen(false);
+        form.reset();
+      },
+    });
   }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger className={buttonVariants({ variant: 'outline' })}>
+      <SheetTrigger className={buttonVariants({ variant: "outline" })}>
         <Plus className="w-4 h-4 mr-2" />
         Criar transação
       </SheetTrigger>
       <SheetContent>
         <SheetHeader className="flex flex-row items-center">
           <SheetClose
-            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
           >
             <ArrowLeft />
           </SheetClose>
@@ -198,12 +180,12 @@ export function CreateTransactionForm() {
                   <span>Criando transação</span>
                 </>
               ) : (
-                'Criar transação'
+                "Criar transação"
               )}
             </Button>
           </form>
         </Form>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
