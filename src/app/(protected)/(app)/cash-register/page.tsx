@@ -6,10 +6,9 @@ import { columns } from "./data-table/columns";
 import { DataTable } from "./data-table/table";
 import { OpenCashSession } from "./open";
 import { CashRegisterSummary } from "./summary";
-import { getSalesReportByCashSessionId } from "../reports/actions";
-import { useQuery } from "@tanstack/react-query";
 import { useReadCashSession } from "@/features/cash-register/hooks";
 import { useReadCashSessionPayments } from "@/features/cash-register/transactions/hooks";
+import { useReadSalesReport } from "@/features/reports/sales/hooks";
 
 export default function CashRegister() {
   // Hooks para buscar dados
@@ -18,18 +17,11 @@ export default function CashRegister() {
     useReadCashSessionPayments();
 
   // Hook para buscar reports apenas se houver sessão
-  const { data: reports, isLoading: loadingReports } = useQuery({
-    queryKey: ["sales-report", cashSession?.id],
-    queryFn: async () => {
-      const [data, error] = await getSalesReportByCashSessionId();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!cashSession?.id,
-    staleTime: 1000 * 60 * 5, // 5 minutos
-  });
+  const { data: reports, isLoading: loadingReports } = useReadSalesReport(
+    cashSession?.id,
+  );
 
-  const isLoading = loadingSession || loadingPayments;
+  const isLoading = loadingSession || loadingPayments || loadingReports;
 
   // Loading state inicial
   if (isLoading) {
