@@ -1,17 +1,18 @@
-import { formatCurrencyBRL } from '@/lib/utils'
-import { PaymentType } from '@/models/payment'
-import { endOfDay, startOfDay } from 'date-fns'
-import { getSalesReportByDateCached } from '../../reports/actions'
-import { ProductsSoldReportPrint } from '../../reports/print/[report]/products-sold'
-import { readPaymentsByCashSessionId } from '../actions'
-import { Printer } from './printer'
+import { formatCurrencyBRL } from "@/lib/utils";
+import { PaymentType } from "@/models/payment";
+import { endOfDay, startOfDay } from "date-fns";
+import { getSalesReportByDateCached } from "../../reports/actions";
+import { ProductsSoldReportPrint } from "../../reports/print/[report]/products-sold";
+
+import { Printer } from "./printer";
+import { readPaymentsByCashSessionId } from "@/features/cash-register/transactions/read-by-id";
 
 export default async function CashRegisterPrint({
   searchParams,
 }: {
-  searchParams: { cash_session_id: string }
+  searchParams: { cash_session_id: string };
 }) {
-  const today = new Date()
+  const today = new Date();
   const [[reports], [paymentsData]] = await Promise.all([
     getSalesReportByDateCached({
       start_date: startOfDay(today).toISOString(),
@@ -20,77 +21,77 @@ export default async function CashRegisterPrint({
     readPaymentsByCashSessionId({
       cashSessionId: searchParams.cash_session_id,
     }),
-  ])
+  ]);
 
-  const payments: PaymentType[] = paymentsData?.payments || []
-  const productsSold = reports?.productsSold
+  const payments: PaymentType[] = paymentsData?.payments || [];
+  const productsSold = reports?.productsSold;
 
   const initialAmount = payments.find(
-    (payment) => payment.description === 'Abertura de caixa',
-  )?.amount
+    (payment) => payment.description === "Abertura de caixa",
+  )?.amount;
 
   const incomePayments = payments.filter(
-    (payments) => payments.type === 'INCOME',
-  )
+    (payments) => payments.type === "INCOME",
+  );
   const expensePayments = payments.filter(
-    (payments) => payments.type === 'EXPENSE',
-  )
+    (payments) => payments.type === "EXPENSE",
+  );
 
   const incomeTotals = incomePayments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: 'Cartão de crédito',
-        DEBIT: 'Cartão de débito',
-        CASH: 'Dinheiro',
-        PIX: 'PIX',
-        DEFERRED: 'Prazo',
-      } as const
+        CREDIT: "Cartão de crédito",
+        DEBIT: "Cartão de débito",
+        CASH: "Dinheiro",
+        PIX: "PIX",
+        DEFERRED: "Prazo",
+      } as const;
 
-      const key = typeMap[payment.payment_type as keyof typeof typeMap]
+      const key = typeMap[payment.payment_type as keyof typeof typeMap];
 
       if (key) {
-        acc[key] = (acc[key] || 0) + payment.amount
+        acc[key] = (acc[key] || 0) + payment.amount;
       }
 
-      return acc
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
   const expenseTotals = expensePayments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: 'Cartão de crédito',
-        DEBIT: 'Cartão de débito',
-        CASH: 'Dinheiro',
-        PIX: 'PIX',
-        DEFERRED: 'Prazo',
-      } as const
+        CREDIT: "Cartão de crédito",
+        DEBIT: "Cartão de débito",
+        CASH: "Dinheiro",
+        PIX: "PIX",
+        DEFERRED: "Prazo",
+      } as const;
 
-      const key = typeMap[payment.payment_type as keyof typeof typeMap]
+      const key = typeMap[payment.payment_type as keyof typeof typeMap];
 
       if (key) {
-        acc[key] = (acc[key] || 0) + payment.amount
+        acc[key] = (acc[key] || 0) + payment.amount;
       }
 
-      return acc
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
   const totalIncome = Object.values(incomePayments).reduce(
     (acc, value) => acc + value.amount,
     0,
-  )
+  );
   const totalExpense = Object.values(expensePayments).reduce(
     (acc, value) => acc + value.amount,
     0,
-  )
+  );
   const cashBalance =
     (initialAmount || 0) +
     (incomeTotals.Dinheiro || 0) -
-    (expenseTotals.Dinheiro || 0)
-  const totalBalance = totalIncome - totalExpense
+    (expenseTotals.Dinheiro || 0);
+  const totalBalance = totalIncome - totalExpense;
 
   return (
     <div
@@ -110,7 +111,7 @@ export default async function CashRegisterPrint({
           <h3>Entradas</h3>
 
           {Object.keys(incomeTotals).map((key) => {
-            const typedKey = key as keyof typeof incomeTotals
+            const typedKey = key as keyof typeof incomeTotals;
             return (
               <div
                 key={key}
@@ -120,7 +121,7 @@ export default async function CashRegisterPrint({
                 <span>{key}</span>
                 <span>{formatCurrencyBRL(incomeTotals[typedKey])}</span>
               </div>
-            )
+            );
           })}
 
           <footer className="flex flex-row items-center justify-between">
@@ -132,7 +133,7 @@ export default async function CashRegisterPrint({
           <h3>Saídas</h3>
 
           {Object.keys(expenseTotals).map((key) => {
-            const typedKey = key as keyof typeof expenseTotals
+            const typedKey = key as keyof typeof expenseTotals;
             return (
               <div
                 key={key}
@@ -142,7 +143,7 @@ export default async function CashRegisterPrint({
                 <span>{key}</span>
                 <span>{formatCurrencyBRL(expenseTotals[typedKey])}</span>
               </div>
-            )
+            );
           })}
 
           <footer className="flex flex-row items-center justify-between">
@@ -172,5 +173,5 @@ export default async function CashRegisterPrint({
 
       <Printer />
     </div>
-  )
+  );
 }
