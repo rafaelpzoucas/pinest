@@ -1,13 +1,12 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TableType } from "@/models/table";
 import { useQueryState } from "nuqs";
 import { MdSportsMotorsports, MdTableBar } from "react-icons/md";
 import { Tables } from "./tables/tables";
 import { Deliveries } from "./deliveries/orders";
 
-export function Orders({ tables }: { tables: TableType[] | null }) {
+export function Orders() {
   const [tab, setTab] = useQueryState("tab", {
     defaultValue: "deliveries",
     history: "replace",
@@ -29,7 +28,7 @@ export function Orders({ tables }: { tables: TableType[] | null }) {
         <Deliveries />
       </TabsContent>
       <TabsContent value="tables">
-        <Tables tables={tables} />
+        <Tables />
       </TabsContent>
     </Tabs>
   );

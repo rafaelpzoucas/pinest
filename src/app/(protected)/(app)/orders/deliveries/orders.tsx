@@ -8,12 +8,11 @@ import { useCashRegister } from "@/stores/cashRegisterStore";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useServerAction } from "zsa-react";
-import { readCashSession } from "../../cash-register/actions";
 import { columns } from "./data-table/columns";
 import { DataTable } from "./data-table/table";
 import { OrderCard } from "./order-card";
 import { useOrders } from "@/features/admin/orders/hooks";
+import { useReadCashSession } from "@/features/cash-register/hooks";
 
 type OrderStatus =
   | "accept"
@@ -117,17 +116,11 @@ export function Deliveries() {
 
   const { setIsCashOpen } = useCashRegister();
 
-  const { execute, data } = useServerAction(readCashSession, {
-    onSuccess: () => {
-      const isOpen = !!data?.cashSession;
-      setIsCashOpen(isOpen);
-    },
-  });
+  const { data: cashSession } = useReadCashSession();
 
-  // Carregar cash session
   useEffect(() => {
-    execute();
-  }, [execute]);
+    setIsCashOpen(!!cashSession);
+  }, [cashSession, setIsCashOpen]);
 
   if (isLoading) {
     return (

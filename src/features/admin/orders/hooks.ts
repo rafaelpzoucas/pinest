@@ -7,12 +7,14 @@ import { createClient } from "@/lib/supabase/client";
 import { readOrders } from "./read";
 import { readOrderById } from "./read-by-id";
 import { Order } from "./schemas";
+import { readOpenOrders } from "./read-open";
 
 export const ordersKeys = {
   all: ["orders"] as const,
   lists: () => [...ordersKeys.all, "list"] as const,
   details: () => [...ordersKeys.all, "detail"] as const,
   detail: (id: string) => [...ordersKeys.details(), id] as const,
+  open: ["orders", "open"] as const,
 };
 
 export function useOrders() {
@@ -152,3 +154,20 @@ export function useOrderById(id: string) {
 
   return query;
 }
+
+export const useReadOpenOrders = () => {
+  return useQuery({
+    queryKey: ordersKeys.open,
+    queryFn: async () => {
+      const [data, error] = await readOpenOrders();
+
+      if (error) {
+        throw error;
+      }
+
+      return data?.openOrders || [];
+    },
+    staleTime: 1000 * 30, // 30 segundos (dados que mudam frequentemente)
+    refetchInterval: 1000 * 60, // Refetch a cada 1 minuto
+  });
+};
