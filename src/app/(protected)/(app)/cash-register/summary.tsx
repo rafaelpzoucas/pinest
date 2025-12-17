@@ -1,95 +1,108 @@
+"use client";
+
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { PaymentType } from '@/models/payment'
-import { z } from 'zod'
-import { CloseCashSession } from './close'
-import { createCashReceiptsSchema } from './schemas'
+} from "@/components/ui/card";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { PaymentType } from "@/models/payment";
+import { CloseCashSession } from "./close";
+import { useReadCashReceipts } from "@/features/cash-register/receipts/hooks";
+
+import { useReadOpenTables } from "@/features/tables/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useReadOpenOrders } from "@/features/admin/orders/hooks";
 
 export function CashRegisterSummary({
-  hasOpenOrders,
-  hasOpenTables,
-  cashReceipts,
   payments,
   reports,
 }: {
-  hasOpenOrders: boolean
-  hasOpenTables: boolean
-  cashReceipts?: z.infer<typeof createCashReceiptsSchema>
-  payments: PaymentType[]
-  reports: any
+  payments: PaymentType[];
+  reports: any;
 }) {
+  // Hooks para buscar dados
+  const { data: cashReceipts = [], isLoading: loadingReceipts } =
+    useReadCashReceipts();
+  const { data: openOrders = [], isLoading: loadingOrders } =
+    useReadOpenOrders();
+  const { data: openTables = [], isLoading: loadingTables } =
+    useReadOpenTables();
+
+  const hasOpenOrders = openOrders.length > 0;
+  const hasOpenTables = openTables.length > 0;
+
   const initialAmount = payments.find(
-    (payment) => payment.description === 'Abertura de caixa',
-  )?.amount
+    (payment) => payment.description === "Abertura de caixa",
+  )?.amount;
 
   const incomePayments = payments.filter(
-    (payments) => payments.type === 'INCOME',
-  )
+    (payments) => payments.type === "INCOME",
+  );
   const expensePayments = payments.filter(
-    (payments) => payments.type === 'EXPENSE',
-  )
+    (payments) => payments.type === "EXPENSE",
+  );
 
   const incomeTotals = incomePayments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: 'Cartão de crédito',
-        DEBIT: 'Cartão de débito',
-        CASH: 'Dinheiro',
-        PIX: 'PIX',
-        DEFERRED: 'Prazo',
-      } as const
+        CREDIT: "Cartão de crédito",
+        DEBIT: "Cartão de débito",
+        CASH: "Dinheiro",
+        PIX: "PIX",
+        DEFERRED: "Prazo",
+      } as const;
 
-      const key = typeMap[payment.payment_type as keyof typeof typeMap]
+      const key = typeMap[payment.payment_type as keyof typeof typeMap];
 
       if (key) {
-        acc[key] = (acc[key] || 0) + payment.amount
+        acc[key] = (acc[key] || 0) + payment.amount;
       }
 
-      return acc
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
   const expenseTotals = expensePayments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: 'Cartão de crédito',
-        DEBIT: 'Cartão de débito',
-        CASH: 'Dinheiro',
-        PIX: 'PIX',
-        DEFERRED: 'Prazo',
-      } as const
+        CREDIT: "Cartão de crédito",
+        DEBIT: "Cartão de débito",
+        CASH: "Dinheiro",
+        PIX: "PIX",
+        DEFERRED: "Prazo",
+      } as const;
 
-      const key = typeMap[payment.payment_type as keyof typeof typeMap]
+      const key = typeMap[payment.payment_type as keyof typeof typeMap];
 
       if (key) {
-        acc[key] = (acc[key] || 0) + payment.amount
+        acc[key] = (acc[key] || 0) + payment.amount;
       }
 
-      return acc
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
   const totalIncome = Object.values(incomePayments).reduce(
     (acc, value) => acc + value.amount,
     0,
-  )
+  );
   const totalExpense = Object.values(expensePayments).reduce(
     (acc, value) => acc + value.amount,
     0,
-  )
+  );
   const cashBalance =
     (initialAmount || 0) +
     (incomeTotals.Dinheiro || 0) -
-    (expenseTotals.Dinheiro || 0)
-  const totalBalance = totalIncome - totalExpense
+    (expenseTotals.Dinheiro || 0);
+  const totalBalance = totalIncome - totalExpense;
+
+  // Loading state
+  const isLoading = loadingReceipts || loadingOrders || loadingTables;
 
   return (
     <Card>
@@ -106,7 +119,7 @@ export function CashRegisterSummary({
           <h3>Entradas</h3>
 
           {Object.keys(incomeTotals).map((key) => {
-            const typedKey = key as keyof typeof incomeTotals
+            const typedKey = key as keyof typeof incomeTotals;
             return (
               <div
                 key={key}
@@ -116,7 +129,7 @@ export function CashRegisterSummary({
                 <span>{key}</span>
                 <span>{formatCurrencyBRL(incomeTotals[typedKey])}</span>
               </div>
-            )
+            );
           })}
 
           <footer className="flex flex-row items-center justify-between">
@@ -128,7 +141,7 @@ export function CashRegisterSummary({
           <h3>Saídas</h3>
 
           {Object.keys(expenseTotals).map((key) => {
-            const typedKey = key as keyof typeof expenseTotals
+            const typedKey = key as keyof typeof expenseTotals;
             return (
               <div
                 key={key}
@@ -138,7 +151,7 @@ export function CashRegisterSummary({
                 <span>{key}</span>
                 <span>{formatCurrencyBRL(expenseTotals[typedKey])}</span>
               </div>
-            )
+            );
           })}
 
           <footer className="flex flex-row items-center justify-between">
@@ -163,14 +176,18 @@ export function CashRegisterSummary({
           <span>{formatCurrencyBRL(totalBalance ?? 0)}</span>
         </div>
 
-        <CloseCashSession
-          hasOpenOrders={hasOpenOrders}
-          hasOpenTables={hasOpenTables}
-          cashReceipts={cashReceipts}
-          payments={payments}
-          reports={reports}
-        />
+        {isLoading ? (
+          <Skeleton className="w-full h-10 mt-2" />
+        ) : (
+          <CloseCashSession
+            hasOpenOrders={hasOpenOrders}
+            hasOpenTables={hasOpenTables}
+            cashReceipts={cashReceipts}
+            payments={payments}
+            reports={reports}
+          />
+        )}
       </CardFooter>
     </Card>
-  )
+  );
 }

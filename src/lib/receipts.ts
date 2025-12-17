@@ -226,7 +226,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
     const items = ifoodOrder.items;
 
     for (const [index, item] of items.entries()) {
-      r.p(`${item.quantity} ${item.name.toUpperCase()}`);
+      r.p(`${item.quantity} ${(item.name ?? "Taxa de entrega").toUpperCase()}`);
 
       for (const option of item.options ?? []) {
         r.br().p(` +${option.quantity} ad. ${option.name.toUpperCase()}`);

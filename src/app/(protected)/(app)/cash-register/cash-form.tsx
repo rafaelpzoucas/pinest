@@ -3,11 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
-
 import { z } from "zod";
-import { useServerAction } from "zsa-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-
 import { Card } from "@/components/ui/card";
 import {
   Form,
@@ -27,8 +24,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { formatCurrencyBRL } from "@/lib/utils";
-import { upsertCashReceipts } from "./actions";
-import type { createCashReceiptsSchema } from "./schemas";
+import { createCashReceiptsSchema } from "@/features/cash-register/schemas";
+import { useUpsertCashReceipts } from "@/features/cash-register/receipts/hooks";
 
 const MONEY_VALUES = {
   cash_005: 0.05,
@@ -116,17 +113,8 @@ export function CashForm({
   // Diferença entre o valor computado e o total das cédulas/moedas
   const difference = totalCashAmount - computedValue;
 
-  const { execute: createReceipts, isPending: isCreating } = useServerAction(
-    upsertCashReceipts,
-    {
-      onSuccess: () => {
-        setOpen(false);
-      },
-      onError: ({ err }) => {
-        console.error("Erro ao salvar cédulas e moedas: ", err);
-      },
-    },
-  );
+  const { mutate: createReceipts, isPending: isCreating } =
+    useUpsertCashReceipts();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -145,14 +133,18 @@ export function CashForm({
         };
       });
 
-      createReceipts(cashReceipts);
+      createReceipts(cashReceipts, {
+        onSuccess: () => {
+          setOpen(false);
 
-      // Atualiza o valor total no query param correspondente
-      const total = cashReceipts.reduce(
-        (acc, receipt) => acc + receipt.total,
-        0,
-      );
-      if (setCashValue) setCashValue(String(total));
+          // Atualiza o valor total no query param correspondente
+          const total = cashReceipts.reduce(
+            (acc, receipt) => acc + receipt.total,
+            0,
+          );
+          if (setCashValue) setCashValue(String(total));
+        },
+      });
     } catch (err) {
       console.error("Erro de validação:", err);
     }

@@ -1,11 +1,15 @@
-import { readStore } from './dashboard/actions'
-import { readOrders } from './orders/actions'
-import { RealtimeNotifications } from './realtime-notifications'
+import { readOpenOrders } from "@/features/admin/orders/read-open";
+import { readStore } from "./dashboard/actions";
+import { RealtimeNotifications } from "./realtime-notifications";
 
 export async function SoundNotification() {
-  const [{ orders }, storeData] = await Promise.all([readOrders(), readStore()])
+  const [[ordersData], storeData] = await Promise.all([
+    readOpenOrders(),
+    readStore(),
+  ]);
 
-  if (!orders || !storeData) return null
+  const orders = ordersData ? ordersData.openOrders : null;
+  if (!orders || !storeData) return null;
 
-  return <RealtimeNotifications orders={orders} store={storeData.store} />
+  return <RealtimeNotifications orders={orders} store={storeData.store} />;
 }

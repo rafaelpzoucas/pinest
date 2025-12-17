@@ -1,139 +1,59 @@
-'use server'
+"use server";
 
-import { createClient } from '@/lib/supabase/server'
-import { adminProcedure } from '@/lib/zsa-procedures'
-import { ObservationType } from '@/models/observation'
-import { OrderType } from '@/models/order'
-import { StoreType } from '@/models/store'
-import { cache } from 'react'
-import { z } from 'zod'
-
-async function readStore(): Promise<{
-  store: StoreType | null
-  storeError: any | null
-}> {
-  const supabase = createClient()
-
-  const { data: session } = await supabase.auth.getUser()
-
-  const { data: store, error: storeError } = await supabase
-    .from('stores')
-    .select('*')
-    .eq('user_id', session.user?.id)
-    .single()
-
-  return { store, storeError }
-}
-
-export async function readOrders(): Promise<{
-  orders: OrderType[] | null
-  ordersError: any | null
-}> {
-  const supabase = createClient()
-
-  const { store, storeError } = await readStore()
-
-  if (storeError) {
-    console.error(storeError)
-  }
-
-  const { data: orders, error: ordersError } = await supabase
-    .from('orders')
-    .select(
-      `
-      *,
-      order_items (
-        *,  
-        products (*)
-      ),
-      store_customers (
-        *,
-        customers (*)
-      )
-    `,
-    )
-    .eq('store_id', store?.id)
-    .order('created_at', { ascending: false })
-
-  return { orders, ordersError }
-}
-
-export const readTables = adminProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { supabase, store } = ctx
-
-    const { data: tables, error: readTablesError } = await supabase
-      .from('tables')
-      .select(
-        `
-          *,
-          order_items (
-            *,
-            products (*)
-          )
-        `,
-      )
-      .eq('store_id', store.id)
-      .eq('status', 'open')
-
-    if (readTablesError || !tables) {
-      console.error('Não foi possível buscar as mesas.', readTablesError)
-    }
-
-    return { tables }
-  })
+import { adminProcedure } from "@/lib/zsa-procedures";
+import { ObservationType } from "@/models/observation";
+import { cache } from "react";
+import { z } from "zod";
 
 export const insertObservation = adminProcedure
   .createServerAction()
   .input(z.object({ observation: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase, store } = ctx
+    const { supabase, store } = ctx;
 
     const { data, error: selectError } = await supabase
-      .from('observations')
-      .select('id')
-      .eq('store_id', store.id)
-      .eq('observation', input.observation.toLowerCase())
-      .single()
+      .from("observations")
+      .select("id")
+      .eq("store_id", store.id)
+      .eq("observation", input.observation.toLowerCase())
+      .single();
 
-    if (selectError && selectError.code !== 'PGRST100') {
-      console.error('Erro ao verificar duplicação da observação:', selectError)
+    if (selectError && selectError.code !== "PGRST100") {
+      console.error("Erro ao verificar duplicação da observação:", selectError);
     }
 
     if (data) {
-      console.log('Observação já existe:', input.observation)
-      return
+      console.log("Observação já existe:", input.observation);
+      return;
     }
 
     const { error } = await supabase
-      .from('observations')
+      .from("observations")
       .insert([
         { store_id: store.id, observation: input.observation.toLowerCase() },
-      ])
+      ]);
 
     if (error) {
-      console.error('Erro ao salvar a observação:', error)
+      console.error("Erro ao salvar a observação:", error);
     }
-  })
+  });
 
 export const readObservations = adminProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
-    const { supabase, store } = ctx
+    const { supabase, store } = ctx;
 
     const { data, error } = await supabase
-      .from('observations')
-      .select('*')
-      .eq('store_id', store.id)
+      .from("observations")
+      .select("*")
+      .eq("store_id", store.id);
 
     if (error) {
-      console.error('Erro ao buscar observações', error)
-      return
+      console.error("Erro ao buscar observações", error);
+      return;
     }
 
-    return { observations: data as ObservationType[] }
-  })
+    return { observations: data as ObservationType[] };
+  });
 
-export const readTablesCached = cache(readTables)
-export const readObservationsCached = cache(readObservations)
+export const readObservationsCached = cache(readObservations);

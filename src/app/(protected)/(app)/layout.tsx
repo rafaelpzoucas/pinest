@@ -10,10 +10,10 @@ import { SubscriptionPlans } from "@/components/subscription-plans";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { readLastEvents, readStoreSubscriptionStatus } from "./actions";
-import { readCashSession } from "./cash-register/actions";
 import { IfoodHandshakePlatform } from "./ifood-handshake-platform";
 import { MobileNavigation } from "./navigation";
 import { SoundNotification } from "./sound-notification";
+import { readCashSession } from "@/features/cash-register/read";
 
 export const metadata: Metadata = {
   title: "Pinest | Admin",

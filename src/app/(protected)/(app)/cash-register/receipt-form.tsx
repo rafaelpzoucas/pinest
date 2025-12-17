@@ -4,7 +4,6 @@ import { ArrowLeft, Loader2, Trash } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useServerAction } from "zsa-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -26,8 +25,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { formatCurrencyBRL } from "@/lib/utils";
-import { deleteCashReceipt, upsertCashReceipts } from "./actions";
-import type { createCashReceiptsSchema } from "./schemas";
+import {
+  useDeleteCashReceipt,
+  useUpsertCashReceipts,
+} from "@/features/cash-register/receipts/hooks";
+import { createCashReceiptsSchema } from "@/features/cash-register/schemas";
 
 const TITLES = {
   pix: "PIX",
@@ -57,7 +59,7 @@ type ReceiptFormProps = {
   receipts: z.infer<typeof createCashReceiptsSchema>;
   open: boolean;
   setOpen: (open: boolean) => void;
-  computedValue?: number; // valor computado esperado
+  computedValue?: number;
   setPixValue?: (v: string) => void;
   setCreditValue?: (v: string) => void;
   setDebitValue?: (v: string) => void;
@@ -84,27 +86,16 @@ export function ReceiptForm({
     defaultValues,
   });
 
-  const { execute: deleteReceipt } = useServerAction(deleteCashReceipt);
-  const { execute: createReceipts, isPending: isCreating } = useServerAction(
-    upsertCashReceipts,
-    {
-      onSuccess: () => {
-        setOpen(false);
-      },
-      onError: ({ err }) => {
-        console.error("Erro ao salvar transações.", err);
-      },
-    },
-  );
+  const { mutate: deleteReceipt } = useDeleteCashReceipt();
+  const { mutate: createReceipts, isPending: isCreating } =
+    useUpsertCashReceipts();
 
   const [inputValue, setInputValue] = useState("");
   const transactions = form.watch("transactions");
-  // Soma das transações adicionadas
   const totalTransactions = transactions.reduce(
     (acc, curr) => acc + Number(curr),
     0,
   );
-  // Diferença entre o valor computado e o total das transações
   const difference = totalTransactions - computedValue;
   const inputRef = useRef<HTMLInputElement>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -129,8 +120,9 @@ export function ReceiptForm({
   const removeTransaction = async (index: number, id?: string) => {
     if (id) {
       setDeletingId(id);
-      await deleteReceipt({ id });
-      setDeletingId(null);
+      deleteReceipt(id, {
+        onSettled: () => setDeletingId(null),
+      });
     }
     const updated = [...form.getValues("transactions")];
     updated.splice(index, 1);
@@ -144,16 +136,21 @@ export function ReceiptForm({
       amount: 1,
       total: Number(transaction),
     })) as z.infer<typeof createCashReceiptsSchema>;
-    createReceipts(cashReceipts);
 
-    // Atualiza o valor total no query param correspondente
-    const total = String(
-      values.transactions.reduce((acc, curr) => acc + Number(curr), 0),
-    );
-    if (type === "pix" && setPixValue) setPixValue(total);
-    if (type === "credit" && setCreditValue) setCreditValue(total);
-    if (type === "debit" && setDebitValue) setDebitValue(total);
-    if (type === "cash" && setCashValue) setCashValue(total);
+    createReceipts(cashReceipts, {
+      onSuccess: () => {
+        setOpen(false);
+
+        // Atualiza o valor total no query param correspondente
+        const total = String(
+          values.transactions.reduce((acc, curr) => acc + Number(curr), 0),
+        );
+        if (type === "pix" && setPixValue) setPixValue(total);
+        if (type === "credit" && setCreditValue) setCreditValue(total);
+        if (type === "debit" && setDebitValue) setDebitValue(total);
+        if (type === "cash" && setCashValue) setCashValue(total);
+      },
+    });
   }
 
   return (
@@ -174,7 +171,6 @@ export function ReceiptForm({
             </SheetDescription>
           </SheetHeader>
 
-          {/* NOVO BLOCO: Exibir valor computado e diferença */}
           <div className="mb-4">
             <div className="flex flex-row justify-between text-sm">
               <span>Valor computado</span>
@@ -200,7 +196,6 @@ export function ReceiptForm({
             <div className="space-y-2 pb-8">
               {transactions.map((transaction, index) => (
                 <Card
-                  // biome-ignore lint/suspicious/noArrayIndexKey: index is fine here
                   key={index}
                   className="flex items-center justify-between p-2"
                 >

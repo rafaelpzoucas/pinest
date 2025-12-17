@@ -1,3 +1,5 @@
+"use server";
+
 import { createClient } from "@/lib/supabase/server";
 import { createServerAction, ZSAError } from "zsa";
 import { readAdminStore } from "../admin/stores/read";
