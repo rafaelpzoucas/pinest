@@ -10,7 +10,15 @@ export const readOpenTables = adminProcedure
 
     const { data: openTables, error } = await supabase
       .from("tables")
-      .select("*")
+      .select(
+        `
+          *,
+          order_items (
+            *,
+            products (*)
+          )
+        `,
+      )
       .eq("store_id", store.id)
       .eq("status", "open");
 

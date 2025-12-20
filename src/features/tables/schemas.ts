@@ -1,5 +1,26 @@
 import { z } from "zod";
-import { orderItemSchema } from "../admin/orders/schemas";
+import { productSchema } from "../admin/orders/schemas";
+
+export const tableItemsSchema = z
+  .array(
+    z.object({
+      id: z.string().optional(),
+      product_id: z.string().nullable(),
+      quantity: z.number(),
+      product_price: z.number(),
+      observations: z.array(z.string()).optional().default([]),
+      products: productSchema.optional(),
+      extras: z.array(
+        z.object({
+          name: z.string(),
+          price: z.number(),
+          extra_id: z.string(),
+          quantity: z.number(),
+        }),
+      ),
+    }),
+  )
+  .min(1, "O pedido precisa de pelo menos 1 item.");
 
 // Schema base da tabela
 export const tableSchema = z.object({
@@ -10,7 +31,7 @@ export const tableSchema = z.object({
   description: z.string().nullable(),
   status: z.enum(["open", "occupied", "reserved", "closed"]).default("open"),
   cash_session_id: z.string().uuid().nullable(),
-  order_items: z.array(orderItemSchema),
+  order_items: tableItemsSchema,
 });
 
 // Tipo inferido do schema
@@ -18,25 +39,21 @@ export type Table = z.infer<typeof tableSchema>;
 
 // Schema para criar uma nova mesa
 export const createTableSchema = z.object({
-  number: z
-    .number({
-      required_error: "Número da mesa é obrigatório",
-    })
-    .positive("Número deve ser positivo"),
-  store_id: z.string(),
+  id: z.string().optional(),
+  number: z.string({ message: "Insira o número da mesa." }),
   description: z.string().optional(),
-  status: z.enum(["open", "occupied", "reserved", "closed"]).default("open"),
-  cash_session_id: z.string().uuid().optional(),
+  order_items: tableItemsSchema,
 });
 
 export type CreateTable = z.infer<typeof createTableSchema>;
 
 // Schema para atualizar uma mesa
 export const updateTableSchema = z.object({
-  number: z.number().positive("Número deve ser positivo").optional(),
-  description: z.string().nullable().optional(),
-  status: z.enum(["open", "occupied", "reserved", "closed"]).optional(),
-  cash_session_id: z.string().uuid().nullable().optional(),
+  id: z.string().optional(),
+  number: z.string({ message: "Insira o número da mesa." }),
+  description: z.string().optional(),
+  order_items: tableItemsSchema,
+  is_edit: z.boolean(),
 });
 
 export type UpdateTable = z.infer<typeof updateTableSchema>;

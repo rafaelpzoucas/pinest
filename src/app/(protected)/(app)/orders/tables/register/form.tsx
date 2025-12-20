@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -18,12 +17,11 @@ import {
 import { TableType } from "@/models/table";
 import { X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
-import { useServerAction } from "zsa-react";
-import { createTable, updateTable } from "./actions";
 import { SelectedProducts } from "./products/selected-products";
-import { createTableSchema } from "./schemas";
+
 import { Summary } from "./summary";
+import { useCreateTable, useUpdateTable } from "@/features/tables/hooks";
+import { createTableSchema } from "@/features/tables/schemas";
 
 export function CreateSaleForm({
   storeId,
@@ -33,14 +31,13 @@ export function CreateSaleForm({
   table: TableType;
 }) {
   const searchParams = useSearchParams();
+  const isEdit = !!searchParams.get("id");
 
-  const isEdit = searchParams.get("edit") === "true";
-
-  // 1. Define your form.
+  // Define your form
   const form = useForm<z.infer<typeof createTableSchema>>({
     resolver: zodResolver(createTableSchema),
     defaultValues: {
-      number: table?.number?.toString() ?? undefined,
+      number: table?.number.toString() ?? undefined,
       description: table?.description ?? undefined,
       order_items: isEdit ? table.order_items : [],
     },
@@ -48,44 +45,27 @@ export function CreateSaleForm({
 
   const orderItems = form.watch("order_items");
 
-  const { execute: executeCreateTable, isPending: isCreatePending } =
-    useServerAction(createTable, {
-      onError: ({ err }) => {
-        toast.error(err.message);
-      },
-    });
-  const { execute: executeUpdateTable, isPending: isUpdatePending } =
-    useServerAction(updateTable, {
-      onSuccess: () => {
-        toast.success("Mesa atualizada com sucesso!");
-      },
-      onError: () => {
-        toast.error("Ocorreu um erro ao atualizar a mesa.");
-      },
-    });
+  // Hooks do React Query
+  const { mutateAsync: createTableMutation, isPending: isCreatePending } =
+    useCreateTable();
 
-  // 2. Define a submit handler.
+  const { mutateAsync: updateTableMutation, isPending: isUpdatePending } =
+    useUpdateTable();
+
+  // Submit handler
   async function onSubmit(values: z.infer<typeof createTableSchema>) {
-    if (table?.id) {
-      const [data, err] = await executeUpdateTable({
-        id: table.id,
-        is_edit: isEdit,
-        ...values,
-      });
-
-      if (err && !data) {
-        console.error({ err });
-        return null;
+    try {
+      if (table?.id) {
+        await updateTableMutation({
+          id: table.id,
+          is_edit: isEdit,
+          ...values,
+        });
+      } else {
+        await createTableMutation(values);
       }
-
-      return;
-    }
-
-    const [data, err] = await executeCreateTable(values);
-
-    if (err && !data) {
-      console.error({ err });
-      return null;
+    } catch (error) {
+      console.error("Erro ao processar mesa:", error);
     }
   }
 
@@ -104,7 +84,6 @@ export function CreateSaleForm({
       >
         <Card className="flex lg:hidden flex-col gap-4 p-4 fixed bottom-2 left-2 right-2">
           <p>{orderItems.length} Produto(s) selecionado(s)</p>
-
           <Sheet>
             <SheetTrigger
               className={buttonVariants()}
@@ -119,7 +98,6 @@ export function CreateSaleForm({
                     <X />
                   </SheetClose>
                 </SheetTitle>
-
                 <Summary
                   form={form}
                   isCreatePending={isCreatePending}
@@ -131,7 +109,6 @@ export function CreateSaleForm({
             </SheetContent>
           </Sheet>
         </Card>
-
         <div className="hidden lg:flex w-full">
           <Summary
             form={form}
@@ -141,7 +118,6 @@ export function CreateSaleForm({
             onSubmit={onSubmit}
           />
         </div>
-
         <SelectedProducts form={form} storeId={storeId} />
       </form>
     </Form>

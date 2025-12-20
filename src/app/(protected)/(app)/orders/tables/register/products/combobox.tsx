@@ -1,10 +1,10 @@
-import { ChevronsUpDown, Loader2, Plus } from 'lucide-react'
-import { useState } from 'react'
-import { UseFormReturn, useFieldArray } from 'react-hook-form'
-import { toast } from 'sonner'
-import { z } from 'zod'
+import { ChevronsUpDown, Loader2, Plus } from "lucide-react";
+import { useState } from "react";
+import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,16 +12,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CategoryType } from '@/models/category'
-import { ProductType } from '@/models/product'
-import { createTableSchema } from '../schemas'
+} from "@/components/ui/popover";
+import { cn, formatCurrencyBRL } from "@/lib/utils";
+import { CategoryType } from "@/models/category";
+import { ProductType } from "@/models/product";
+import { createTableSchema } from "@/features/tables/schemas";
 
 export function ProductsCombobox({
   form,
@@ -29,18 +29,18 @@ export function ProductsCombobox({
   products,
   isLoading,
 }: {
-  form: UseFormReturn<z.infer<typeof createTableSchema>>
-  categories?: CategoryType[]
-  products?: ProductType[]
-  isLoading: boolean
+  form: UseFormReturn<z.infer<typeof createTableSchema>>;
+  categories?: CategoryType[];
+  products?: ProductType[];
+  isLoading: boolean;
 }) {
   const { append } = useFieldArray({
     control: form.control,
-    name: 'order_items',
-  })
+    name: "order_items",
+  });
 
-  const [open, setOpen] = useState(false)
-  const [categoryFilter, setCategoryFilter] = useState<string>('')
+  const [open, setOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
 
   const handleAddProduct = (product: ProductType) => {
     append({
@@ -49,17 +49,17 @@ export function ProductsCombobox({
       product_price: product.price,
       observations: [],
       extras: [],
-    })
+    });
 
-    toast.success(`${product.name} adicionado.`)
-    setOpen(false)
-  }
+    toast.success(`${product.name} adicionado.`);
+    setOpen(false);
+  };
 
   // Filtra produtos baseado na categoria selecionada
   const filteredProducts = products?.filter((product) => {
-    if (!categoryFilter) return true
-    return product.category_id === categoryFilter
-  })
+    if (!categoryFilter) return true;
+    return product.category_id === categoryFilter;
+  });
 
   return (
     <div className="space-y-4">
@@ -90,7 +90,7 @@ export function ProductsCombobox({
                       <span>Carregando produtos...</span>
                     </div>
                   ) : (
-                    'Nenhum produto encontrado.'
+                    "Nenhum produto encontrado."
                   )}
                 </CommandEmpty>
                 <CommandGroup>
@@ -100,10 +100,10 @@ export function ProductsCombobox({
                         <Button
                           type="button"
                           variant={
-                            categoryFilter === '' ? 'default' : 'outline'
+                            categoryFilter === "" ? "default" : "outline"
                           }
                           size="sm"
-                          onClick={() => setCategoryFilter('')}
+                          onClick={() => setCategoryFilter("")}
                         >
                           Todas
                         </Button>
@@ -114,8 +114,8 @@ export function ProductsCombobox({
                             type="button"
                             variant={
                               categoryFilter === category.id
-                                ? 'default'
-                                : 'outline'
+                                ? "default"
+                                : "outline"
                             }
                             size="sm"
                             onClick={() => setCategoryFilter(category.id)}
@@ -132,14 +132,14 @@ export function ProductsCombobox({
                       key={product.id}
                       value={`${product.name} ${product.sku}`}
                       onSelect={() => {
-                        handleAddProduct(product)
+                        handleAddProduct(product);
                       }}
-                      className={cn('flex items-center justify-between')}
+                      className={cn("flex items-center justify-between")}
                     >
                       <div className="flex flex-col">
                         <span className="font-medium">
-                          {product.sku ? product.sku + ' &bull; ' : ''}
-                          {product.name}{' '}
+                          {product.sku ? product.sku + " &bull; " : ""}
+                          {product.name}{" "}
                         </span>
                         <span className="text-xs text-muted-foreground line-clamp-1">
                           {formatCurrencyBRL(product.price)}
@@ -157,5 +157,5 @@ export function ProductsCombobox({
         </Popover>
       </div>
     </div>
-  )
+  );
 }

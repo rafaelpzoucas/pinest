@@ -8,13 +8,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { createTableSchema } from "@/features/tables/schemas";
 import { formatCurrencyBRL } from "@/lib/utils";
 import { TableType } from "@/models/table";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { createTableSchema } from "./schemas";
 
 export function Summary({
   form,
@@ -37,6 +37,7 @@ export function Summary({
     (sum, item) => sum + item.product_price * item.quantity,
     0,
   );
+
   return (
     <Card
       className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
@@ -51,46 +52,44 @@ export function Summary({
         <ArrowLeft />
       </Button>
 
-      {table?.id ? (
-        <div className="flex flex-col w-full">
-          <strong className="text-xl">Mesa #{table.number}</strong>
-          <p className="text-muted-foreground">{table.description}</p>
-        </div>
-      ) : (
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_4fr] gap-4">
-          <FormField
-            control={form.control}
-            name="number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mesa</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nº" {...field} autoFocus />
-                </FormControl>
+      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_4fr] gap-4">
+        <FormField
+          control={form.control}
+          name="number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mesa</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Nº"
+                  inputMode="numeric"
+                  {...field}
+                  autoFocus
+                />
+              </FormControl>
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição (opcional)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Insira uma descrição para a mesa"
-                    {...field}
-                  />
-                </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Descrição (opcional)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Insira uma descrição para a mesa"
+                  {...field}
+                />
+              </FormControl>
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <div className="w-full lg:max-w-xs space-y-2">
         <div className="flex flex-col w-full">

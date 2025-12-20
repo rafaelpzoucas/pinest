@@ -57,8 +57,6 @@ export function Tables() {
     },
   });
 
-  console.log({ tables });
-
   useEffect(() => {
     setIsCashOpen(!!cashSession);
   }, [cashSession, setIsCashOpen]);

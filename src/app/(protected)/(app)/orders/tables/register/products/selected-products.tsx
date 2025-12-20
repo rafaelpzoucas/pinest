@@ -22,8 +22,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Boxes, Minus, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { createTableSchema } from "../schemas";
 import { ProductsCombobox } from "./combobox";
+import { createTableSchema } from "@/features/tables/schemas";
 
 export function SelectedProducts({
   form,
