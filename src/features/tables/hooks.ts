@@ -47,7 +47,10 @@ export const useCancelTable = (options?: UseCancelTableOptions) => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tablesKeys.all, exact: false });
+      queryClient.invalidateQueries({
+        queryKey: tablesKeys.open,
+        exact: false,
+      });
       toast.success("Mesa cancelada com sucesso");
       options?.onSuccess?.();
     },
@@ -64,20 +67,20 @@ interface UseCreateTableOptions {
 }
 
 export const useCreateTable = (options?: UseCreateTableOptions) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateTableInput) => {
-      // O redirect() vai lançar uma exceção especial do Next.js
-      // que não é um erro real, então não precisa de try-catch
       await createTable(input);
     },
     onSuccess: () => {
-      // O toast não vai aparecer porque o redirect acontece antes
-      // Mas deixamos aqui caso o comportamento mude no futuro
+      queryClient.invalidateQueries({
+        queryKey: tablesKeys.open,
+        exact: false,
+      });
       toast.success("Mesa criada com sucesso");
       options?.onSuccess?.();
     },
     onError: (error) => {
-      // Só chega aqui se for um erro real (não o redirect)
       toast.error(error.message || "Erro ao criar mesa");
       options?.onError?.(error);
     },
@@ -90,20 +93,20 @@ interface UseUpdateTableOptions {
 }
 
 export const useUpdateTable = (options?: UseUpdateTableOptions) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateTableInput) => {
-      // O redirect() vai lançar uma exceção especial do Next.js
-      // que não é um erro real, então não precisa de try-catch
       await updateTable(input);
     },
     onSuccess: () => {
-      // O toast não vai aparecer porque o redirect acontece antes
-      // Mas deixamos aqui caso o comportamento mude no futuro
+      queryClient.invalidateQueries({
+        queryKey: tablesKeys.open,
+        exact: false,
+      });
       toast.success("Mesa atualizada com sucesso");
       options?.onSuccess?.();
     },
     onError: (error) => {
-      // Só chega aqui se for um erro real (não o redirect)
       toast.error(error.message || "Erro ao atualizar mesa");
       options?.onError?.(error);
     },
