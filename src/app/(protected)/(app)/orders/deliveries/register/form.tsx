@@ -91,6 +91,12 @@ export function CreateOrderForm({
     },
   });
 
+  useEffect(() => {
+    if (shipping?.price !== undefined) {
+      form.setValue("total.shipping_price", shipping.price);
+    }
+  }, [shipping?.price, form]);
+
   const customerId = form.watch("customer_id");
   const selectedCustomer = customers?.find((c) => c.id === customerId);
 

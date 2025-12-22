@@ -4,33 +4,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { formatCurrencyBRL, stringToNumber } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { formatCurrencyBRL, stringToNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { useSearchParams } from 'next/navigation'
-import { z } from 'zod'
-import { createOrderFormSchema } from './schemas'
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useSearchParams } from "next/navigation";
+import { z } from "zod";
+import { createOrderFormSchema } from "./schemas";
 
 export function Summary({
   form,
   isPending,
   onSubmit,
 }: {
-  form: any
-  isPending: boolean
-  onSubmit: (values: z.infer<typeof createOrderFormSchema>) => void
+  form: any;
+  isPending: boolean;
+  onSubmit: (values: z.infer<typeof createOrderFormSchema>) => void;
 }) {
-  const searchParams = useSearchParams()
-  const orderId = searchParams.get('order_id')
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("order_id");
 
-  const subtotal = form.watch('total.subtotal') ?? 0
-  const discount = stringToNumber(form.watch('total.discount')) ?? 0
-  const totalAmount = form.watch('total.total_amount')
+  const subtotal = form.watch("total.subtotal") ?? 0;
+  const discount = stringToNumber(form.watch("total.discount")) ?? 0;
+  const totalAmount = form.watch("total.total_amount");
 
   return (
     <Card
@@ -129,7 +129,7 @@ export function Summary({
           )}
         />
 
-        {form.watch('payment_type') === 'CASH' && (
+        {form.watch("payment_type") === "CASH" && (
           <FormField
             control={form.control}
             name="total.change_value"
@@ -192,11 +192,11 @@ export function Summary({
               <strong>{formatCurrencyBRL(subtotal)}</strong>
             </div>
 
-            {form.watch('type') === 'DELIVERY' && (
+            {form.watch("type") === "DELIVERY" && (
               <div className="flex flex-row items-center justify-between w-full text-sm text-muted-foreground">
                 <span>Entrega</span>
                 <strong>
-                  {formatCurrencyBRL(form.watch('total.shipping_price') ?? 0)}
+                  {formatCurrencyBRL(form.watch("total.shipping_price") ?? 0)}
                 </strong>
               </div>
             )}
@@ -228,13 +228,13 @@ export function Summary({
           {isPending ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              <span>{orderId ? 'Atualizando' : 'Criando'} pedido</span>
+              <span>{orderId ? "Atualizando" : "Criando"} pedido</span>
             </>
           ) : (
-            <span>{orderId ? 'Atualizar' : 'Criar'} pedido</span>
+            <span>{orderId ? "Atualizar" : "Criar"} pedido</span>
           )}
         </Button>
       </div>
     </Card>
-  )
+  );
 }
