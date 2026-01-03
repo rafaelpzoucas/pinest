@@ -33,7 +33,7 @@ export const ReadCustomerSchema = z.object({
 });
 
 export const CreateCustomerSchema = z.object({
-  subdomain: z.string(),
+  subdomain: z.string().optional(),
   customerId: z.string().uuid().optional(),
   phone: z.string().min(14, "Insira um número de telefone válido."),
   name: z.string().min(1, { message: "O nome é obrigatório." }),
@@ -41,7 +41,7 @@ export const CreateCustomerSchema = z.object({
 });
 
 export const UpdateCustomerSchema = z.object({
-  subdomain: z.string(),
+  subdomain: z.string().optional(),
   id: z.string({ message: "O ID do cliente é obrigatório." }),
   phone: z.string().min(1, "Telefone é obrigatório."),
   name: z.string().min(1, { message: "O nome é obrigatório." }),
