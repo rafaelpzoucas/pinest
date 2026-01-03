@@ -1,30 +1,31 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createPath, formatAddress } from '@/lib/utils'
-import { StoreType } from '@/models/store'
-import { Check, Clipboard, MapPin, Phone } from 'lucide-react'
-import { useState } from 'react'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createPath, formatAddress } from "@/lib/utils";
+import { StoreType } from "@/models/store";
+import { Check, Clipboard, MapPin, Phone } from "lucide-react";
+import { useState } from "react";
 
 export function ProfileCard({ store }: { store: StoreType }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
-  const domain = store.custom_domain ?? `${store.store_subdomain}.pinest.com.br`
+  const domain =
+    store.custom_domain ?? `${store.store_subdomain}.pinest.com.br`;
   const fullUrl =
-    process.env.NODE_ENV === 'production'
-      ? createPath('/', store.store_subdomain)
-      : domain
+    process.env.NODE_ENV === "production"
+      ? domain
+      : createPath("/", store.store_subdomain);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(fullUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(fullUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Erro ao copiar o link:', error)
+      console.error("Erro ao copiar o link:", error);
     }
-  }
+  };
 
   return (
     <Card className="break-inside-avoid">
@@ -55,5 +56,5 @@ export function ProfileCard({ store }: { store: StoreType }) {
         </Button>
       </CardContent>
     </Card>
-  )
+  );
 }
