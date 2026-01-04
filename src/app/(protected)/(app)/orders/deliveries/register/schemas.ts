@@ -33,7 +33,7 @@ const totalSchema = z.object({
 
 const deliverySchema = z.object({
   time: z.string().optional(),
-  address: addressSchema,
+  address: addressSchema.optional(),
 });
 
 export const createOrderFormSchema = z.object({

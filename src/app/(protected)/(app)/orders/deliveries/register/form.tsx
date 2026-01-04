@@ -163,6 +163,12 @@ export function CreateOrderForm({
     }
 
     form.setValue("customer_id", selectedCustomer.id);
+    if (type === "DELIVERY") {
+      form.setValue(
+        "delivery.address",
+        selectedCustomer.customers.address ?? {},
+      );
+    }
   }, [selectedCustomer]);
 
   return (
