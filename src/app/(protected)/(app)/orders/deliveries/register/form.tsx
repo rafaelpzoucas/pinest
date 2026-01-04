@@ -18,18 +18,67 @@ import {
 } from "@/components/ui/sheet";
 import { cn, formatCurrencyBRL, stringToNumber } from "@/lib/utils";
 import { OrderType } from "@/models/order";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import { useServerAction } from "zsa-react";
 import { createOrder, updateOrder } from "./actions";
 import { CustomersCombobox } from "./customers/combobox";
 import { CustomersForm } from "./customers/form";
 import { SelectedProducts } from "./products/selected-products";
 import { createOrderFormSchema } from "./schemas";
 import { Summary } from "./summary";
+import { ordersKeys } from "@/features/admin/orders/hooks";
+
+// Wrapper para adaptar zsa actions ao React Query
+async function createOrderAdapter(data: z.infer<typeof createOrderFormSchema>) {
+  try {
+    const response = await createOrder(data);
+
+    // Verifica se é uma tupla [data, error]
+    if (Array.isArray(response)) {
+      const [result, error] = response;
+
+      if (error) {
+        throw error;
+      }
+
+      return result;
+    }
+
+    // Se não for array, retorna diretamente
+    return response;
+  } catch (error) {
+    console.error("Erro no createOrderAdapter:", error);
+    throw error;
+  }
+}
+
+async function updateOrderAdapter(
+  data: z.infer<typeof createOrderFormSchema> & { id: string },
+) {
+  try {
+    const response = await updateOrder(data);
+
+    // Verifica se é uma tupla [data, error]
+    if (Array.isArray(response)) {
+      const [result, error] = response;
+
+      if (error) {
+        throw error;
+      }
+
+      return result;
+    }
+
+    // Se não for array, retorna diretamente
+    return response;
+  } catch (error) {
+    console.error("Erro no updateOrderAdapter:", error);
+    throw error;
+  }
+}
 
 export function CreateOrderForm({
   order,
@@ -39,12 +88,14 @@ export function CreateOrderForm({
   storeId?: string;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: customers, isLoading: isLoadingCustomers } = useQuery({
     queryKey: ["customers"],
     queryFn: () => readAdminCustomers(storeId ?? ""),
     enabled: !!storeId,
   });
+
   const [isFinishOpen, setIsFinishOpen] = useState(false);
   const [phoneQuery, setPhoneQuery] = useQueryState("phone");
   const [customerForm, setCustomerForm] = useQueryState("customerForm", {
@@ -57,6 +108,62 @@ export function CreateOrderForm({
     queryKey: ["shipping"],
     queryFn: () => readAdminShipping(storeId as string),
     enabled: !!storeId,
+  });
+
+  // Mutations com React Query
+  const createMutation = useMutation({
+    mutationFn: createOrderAdapter,
+    onSuccess: (data) => {
+      console.log("✅ Pedido criado com sucesso:", data);
+
+      // Invalidar queries relacionadas
+      queryClient.invalidateQueries({
+        queryKey: ordersKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ordersKeys.open,
+      });
+
+      console.log("✅ Queries invalidadas");
+
+      // Navegar ou mostrar mensagem de sucesso
+      router.push("/orders"); // ajustar para sua rota
+    },
+    onError: (error) => {
+      console.error("❌ Erro ao criar pedido:", error);
+      console.error("❌ Tipo do erro:", typeof error);
+      console.error("❌ Erro completo:", JSON.stringify(error, null, 2));
+      // Aqui você pode adicionar um toast de erro
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: updateOrderAdapter,
+    onSuccess: (data, variables) => {
+      console.log("✅ Pedido atualizado com sucesso:", data);
+
+      // Invalidar queries relacionadas
+      queryClient.invalidateQueries({
+        queryKey: ordersKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ordersKeys.detail(variables.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ordersKeys.open,
+      });
+
+      console.log("✅ Queries invalidadas");
+
+      // Navegar ou mostrar mensagem de sucesso
+      router.push("/orders"); // ajustar para sua rota
+    },
+    onError: (error) => {
+      console.error("❌ Erro ao atualizar pedido:", error);
+      console.error("❌ Tipo do erro:", typeof error);
+      console.error("❌ Erro completo:", JSON.stringify(error, null, 2));
+      // Aqui você pode adicionar um toast de erro
+    },
   });
 
   // 1. Define your form.
@@ -77,7 +184,7 @@ export function CreateOrderForm({
               number: order.delivery.address.number,
               neighborhood: order.delivery.address.neighborhood ?? undefined,
               complement: order.delivery.address.complement ?? undefined,
-              observations: undefined, // ou pegar de algum lugar se existir
+              observations: undefined,
             }
           : undefined,
       },
@@ -103,20 +210,18 @@ export function CreateOrderForm({
   const isUpdateCustomer =
     !phoneQuery && !!selectedCustomer && customerForm === "update";
 
-  const { execute: executeCreate, isPending: isCreating } =
-    useServerAction(createOrder);
-  const { execute: executeUpdate, isPending: isUpdating } =
-    useServerAction(updateOrder);
+  // Estados de loading
+  const isCreating = createMutation.isPending;
+  const isUpdating = updateMutation.isPending;
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof createOrderFormSchema>) {
     if (order) {
-      await executeUpdate({ ...values, id: order.id });
-
+      updateMutation.mutate({ ...values, id: order.id });
       return;
     }
 
-    await executeCreate(values);
+    createMutation.mutate(values);
   }
 
   const orderItems = useWatch({
@@ -155,7 +260,7 @@ export function CreateOrderForm({
         shouldValidate: true,
       },
     );
-  }, [orderItems, type, shippingPrice, discount]);
+  }, [orderItems, type, shippingPrice, discount, form]);
 
   useEffect(() => {
     if (!selectedCustomer) {
@@ -169,7 +274,7 @@ export function CreateOrderForm({
         selectedCustomer.customers.address ?? {},
       );
     }
-  }, [selectedCustomer]);
+  }, [selectedCustomer, form, type]);
 
   return (
     <>
