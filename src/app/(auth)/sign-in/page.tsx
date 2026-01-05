@@ -28,7 +28,7 @@ export default async function AdminSignIn({
 
   return (
     <main className="flex flex-col items-center justify-center gap-6 p-8 h-screen">
-      <Image src="/logo-dark.svg" alt="pinest" width={175} />
+      <Image src="/logo-dark.svg" alt="pinest" width={175} height={175} />
 
       <SignInWithGoogle />
 
