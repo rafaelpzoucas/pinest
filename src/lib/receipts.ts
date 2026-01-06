@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, subHours } from "date-fns";
 import type { ProductsSoldReportType } from "@/app/(protected)/(app)/reports/products-sold";
 import type { SalesReportType } from "@/app/(protected)/(app)/reports/sales-report";
 import { formatAddress, formatCurrencyBRL } from "@/lib/utils";
@@ -34,7 +34,9 @@ export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
     .h2(`PEDIDO #${displayId}`)
     .endStrong()
     .br()
-    .p(`DATA: ${format(new Date(order.created_at), "dd/MM HH:mm:ss")}`)
+    .p(
+      `DATA: ${format(subHours(new Date(order.created_at), 3), "dd/MM HH:mm:ss")}`,
+    )
     .hr();
 
   if (!isIfood) {
@@ -145,11 +147,13 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
     .left();
 
   // Adiciona informações básicas
-  r.p(`DATA: ${format(new Date(order.created_at), "dd/MM HH:mm:ss")}`).br();
+  r.p(
+    `DATA: ${format(subHours(new Date(order.created_at), 3), "dd/MM HH:mm:ss")}`,
+  ).br();
 
   if (isIfood) {
     r.p(
-      `ENTREGA: ${format(new Date(ifoodOrder.delivery.deliveryDateTime), "dd/MM HH:mm:ss")}`,
+      `ENTREGA: ${format(subHours(new Date(ifoodOrder.delivery.deliveryDateTime), 3), "dd/MM HH:mm:ss")}`,
     ).br();
   }
 
@@ -321,7 +325,7 @@ export function buildReceiptTableESCPOS(
     .h2(`MESA #${displayId}`)
     .endStrong()
     .br()
-    .p(`Data: ${format(table.created_at, "dd/MM HH:mm:ss")}`)
+    .p(`Data: ${format(subHours(table.created_at, 3), "dd/MM HH:mm:ss")}`)
     .hr();
 
   const lastItemIndex = itemsList.length - 1;
