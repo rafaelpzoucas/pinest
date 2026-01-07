@@ -46,7 +46,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/supabase/client";
 import { formatCurrencyBRL } from "@/lib/utils";
-import { Edit, Plus, Trash2, X } from "lucide-react";
+import { Edit, Layers2, Plus, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
@@ -313,6 +313,64 @@ export default function ProductManagement() {
     }
   };
 
+  const handleDuplicateProduct = async (product: Product) => {
+    try {
+      setIsLoading(true);
+
+      // 1. Cria o novo produto
+      const { data: newProduct, error: productError } = await supabase
+        .from("products")
+        .insert([
+          {
+            name: `${product.name} (Cópia)`,
+            description: product.description,
+            price: product.price,
+            promotional_price: product.promotional_price,
+            stock: product.stock,
+            category_id: product.category_id,
+            store_id: product.store_id,
+            sku: null, // evita duplicar SKU
+            pkg_weight: product.pkg_weight,
+            pkg_length: product.pkg_length,
+            pkg_width: product.pkg_width,
+            pkg_height: product.pkg_height,
+            product_url: product.product_url,
+            allows_extras: product.allows_extras,
+            need_choices: product.need_choices,
+            status: product.status,
+          },
+        ])
+        .select()
+        .single();
+
+      if (productError) throw productError;
+
+      // 2. Duplica as imagens (se existirem)
+      const images = productImages[product.id];
+
+      if (images && images.length > 0) {
+        const imagesToInsert = images.map((img) => ({
+          product_id: newProduct.id,
+          image_url: img.image_url,
+        }));
+
+        const { error: imagesError } = await supabase
+          .from("product_images")
+          .insert(imagesToInsert);
+
+        if (imagesError) throw imagesError;
+      }
+
+      toast.success("Produto duplicado com sucesso!");
+      loadProducts();
+    } catch (error) {
+      console.error("Erro ao duplicar produto:", error);
+      toast.error("Erro ao duplicar produto");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const openEditDialog = (product: Product) => {
     setSelectedProduct(product);
     setFormData({
@@ -498,7 +556,16 @@ export default function ProductManagement() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
-                          size="sm"
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleDuplicateProduct(product)}
+                          title="Duplicar produto"
+                        >
+                          <Layers2 className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          size="icon"
                           variant="outline"
                           onClick={() => openEditDialog(product)}
                         >
@@ -506,7 +573,7 @@ export default function ProductManagement() {
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="outline">
+                            <Button size="icon" variant="outline">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </AlertDialogTrigger>
