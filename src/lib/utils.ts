@@ -101,9 +101,10 @@ export function formatBytes(bytes: number, decimals = 2) {
 export function normalizeString(str: string) {
   return str
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "") // Remove caracteres especiais
+    .replace(/[^a-z0-9\s-]/g, "") // Remove caracteres especiais, mas mantém números
+    .replace(/\s+/g, " ") // Normaliza múltiplos espaços em um único espaço
     .trim(); // Remove espaços no início e no final
 }
 
@@ -133,7 +134,7 @@ export function stringToNumber(string?: string) {
 }
 
 export function generateSlug(str: string): string {
-  return normalizeString(str).replace(/\s+/g, ""); // Substitui espaços por hífens
+  return normalizeString(str).replace(/\s+/g, "-"); // Substitui espaços por hífens
 }
 
 export const dayTranslation: Record<string, string> = {
