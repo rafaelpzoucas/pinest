@@ -196,7 +196,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
       const total = (itemTotal + choicesTotal + extrasTotal) * item.quantity;
 
       r.p(
-        `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}`,
+        `${item.quantity} ${(item.products.name ?? "Taxa de entrega").toUpperCase()} - ${formatCurrencyBRL(total)}`,
       );
 
       // Choices
