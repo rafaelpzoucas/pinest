@@ -17,7 +17,9 @@ export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
     ? order.ifood_order_data.customer
     : order.store_customers.customers;
 
-  const customerName = `${customer.name.split(" ")[0]} ${customer.name.split(" ")[1]}`;
+  const parts = customer.name.trim().split(/\s+/);
+  const customerName = parts.slice(0, 2).join(" ");
+
   const itemsList = reprint
     ? order.order_items
     : order.order_items.filter((item) => !item.printed);
