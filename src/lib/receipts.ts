@@ -177,7 +177,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
     .br()
     .p(`TELEFONE: ${String(customerPhone).toUpperCase()}`)
     .br()
-    .p(`ENDEREÇO: ${String(customerAddress).toUpperCase()}`)
+    .h3(`ENDEREÇO: ${String(customerAddress).toUpperCase()}`)
     .br();
 
   if (order.observations || ifoodOrder?.delivery?.observations) {
