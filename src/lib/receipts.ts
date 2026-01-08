@@ -51,6 +51,19 @@ export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
         .endStrong()
         .br();
 
+      // Kitchen Observations (Observações do Produto)
+      if (
+        item.products.kitchen_observations &&
+        item.products.kitchen_observations.length > 0
+      ) {
+        for (const kitchenObs of item.products.kitchen_observations) {
+          if (kitchenObs.trim() !== "") {
+            r.h2(` • ${kitchenObs.toUpperCase()}`).br();
+          }
+        }
+        r.br();
+      }
+
       // Choices
       if (item.choices && item.choices.length > 0) {
         for (const choice of item.choices) {
@@ -66,6 +79,7 @@ export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
 
       if (item.extras.length > 0) r.br();
 
+      // Observações do cliente
       if (item.observations.length > 0 && item.observations[0] !== "") {
         for (const obs of item.observations) {
           r.h2(` *${obs.toUpperCase()}`).br();
@@ -301,7 +315,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
   }
 
   const escposString = r.cut().build();
-  console.log({ escposString });
+
   return Buffer.from(escposString, "binary").toString("base64");
 }
 

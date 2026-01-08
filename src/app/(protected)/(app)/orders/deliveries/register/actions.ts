@@ -72,8 +72,6 @@ export const createOrder = adminProcedure
         }))
         .concat(deliveryFee ? [deliveryFee] : []);
 
-      console.log({ items });
-
       const [displayId] = await getNextDisplayId();
 
       // 2. Crie o pedido

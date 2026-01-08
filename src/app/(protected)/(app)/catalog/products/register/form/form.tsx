@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,30 +12,31 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form'
-import { Switch } from '@/components/ui/switch'
-import { CategoryType } from '@/models/category'
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { CategoryType } from "@/models/category";
 import {
   ProductImageType,
   ProductType,
   ProductVariationType,
-} from '@/models/product'
-import { Loader, Plus } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { createProduct, deleteProductImage, updateProduct } from '../actions'
-import { readProductImages, uploadImages } from '../client-actions'
-import { createProductVariations } from './actions'
-import { FileType } from './file-uploader'
-import { ProductImages } from './product-images'
-import { ProductInfo } from './product-info'
+} from "@/models/product";
+import { Loader, Plus } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { createProduct, deleteProductImage, updateProduct } from "../actions";
+import { readProductImages, uploadImages } from "../client-actions";
+import { createProductVariations } from "./actions";
+import { FileType } from "./file-uploader";
+import { ProductImages } from "./product-images";
+import { ProductInfo } from "./product-info";
 
 export const newProductFormSchema = z.object({
   category_id: z.string().min(1),
-  name: z.string({ required_error: 'Por favor, preencha o nome do produto.' }),
-  description: z.string({ required_error: 'Por favor, insira uma descrição.' }),
+  name: z.string({ required_error: "Por favor, preencha o nome do produto." }),
+  kitchen_observations: z.array(z.string().optional()),
+  description: z.string({ required_error: "Por favor, insira uma descrição." }),
   price: z.string().optional(),
   promotional_price: z.string().optional(),
   stock: z.string().optional(),
@@ -45,20 +46,20 @@ export const newProductFormSchema = z.object({
   pkg_length: z.string().optional(),
   pkg_width: z.string().optional(),
   pkg_height: z.string().optional(),
-})
+});
 
 export function ProductForm({
   categories,
   product,
 }: {
-  categories: CategoryType[] | null
-  product: ProductType | null
+  categories: CategoryType[] | null;
+  product: ProductType | null;
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const categoryId = searchParams.get('category_id')
+  const categoryId = searchParams.get("category_id");
 
   const defaultVariations =
     product?.product_variations?.map((variation) => ({
@@ -74,31 +75,32 @@ export function ProductForm({
         name: variation.attributes.name,
         created_at: variation.attributes.created_at,
       },
-    })) ?? []
+    })) ?? [];
 
-  const groupedVariationsArray: ProductVariationType[] = defaultVariations
+  const groupedVariationsArray: ProductVariationType[] = defaultVariations;
 
-  const [files, setFiles] = useState<FileType[]>([])
-  const [productImages, setProductImages] = useState<ProductImageType[]>([])
+  const [files, setFiles] = useState<FileType[]>([]);
+  const [productImages, setProductImages] = useState<ProductImageType[]>([]);
   const [variationsForm, setVariationsForm] = useState<ProductVariationType[]>(
     groupedVariationsArray,
-  )
+  );
 
-  const pathnameParts = pathname.split('/')
-  pathnameParts.pop()
-  pathnameParts.pop()
-  const redirectTo = pathnameParts.join('/')
+  const pathnameParts = pathname.split("/");
+  pathnameParts.pop();
+  pathnameParts.pop();
+  const redirectTo = pathnameParts.join("/");
 
-  const productId = product?.id
+  const productId = product?.id;
 
   const form = useForm<z.infer<typeof newProductFormSchema>>({
     resolver: zodResolver(newProductFormSchema),
     defaultValues: {
       name: product?.name ?? undefined,
       description: product?.description ?? undefined,
+      kitchen_observations: product?.kitchen_observations ?? undefined,
       price: product?.price?.toString() ?? undefined,
       promotional_price: product?.promotional_price?.toString() ?? undefined,
-      stock: product?.stock?.toString() ?? '',
+      stock: product?.stock?.toString() ?? "",
       category_id: product?.category_id ?? categoryId ?? undefined,
       sku: product?.sku ?? undefined,
       allows_extras: product?.allows_extras ?? false,
@@ -107,93 +109,93 @@ export function ProductForm({
       pkg_width: product?.pkg_width?.toString() ?? undefined,
       pkg_height: product?.pkg_height?.toString() ?? undefined,
     },
-  })
+  });
 
-  const formState = form.formState
+  const formState = form.formState;
 
   async function handleReadProductImages() {
     if (productId) {
       const { productImages, productImagesError } =
-        await readProductImages(productId)
+        await readProductImages(productId);
 
       if (productImagesError) {
-        console.error(productImagesError)
+        console.error(productImagesError);
       }
 
-      setProductImages(productImages)
+      setProductImages(productImages);
     }
   }
 
   async function handleDeleteImage(imageId: string) {
-    const { tableError, storageError } = await deleteProductImage(imageId)
+    const { tableError, storageError } = await deleteProductImage(imageId);
 
     if (tableError) {
-      console.error(tableError)
-      return null
+      console.error(tableError);
+      return null;
     }
 
     if (storageError) {
-      console.error(storageError)
-      return null
+      console.error(storageError);
+      return null;
     }
 
-    handleReadProductImages()
+    handleReadProductImages();
   }
 
   async function onSubmit(values: z.infer<typeof newProductFormSchema>) {
     if (!productId) {
       const { createdProduct, createdProductError } =
-        await createProduct(values)
+        await createProduct(values);
 
       if (createdProductError) {
-        console.error(createdProductError)
-        return
+        console.error(createdProductError);
+        return;
       }
 
       if (createdProduct) {
         if (files.length > 0) {
-          const { uploadErrors } = await uploadImages(files, createdProduct.id)
+          const { uploadErrors } = await uploadImages(files, createdProduct.id);
 
           if (uploadErrors) {
-            console.error(uploadErrors)
+            console.error(uploadErrors);
           }
         }
       }
 
       if (variationsForm.length > 0 && createdProduct) {
-        await createProductVariations(variationsForm, createdProduct.id)
+        await createProductVariations(variationsForm, createdProduct.id);
       }
 
-      return router.back()
+      return router.back();
     }
 
-    const { error } = await updateProduct(productId, values)
+    const { error } = await updateProduct(productId, values);
 
     if (error) {
-      console.error(error)
-      return null
+      console.error(error);
+      return null;
     }
 
     if (files.length > 0 && productId) {
-      const { uploadErrors } = await uploadImages(files, productId)
+      const { uploadErrors } = await uploadImages(files, productId);
 
       if (uploadErrors) {
-        console.error(uploadErrors)
+        console.error(uploadErrors);
       }
     }
 
     if (variationsForm.length > 0) {
-      await createProductVariations(variationsForm, productId)
+      await createProductVariations(variationsForm, productId);
     }
 
-    toast('Produto atualizado com sucesso!')
+    toast("Produto atualizado com sucesso!");
   }
 
   useEffect(() => {
     if (productId) {
-      handleReadProductImages()
+      handleReadProductImages();
     }
-  }, [productId]) //eslint-disable-line
+  }, [productId]); //eslint-disable-line
 
   if (!categories || categories?.length === 0) {
     return (
@@ -212,7 +214,7 @@ export function ProductForm({
           Adicionar categoria
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -268,11 +270,11 @@ export function ProductForm({
               {formState.isSubmitting && (
                 <Loader className="w-4 h-4 mr-2 animate-spin" />
               )}
-              {productId ? 'Salvar alterações' : 'Criar produto'}
+              {productId ? "Salvar alterações" : "Criar produto"}
             </Button>
           </footer>
         </div>
       </form>
     </Form>
-  )
+  );
 }
