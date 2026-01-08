@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const CustomerAddressSchema = z.object({
-  street: z.string().min(1, { message: "Preencha o nome da rua." }),
-  number: z.string().min(1, { message: "Insira o número da residência." }),
+  street: z.string().min(1, { message: "Preencha o endereço." }),
+  number: z.string().optional(),
   neighborhood: z.string().optional(),
   complement: z.string().optional(),
   observations: z.string().optional(),

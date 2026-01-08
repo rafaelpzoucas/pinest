@@ -77,8 +77,10 @@ export function formatAddress(
 
   const { street, number, complement, neighborhood } = address;
 
+  const streetPart = number ? `${street}, ${number}` : street;
+
   const parts = [
-    `${street}, ${number}`,
+    streetPart,
     complement,
     neighborhood ? `- ${neighborhood}` : null,
   ];

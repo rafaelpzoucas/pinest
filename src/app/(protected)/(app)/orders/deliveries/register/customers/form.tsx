@@ -176,7 +176,7 @@ export function CustomersForm({
                 <FormItem>
                   <FormLabel>Rua</FormLabel>
                   <FormControl>
-                    <Input placeholder="Insira a rua..." {...field} />
+                    <Input placeholder="Insira o endereço..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -187,7 +187,7 @@ export function CustomersForm({
               name="address.number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Número</FormLabel>
+                  <FormLabel>Número (opcional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Insira o número..." {...field} />
                   </FormControl>
