@@ -3,6 +3,7 @@ import { SubscriptionPlans } from "@/components/subscription-plans";
 
 import { isPermissionGranted } from "../../actions";
 import { Ifood } from "./ifood";
+import PixKeyManager from "./pix-key";
 
 export default async function IntegrationsPage() {
   const [permission] = await isPermissionGranted({
@@ -19,6 +20,7 @@ export default async function IntegrationsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Ifood />
+        <PixKeyManager />
       </div>
     </div>
   );
