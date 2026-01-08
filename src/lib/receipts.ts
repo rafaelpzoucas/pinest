@@ -196,7 +196,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
       const total = (itemTotal + choicesTotal + extrasTotal) * item.quantity;
 
       r.p(
-        `${item.quantity} ${(item.products.name ?? "Taxa de entrega").toUpperCase()} - ${formatCurrencyBRL(total)}`,
+        `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}`,
       );
 
       // Choices
@@ -230,7 +230,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
     const items = ifoodOrder.items;
 
     for (const [index, item] of items.entries()) {
-      r.p(`${item.quantity} ${(item.name ?? "Taxa de entrega").toUpperCase()}`);
+      r.p(`${item.quantity} ${item.name.toUpperCase()}`);
 
       for (const option of item.options ?? []) {
         r.br().p(` +${option.quantity} ad. ${option.name.toUpperCase()}`);
@@ -301,6 +301,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
   }
 
   const escposString = r.cut().build();
+  console.log({ escposString });
   return Buffer.from(escposString, "binary").toString("base64");
 }
 

@@ -53,6 +53,7 @@ export const createOrder = adminProcedure
       const deliveryFee =
         input.type === "DELIVERY"
           ? {
+              description: "Taxa de entrega",
               product_id: null,
               quantity: 1,
               product_price: input.total.shipping_price,
@@ -70,6 +71,8 @@ export const createOrder = adminProcedure
           extras: item.extras,
         }))
         .concat(deliveryFee ? [deliveryFee] : []);
+
+      console.log({ items });
 
       const [displayId] = await getNextDisplayId();
 
