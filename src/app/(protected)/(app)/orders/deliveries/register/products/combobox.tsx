@@ -1,10 +1,9 @@
-import { ChevronsUpDown, Loader2, Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { UseFormReturn, useFieldArray } from 'react-hook-form'
-import { toast } from 'sonner'
-import { z } from 'zod'
+import { ChevronsUpDown, Loader2, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { z } from "zod";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,17 +11,17 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { FormField } from '@/components/ui/form'
+} from "@/components/ui/command";
+import { FormField } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
-import { CategoryType } from '@/models/category'
-import { ProductType } from '@/models/product'
-import { createOrderFormSchema } from '../schemas'
+} from "@/components/ui/popover";
+import { cn, formatCurrencyBRL } from "@/lib/utils";
+import { CategoryType } from "@/models/category";
+import { ProductType } from "@/models/product";
+import { createOrderFormSchema } from "../schemas";
 
 export function ProductsCombobox({
   form,
@@ -30,26 +29,26 @@ export function ProductsCombobox({
   products,
   isLoading,
 }: {
-  form: UseFormReturn<z.infer<typeof createOrderFormSchema>>
-  categories?: CategoryType[]
-  products?: ProductType[]
-  isLoading: boolean
+  form: UseFormReturn<z.infer<typeof createOrderFormSchema>>;
+  categories?: CategoryType[];
+  products?: ProductType[];
+  isLoading: boolean;
 }) {
   const { append } = useFieldArray({
     control: form.control,
-    name: 'order_items',
-  })
+    name: "order_items",
+  });
 
-  const [open, setOpen] = useState(false)
-  const [categoryFilter, setCategoryFilter] = useState<string>('')
+  const [open, setOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
 
-  const selectedProducts = form.watch('order_items') ?? []
-  const orderType = form.watch('type')
-  const shippingPrice = form.watch('total.shipping_price') ?? 0
-  const discount = form.watch('total.discount') || '0'
-  const parsedDiscount = parseFloat(discount)
+  const selectedProducts = form.watch("order_items") ?? [];
+  const orderType = form.watch("type");
+  const shippingPrice = form.watch("total.shipping_price") ?? 0;
+  const discount = form.watch("total.discount") || "0";
+  const parsedDiscount = parseFloat(discount);
 
-  const deliveryFee = orderType === 'DELIVERY' ? shippingPrice : 0
+  const deliveryFee = orderType === "DELIVERY" ? shippingPrice : 0;
 
   const handleAddProduct = (product: ProductType) => {
     append({
@@ -58,32 +57,31 @@ export function ProductsCombobox({
       product_price: product.price,
       observations: [],
       extras: [],
-    })
+    });
 
-    toast.success(`${product.name} adicionado.`)
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   // Filtra produtos baseado na categoria selecionada
   const filteredProducts = products?.filter((product) => {
-    if (!categoryFilter) return true
-    return product.category_id === categoryFilter
-  })
+    if (!categoryFilter) return true;
+    return product.category_id === categoryFilter;
+  });
 
   // Calcula o valor total da compra
   const selectedProductsAmount = selectedProducts
     .filter((item) => item.product_id)
     .reduce((total, item) => {
-      const product = products?.find((p) => p.id === item.product_id)
-      return total + (product ? item.product_price * item.quantity : 0)
-    }, 0)
+      const product = products?.find((p) => p.id === item.product_id);
+      return total + (product ? item.product_price * item.quantity : 0);
+    }, 0);
 
-  const totalAmount = selectedProductsAmount + deliveryFee - parsedDiscount
+  const totalAmount = selectedProductsAmount + deliveryFee - parsedDiscount;
 
   // Atualiza o valor total sempre que mudanças ocorrerem
   useEffect(() => {
-    form.setValue('total.total_amount', totalAmount)
-  }, [totalAmount])
+    form.setValue("total.total_amount", totalAmount);
+  }, [totalAmount]);
 
   return (
     <div className="space-y-4">
@@ -114,7 +112,7 @@ export function ProductsCombobox({
                       <span>Carregando produtos...</span>
                     </div>
                   ) : (
-                    'Nenhum produto encontrado.'
+                    "Nenhum produto encontrado."
                   )}
                 </CommandEmpty>
                 <CommandGroup>
@@ -124,10 +122,10 @@ export function ProductsCombobox({
                         <Button
                           type="button"
                           variant={
-                            categoryFilter === '' ? 'default' : 'outline'
+                            categoryFilter === "" ? "default" : "outline"
                           }
                           size="sm"
-                          onClick={() => setCategoryFilter('')}
+                          onClick={() => setCategoryFilter("")}
                         >
                           Todas
                         </Button>
@@ -138,8 +136,8 @@ export function ProductsCombobox({
                             type="button"
                             variant={
                               categoryFilter === category.id
-                                ? 'default'
-                                : 'outline'
+                                ? "default"
+                                : "outline"
                             }
                             size="sm"
                             onClick={() => setCategoryFilter(category.id)}
@@ -156,14 +154,14 @@ export function ProductsCombobox({
                       key={product.id}
                       value={`${product.name} ${product.sku}`}
                       onSelect={() => {
-                        handleAddProduct(product)
+                        handleAddProduct(product);
                       }}
-                      className={cn('flex items-center justify-between')}
+                      className={cn("flex items-center justify-between")}
                     >
                       <div className="flex flex-col">
                         <span className="font-medium">
-                          {product.sku ? product.sku + ' &bull; ' : ''}
-                          {product.name}{' '}
+                          {product.sku ? product.sku + " &bull; " : ""}
+                          {product.name}{" "}
                         </span>
                         <span className="text-xs text-muted-foreground line-clamp-1">
                           {formatCurrencyBRL(product.price)}
@@ -188,5 +186,5 @@ export function ProductsCombobox({
         render={({ field }) => <input type="hidden" {...field} />}
       />
     </div>
-  )
+  );
 }

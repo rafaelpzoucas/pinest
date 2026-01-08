@@ -1,7 +1,6 @@
 import { ChevronsUpDown, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -51,7 +50,6 @@ export function ProductsCombobox({
       extras: [],
     });
 
-    toast.success(`${product.name} adicionado.`);
     setOpen(false);
   };
 
