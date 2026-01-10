@@ -89,7 +89,8 @@ export const readCustomerLastOrders = adminProcedure
       )
       .eq("store_id", store.id)
       .eq("customer_id", input.customerId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(5);
 
     if (readLastOrdersError || !lastOrders) {
       throw new Error("Error creating customer", readLastOrdersError);

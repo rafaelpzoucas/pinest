@@ -1,52 +1,53 @@
-'use client'
+"use client";
 
-import { Button, buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
-import { OrderType } from '@/models/order'
-import { format } from 'date-fns'
-import { Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { UseFormReturn } from 'react-hook-form'
-import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
-import { createOrderFormSchema } from '../schemas'
-import { readCustomerLastOrders } from './actions'
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { OrderType } from "@/models/order";
+import { format } from "date-fns";
+import { Clock, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { useServerAction } from "zsa-react";
+import { createOrderFormSchema } from "../schemas";
+import { readCustomerLastOrders } from "./actions";
 
 export function LastOrders({
   customerId,
   form,
 }: {
-  customerId: string
-  form: UseFormReturn<z.infer<typeof createOrderFormSchema>>
+  customerId: string;
+  form: UseFormReturn<z.infer<typeof createOrderFormSchema>>;
 }) {
-  const [lastOrders, setLastOrders] = useState<OrderType[]>([])
-  const [isOpen, setIsOpen] = useState(false)
+  const [lastOrders, setLastOrders] = useState<OrderType[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   const { execute, isPending, data } = useServerAction(readCustomerLastOrders, {
     onSuccess: () => {
       if (data?.lastOrders) {
-        setLastOrders(data?.lastOrders)
+        setLastOrders(data?.lastOrders);
       }
     },
-  })
+  });
 
   function handleSelect(order: OrderType) {
-    setIsOpen(false)
+    setIsOpen(false);
 
     const formattedItems = order.order_items.map((item) => ({
       product_id: item.product_id,
       quantity: item.quantity,
       product_price: item.product_price,
-      observations: item.observations || '',
+      observations: item.observations || [],
       extras:
         item.extras?.map((extra) => ({
           name: extra.name,
@@ -54,28 +55,31 @@ export function LastOrders({
           extra_id: extra.id,
           quantity: extra.quantity,
         })) || [],
-    }))
+    }));
 
-    form.setValue('order_items', formattedItems)
+    form.setValue("order_items", formattedItems);
   }
 
   async function handleGetCustomerLastOrders() {
-    execute({ customerId })
+    execute({ customerId });
   }
 
   useEffect(() => {
-    handleGetCustomerLastOrders()
-  }, [customerId])
+    handleGetCustomerLastOrders();
+  }, [customerId]);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger className={cn(buttonVariants({ variant: 'outline' }))}>
-        Ver últimos pedidos
+      <SheetTrigger className={cn(buttonVariants({ variant: "outline" }))}>
+        <Clock /> Ver últimos pedidos
       </SheetTrigger>
       <SheetContent>
         <ScrollArea className="h-dvh">
           <SheetHeader>
             <SheetTitle>Últimos pedidos</SheetTitle>
+            <SheetDescription>
+              Os 5 pedidos mais recentes feitos pelo cliente
+            </SheetDescription>
           </SheetHeader>
 
           {isPending ? (
@@ -86,7 +90,7 @@ export function LastOrders({
                 <Card key={order.id} className="p-4">
                   <header className="flex flex-row justify-between w-full">
                     <span className="text-muted-foreground">
-                      {format(order.created_at, 'dd/MM HH:mm')}
+                      {format(order.created_at, "dd/MM HH:mm")}
                     </span>
 
                     <Button
@@ -102,7 +106,7 @@ export function LastOrders({
                     .map((item) => (
                       <div key={item.id}>
                         <p>
-                          {item.quantity} un. {item?.products?.name}
+                          {item.quantity} {item?.products?.name}
                         </p>
                         {item.extras.map((extra) => (
                           <p key={extra.id}>
@@ -118,5 +122,5 @@ export function LastOrders({
         </ScrollArea>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

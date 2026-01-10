@@ -30,6 +30,7 @@ import { SelectedProducts } from "./products/selected-products";
 import { createOrderFormSchema } from "./schemas";
 import { Summary } from "./summary";
 import { ordersKeys } from "@/features/admin/orders/hooks";
+import { LastOrders } from "./customers/last-orders";
 
 // Wrapper para adaptar zsa actions ao React Query
 async function createOrderAdapter(data: z.infer<typeof createOrderFormSchema>) {
@@ -283,7 +284,7 @@ export function CreateOrderForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="relative flex flex-col items-start gap-4 h-[calc(100dvh_-_2rem)] lg:pb-0"
         >
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-row gap-4 w-full">
             <Button
               type="button"
               onClick={() => router.back()}
@@ -301,6 +302,10 @@ export function CreateOrderForm({
               isLoading={isLoadingCustomers}
               setCustomerForm={setCustomerForm}
             />
+
+            {!!selectedCustomer && (
+              <LastOrders customerId={selectedCustomer.id} form={form} />
+            )}
           </div>
 
           <SelectedProducts form={form} storeId={storeId} />
