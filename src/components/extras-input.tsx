@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -8,28 +8,28 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { ExtraType } from '@/models/extras'
-import { Loader2, PlusCircle, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+} from "@/components/ui/popover";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { ExtraType } from "@/models/extras";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 interface ExtrasInputProps {
-  availableExtras: ExtraType[]
-  isLoading?: boolean
+  availableExtras: ExtraType[];
+  isLoading?: boolean;
   value: {
-    name: string
-    price: number
-    extra_id: string
-    quantity: number
-  }[]
-  onChange: (extras: ExtrasInputProps['value']) => void
-  placeholder?: string
+    name: string;
+    price: number;
+    extra_id: string;
+    quantity: number;
+  }[];
+  onChange: (extras: ExtrasInputProps["value"]) => void;
+  placeholder?: string;
 }
 
 export function ExtrasInput({
@@ -37,14 +37,14 @@ export function ExtrasInput({
   isLoading,
   value,
   onChange,
-  placeholder = 'Adicionais',
+  placeholder = "Adicionais",
 }: ExtrasInputProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const totalExtrasPrice = value.reduce(
     (total, extra) => total + extra.price,
     0,
-  )
+  );
 
   const handleAddExtra = (extra: ExtraType) => {
     const newExtra = {
@@ -52,15 +52,15 @@ export function ExtrasInput({
       price: extra.price,
       extra_id: extra.id,
       quantity: 1,
-    }
-    onChange([...value, newExtra])
-    setOpen(false)
-  }
+    };
+    onChange([...value, newExtra]);
+    setOpen(false);
+  };
   const handleRemove = (index: number) => {
-    const updated = [...value]
-    updated.splice(index, 1)
-    onChange(updated)
-  }
+    const updated = [...value];
+    updated.splice(index, 1);
+    onChange(updated);
+  };
 
   return (
     <div className="space-y-2">
@@ -93,7 +93,7 @@ export function ExtrasInput({
                     <span>Carregando adicionais...</span>
                   </div>
                 ) : (
-                  'Nenhum adicional encontrado.'
+                  "Nenhum adicional encontrado."
                 )}
               </CommandEmpty>
               <CommandGroup>
@@ -133,6 +133,7 @@ export function ExtrasInput({
                   type="button"
                   onClick={() => handleRemove(index)}
                   className="flex flex-row items-center gap-2 ml-auto"
+                  tabIndex={-1}
                 >
                   <span>{formatCurrencyBRL(extra.price)}</span>
                   <Trash2 className="w-4 h-4" />
@@ -142,5 +143,5 @@ export function ExtrasInput({
         </ul>
       )}
     </div>
-  )
+  );
 }

@@ -57,8 +57,6 @@ export function ObservationsInput({
       queryClient.setQueryData<ObservationType[]>(["observations"], (old) =>
         old ? [...old, newObservation] : [newObservation],
       );
-
-      toast.error("Nova observação criada com sucesso!");
     },
     onError: ({ message }) => {
       console.error("Não foi possível criar a observação.", message);
@@ -111,28 +109,25 @@ export function ObservationsInput({
               placeholder="Digite e aperte Enter..."
               onValueChange={setInputValue}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  const filtered = observations
-                    ? observations.filter((obs) =>
-                        obs.observation
-                          .toLowerCase()
-                          .includes(inputValue.toLowerCase()),
-                      )
-                    : [];
+                if (e.key !== "Enter") return;
 
-                  if (filtered.length === 0) {
-                    handleAddObservation(inputValue); // Cria nova
-                  } else {
-                    const firstMatch = filtered[0].observation;
-                    setInputValue(firstMatch);
-                    if (!value.includes(firstMatch)) {
-                      onChange([...value, firstMatch]);
-                    }
-                    setInputValue("");
-                    setOpen(false);
-                  }
+                const filtered = observations
+                  ? observations.filter((obs) =>
+                      obs.observation
+                        .toLowerCase()
+                        .includes(inputValue.toLowerCase()),
+                    )
+                  : [];
+
+                // ✅ Só intercepta o Enter quando NÃO existe match
+                if (filtered.length === 0) {
+                  e.preventDefault();
+                  handleAddObservation(inputValue); // Cria nova
+                  setOpen(false);
                 }
+
+                // ❌ Remove totalmente esse else
+                // Deixa o Command disparar o onSelect automaticamente
               }}
             />
             <CommandList>
@@ -183,8 +178,13 @@ export function ObservationsInput({
                 uppercase"
             >
               <span>*{obs}</span>
-              <button type="button" onClick={() => handleRemove(index)}>
-                <Trash2 className="w-3 h-3" />
+              <button
+                type="button"
+                onClick={() => handleRemove(index)}
+                className="flex flex-row items-center gap-2 ml-auto"
+                tabIndex={-1}
+              >
+                <Trash2 className="w-4 h-4" />
               </button>
             </li>
           ))}
