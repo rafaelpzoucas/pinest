@@ -110,48 +110,8 @@ export function SelectedProducts({
                 const quantity = item.quantity;
 
                 return (
-                  <Card
-                    key={index}
-                    className="flex flex-col gap-4 items-start justify-between bg-secondary/20 p-3 rounded-lg"
-                  >
-                    <div className="grid grid-cols-5 w-full items-start gap-2">
-                      <strong className="text-lg">{product.name}</strong>
-
-                      <div className="flex items-center gap-1">
-                        <Input
-                          maskType="currency"
-                          className="w-full max-w-28"
-                          value={item.product_price}
-                          onChange={(e) =>
-                            setValue(
-                              `order_items.${index}.product_price`,
-                              stringToNumber(e.target.value),
-                            )
-                          }
-                        />
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => {
-                                setValue(
-                                  `order_items.${index}.product_price`,
-                                  product.price,
-                                );
-                              }}
-                            >
-                              <RotateCcw />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Restaurar valor</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-
+                  <Card key={index} className="bg-secondary/20 p-3">
+                    <div className="flex flex-col lg:grid grid-cols-[1fr_2fr_2fr_2fr_1fr] w-full items-start gap-2">
                       <div className="flex items-center gap-2">
                         <Button
                           type="button"
@@ -161,6 +121,7 @@ export function SelectedProducts({
                             handleQuantityChange(product, -1, index)
                           }
                           disabled={quantity === 0}
+                          tabIndex={-1}
                         >
                           {quantity === 1 ? (
                             <Trash2 className="w-4 h-4" />
@@ -168,7 +129,7 @@ export function SelectedProducts({
                             <Minus className="w-4 h-4" />
                           )}
                         </Button>
-                        <span className="w-6 text-center text-xs">
+                        <span className="w-6 text-center text-lg font-bold">
                           {quantity}
                         </span>
                         <Button
@@ -182,6 +143,10 @@ export function SelectedProducts({
                           <Plus className="w-4 h-4" />
                         </Button>
                       </div>
+
+                      <strong className="text-lg">
+                        {product.sku ? `#${product.sku}` : ""} {product.name}
+                      </strong>
 
                       {product.allows_extras && (
                         <ExtrasInput
@@ -203,6 +168,43 @@ export function SelectedProducts({
                           setValue(`order_items.${index}.observations`, newObs)
                         }
                       />
+
+                      <div className="flex items-center lg:ml-auto gap-1">
+                        <Input
+                          maskType="currency"
+                          className="w-full max-w-28"
+                          value={item.product_price}
+                          onChange={(e) =>
+                            setValue(
+                              `order_items.${index}.product_price`,
+                              stringToNumber(e.target.value),
+                            )
+                          }
+                          tabIndex={-1}
+                        />
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => {
+                                setValue(
+                                  `order_items.${index}.product_price`,
+                                  product.price,
+                                );
+                              }}
+                              tabIndex={-1}
+                            >
+                              <RotateCcw />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Restaurar valor</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
                   </Card>
                 );

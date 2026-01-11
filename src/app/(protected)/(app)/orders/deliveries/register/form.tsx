@@ -284,7 +284,7 @@ export function CreateOrderForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="relative flex flex-col items-start gap-4 h-[calc(100dvh_-_2rem)] lg:pb-0"
         >
-          <div className="flex flex-row gap-4 w-full">
+          <div className="flex flex-col lg:flex-row gap-4 w-full">
             <Button
               type="button"
               onClick={() => router.back()}

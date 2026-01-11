@@ -63,7 +63,7 @@ export function ExtrasInput({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="w-full space-y-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

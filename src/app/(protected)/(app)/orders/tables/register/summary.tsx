@@ -41,13 +41,14 @@ export function Summary({
   return (
     <Card
       className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
-        lg:border"
+        lg:border bg-transparent lg:bg-card"
     >
       <Button
         type="button"
         onClick={() => router.back()}
         variant="ghost"
         size="icon"
+        className="hidden lg:block"
       >
         <ArrowLeft />
       </Button>

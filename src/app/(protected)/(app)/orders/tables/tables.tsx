@@ -85,7 +85,7 @@ export function Tables() {
           </div>
         </header>
 
-        <div className="grid grid-cols-4 lg:grid-cols-10 gap-4">
+        <div className="grid grid-cols-3 lg:grid-cols-10 gap-4">
           {isTablesLoading && (
             <>
               {Array.from({ length: 5 }).map((_, index) => (

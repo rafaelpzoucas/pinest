@@ -91,7 +91,7 @@ export function CustomersCombobox({
                 )}
               >
                 {field.value ? (
-                  <div className="flex flex-row gap-4">
+                  <div className="flex flex-col items-start lg:flex-row lg:gap-4">
                     <p>
                       {
                         storeCustomers?.find(
@@ -99,7 +99,7 @@ export function CustomersCombobox({
                         )?.customers.name
                       }
                     </p>
-                    &bull;
+                    <span className="hidden lg:block">&bull;</span>
                     <p>
                       {
                         storeCustomers?.find(
@@ -107,7 +107,8 @@ export function CustomersCombobox({
                         )?.customers.phone
                       }
                     </p>
-                    &bull;
+                    <span className="hidden lg:block">&bull;</span>
+
                     <p className="text-wrap text-left">
                       {formatAddress(
                         storeCustomers?.find(

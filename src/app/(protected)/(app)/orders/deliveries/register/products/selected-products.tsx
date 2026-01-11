@@ -111,7 +111,7 @@ export function SelectedProducts({
 
                 return (
                   <Card key={index} className="bg-secondary/20 p-3">
-                    <div className="grid grid-cols-[1fr_2fr_2fr_2fr_1fr] w-full items-start gap-2">
+                    <div className="flex flex-col lg:grid grid-cols-[1fr_2fr_2fr_2fr_1fr] w-full items-start gap-2">
                       <div className="flex items-center gap-2">
                         <Button
                           type="button"
@@ -169,7 +169,7 @@ export function SelectedProducts({
                         }
                       />
 
-                      <div className="flex items-center ml-auto gap-1">
+                      <div className="flex items-center lg:ml-auto gap-1">
                         <Input
                           maskType="currency"
                           className="w-full max-w-28"

@@ -88,7 +88,7 @@ export function ObservationsInput({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

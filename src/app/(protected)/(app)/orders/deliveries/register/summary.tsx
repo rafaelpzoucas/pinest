@@ -35,7 +35,7 @@ export function Summary({
   return (
     <Card
       className="flex flex-col lg:flex-row justify-between gap-4 p-0 lg:p-4 border-0 w-full
-        lg:border"
+        lg:border bg-transparent lg:bg-card"
     >
       <FormField
         control={form.control}
