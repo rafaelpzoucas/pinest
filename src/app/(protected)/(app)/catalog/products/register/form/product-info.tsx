@@ -173,7 +173,7 @@ export function ProductInfo({
         name="sku"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>SKU (opcional)</FormLabel>
+            <FormLabel>Código</FormLabel>
             <FormControl>
               <Input
                 type="text"
