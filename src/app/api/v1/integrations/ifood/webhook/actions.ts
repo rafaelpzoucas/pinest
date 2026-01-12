@@ -8,11 +8,29 @@ import { webhookProcedure } from "./procedures";
 import IfoodHandshakeDisputeSchema, { createIfoodOrderSchema } from "./schemas";
 import { nofityStore } from "@/features/_global/orders/create";
 
+// Helper para logs estruturados
+const log = {
+  info: (step: string, data?: any) => {
+    console.log(
+      `[IFOOD-INFO] ${step}`,
+      data ? JSON.stringify(data, null, 2) : "",
+    );
+  },
+  error: (step: string, error?: any) => {
+    console.error(`[IFOOD-ERROR] ${step}`, error);
+  },
+  debug: (step: string, data?: any) => {
+    console.log(`[IFOOD-DEBUG] ${step}`, data);
+  },
+};
+
 export const readIntegration = webhookProcedure
   .createServerAction()
   .input(z.object({ merchantId: z.string() }))
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx;
+
+    log.info("readIntegration - Iniciando", { merchantId: input.merchantId });
 
     const { data: integration, error } = await supabase
       .from("ifood_integrations")
@@ -20,10 +38,27 @@ export const readIntegration = webhookProcedure
       .eq("merchant_id", input.merchantId)
       .single();
 
-    if (error || !integration) {
-      console.error("Não foi possível encontrar a loja.", error);
-      return;
+    if (error) {
+      log.error("readIntegration - Erro ao buscar integração", {
+        error: error.message,
+        code: error.code,
+        merchantId: input.merchantId,
+      });
+      return null;
     }
+
+    if (!integration) {
+      log.error("readIntegration - Integração não encontrada", {
+        merchantId: input.merchantId,
+      });
+      return null;
+    }
+
+    log.info("readIntegration - Integração encontrada", {
+      storeId: integration.store_id,
+      hasToken: !!integration.access_token,
+      expiresAt: integration.expires_at,
+    });
 
     return integration;
   });
@@ -35,9 +70,21 @@ export const readStore = webhookProcedure
     const { supabase } = ctx;
     const { merchantId } = input;
 
-    const [integration] = await readIntegration({
+    log.info("readStore - Iniciando", { merchantId });
+
+    const [integration, integrationError] = await readIntegration({
       merchantId,
     });
+
+    if (integrationError) {
+      log.error("readStore - Erro ao buscar integração", integrationError);
+      return null;
+    }
+
+    if (!integration) {
+      log.error("readStore - Integração não retornada");
+      return null;
+    }
 
     const { data: store, error } = await supabase
       .from("stores")
@@ -45,10 +92,25 @@ export const readStore = webhookProcedure
       .eq("id", integration.store_id)
       .single();
 
-    if (error || !store) {
-      console.error("Não foi possível encontrar a loja.", error);
-      return;
+    if (error) {
+      log.error("readStore - Erro ao buscar loja", {
+        error: error.message,
+        storeId: integration.store_id,
+      });
+      return null;
     }
+
+    if (!store) {
+      log.error("readStore - Loja não encontrada", {
+        storeId: integration.store_id,
+      });
+      return null;
+    }
+
+    log.info("readStore - Loja encontrada", {
+      storeId: store.id,
+      storeName: store.name,
+    });
 
     return store;
   });
@@ -59,10 +121,27 @@ export const createOrder = webhookProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx;
 
+    log.info("createOrder - Iniciando", { orderId: input.id });
+
     const ifoodOrderData: IfoodOrder = input.ifood_order_data;
 
-    const [store] = await readStore({
+    const [store, storeError] = await readStore({
       merchantId: ifoodOrderData.merchant.id,
+    });
+
+    if (storeError) {
+      log.error("createOrder - Erro ao buscar loja", storeError);
+      return null;
+    }
+
+    if (!store) {
+      log.error("createOrder - Loja não retornada");
+      return null;
+    }
+
+    log.debug("createOrder - Preparando inserção", {
+      storeId: store.id,
+      orderId: input.id,
     });
 
     const { data: createdOrder, error: createdOrderError } = await supabase
@@ -74,16 +153,35 @@ export const createOrder = webhookProcedure
       })
       .select();
 
-    if (createdOrderError || !createdOrder) {
-      console.error("Não foi possível criar o pedido.", createdOrderError);
-      return;
+    if (createdOrderError) {
+      log.error("createOrder - Erro ao inserir pedido", {
+        error: createdOrderError.message,
+        code: createdOrderError.code,
+        details: createdOrderError.details,
+      });
+      return null;
     }
 
-    nofityStore({
-      storeId: store?.id,
-      title: "Novo pedido",
-      icon: "/ifood-icon.png",
+    if (!createdOrder) {
+      log.error("createOrder - Pedido não retornado após inserção");
+      return null;
+    }
+
+    log.info("createOrder - Pedido criado com sucesso", {
+      orderId: createdOrder[0]?.id,
     });
+
+    try {
+      await nofityStore({
+        storeId: store?.id,
+        title: "Novo pedido",
+        icon: "/ifood-icon.png",
+      });
+      log.debug("createOrder - Notificação enviada");
+    } catch (notifyError) {
+      log.error("createOrder - Erro ao notificar loja", notifyError);
+      // Não retorna erro pois o pedido já foi criado
+    }
 
     return { createdOrder };
   });
@@ -94,28 +192,78 @@ export const refreshAccessToken = createServerAction()
     const supabase = createAdminClient();
     const { merchantId } = input;
 
+    log.info("refreshAccessToken - Iniciando", { merchantId });
+
     const clientId = process.env.IFOOD_CLIENT_ID;
     const clientSecret = process.env.IFOOD_CLIENT_SECRET;
     const api = process.env.IFOOD_API_BASE_URL;
 
-    const body = new URLSearchParams();
-    body.append("grantType", "client_credentials");
-    body.append("clientId", clientId ?? "");
-    body.append("clientSecret", clientSecret ?? "");
+    // Verificar variáveis de ambiente
+    if (!clientId || !clientSecret || !api) {
+      log.error("refreshAccessToken - Variáveis de ambiente faltando", {
+        hasClientId: !!clientId,
+        hasClientSecret: !!clientSecret,
+        hasApi: !!api,
+      });
+      return null;
+    }
 
-    const response = await fetch(`${api}/authentication/v1.0/oauth/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
+    log.debug("refreshAccessToken - Variáveis de ambiente OK", {
+      api,
+      clientIdLength: clientId.length,
     });
 
-    const data = await response.json();
+    const body = new URLSearchParams();
+    body.append("grantType", "client_credentials");
+    body.append("clientId", clientId);
+    body.append("clientSecret", clientSecret);
 
-    if (data.accessToken) {
+    try {
+      log.debug("refreshAccessToken - Fazendo requisição", {
+        url: `${api}/authentication/v1.0/oauth/token`,
+      });
+
+      const response = await fetch(`${api}/authentication/v1.0/oauth/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+
+      log.debug("refreshAccessToken - Resposta recebida", {
+        status: response.status,
+        ok: response.ok,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        log.error("refreshAccessToken - Erro na resposta da API", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
+        return null;
+      }
+
+      const data = await response.json();
+
+      log.debug("refreshAccessToken - Dados recebidos", {
+        hasAccessToken: !!data.accessToken,
+        expiresIn: data.expiresIn,
+      });
+
+      if (!data.accessToken) {
+        log.error("refreshAccessToken - AccessToken não retornado", data);
+        return null;
+      }
+
       const expiresAt = new Date();
       expiresAt.setSeconds(expiresAt.getSeconds() + data.expiresIn);
 
-      // 🔹 4. Atualizar token no banco
+      log.debug("refreshAccessToken - Atualizando token no banco", {
+        merchantId,
+        expiresAt: expiresAt.toISOString(),
+      });
+
       const { error } = await supabase
         .from("ifood_integrations")
         .update({
@@ -125,11 +273,24 @@ export const refreshAccessToken = createServerAction()
         .eq("merchant_id", merchantId);
 
       if (error) {
-        console.error("❌ Erro ao atualizar token no banco:", error);
-        return;
+        log.error("refreshAccessToken - Erro ao atualizar token no banco", {
+          error: error.message,
+          code: error.code,
+        });
+        return null;
       }
 
+      log.info("refreshAccessToken - Token atualizado com sucesso", {
+        merchantId,
+      });
+
       return data.accessToken;
+    } catch (fetchError) {
+      log.error("refreshAccessToken - Erro na requisição", {
+        error: fetchError instanceof Error ? fetchError.message : fetchError,
+        stack: fetchError instanceof Error ? fetchError.stack : undefined,
+      });
+      return null;
     }
   });
 
@@ -140,30 +301,61 @@ export const getAccessToken = webhookProcedure
     const { merchantId } = input;
     const { supabase } = ctx;
 
+    log.info("getAccessToken - Iniciando", { merchantId });
+
     const { data, error } = await supabase
       .from("ifood_integrations")
       .select("access_token, expires_at")
       .eq("merchant_id", merchantId)
       .single();
 
-    if (error || !data?.access_token) {
-      console.error("🔄 Token não encontrado, gerando um novo...");
-      return await refreshAccessToken({ merchantId });
+    if (error) {
+      log.error("getAccessToken - Erro ao buscar token no banco", {
+        error: error.message,
+        code: error.code,
+      });
+      log.info("getAccessToken - Tentando gerar novo token");
+      const [newToken, refreshError] = await refreshAccessToken({ merchantId });
+      if (refreshError) {
+        log.error("getAccessToken - Erro ao gerar novo token", refreshError);
+        return null;
+      }
+      return newToken;
+    }
+
+    if (!data?.access_token) {
+      log.info("getAccessToken - Token não encontrado, gerando novo", {
+        merchantId,
+      });
+      const [newToken, refreshError] = await refreshAccessToken({ merchantId });
+      if (refreshError) {
+        log.error("getAccessToken - Erro ao gerar novo token", refreshError);
+        return null;
+      }
+      return newToken;
     }
 
     const now = new Date();
     const expiresAt = new Date(data.expires_at);
 
+    log.debug("getAccessToken - Verificando expiração", {
+      now: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+      isExpired: now >= expiresAt,
+    });
+
     if (now >= expiresAt) {
-      console.error(
-        "🔄 Token expirado, tentando gerar um novo para",
-        merchantId,
-      );
-      const [newToken] = await refreshAccessToken({ merchantId });
-      console.error("Novo token gerado:", newToken);
+      log.info("getAccessToken - Token expirado, renovando", { merchantId });
+      const [newToken, refreshError] = await refreshAccessToken({ merchantId });
+      if (refreshError) {
+        log.error("getAccessToken - Erro ao renovar token", refreshError);
+        return null;
+      }
+      log.info("getAccessToken - Token renovado com sucesso");
       return newToken;
     }
 
+    log.info("getAccessToken - Token válido encontrado", { merchantId });
     return data.access_token;
   });
 
@@ -179,29 +371,72 @@ export const getIfoodOrderData = webhookProcedure
     const { orderId, merchantId } = input;
     const api = process.env.IFOOD_API_BASE_URL;
 
-    const [accessToken] = await getAccessToken({ merchantId });
+    log.info("getIfoodOrderData - Iniciando", { orderId, merchantId });
+
+    if (!api) {
+      log.error("getIfoodOrderData - IFOOD_API_BASE_URL não configurada");
+      return null;
+    }
+
+    const [accessToken, tokenError] = await getAccessToken({ merchantId });
+
+    if (tokenError) {
+      log.error("getIfoodOrderData - Erro ao obter access token", tokenError);
+      return null;
+    }
 
     if (!accessToken) {
-      console.error("😨 Erro ao buscar access_token no banco.", accessToken);
-      return;
+      log.error("getIfoodOrderData - Access token não retornado");
+      return null;
     }
 
-    const response = await fetch(`${api}/order/v1.0/orders/${orderId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
+    log.debug("getIfoodOrderData - Token obtido, fazendo requisição", {
+      url: `${api}/order/v1.0/orders/${orderId}`,
     });
 
-    const data = await response.json();
+    try {
+      const response = await fetch(`${api}/order/v1.0/orders/${orderId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!data) {
-      console.error("Pedido não encontrado.", data);
-      return;
+      log.debug("getIfoodOrderData - Resposta recebida", {
+        status: response.status,
+        ok: response.ok,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        log.error("getIfoodOrderData - Erro na resposta da API", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
+        return null;
+      }
+
+      const data = await response.json();
+
+      if (!data) {
+        log.error("getIfoodOrderData - Pedido não encontrado na resposta");
+        return null;
+      }
+
+      log.info("getIfoodOrderData - Dados do pedido obtidos", {
+        orderId: data.id,
+      });
+
+      return data as IfoodOrder;
+    } catch (fetchError) {
+      log.error("getIfoodOrderData - Erro na requisição", {
+        error: fetchError instanceof Error ? fetchError.message : fetchError,
+        stack: fetchError instanceof Error ? fetchError.stack : undefined,
+      });
+      return null;
     }
-
-    return data as IfoodOrder;
   });
 
 export const handleOrderPlaced = webhookProcedure
@@ -210,10 +445,34 @@ export const handleOrderPlaced = webhookProcedure
   .handler(async ({ input }) => {
     const { orderId, merchantId } = input;
 
-    const [orderData] = await getIfoodOrderData({ orderId, merchantId });
+    log.info("handleOrderPlaced - Iniciando", { orderId, merchantId });
+
+    const [orderData, orderError] = await getIfoodOrderData({
+      orderId,
+      merchantId,
+    });
+
+    if (orderError) {
+      log.error(
+        "handleOrderPlaced - Erro ao obter dados do pedido",
+        orderError,
+      );
+      return NextResponse.json(
+        {
+          error: "Erro ao obter dados do pedido",
+        },
+        { status: 500 },
+      );
+    }
 
     if (!orderData) {
-      return;
+      log.error("handleOrderPlaced - Dados do pedido não retornados");
+      return NextResponse.json(
+        {
+          error: "Dados do pedido não encontrados",
+        },
+        { status: 404 },
+      );
     }
 
     const { id, createdAt, orderType, payments, total, delivery } = orderData;
@@ -246,18 +505,48 @@ export const handleOrderPlaced = webhookProcedure
       ifood_order_data: orderData,
     };
 
+    log.debug("handleOrderPlaced - Validando dados do pedido");
+
     const validation = createIfoodOrderSchema.safeParse(newOrderValues);
 
     if (!validation.success) {
-      console.error("Erro de validação:", validation.error);
-      return;
+      log.error("handleOrderPlaced - Erro de validação", {
+        errors: validation.error.errors,
+      });
+      return NextResponse.json(
+        {
+          error: "Erro de validação",
+          details: validation.error.errors,
+        },
+        { status: 400 },
+      );
     }
 
-    const [response] = await createOrder(newOrderValues);
+    log.debug("handleOrderPlaced - Criando pedido");
+
+    const [response, createError] = await createOrder(newOrderValues);
+
+    if (createError) {
+      log.error("handleOrderPlaced - Erro ao criar pedido", createError);
+      return NextResponse.json(
+        {
+          error: "Erro ao criar pedido",
+        },
+        { status: 500 },
+      );
+    }
 
     if (!response) {
-      console.error("Erro ao criar pedido", response);
+      log.error("handleOrderPlaced - Pedido não retornado após criação");
+      return NextResponse.json(
+        {
+          error: "Pedido não criado",
+        },
+        { status: 500 },
+      );
     }
+
+    log.info("handleOrderPlaced - Pedido criado com sucesso", { orderId });
 
     return NextResponse.json({ message: "Pedido criado com sucesso." });
   });
@@ -269,16 +558,40 @@ export const handleOrderNewStatus = webhookProcedure
     const { orderId, newStatus } = input;
     const { supabase } = ctx;
 
+    log.info("handleOrderNewStatus - Iniciando", { orderId, newStatus });
+
     const { data, error } = await supabase
       .from("orders")
       .update({ status: newStatus })
       .eq("id", orderId)
       .select();
 
-    if (error || !data) {
-      console.error("Erro ao confirmar pedido:", error);
-      return;
+    if (error) {
+      log.error("handleOrderNewStatus - Erro ao atualizar status", {
+        error: error.message,
+        code: error.code,
+      });
+      return NextResponse.json(
+        {
+          error: "Erro ao atualizar status",
+        },
+        { status: 500 },
+      );
     }
+
+    if (!data) {
+      log.error("handleOrderNewStatus - Pedido não retornado após atualização");
+      return NextResponse.json(
+        {
+          error: "Pedido não encontrado",
+        },
+        { status: 404 },
+      );
+    }
+
+    log.info("handleOrderNewStatus - Status atualizado com sucesso", {
+      orderId,
+    });
 
     return NextResponse.json({ message: "Pedido confirmado com sucesso." });
   });
@@ -290,21 +603,44 @@ export const handleCancelOrder = webhookProcedure
     const { orderId } = input;
     const { supabase } = ctx;
 
+    log.info("handleCancelOrder - Iniciando", { orderId });
+
     const { data, error } = await supabase
       .from("orders")
       .update({ status: "cancelled" })
       .eq("id", orderId)
       .select();
 
-    if (error || !data) {
-      console.error("Erro ao cancelar pedido:", error);
-      return;
+    if (error) {
+      log.error("handleCancelOrder - Erro ao cancelar pedido", {
+        error: error.message,
+        code: error.code,
+      });
+      return NextResponse.json(
+        {
+          error: "Erro ao cancelar pedido",
+        },
+        { status: 500 },
+      );
     }
+
+    if (!data) {
+      log.error("handleCancelOrder - Pedido não retornado após cancelamento");
+      return NextResponse.json(
+        {
+          error: "Pedido não encontrado",
+        },
+        { status: 404 },
+      );
+    }
+
+    log.info("handleCancelOrder - Pedido cancelado com sucesso", { orderId });
 
     return NextResponse.json({ message: "Pedido cancelado com sucesso." });
   });
 
 export const keepAlive = createServerAction().handler(async () => {
+  log.debug("keepAlive - Evento recebido");
   return NextResponse.json({
     message: "Evento KEEPALIVE recebido.",
   });
@@ -316,7 +652,18 @@ export const createHandshakeEvent = webhookProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx;
 
-    const [store] = await readStore({ merchantId: input.merchantId });
+    log.info("createHandshakeEvent - Iniciando", {
+      merchantId: input.merchantId,
+      orderId: input.orderId,
+    });
+
+    const [store, storeError] = await readStore({
+      merchantId: input.merchantId,
+    });
+
+    if (storeError) {
+      log.error("createHandshakeEvent - Erro ao buscar loja", storeError);
+    }
 
     const { error } = await supabase
       .from("ifood_events")
@@ -324,16 +671,32 @@ export const createHandshakeEvent = webhookProcedure
       .select();
 
     if (error) {
-      console.error("Erro ao salvar evento de handshake:", error);
+      log.error("createHandshakeEvent - Erro ao salvar evento", {
+        error: error.message,
+        code: error.code,
+      });
+      return NextResponse.json(
+        {
+          error: "Erro ao salvar evento",
+        },
+        { status: 500 },
+      );
     }
+
+    log.info("createHandshakeEvent - Evento salvo com sucesso");
 
     revalidatePath("/");
 
-    nofityStore({
-      storeId: store?.id,
-      title: "Novo pedido",
-      icon: "/ifood-icon.png",
-    });
+    try {
+      await nofityStore({
+        storeId: store?.id,
+        title: "Novo pedido",
+        icon: "/ifood-icon.png",
+      });
+      log.debug("createHandshakeEvent - Notificação enviada");
+    } catch (notifyError) {
+      log.error("createHandshakeEvent - Erro ao notificar loja", notifyError);
+    }
 
     return NextResponse.json({
       message: "Evento de handshake tratado com sucesso!",
@@ -346,14 +709,27 @@ export const deleteHandshakeEvent = webhookProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx;
 
+    log.info("deleteHandshakeEvent - Iniciando", { orderId: input.order_id });
+
     const { error } = await supabase
       .from("ifood_events")
       .delete()
       .eq("orderId", input.order_id);
 
     if (error) {
-      console.error("Erro ao salvar evento de handshake:", error);
+      log.error("deleteHandshakeEvent - Erro ao deletar evento", {
+        error: error.message,
+        code: error.code,
+      });
+      return NextResponse.json(
+        {
+          error: "Erro ao deletar evento",
+        },
+        { status: 500 },
+      );
     }
+
+    log.info("deleteHandshakeEvent - Evento deletado com sucesso");
 
     revalidatePath("/");
 
