@@ -72,6 +72,7 @@ type Product = {
   allows_extras: boolean;
   need_choices: boolean | null;
   status: "active" | "inactive";
+  kitchen_observations: string[] | null;
 };
 
 type ProductImage = {
@@ -108,6 +109,7 @@ const initialProduct: Omit<Product, "id" | "created_at" | "amount_sold"> = {
   allows_extras: true,
   need_choices: false,
   status: "active",
+  kitchen_observations: [],
 };
 
 export default function ProductManagement() {
@@ -338,6 +340,7 @@ export default function ProductManagement() {
             allows_extras: product.allows_extras,
             need_choices: product.need_choices,
             status: product.status,
+            kitchen_observations: product.kitchen_observations,
           },
         ])
         .select()
@@ -390,6 +393,7 @@ export default function ProductManagement() {
       allows_extras: product.allows_extras,
       need_choices: product.need_choices || false,
       status: product.status,
+      kitchen_observations: product.kitchen_observations || [],
     });
     setFiles([]);
     setIsDialogOpen(true);
@@ -477,6 +481,7 @@ export default function ProductManagement() {
                   <TableHead>Imagens</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Descrição</TableHead>
+                  <TableHead>Obs cozinha</TableHead>
                   <TableHead>Preço</TableHead>
                   <TableHead>Preço Promo</TableHead>
                   <TableHead>Estoque</TableHead>
@@ -531,6 +536,7 @@ export default function ProductManagement() {
                       {product.name}
                     </TableCell>
                     <TableCell>{product.description}</TableCell>
+                    <TableCell>{product.kitchen_observations}</TableCell>
                     <TableCell>
                       {product.price ? formatCurrencyBRL(product.price) : "-"}
                     </TableCell>
@@ -752,6 +758,33 @@ export default function ProductManagement() {
                 }
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="kitchen_observations">
+                Observações da Cozinha
+              </Label>
+
+              <Textarea
+                id="kitchen_observations"
+                placeholder="Uma observação por linha. Ex:\n- Sem cebola\n- Bem passado\n- Embalar separado"
+                value={(formData.kitchen_observations ?? []).join("\n")}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    kitchen_observations: e.target.value
+                      .split("\n")
+                      .map((line) => line.trim())
+                      .filter(Boolean),
+                  })
+                }
+                rows={4}
+              />
+
+              <p className="text-sm text-muted-foreground">
+                Cada linha será salva como uma observação independente para a
+                cozinha.
+              </p>
             </div>
 
             {/* Configurações */}
