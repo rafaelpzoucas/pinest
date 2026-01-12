@@ -17,6 +17,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn, formatCurrencyBRL } from "@/lib/utils";
 import { useCashRegister } from "@/stores/cashRegisterStore";
 import {
@@ -181,25 +192,52 @@ export function Tables() {
                           </TooltipContent>
                         </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => cancelTable(table.id)}
-                              disabled={isCancelling}
-                            >
-                              {isCancelling ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <XCircle />
-                              )}
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Cancelar mesa</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <AlertDialog>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={isCancelling}
+                                >
+                                  {isCancelling ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <XCircle />
+                                  )}
+                                </Button>
+                              </AlertDialogTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Cancelar mesa</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Cancelar mesa #{table.number}?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja cancelar esta mesa? Todos
+                                os itens serão removidos e esta ação não pode
+                                ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Voltar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => cancelTable(table.id)}
+                                className={cn(
+                                  buttonVariants({ variant: "destructive" }),
+                                )}
+                              >
+                                Cancelar mesa
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
 
                         <Tooltip>
                           <TooltipTrigger asChild>
