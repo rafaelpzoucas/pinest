@@ -22,6 +22,11 @@ export const paymentTypeSchema = z.enum([
   "ONLINE",
 ]);
 
+export const readOrdersSchema = z.object({
+  start_date: z.string().datetime().optional(),
+  end_date: z.string().datetime().optional(),
+});
+
 // Sub-schemas para JSONB
 export const orderTotalSchema = z.object({
   subtotal: z.number(),
@@ -241,6 +246,7 @@ export const orderWithRelationsSchema = orderDatabaseSchema.extend({
 });
 
 // Types exportados
+export type ReadOrdersType = z.infer<typeof readOrdersSchema>;
 export type OrderType = z.infer<typeof orderTypeSchema>;
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type PaymentType = z.infer<typeof paymentTypeSchema>;

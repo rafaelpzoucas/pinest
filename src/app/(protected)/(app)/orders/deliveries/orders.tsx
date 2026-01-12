@@ -13,6 +13,8 @@ import { DataTable } from "./data-table/table";
 import { OrderCard } from "./order-card";
 import { useOrders } from "@/features/admin/orders/hooks";
 import { useReadCashSession } from "@/features/cash-register/hooks";
+import { DatePickerWithRange } from "@/components/ui/date-picker-range";
+import { useSearchParams } from "next/navigation";
 
 type OrderStatus =
   | "accept"
@@ -24,11 +26,19 @@ type OrderStatus =
   | "readyToPickup";
 
 export function Deliveries() {
+  const searchParams = useSearchParams();
+
+  const startParam = searchParams.get("start_date") ?? undefined;
+  const endParam = searchParams.get("end_date") ?? undefined;
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("in_progress");
 
   // Hook com realtime integrado
-  const { data: orders, isLoading } = useOrders();
+  const { data: orders, isLoading } = useOrders({
+    start_date: startParam,
+    end_date: endParam,
+  });
 
   const normalizeString = (str: string | undefined) => str?.toLowerCase() || "";
   const searchStr = normalizeString(search);
@@ -89,6 +99,7 @@ export function Deliveries() {
 
     const matchesSearch =
       normalizeString(storeCustomers?.customers?.name).includes(searchStr) ||
+      normalizeString(storeCustomers?.customers?.phone).includes(searchStr) ||
       id.includes(searchStr);
 
     const matchesStatus =
@@ -158,6 +169,10 @@ export function Deliveries() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
+        <DatePickerWithRange
+          defaultRange={{ from: new Date(), to: new Date() }}
+        />
       </header>
 
       <section className="grid grid-cols-3 lg:grid-cols-6 gap-4">
@@ -180,7 +195,7 @@ export function Deliveries() {
         Exibindo {filteredOrders?.length || 0} pedido(s)
       </span>
 
-      <div className="lg:hidden flex flex-col gap-2">
+      <div className="flex flex-col lg:grid grid-cols-3 gap-2">
         {filteredOrders && filteredOrders.length > 0
           ? filteredOrders?.map((order) => (
               <OrderCard key={order.id} order={order} />
@@ -192,7 +207,7 @@ export function Deliveries() {
             )}
       </div>
 
-      <div className="hidden lg:flex w-full">
+      <div className="hidden w-full">
         {filteredOrders && (
           <DataTable columns={columns} data={filteredOrders} />
         )}

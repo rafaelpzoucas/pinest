@@ -1,35 +1,39 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { readOrders } from "./read";
 import { readOrderById } from "./read-by-id";
-import { Order } from "./schemas";
+import { Order, ReadOrdersType } from "./schemas";
 import { readOpenOrders } from "./read-open";
 
 export const ordersKeys = {
   all: ["orders"] as const,
-  lists: () => [...ordersKeys.all, "list"] as const,
+
+  lists: (filters?: ReadOrdersType) =>
+    [...ordersKeys.all, "list", filters ?? {}] as const,
+
   details: () => [...ordersKeys.all, "detail"] as const,
   detail: (id: string) => [...ordersKeys.details(), id] as const,
+
   open: ["orders", "open"] as const,
 };
 
-export function useOrders() {
+export function useOrders(params: ReadOrdersType) {
   const queryClient = useQueryClient();
 
   const query = useQuery<Order[]>({
-    queryKey: ordersKeys.lists(),
+    // FIX: Passar params para a queryKey para evitar cache compartilhado
+    queryKey: ordersKeys.lists(params),
     queryFn: async () => {
-      const [data, error] = await readOrders();
+      // FIX: Passar params para a função
+      const [data, error] = await readOrders(params);
 
       if (error) {
         throw error;
       }
 
-      // Garantir que retorna array de orders
       return (data?.orders || []) as Order[];
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -51,9 +55,9 @@ export function useOrders() {
         (payload) => {
           console.log("Order change received:", payload);
 
-          // Invalidar cache para refetch
+          // FIX: Invalidar todas as listas (com diferentes filtros)
           queryClient.invalidateQueries({
-            queryKey: ordersKeys.lists(),
+            queryKey: ordersKeys.all,
           });
         },
       )
@@ -76,18 +80,16 @@ export function useOrders() {
   return query;
 }
 
-// Hook para atualização otimista manual (útil para mutations)
 export function useInvalidateOrders() {
   const queryClient = useQueryClient();
 
   return () => {
     queryClient.invalidateQueries({
-      queryKey: ordersKeys.lists(),
+      queryKey: ordersKeys.all,
     });
   };
 }
 
-// Hook para buscar order por ID
 export function useOrderById(id: string) {
   const queryClient = useQueryClient();
 
@@ -102,11 +104,10 @@ export function useOrderById(id: string) {
 
       return data?.order as Order;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutos
-    enabled: !!id, // Só executa se tiver ID
+    staleTime: 1000 * 60 * 5,
+    enabled: !!id,
   });
 
-  // Realtime subscription para order específica
   useEffect(() => {
     if (!id) return;
 
@@ -125,14 +126,12 @@ export function useOrderById(id: string) {
         (payload) => {
           console.log("Order detail change received:", payload);
 
-          // Invalidar cache da order específica
           queryClient.invalidateQueries({
             queryKey: ordersKeys.detail(id),
           });
 
-          // Também invalidar a lista
           queryClient.invalidateQueries({
-            queryKey: ordersKeys.lists(),
+            queryKey: ordersKeys.all,
           });
         },
       )
@@ -167,7 +166,7 @@ export const useReadOpenOrders = () => {
 
       return data?.openOrders || [];
     },
-    staleTime: 1000 * 30, // 30 segundos (dados que mudam frequentemente)
-    refetchInterval: 1000 * 60, // Refetch a cada 1 minuto
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 60,
   });
 };

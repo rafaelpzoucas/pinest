@@ -92,6 +92,7 @@ export function Tables() {
               className="pl-10"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              autoFocus
             />
           </div>
         </header>

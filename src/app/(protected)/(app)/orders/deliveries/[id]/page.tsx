@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { IfoodOrderData } from "@/features/admin/orders/schemas";
 import { IfoodItem } from "@/features/admin/integrations/ifood/schemas";
 import { useParams } from "next/navigation";
+import { CopyTextButton } from "@/components/copy-text-button";
 
 type StatusKey = keyof typeof statuses;
 
@@ -403,7 +404,11 @@ export default async function OrderPage() {
 
               {customer?.phone && (
                 <p className="text-muted-foreground">
-                  Telefone: {customer?.phone}
+                  Telefone:{" "}
+                  <CopyTextButton
+                    textToCopy={customer?.phone}
+                    buttonText={customer?.phone}
+                  />
                 </p>
               )}
 
