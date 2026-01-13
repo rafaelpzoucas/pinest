@@ -10,7 +10,7 @@ export const addressSchema = z.object({
 
 export const createAdminCustomerSchema = z.object({
   storeId: z.string().uuid(),
-  phone: z.string().min(14, "Insira um número de telefone válido."),
+  phone: z.string().optional(),
   name: z.string().min(1, { message: "O nome é obrigatório." }),
   address: addressSchema,
 });
