@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createPath, formatAddress } from "@/lib/utils";
+import { formatAddress } from "@/lib/utils";
 import { StoreType } from "@/models/store";
 import { Check, Clipboard, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
@@ -12,14 +12,10 @@ export function ProfileCard({ store }: { store: StoreType }) {
 
   const domain =
     store.custom_domain ?? `${store.store_subdomain}.pinest.com.br`;
-  const fullUrl =
-    process.env.NODE_ENV === "production"
-      ? domain
-      : createPath("/", store.store_subdomain);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(fullUrl);
+      await navigator.clipboard.writeText(domain);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
