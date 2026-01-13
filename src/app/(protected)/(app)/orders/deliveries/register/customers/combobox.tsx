@@ -65,7 +65,7 @@ export function CustomersCombobox({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchValue && /^\d+$/.test(searchValue)) {
       const hasCustomers = storeCustomers?.some((customer) =>
-        customer.customers.phone.includes(searchValue),
+        customer.customers.phone?.includes(searchValue),
       );
 
       if (!hasCustomers) {
@@ -74,6 +74,15 @@ export function CustomersCombobox({
       }
     }
   };
+
+  const selectedCustomer = storeCustomers?.find(
+    (storeCustomer) => storeCustomer.id === form.watch("customer_id"),
+  );
+
+  const hasPhone = selectedCustomer?.customers.phone;
+  const hasAddress =
+    selectedCustomer?.customers.address &&
+    formatAddress(selectedCustomer.customers.address);
 
   return (
     <FormField
@@ -92,30 +101,23 @@ export function CustomersCombobox({
               >
                 {field.value ? (
                   <div className="flex flex-col items-start lg:flex-row lg:gap-4">
-                    <p>
-                      {
-                        storeCustomers?.find(
-                          (storeCustomer) => storeCustomer.id === field.value,
-                        )?.customers.name
-                      }
-                    </p>
-                    <span className="hidden lg:block">&bull;</span>
-                    <p>
-                      {
-                        storeCustomers?.find(
-                          (storeCustomer) => storeCustomer.id === field.value,
-                        )?.customers.phone
-                      }
-                    </p>
-                    <span className="hidden lg:block">&bull;</span>
+                    <p>{selectedCustomer?.customers.name}</p>
 
-                    <p className="text-wrap text-left">
-                      {formatAddress(
-                        storeCustomers?.find(
-                          (storeCustomer) => storeCustomer.id === field.value,
-                        )?.customers.address,
-                      )}
-                    </p>
+                    {hasPhone && (
+                      <>
+                        <span className="hidden lg:block">&bull;</span>
+                        <p>{selectedCustomer.customers.phone}</p>
+                      </>
+                    )}
+
+                    {hasAddress && (
+                      <>
+                        <span className="hidden lg:block">&bull;</span>
+                        <p className="text-wrap text-left">
+                          {formatAddress(selectedCustomer.customers.address)}
+                        </p>
+                      </>
+                    )}
                   </div>
                 ) : (
                   "Selecione um cliente"
@@ -157,72 +159,94 @@ export function CustomersCombobox({
                     )}
                   </CommandEmpty>
                   <CommandGroup>
-                    {storeCustomers?.map((storeCustomer) => (
-                      <CommandItem
-                        value={`${storeCustomer.customers.name} ${storeCustomer.customers.phone} ${storeCustomer.customers.address.street}`}
-                        key={storeCustomer.id}
-                        onSelect={() => {
-                          setPhoneQuery(null);
-                          setSearchValue("");
-                          form.reset({
-                            ...form.getValues(), // preserva os outros campos atuais
-                            customer_id: storeCustomer.id,
-                            delivery: {
-                              ...form.getValues().delivery,
-                              address: {
-                                street: storeCustomer.customers.address.street,
-                                number: storeCustomer.customers.address.number,
-                                neighborhood:
-                                  storeCustomer.customers.address.neighborhood,
-                                complement:
-                                  storeCustomer.customers.address.complement,
-                                observations:
-                                  storeCustomer.customers.address.observations,
+                    {storeCustomers?.map((storeCustomer) => {
+                      const customerHasPhone = storeCustomer.customers.phone;
+                      const customerHasAddress =
+                        storeCustomer.customers.address &&
+                        formatAddress(storeCustomer.customers.address);
+
+                      return (
+                        <CommandItem
+                          value={`${storeCustomer.customers.name} ${storeCustomer.customers.phone || ""} ${storeCustomer.customers.address?.street || ""}`}
+                          key={storeCustomer.id}
+                          onSelect={() => {
+                            setPhoneQuery(null);
+                            setSearchValue("");
+                            form.reset({
+                              ...form.getValues(),
+                              customer_id: storeCustomer.id,
+                              delivery: {
+                                ...form.getValues().delivery,
+                                address: {
+                                  street:
+                                    storeCustomer.customers.address?.street ||
+                                    "",
+                                  number:
+                                    storeCustomer.customers.address?.number ||
+                                    "",
+                                  neighborhood:
+                                    storeCustomer.customers.address
+                                      ?.neighborhood || "",
+                                  complement:
+                                    storeCustomer.customers.address
+                                      ?.complement || "",
+                                  observations:
+                                    storeCustomer.customers.address
+                                      ?.observations || "",
+                                },
                               },
-                            },
-                          });
-                          setOpen(false);
-                        }}
-                      >
-                        <div className="flex flex-col w-full">
-                          <div className="flex flex-row items-start">
-                            <span className="max-w-[335px] line-clamp-1">
-                              {storeCustomer.customers.name}
-                            </span>
-                            <div className="ml-auto flex flex-row gap-1">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="w-7 h-7"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCustomerForm("update");
-                                  setPhoneQuery(null);
-                                  form.setValue(
-                                    "customer_id",
-                                    storeCustomer.id,
-                                  );
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
+                            });
+                            setOpen(false);
+                          }}
+                        >
+                          <div className="flex flex-col w-full">
+                            <div className="flex flex-row items-start">
+                              <span className="max-w-[335px] line-clamp-1">
+                                {storeCustomer.customers.name}
+                              </span>
+                              <div className="ml-auto flex flex-row gap-1">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="w-7 h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCustomerForm("update");
+                                    setPhoneQuery(null);
+                                    form.setValue(
+                                      "customer_id",
+                                      storeCustomer.id,
+                                    );
+                                  }}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </div>
+
+                            {customerHasPhone && (
+                              <p className="text-muted-foreground">
+                                {storeCustomer.customers.phone}aaaaaaaaaaa
+                              </p>
+                            )}
+
+                            {customerHasAddress && (
+                              <p className="text-muted-foreground">
+                                {formatAddress(storeCustomer.customers.address)}
+                              </p>
+                            )}
+
+                            {storeCustomer.balance < 0 && (
+                              <p className="text-muted-foreground">
+                                Saldo:{" "}
+                                {formatCurrencyBRL(storeCustomer.balance)}
+                              </p>
+                            )}
                           </div>
-                          <p className="text-muted-foreground">
-                            {storeCustomer.customers.phone}
-                          </p>
-                          <p className="text-muted-foreground">
-                            {formatAddress(storeCustomer.customers.address)}
-                          </p>
-                          {storeCustomer.balance < 0 && (
-                            <p className="text-muted-foreground">
-                              Saldo: {formatCurrencyBRL(storeCustomer.balance)}
-                            </p>
-                          )}
-                        </div>
-                      </CommandItem>
-                    ))}
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </CommandList>
               </Command>

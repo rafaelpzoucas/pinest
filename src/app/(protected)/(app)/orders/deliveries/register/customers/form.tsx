@@ -56,7 +56,7 @@ export function CustomersForm({
     resolver: zodResolver(CreateCustomerSchema),
     defaultValues: {
       name: "",
-      phone: "+55",
+      phone: "",
       address: {
         street: "",
         number: "",
@@ -110,10 +110,10 @@ export function CustomersForm({
   }
 
   useEffect(() => {
-    if (!isUpdate) {
+    if (!isUpdate && phoneQuery) {
       form.setValue("phone", `+55${phoneQuery}`);
     }
-  }, [phoneQuery, selectedCustomer, form]);
+  }, [phoneQuery, isUpdate, form]);
 
   useEffect(() => {
     if (isUpdate) {
@@ -121,7 +121,7 @@ export function CustomersForm({
 
       form.reset({
         name: selectedCustomer.customers.name || "",
-        phone: selectedCustomer.customers.phone || "+55",
+        phone: selectedCustomer.customers.phone || "",
         address: {
           street: selectedCustomer.customers.address?.street || "",
           number: selectedCustomer.customers.address?.number || "",
@@ -131,30 +131,13 @@ export function CustomersForm({
         },
       });
     }
-  }, []);
+  }, [isUpdate, selectedCustomer, orderForm, form]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="h-[calc(100dvh_-_132px)] overflow-auto">
           <div className="flex flex-col w-full space-y-4 px-4 pb-16">
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefone</FormLabel>
-                  <FormControl>
-                    <PhoneInput autoFocus {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    O número de WhatsApp. (DDD + número)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="name"
@@ -164,6 +147,23 @@ export function CustomersForm({
                   <FormControl>
                     <Input placeholder="Insira o nome..." {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <PhoneInput {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    O número de WhatsApp. (DDD + número)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
