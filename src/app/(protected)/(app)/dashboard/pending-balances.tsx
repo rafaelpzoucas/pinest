@@ -1,14 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { readPendingBalancesCached } from './actions'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { readPendingBalancesCached } from "./actions";
 
 export async function PendingBalances() {
-  const [storeCustomersData] = await readPendingBalancesCached()
+  const [storeCustomersData] = await readPendingBalancesCached();
 
-  const storeCustomers = storeCustomersData?.storeCustomers
+  const storeCustomers = storeCustomersData?.storeCustomers;
 
   if (!storeCustomers || storeCustomers.length === 0) {
-    return
+    return;
   }
 
   return (
@@ -18,17 +18,30 @@ export async function PendingBalances() {
       </CardHeader>
       <CardContent>
         <div>
-          {storeCustomers.map((customer) => (
-            <p
-              key={customer.id}
-              className="flex flex-row items-center justify-between py-2 border-b last:border-0"
-            >
-              <span>{customer.customers.name}</span>
-              <span>{formatCurrencyBRL(customer.balance)}</span>
-            </p>
-          ))}
+          {storeCustomers.map((customer) => {
+            const firstName = customer.customers.name.split(" ")[0];
+            const lastName = customer.customers.name.split(" ").slice(-1)[0];
+            return (
+              <p
+                key={customer.id}
+                className="flex flex-row items-center justify-between py-2 border-b last:border-0"
+              >
+                <div>
+                  <span>
+                    {firstName} {lastName}
+                  </span>
+                  {customer.customers.phone && (
+                    <p className="text-muted-foreground text-sm">
+                      {customer.customers.phone}
+                    </p>
+                  )}
+                </div>
+                <strong>{formatCurrencyBRL(customer.balance)}</strong>
+              </p>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

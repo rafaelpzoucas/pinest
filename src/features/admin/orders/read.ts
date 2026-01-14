@@ -21,12 +21,10 @@ export const readOrders = createServerAction()
 
     const now = new Date();
 
-    // FIX: Garantir que as datas sejam tratadas corretamente
     let start_date: Date;
     let end_date: Date;
 
     if (input?.start_date) {
-      // Se vier como string ISO, converter para Date
       start_date = startOfDay(new Date(input.start_date));
     } else {
       start_date = startOfDay(now);
@@ -38,7 +36,6 @@ export const readOrders = createServerAction()
       end_date = endOfDay(now);
     }
 
-    // Debug: Log das datas para verificar
     console.log("🔍 Buscando orders:", {
       store_id: store?.id,
       start_date: start_date.toISOString(),
@@ -46,6 +43,7 @@ export const readOrders = createServerAction()
       input,
     });
 
+    // Buscar pedidos do período especificado OU pedidos em aberto
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
       .select(
@@ -62,16 +60,15 @@ export const readOrders = createServerAction()
         `,
       )
       .eq("store_id", store?.id)
-      .gte("created_at", start_date.toISOString())
-      .lte("created_at", end_date.toISOString())
+      .or(
+        `and(created_at.gte.${start_date.toISOString()},created_at.lte.${end_date.toISOString()}),and(is_paid.eq.false,status.neq.cancelled)`,
+      )
       .order("created_at", { ascending: false });
 
     if (ordersError) {
       console.error("❌ Erro ao buscar orders:", ordersError);
       throw new ZSAError("NOT_FOUND", "Could not fetch orders");
     }
-
-    console.log(`✅ ${orders?.length || 0} orders encontradas`);
 
     return { orders: orders as Order[] };
   });

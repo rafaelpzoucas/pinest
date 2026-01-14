@@ -6,6 +6,7 @@ import { FirstSteps } from "./first-steps";
 import { PendingBalances } from "./pending-balances";
 import { ProfileCard } from "./profile";
 import { TodaySummary } from "./today-summary";
+import { RevenueGraphic } from "./revenue-graphic";
 
 export default async function DashboardPage() {
   const [storeData] = await readStoreCached();
@@ -22,13 +23,20 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-4 lg:px-0 space-y-6 pb-16">
-      <section className="columns-1 lg:columns-3 gap-4 space-y-4 w-full max-w-7xl">
-        <ProfileCard store={store} />
+      <ProfileCard store={store} />
 
-        <FirstSteps />
-        <TodaySummary />
-        <SalesReport data={reports?.salesReport} />
-        <PendingBalances />
+      <section className="flex flex-col gap-4 w-full max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-[4fr_2fr] gap-4 items-start">
+          <RevenueGraphic />
+
+          <div className="flex flex-col gap-4">
+            <FirstSteps />
+            <TodaySummary />
+            <SalesReport data={reports?.salesReport} />
+            <PendingBalances />
+          </div>
+        </div>
+
         {/* <TotalSales /> */}
       </section>
     </div>

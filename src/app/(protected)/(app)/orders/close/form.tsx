@@ -31,6 +31,7 @@ import { closeBills, createPayment } from "./actions";
 import { CustomersCombobox } from "./customers/combobox";
 import { createPaymentSchema } from "./schemas";
 import { ordersKeys } from "@/features/admin/orders/hooks";
+import { tablesKeys } from "@/features/tables/hooks";
 
 export function CloseBillForm({
   payments,
@@ -124,6 +125,9 @@ export function CloseBillForm({
       // Invalida queries relacionadas aos pedidos
       queryClient.invalidateQueries({ queryKey: ordersKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ordersKeys.open });
+
+      // Invalida queries relacionadas às mesas
+      queryClient.invalidateQueries({ queryKey: tablesKeys.open });
 
       if (orderId) {
         queryClient.invalidateQueries({ queryKey: ordersKeys.detail(orderId) });

@@ -8,9 +8,18 @@ import { toast } from "sonner";
 export function CopyTextButton({
   textToCopy,
   buttonText,
+  variant = "outline",
 }: {
   textToCopy: string;
   buttonText?: string;
+  variant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | null;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -32,12 +41,12 @@ export function CopyTextButton({
     <Button
       onClick={handleCopyText}
       disabled={copied}
-      variant="outline"
+      variant={variant}
       size={!buttonText ? "icon" : "sm"}
     >
       {copied ? (
         <>
-          <Check className="w-3 h-3" /> {buttonText} copiado(a)!
+          <Check className="w-3 h-3" /> {buttonText}
         </>
       ) : (
         <>

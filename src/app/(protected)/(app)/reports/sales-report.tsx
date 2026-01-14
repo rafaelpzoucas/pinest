@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { buildSalesReportESCPOS } from '@/lib/receipts'
-import { formatCurrencyBRL } from '@/lib/utils'
-import { PAYMENT_TYPES } from '@/models/order'
-import { Loader2, Printer } from 'lucide-react'
-import { useServerAction } from 'zsa-react'
-import { printReportReceipt } from '../config/printing/actions'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { buildSalesReportESCPOS } from "@/lib/receipts";
+import { formatCurrencyBRL } from "@/lib/utils";
+import { PAYMENT_TYPES } from "@/models/order";
+import { Loader2, Printer } from "lucide-react";
+import { useServerAction } from "zsa-react";
+import { printReportReceipt } from "../config/printing/actions";
 
 export type SalesReportType =
   | {
-      deliveriesCount: number | null
-      totalAmount: number | null
-      paymentTypes: { [key: string]: number }
+      deliveriesCount: number | null;
+      totalAmount: number | null;
+      paymentTypes: { [key: string]: number };
     }
-  | undefined
+  | undefined;
 
 export function SalesReport({ data }: { data: SalesReportType }) {
   const { execute: executePrintReceipt, isPending: isPrinting } =
-    useServerAction(printReportReceipt)
+    useServerAction(printReportReceipt);
 
   return (
     <Card className="h-auto max-w-full break-inside-avoid">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl">Relatório de Vendas</CardTitle>
+        <CardTitle className="text-xl">Vendas de hoje</CardTitle>
 
         {data?.totalAmount && data?.totalAmount > 0 ? (
           <Button
@@ -91,5 +91,5 @@ export function SalesReport({ data }: { data: SalesReportType }) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
