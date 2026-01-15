@@ -161,6 +161,7 @@ export function Summary({
                 <Input
                   maskType="currency"
                   placeholder="Insira o valor do desconto..."
+                  tabIndex={-1}
                   {...field}
                 />
               </FormControl>
@@ -221,7 +222,7 @@ export function Summary({
 
         <Button
           type="button"
-          className="w-full"
+          className="w-full ring-offset-2 ring-offset-transparent"
           disabled={isPending || totalAmount <= 0}
           onClick={() => form.handleSubmit(onSubmit)()}
         >
