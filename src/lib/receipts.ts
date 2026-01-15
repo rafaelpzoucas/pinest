@@ -115,7 +115,7 @@ export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
     }
   }
 
-  const escposString = r.cut().build();
+  const escposString = r.feed(3).cut().build();
   return Buffer.from(escposString, "binary").toString("base64");
 }
 
@@ -147,7 +147,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
   }[order.type];
 
   // Inicia o builder ESC/POS
-  const r = receipt().initialize();
+  const r = receipt();
 
   // Adiciona cabeçalho
   if (reprint) {
@@ -316,7 +316,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
     }
   }
 
-  const escposString = r.cut().build();
+  const escposString = r.feed(3).cut().build();
 
   return Buffer.from(escposString, "binary").toString("base64");
 }
@@ -381,7 +381,7 @@ export function buildReceiptTableESCPOS(
     }
   }
 
-  const escposString = r.cut().feed(3).build();
+  const escposString = r.feed(3).cut().build();
   return Buffer.from(escposString, "binary").toString("base64");
 }
 
@@ -397,7 +397,8 @@ export function buildProductsSoldReportESCPOS(
 
   if (!data || data.length === 0) {
     r.h2("NENHUM RESULTADO ENCONTRADO.");
-    return r.build().trim();
+    const escposString = r.feed(3).cut().build();
+    return Buffer.from(escposString, "binary").toString("base64");
   }
 
   for (const item of data) {
@@ -408,7 +409,7 @@ export function buildProductsSoldReportESCPOS(
     r.strong().p(`${name}   -   ${quantity} un.   ${total}`).endStrong().hr();
   }
 
-  const escposString = r.cut().feed(3).build();
+  const escposString = r.feed(3).cut().build();
   return Buffer.from(escposString, "binary").toString("base64");
 }
 
@@ -422,7 +423,8 @@ export function buildSalesReportESCPOS(data: SalesReportType): string {
 
   if (!data?.totalAmount) {
     r.h2("NENHUM RESULTADO ENCONTRADO.");
-    return r.build().trim();
+    const escposString = r.feed(3).cut().build();
+    return Buffer.from(escposString, "binary").toString("base64");
   }
 
   // Seção de Entregas
@@ -452,6 +454,6 @@ export function buildSalesReportESCPOS(data: SalesReportType): string {
     r.h2(`${paymentLabel.toUpperCase()}: ${formatCurrencyBRL(value)}`).hr();
   }
 
-  const escposString = r.cut().feed(3).build();
+  const escposString = r.feed(3).cut().build();
   return Buffer.from(escposString, "binary").toString("base64");
 }

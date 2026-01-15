@@ -1,6 +1,6 @@
 // escpos-builder.ts
-const ESC = '\x1B' // Caractere de escape para comandos ESC/POS
-const GS = '\x1D' // Caractere de grupo separador para comandos ESC/POS
+const ESC = "\x1B"; // Caractere de escape para comandos ESC/POS
+const GS = "\x1D"; // Caractere de grupo separador para comandos ESC/POS
 
 // Enum para códigos de alinhamento
 enum Align {
@@ -16,7 +16,7 @@ enum TextSize {
   EXTRA_LARGE = 0x22, // Texto grande (pode variar por impressora)
 }
 
-const DEFAULT_WIDTH = 47
+const DEFAULT_WIDTH = 47;
 
 /**
  * Remove acentos e caracteres especiais
@@ -25,9 +25,9 @@ const DEFAULT_WIDTH = 47
  */
 function removeAccents(text: string): string {
   return text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[ªº°]/g, '')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[ªº°]/g, "");
 }
 
 /**
@@ -37,30 +37,30 @@ function removeAccents(text: string): string {
  * @returns Texto formatado com quebras de linha inteligentes
  */
 function wrapText(text: string, maxWidth = DEFAULT_WIDTH): string {
-  const words = text.split(' ')
-  let result = ''
-  let currentLine = ''
+  const words = text.split(" ");
+  let result = "";
+  let currentLine = "";
 
   words.forEach((word) => {
     if (currentLine.length === 0) {
       // Primeira palavra da linha
-      currentLine = word
+      currentLine = word;
     } else if (currentLine.length + word.length + 1 <= maxWidth) {
       // Adiciona à linha atual se couber
-      currentLine += ' ' + word
+      currentLine += " " + word;
     } else {
       // Quebra de linha necessária
-      result += currentLine + '\n'
-      currentLine = word
+      result += currentLine + "\n";
+      currentLine = word;
     }
-  })
+  });
 
   // Adiciona a última linha
   if (currentLine.length > 0) {
-    result += currentLine
+    result += currentLine;
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -68,7 +68,7 @@ function wrapText(text: string, maxWidth = DEFAULT_WIDTH): string {
  * @returns Comando ESC/POS para iniciar negrito
  */
 function strong(): string {
-  return `${ESC}E\x01`
+  return `${ESC}E\x01`;
 }
 
 /**
@@ -76,7 +76,7 @@ function strong(): string {
  * @returns Comando ESC/POS para encerrar negrito
  */
 function endStrong(): string {
-  return `${ESC}E\x00`
+  return `${ESC}E\x00`;
 }
 
 /**
@@ -85,7 +85,7 @@ function endStrong(): string {
  * @returns Texto com comandos ESC/POS para sublinhado
  */
 function underline(text: string): string {
-  return `${ESC}-\x01${text}${ESC}-\x00`
+  return `${ESC}-\x01${text}${ESC}-\x00`;
 }
 
 /**
@@ -95,7 +95,7 @@ function underline(text: string): string {
  * @returns Texto com comandos ESC/POS para tamanho especificado
  */
 function size(code: number, text: string): string {
-  return `${GS}!${String.fromCharCode(code)}${text}${GS}!${String.fromCharCode(0x00)}`
+  return `${GS}!${String.fromCharCode(code)}${text}${GS}!${String.fromCharCode(0x00)}`;
 }
 
 /**
@@ -104,7 +104,7 @@ function size(code: number, text: string): string {
  * @returns Comando ESC/POS para alinhamento especificado
  */
 function align(code: number): string {
-  return `${ESC}a${String.fromCharCode(code)}`
+  return `${ESC}a${String.fromCharCode(code)}`;
 }
 
 /**
@@ -112,7 +112,7 @@ function align(code: number): string {
  * @returns Objeto com API fluente para construção de recibos
  */
 export function receipt() {
-  const buffer: string[] = [] // Buffer para acumular os comandos ESC/POS
+  const buffer: string[] = []; // Buffer para acumular os comandos ESC/POS
 
   const api = {
     /**
@@ -120,8 +120,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     left() {
-      buffer.push(align(Align.LEFT))
-      return api
+      buffer.push(align(Align.LEFT));
+      return api;
     },
 
     /**
@@ -129,8 +129,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     center() {
-      buffer.push(align(Align.CENTER))
-      return api
+      buffer.push(align(Align.CENTER));
+      return api;
     },
 
     /**
@@ -138,8 +138,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     right() {
-      buffer.push(align(Align.RIGHT))
-      return api
+      buffer.push(align(Align.RIGHT));
+      return api;
     },
 
     /**
@@ -148,10 +148,10 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     h1(text: string) {
-      const wrappedText = wrapText(removeAccents(text))
-      buffer.push(size(TextSize.EXTRA_LARGE, removeAccents(wrappedText)))
-      buffer.push(size(TextSize.NORMAL, '')) // Reset size
-      return api
+      const wrappedText = wrapText(removeAccents(text));
+      buffer.push(size(TextSize.EXTRA_LARGE, removeAccents(wrappedText)));
+      buffer.push(size(TextSize.NORMAL, "")); // Reset size
+      return api;
     },
 
     /**
@@ -160,10 +160,10 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     h2(text: string) {
-      const wrappedText = wrapText(removeAccents(text))
-      buffer.push(size(TextSize.LARGE, removeAccents(wrappedText)))
-      buffer.push(size(TextSize.NORMAL, '')) // Reset size
-      return api
+      const wrappedText = wrapText(removeAccents(text));
+      buffer.push(size(TextSize.LARGE, removeAccents(wrappedText)));
+      buffer.push(size(TextSize.NORMAL, "")); // Reset size
+      return api;
     },
 
     /**
@@ -172,10 +172,10 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     h3(text: string) {
-      const wrappedText = wrapText(removeAccents(text))
-      buffer.push(size(TextSize.DOUBLE_WIDTH, removeAccents(wrappedText)))
-      buffer.push(size(TextSize.NORMAL, '')) // Reset size
-      return api
+      const wrappedText = wrapText(removeAccents(text));
+      buffer.push(size(TextSize.DOUBLE_WIDTH, removeAccents(wrappedText)));
+      buffer.push(size(TextSize.NORMAL, "")); // Reset size
+      return api;
     },
 
     /**
@@ -185,8 +185,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     customSize(sizeCode: number, text: string) {
-      buffer.push(size(sizeCode, removeAccents(text)))
-      return api
+      buffer.push(size(sizeCode, removeAccents(text)));
+      return api;
     },
 
     /**
@@ -195,9 +195,9 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     text(text: string) {
-      const wrappedText = wrapText(removeAccents(text))
-      buffer.push(removeAccents(wrappedText))
-      return api
+      const wrappedText = wrapText(removeAccents(text));
+      buffer.push(removeAccents(wrappedText));
+      return api;
     },
 
     /**
@@ -206,9 +206,9 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     p(text: string) {
-      const wrappedText = wrapText(removeAccents(text))
-      buffer.push(size(TextSize.NORMAL, removeAccents(wrappedText)))
-      return api
+      const wrappedText = wrapText(removeAccents(text));
+      buffer.push(size(TextSize.NORMAL, removeAccents(wrappedText)));
+      return api;
     },
 
     /**
@@ -216,8 +216,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     strong() {
-      buffer.push(strong())
-      return api
+      buffer.push(strong());
+      return api;
     },
 
     /**
@@ -225,8 +225,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     endStrong() {
-      buffer.push(endStrong())
-      return api
+      buffer.push(endStrong());
+      return api;
     },
 
     /**
@@ -235,9 +235,9 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     underline(text: string) {
-      const wrappedText = wrapText(removeAccents(text))
-      buffer.push(underline(removeAccents(wrappedText)))
-      return api
+      const wrappedText = wrapText(removeAccents(text));
+      buffer.push(underline(removeAccents(wrappedText)));
+      return api;
     },
 
     /**
@@ -246,8 +246,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     br(lines = 1) {
-      buffer.push('\n'.repeat(lines))
-      return api
+      buffer.push("\n".repeat(lines));
+      return api;
     },
 
     /**
@@ -256,20 +256,20 @@ export function receipt() {
      * @param type Tipo de linha ('dashed', 'solid' ou 'double')
      * @returns A própria instância para encadeamento
      */
-    hr(width = 48, type: 'dashed' | 'solid' | 'double' = 'dashed') {
+    hr(width = 48, type: "dashed" | "solid" | "double" = "dashed") {
       const chars = {
-        dashed: '-',
-        solid: '_',
-        double: '=',
-      }
+        dashed: "-",
+        solid: "_",
+        double: "=",
+      };
 
-      const effectiveWidth = Math.min(width, 48)
-      const line = chars[type].repeat(effectiveWidth)
+      const effectiveWidth = Math.min(width, 48);
+      const line = chars[type].repeat(effectiveWidth);
 
       // Adiciona quebra antes, a linha e quebra depois
-      buffer.push(`\n${line}\n`)
+      buffer.push(`\n${line}\n`);
 
-      return api
+      return api;
     },
 
     /**
@@ -277,8 +277,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     resetFormatting() {
-      buffer.push(`${ESC}@`)
-      return api
+      buffer.push(`${ESC}@`);
+      return api;
     },
 
     /**
@@ -286,19 +286,25 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     initialize() {
-      buffer.push(`${ESC}@`) // Inicializa a impressora
-      buffer.push(`${ESC}R\x00`) // Português Brasil
-      return api
+      buffer.push(`${ESC}@`); // Inicializa a impressora
+      buffer.push(`${ESC}R\x00`); // Português Brasil
+      return api;
     },
 
     /**
      * Executa corte do papel
      * @param full Corte completo (true) ou parcial (false)
+     * @param feedLines Linhas a avançar antes do corte (padrão: 5)
      * @returns A própria instância para encadeamento
      */
-    cut(full = true) {
-      buffer.push(`${GS}V${full ? '\x41' : '\x00'}`)
-      return api
+    cut(full = true, feedLines = 5) {
+      // Alimenta papel antes do corte
+      buffer.push(`${ESC}d${String.fromCharCode(feedLines)}`);
+
+      // Comando de corte mais compatível
+      buffer.push(`${GS}V${String.fromCharCode(full ? 0 : 1)}`);
+
+      return api;
     },
 
     /**
@@ -307,8 +313,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     feed(lines = 1) {
-      buffer.push('\n'.repeat(lines))
-      return api
+      buffer.push("\n".repeat(lines));
+      return api;
     },
 
     /**
@@ -316,8 +322,8 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     beep() {
-      buffer.push(`${ESC}B\x03\x02`)
-      return api
+      buffer.push(`${ESC}B\x03\x02`);
+      return api;
     },
 
     /**
@@ -325,7 +331,7 @@ export function receipt() {
      * @returns String com todos os comandos concatenados
      */
     build(): string {
-      return buffer.join('')
+      return buffer.join("");
     },
 
     /**
@@ -333,11 +339,11 @@ export function receipt() {
      * @returns A própria instância para encadeamento
      */
     end() {
-      return api
+      return api;
     },
-  }
+  };
 
   // Inicializa a impressora por padrão
-  api.initialize()
-  return api
+  api.initialize();
+  return api;
 }
