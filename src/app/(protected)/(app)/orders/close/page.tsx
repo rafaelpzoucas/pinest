@@ -17,7 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CopyTextButton } from "@/components/copy-text-button";
+import { CopyPhoneButton } from "@/components/copy-phone-button";
 
 export default async function CloseBill({
   searchParams,
@@ -97,10 +97,7 @@ export default async function CloseBill({
                   {customerPhone && (
                     <Tooltip>
                       <TooltipTrigger>
-                        <CopyTextButton
-                          textToCopy={customerPhone}
-                          buttonText={customerPhone}
-                        />
+                        <CopyPhoneButton phone={customerPhone} />
                       </TooltipTrigger>
                       <TooltipContent>Copiar telefone</TooltipContent>
                     </Tooltip>

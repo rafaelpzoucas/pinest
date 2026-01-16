@@ -123,11 +123,14 @@ export function CustomersForm({
         name: selectedCustomer.customers.name || "",
         phone: selectedCustomer.customers.phone || "",
         address: {
-          street: selectedCustomer.customers.address?.street || "",
+          street: selectedCustomer.customers.address?.street.trim() || "",
           number: selectedCustomer.customers.address?.number || "",
-          neighborhood: selectedCustomer.customers.address?.neighborhood || "",
-          complement: selectedCustomer.customers.address?.complement || "",
-          observations: selectedCustomer.customers.address?.observations || "",
+          neighborhood:
+            selectedCustomer.customers.address?.neighborhood.trim() || "",
+          complement:
+            selectedCustomer.customers.address?.complement.trim() || "",
+          observations:
+            selectedCustomer.customers.address?.observations.trim() || "",
         },
       });
     }

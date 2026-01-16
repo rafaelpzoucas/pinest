@@ -8,12 +8,13 @@ import Link from "next/link";
 import { OrderOptions } from "./data-table/options";
 import { Order } from "@/features/admin/orders/schemas";
 import { PAYMENT_TYPES } from "@/models/order";
-import { CopyTextButton } from "@/components/copy-text-button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CopyPhoneButton } from "@/components/copy-phone-button";
+import { CopyTextButton } from "@/components/copy-text-button";
 
 type OrderCardPropsType = {
   order: Order;
@@ -83,16 +84,23 @@ export function OrderCard({ order }: OrderCardPropsType) {
 
             <Tooltip>
               <TooltipTrigger>
-                <CopyTextButton
-                  textToCopy={customerPhone}
-                  buttonText={customerPhone}
-                  variant={"link"}
-                />
+                <CopyPhoneButton phone={customerPhone} variant={"link"} />
               </TooltipTrigger>
               <TooltipContent>Copiar telefone</TooltipContent>
             </Tooltip>
           </div>
-          <span className="text-muted-foreground">{customerAddress}</span>
+          {customerAddress && (
+            <Tooltip>
+              <TooltipTrigger>
+                <CopyTextButton
+                  textToCopy={customerAddress}
+                  buttonText={customerAddress}
+                  variant={"link"}
+                />
+              </TooltipTrigger>
+              <TooltipContent>Copiar endereço</TooltipContent>
+            </Tooltip>
+          )}
         </div>
 
         <section

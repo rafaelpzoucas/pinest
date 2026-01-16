@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -43,6 +44,9 @@ export function CopyTextButton({
       disabled={copied}
       variant={variant}
       size={!buttonText ? "icon" : "sm"}
+      className={cn(
+        variant === "link" && "px-0 hover:no-underline [&_svg]:size-3",
+      )}
     >
       {copied ? (
         <>

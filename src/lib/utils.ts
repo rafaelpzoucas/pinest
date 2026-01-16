@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 import { FileType } from "@/app/(protected)/(app)/catalog/products/register/form/file-uploader";
 
@@ -283,4 +284,18 @@ export function compressImage(file: File, quality = 0.7): Promise<FileType> {
     image.onerror = (e) => reject(new Error("Erro ao carregar a imagem"));
     image.src = URL.createObjectURL(file);
   });
+}
+
+export function formatPhoneBR(phone: string): string {
+  try {
+    const parsed = parsePhoneNumberFromString(phone, "BR");
+
+    if (!parsed || !parsed.isValid()) {
+      return phone;
+    }
+
+    return parsed.formatNational();
+  } catch {
+    return phone;
+  }
 }
