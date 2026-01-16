@@ -15,7 +15,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn, formatAddress, formatCurrencyBRL } from "@/lib/utils";
+import {
+  cn,
+  formatAddress,
+  formatCurrencyBRL,
+  formatPhoneBR,
+} from "@/lib/utils";
 import { StoreCustomerType } from "@/models/store-customer";
 import { ChevronsUpDown, Edit, Loader2, Plus } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -227,7 +232,7 @@ export function CustomersCombobox({
 
                             {customerHasPhone && (
                               <p className="text-muted-foreground">
-                                {storeCustomer.customers.phone}
+                                {formatPhoneBR(storeCustomer.customers.phone)}
                               </p>
                             )}
 
