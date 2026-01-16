@@ -109,7 +109,7 @@ export function CancelOrderButton({ order }: { order: Order }) {
         className={cn(
           buttonVariants({
             variant: "destructive",
-            size: "default",
+            size: !accepted ? "default" : "icon",
           }),
         )}
         onClick={handleGetCancellationReasons}
