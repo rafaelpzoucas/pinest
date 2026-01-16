@@ -227,7 +227,7 @@ export function CustomersCombobox({
 
                             {customerHasPhone && (
                               <p className="text-muted-foreground">
-                                {storeCustomer.customers.phone}aaaaaaaaaaa
+                                {storeCustomer.customers.phone}
                               </p>
                             )}
 
