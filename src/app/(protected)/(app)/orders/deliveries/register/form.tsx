@@ -31,6 +31,8 @@ import { createOrderFormSchema } from "./schemas";
 import { Summary } from "./summary";
 import { ordersKeys } from "@/features/admin/orders/hooks";
 import { LastOrders } from "./customers/last-orders";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Wrapper para adaptar zsa actions ao React Query
 async function createOrderAdapter(data: z.infer<typeof createOrderFormSchema>) {
@@ -90,6 +92,7 @@ export function CreateOrderForm({
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const { data: customers, isLoading: isLoadingCustomers } = useQuery({
     queryKey: ["customers"],
@@ -282,7 +285,7 @@ export function CreateOrderForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="relative flex flex-col items-start gap-4 h-[calc(100dvh_-_2rem)] lg:pb-0"
+          className="relative flex flex-col items-start gap-4 lg:h-[calc(100dvh_-_2rem)] lg:pb-0"
         >
           <div className="flex flex-col lg:flex-row gap-4 w-full">
             <Button
@@ -308,7 +311,13 @@ export function CreateOrderForm({
             )}
           </div>
 
-          <SelectedProducts form={form} storeId={storeId} />
+          {isMobile ? (
+            <SelectedProducts form={form} storeId={storeId} />
+          ) : (
+            <ScrollArea className="w-full h-[calc(100vh_-_32px_-_77px_-_32px)]">
+              <SelectedProducts form={form} storeId={storeId} />
+            </ScrollArea>
+          )}
 
           <div className="hidden lg:block w-full">
             <Summary
@@ -318,27 +327,32 @@ export function CreateOrderForm({
             />
           </div>
 
-          <Sheet open={isFinishOpen} onOpenChange={setIsFinishOpen}>
-            <SheetTrigger className={cn(buttonVariants(), "lg:hidden w-full")}>
-              Finalizar pedido
-            </SheetTrigger>
-            <SheetContent className="space-y-2">
-              <SheetHeader className="flex flex-row items-center gap-2">
-                <SheetClose
-                  className={buttonVariants({ variant: "ghost", size: "icon" })}
-                >
-                  <ArrowLeft />
-                </SheetClose>
-                <SheetTitle className="!mt-0">Finalizar pedido</SheetTitle>
-              </SheetHeader>
+          <footer className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-background">
+            <Sheet open={isFinishOpen} onOpenChange={setIsFinishOpen}>
+              <SheetTrigger className={cn(buttonVariants(), "w-full")}>
+                Finalizar pedido
+              </SheetTrigger>
+              <SheetContent className="space-y-2">
+                <SheetHeader className="flex flex-row items-center gap-2">
+                  <SheetClose
+                    className={buttonVariants({
+                      variant: "ghost",
+                      size: "icon",
+                    })}
+                  >
+                    <ArrowLeft />
+                  </SheetClose>
+                  <SheetTitle className="!mt-0">Finalizar pedido</SheetTitle>
+                </SheetHeader>
 
-              <Summary
-                isPending={isCreating || isUpdating}
-                form={form}
-                onSubmit={onSubmit}
-              />
-            </SheetContent>
-          </Sheet>
+                <Summary
+                  isPending={isCreating || isUpdating}
+                  form={form}
+                  onSubmit={onSubmit}
+                />
+              </SheetContent>
+            </Sheet>
+          </footer>
         </form>
       </Form>
 

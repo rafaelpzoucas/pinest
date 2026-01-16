@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Loader2, Plus } from "lucide-react";
+import { ChevronsUpDown, Loader2, Plus, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { z } from "zod";
@@ -41,6 +41,7 @@ export function ProductsCombobox({
 
   const [open, setOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [showCategories, setShowCategories] = useState(false);
 
   const selectedProducts = form.watch("order_items") ?? [];
   const orderType = form.watch("type");
@@ -98,7 +99,10 @@ export function ProductsCombobox({
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-screen max-w-2xl p-0" align="start">
+          <PopoverContent
+            className="w-screen max-w-xs lg:max-w-2xl p-0"
+            align="start"
+          >
             <Command>
               <CommandInput
                 placeholder="Busque por nome ou código..."
@@ -112,40 +116,57 @@ export function ProductsCombobox({
                       <span>Carregando produtos...</span>
                     </div>
                   ) : (
-                    "Nenhum produto encontrado."
+                    <p className="px-8 py-4 text-center">
+                      {`Nenhum produto encontrado${categoryFilter ? ` na categoria ${categories?.find((cat) => cat.id === categoryFilter)?.name}` : ""}.`}
+                    </p>
                   )}
                 </CommandEmpty>
                 <CommandGroup>
                   {categories && categories.length > 0 && (
                     <div className="space-y-2 p-1 pb-4">
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          variant={
-                            categoryFilter === "" ? "default" : "outline"
-                          }
-                          size="sm"
-                          onClick={() => setCategoryFilter("")}
-                        >
-                          Todas
-                        </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowCategories(!showCategories)}
+                        className="w-full justify-start"
+                      >
+                        <Filter className="mr-2 h-4 w-4" />
+                        {showCategories
+                          ? "Ocultar categorias"
+                          : "Ver categorias"}
+                      </Button>
 
-                        {categories.map((category) => (
+                      {showCategories && (
+                        <div className="flex flex-wrap gap-2">
                           <Button
-                            key={category.id}
                             type="button"
                             variant={
-                              categoryFilter === category.id
-                                ? "default"
-                                : "outline"
+                              categoryFilter === "" ? "default" : "outline"
                             }
                             size="sm"
-                            onClick={() => setCategoryFilter(category.id)}
+                            onClick={() => setCategoryFilter("")}
                           >
-                            {category.name}
+                            Todas
                           </Button>
-                        ))}
-                      </div>
+
+                          {categories.map((category) => (
+                            <Button
+                              key={category.id}
+                              type="button"
+                              variant={
+                                categoryFilter === category.id
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setCategoryFilter(category.id)}
+                            >
+                              {category.name}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 

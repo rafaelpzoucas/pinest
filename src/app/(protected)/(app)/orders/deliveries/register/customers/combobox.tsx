@@ -111,7 +111,7 @@ export function CustomersCombobox({
                     {hasPhone && (
                       <>
                         <span className="hidden lg:block">&bull;</span>
-                        <p>{selectedCustomer.customers.phone}</p>
+                        <p>{formatPhoneBR(selectedCustomer.customers.phone)}</p>
                       </>
                     )}
 
