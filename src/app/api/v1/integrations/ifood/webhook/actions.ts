@@ -1,4 +1,3 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import { IfoodOrder } from "@/models/ifood";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
@@ -189,107 +188,34 @@ export const createOrder = webhookProcedure
 export const refreshAccessToken = createServerAction()
   .input(z.object({ merchantId: z.string() }))
   .handler(async ({ input }) => {
-    const supabase = createAdminClient();
     const { merchantId } = input;
 
     log.info("refreshAccessToken - Iniciando", { merchantId });
 
-    const clientId = process.env.IFOOD_CLIENT_ID;
-    const clientSecret = process.env.IFOOD_CLIENT_SECRET;
-    const api = process.env.IFOOD_API_BASE_URL;
-
-    // Verificar variáveis de ambiente
-    if (!clientId || !clientSecret || !api) {
-      log.error("refreshAccessToken - Variáveis de ambiente faltando", {
-        hasClientId: !!clientId,
-        hasClientSecret: !!clientSecret,
-        hasApi: !!api,
-      });
-      return null;
-    }
-
-    log.debug("refreshAccessToken - Variáveis de ambiente OK", {
-      api,
-      clientIdLength: clientId.length,
-    });
-
-    const body = new URLSearchParams();
-    body.append("grantType", "client_credentials");
-    body.append("clientId", clientId);
-    body.append("clientSecret", clientSecret);
-
     try {
-      log.debug("refreshAccessToken - Fazendo requisição", {
-        url: `${api}/authentication/v1.0/oauth/token`,
-      });
-
-      const response = await fetch(`${api}/authentication/v1.0/oauth/token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body,
-      });
-
-      log.debug("refreshAccessToken - Resposta recebida", {
-        status: response.status,
-        ok: response.ok,
-      });
+      // Chama a Route Handler interna que não passa pelo middleware
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/integrations/ifood/refresh-token`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ merchantId }),
+        },
+      );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        log.error("refreshAccessToken - Erro na resposta da API", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
+        const errorData = await response.json();
+        log.error("refreshAccessToken - Erro na Route Handler", errorData);
         return null;
       }
 
-      const data = await response.json();
+      const { accessToken } = await response.json();
 
-      log.debug("refreshAccessToken - Dados recebidos", {
-        hasAccessToken: !!data.accessToken,
-        expiresIn: data.expiresIn,
-      });
+      log.info("refreshAccessToken - Token renovado com sucesso");
 
-      if (!data.accessToken) {
-        log.error("refreshAccessToken - AccessToken não retornado", data);
-        return null;
-      }
-
-      const expiresAt = new Date();
-      expiresAt.setSeconds(expiresAt.getSeconds() + data.expiresIn);
-
-      log.debug("refreshAccessToken - Atualizando token no banco", {
-        merchantId,
-        expiresAt: expiresAt.toISOString(),
-      });
-
-      const { error } = await supabase
-        .from("ifood_integrations")
-        .update({
-          access_token: data.accessToken,
-          expires_at: expiresAt.toISOString(),
-        })
-        .eq("merchant_id", merchantId);
-
-      if (error) {
-        log.error("refreshAccessToken - Erro ao atualizar token no banco", {
-          error: error.message,
-          code: error.code,
-        });
-        return null;
-      }
-
-      log.info("refreshAccessToken - Token atualizado com sucesso", {
-        merchantId,
-      });
-
-      return data.accessToken;
-    } catch (fetchError) {
-      log.error("refreshAccessToken - Erro na requisição", {
-        error: fetchError instanceof Error ? fetchError.message : fetchError,
-        stack: fetchError instanceof Error ? fetchError.stack : undefined,
-      });
+      return accessToken;
+    } catch (error) {
+      log.error("refreshAccessToken - Erro ao chamar Route Handler", error);
       return null;
     }
   });

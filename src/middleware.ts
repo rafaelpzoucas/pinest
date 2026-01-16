@@ -35,7 +35,8 @@ export async function middleware(req: NextRequest) {
   return res;
 }
 
-// middleware roda em *todas* as rotas, exceto assets
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!api/v1/integrations/ifood/refresh-token|api/v1/integrations/ifood/webhook|_next/static|_next/image|favicon.ico).*)",
+  ],
 };
