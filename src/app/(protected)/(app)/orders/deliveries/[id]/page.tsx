@@ -16,6 +16,7 @@ import { IfoodOrderData } from "@/features/admin/orders/schemas";
 import { IfoodItem } from "@/features/admin/integrations/ifood/schemas";
 import { useParams } from "next/navigation";
 import { CopyPhoneButton } from "@/components/copy-phone-button";
+import { PAYMENT_TYPES } from "@/models/order";
 
 type StatusKey = keyof typeof statuses;
 
@@ -68,13 +69,6 @@ export default async function OrderPage() {
 
   const ifoodItemsTotal = (isIfood && ifoodOrderData?.total.subTotal) || 0;
   const ifoodAdditionalFees = isIfood && ifoodOrderData?.total.additionalFees;
-  const PAYMENT_TYPES = {
-    CREDIT: "Cartão de crédito",
-    DEBIT: "Cartão de débito",
-    CASH: "Dinheiro",
-    PIX: "PIX",
-    ONLINE: "Pago online",
-  } as const;
 
   type PaymentTypes = keyof typeof PAYMENT_TYPES;
 
@@ -97,6 +91,8 @@ export default async function OrderPage() {
   const subTotal = isIfood ? ifoodItemsTotal : order?.total?.subtotal || 0;
   const change =
     (order?.total?.change_value || 0) - (order?.total?.total_amount || 0);
+
+  console.log(order.payment_type);
 
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0 pb-16">
@@ -404,7 +400,8 @@ export default async function OrderPage() {
 
               {customer?.phone && (
                 <p className="text-muted-foreground">
-                  Telefone: <CopyPhoneButton phone={customer?.phone} />
+                  Telefone:{" "}
+                  <CopyPhoneButton phone={customer?.phone} variant="link" />
                 </p>
               )}
 

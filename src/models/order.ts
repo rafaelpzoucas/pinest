@@ -17,6 +17,8 @@ export const PAYMENT_TYPES = {
   PIX: "PIX",
   CASH: "Dinheiro",
   DEFERRED: "Prazo",
+  PAID: "Pago",
+  ONLINE: "Online",
 };
 
 export interface CustomersType extends CustomerType {
