@@ -103,7 +103,8 @@ export function SelectedProducts({
 
           <div className="space-y-2">
             {selectedProducts.length > 0 ? (
-              selectedProducts.map((item, index) => {
+              [...selectedProducts].reverse().map((item, reverseIndex) => {
+                const index = selectedProducts.length - 1 - reverseIndex;
                 const product = products?.find((p) => p.id === item.product_id);
                 if (!product) return null;
 

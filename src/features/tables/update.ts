@@ -51,7 +51,6 @@ export const updateTable = adminProcedure
       .select("product_id, quantity");
 
     printTableReceipt({
-      printerName: "G250",
       tableId: input.id,
       reprint: true,
     });

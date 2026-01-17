@@ -70,7 +70,7 @@ export const createTable = adminProcedure
       .insert(itemsPayload.map((it) => ({ ...it, table_id: tableId })))
       .select("product_id, quantity");
 
-    printTableReceipt({ printerName: "G250", tableId, reprint: false });
+    printTableReceipt({ tableId, reprint: false });
 
     const { data: newItems, error: insErr } = await insertItems;
     if (insErr) {
