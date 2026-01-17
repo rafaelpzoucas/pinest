@@ -28,8 +28,27 @@ export const addToPrintQueue = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { store, supabase } = ctx;
 
+    // Buscar itens não impressos com os mesmos raw
+    const rawValues = input.map((item) => item.raw);
+
+    const { data: existingItems } = await supabase
+      .from("print_queue")
+      .select("raw")
+      .eq("store_id", store.id)
+      .eq("printed", false)
+      .in("raw", rawValues);
+
+    const existingRaws = new Set(existingItems?.map((item) => item.raw) || []);
+
+    // Filtrar apenas itens que não existem ou já foram impressos
+    const itemsToInsert = input.filter((item) => !existingRaws.has(item.raw));
+
+    if (itemsToInsert.length === 0) {
+      return { success: true, message: "Todos os itens já estão na fila" };
+    }
+
     const { error } = await supabase.from("print_queue").insert(
-      input.map((item) => ({
+      itemsToInsert.map((item) => ({
         store_id: store.id,
         text: item.text,
         raw: item.raw,
@@ -39,10 +58,16 @@ export const addToPrintQueue = adminProcedure
     );
 
     if (error) {
-      throw new Error("Erro ao adicionar itens à fila de impressão: ", error);
+      throw new Error(
+        "Erro ao adicionar itens à fila de impressão: " + error.message,
+      );
     }
 
-    return { success: true };
+    return {
+      success: true,
+      inserted: itemsToInsert.length,
+      skipped: input.length - itemsToInsert.length,
+    };
   });
 
 export const updatePrintQueueItem = adminProcedure
