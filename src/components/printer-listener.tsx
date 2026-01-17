@@ -26,12 +26,18 @@ async function printQueueItem(input: PrintQueueType) {
       }),
     });
 
-    if (response.ok && input.id) {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    if (input.id) {
       await updatePrintQueueItem({ id: input.id });
     }
+
+    return { success: true, id: input.id };
   } catch (error) {
     console.error("[PrintQueueListener] Erro ao imprimir:", error);
-    throw error;
+    return { success: false, id: input.id, error };
   }
 }
 
@@ -48,8 +54,12 @@ async function fetchAndPrintPendingItems() {
     }
 
     if (data?.pendingItems && data.pendingItems.length > 0) {
+      console.log(
+        `[PrintQueueListener] Processando ${data.pendingItems.length} itens pendentes`,
+      );
+
       // Processa todos os itens em paralelo
-      await Promise.allSettled(
+      const results = await Promise.allSettled(
         data.pendingItems.map((item) =>
           printQueueItem({
             id: item.id,
@@ -60,6 +70,16 @@ async function fetchAndPrintPendingItems() {
           }),
         ),
       );
+
+      // Log de falhas
+      results.forEach((result, index) => {
+        if (result.status === "rejected") {
+          console.error(
+            `[PrintQueueListener] Falha ao imprimir item ${data.pendingItems[index].id}:`,
+            result.reason,
+          );
+        }
+      });
     }
 
     return data?.pendingItems ?? [];
@@ -74,18 +94,19 @@ export default function PrintQueueListener() {
   const queryClient = useQueryClient();
   const { isActive } = usePrinterExtensionStore();
   const wasActive = useRef(false);
+  const isProcessing = useRef(false);
 
   // Query para buscar e processar itens pendentes
   const { refetch } = useQuery({
     queryKey: ["print-queue-pending"],
     queryFn: fetchAndPrintPendingItems,
-    enabled: isActive, // Só executa se a extensão estiver ativa
-    refetchOnWindowFocus: true, // Busca ao focar na aba (resolve seu problema!)
+    enabled: isActive,
+    refetchOnWindowFocus: true,
     refetchOnMount: true,
-    refetchInterval: 30000, // Polling a cada 30s como fallback
+    refetchInterval: 30000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    staleTime: 0, // Sempre considera os dados stale para buscar novos
+    staleTime: 0,
   });
 
   // Listener do Supabase Realtime para novos itens
@@ -102,15 +123,37 @@ export default function PrintQueueListener() {
           table: "print_queue",
         },
         async (payload) => {
+          // Evita processar múltiplos eventos ao mesmo tempo
+          if (isProcessing.current) {
+            console.log(
+              "[PrintQueueListener] Já está processando, aguardando...",
+            );
+            // Agenda um refetch para pegar este e outros possíveis pendentes
+            setTimeout(() => refetch(), 1000);
+            return;
+          }
+
+          isProcessing.current = true;
+
           try {
             const newItem = payload.new as PrintQueueType;
-            await printQueueItem({
+            console.log("[PrintQueueListener] Novo item na fila:", newItem.id);
+
+            const result = await printQueueItem({
               id: newItem.id,
               printer_name: newItem.printer_name,
               text: newItem.text,
               raw: newItem.raw,
               font_size: newItem.font_size,
             });
+
+            if (!result.success) {
+              console.error(
+                "[PrintQueueListener] Falha ao imprimir, agendando retry...",
+              );
+              // Se falhar, espera um pouco e tenta buscar pendentes novamente
+              setTimeout(() => refetch(), 2000);
+            }
 
             // Invalida a query para manter cache sincronizado
             queryClient.invalidateQueries({
@@ -122,7 +165,9 @@ export default function PrintQueueListener() {
               error,
             );
             // Em caso de erro, força refetch para tentar novamente
-            refetch();
+            setTimeout(() => refetch(), 2000);
+          } finally {
+            isProcessing.current = false;
           }
         },
       )
@@ -140,11 +185,24 @@ export default function PrintQueueListener() {
       console.log(
         "[PrintQueueListener] Extensão reativada, buscando pendentes...",
       );
-      refetch();
+      // Pequeno delay para garantir que a extensão está pronta
+      setTimeout(() => refetch(), 500);
     }
 
     wasActive.current = isActive;
   }, [isActive, refetch]);
+
+  // Buscar pendentes ao montar o componente (garante processamento inicial)
+  useEffect(() => {
+    if (isActive) {
+      console.log(
+        "[PrintQueueListener] Componente montado, buscando pendentes...",
+      );
+      // Delay inicial para garantir que tudo está pronto
+      const timer = setTimeout(() => refetch(), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []); // Só executa uma vez ao montar
 
   return <PrinterExtensionStatusPoller />;
 }
