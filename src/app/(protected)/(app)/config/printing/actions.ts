@@ -22,6 +22,25 @@ import {
   PrintQueueType,
 } from "./schemas";
 
+// ====================================
+// FUNÇÃO AUXILIAR
+// ====================================
+function shouldPrintReceipt(
+  printerSectors: string[],
+  receiptType: "kitchen" | "delivery",
+): boolean {
+  // Se sectors está vazio, imprime tudo
+  if (printerSectors.length === 0) {
+    return true;
+  }
+
+  // Se sectors tem o tipo específico, imprime
+  return printerSectors.includes(receiptType);
+}
+
+// ====================================
+// FILA DE IMPRESSÃO
+// ====================================
 export const addToPrintQueue = adminProcedure
   .createServerAction()
   .input(z.array(printQueueSchema))
@@ -122,6 +141,9 @@ export const readPrinterByName = adminProcedure
     return { printer: data as PrinterType };
   });
 
+// ====================================
+// IMPRESSÃO DE MESA (TABLE)
+// ====================================
 export const printTableReceipt = createServerAction()
   .input(
     z.object({
@@ -141,28 +163,25 @@ export const printTableReceipt = createServerAction()
     const table = tableData?.table;
     const printers = printersData?.printers || [];
     const printingSettings = printSettingsData?.printingSettings;
-    const fontSize = printSettingsData?.printingSettings?.kitchen_font_size;
 
     if (!printingSettings?.auto_print) {
-      return;
+      return { success: false, message: "Auto-impressão desabilitada" };
     }
 
     if (!printers.length) {
-      return new Response("Nenhuma impressora encontrada", { status: 404 });
+      return { success: false, message: "Nenhuma impressora encontrada" };
     }
 
     const result = {
       kitchenPrinted: false,
-      deliveryPrinted: false,
       errors: [] as string[],
     };
 
+    // Processar cada impressora
     for (const printer of printers) {
       try {
-        if (
-          printer.sectors.length === 0 ||
-          printer.sectors.includes("kitchen")
-        ) {
+        // Verifica se deve imprimir comanda de cozinha para esta impressora
+        if (shouldPrintReceipt(printer.sectors, "kitchen")) {
           const textKitchen = buildReceiptTableESCPOS(table, input.reprint);
 
           await addToPrintQueue([
@@ -182,11 +201,14 @@ export const printTableReceipt = createServerAction()
     }
 
     return {
-      success: result.kitchenPrinted || result.deliveryPrinted,
+      success: result.kitchenPrinted,
       ...result,
     };
   });
 
+// ====================================
+// IMPRESSÃO DE PEDIDO (ORDER)
+// ====================================
 export const printOrderReceipt = createServerAction()
   .input(
     z.object({
@@ -196,23 +218,27 @@ export const printOrderReceipt = createServerAction()
     }),
   )
   .handler(async ({ input }) => {
-    const [[orderData], [printSettingsData], [printersData]] =
-      await Promise.all([
-        readOrderById({ id: input.orderId ?? "" }),
-        readPrintingSettings(),
-        readPrinters(),
-      ]);
+    // Se não tiver orderId, usa o pedido de teste diretamente
+    let order = orderTest;
 
-    const order = orderData?.order ?? orderTest;
+    if (input.orderId) {
+      const [orderData] = await readOrderById({ id: input.orderId });
+      order = orderData?.order ?? orderTest;
+    }
+
+    const [[printSettingsData], [printersData]] = await Promise.all([
+      readPrintingSettings(),
+      readPrinters(),
+    ]);
+
     const printers = printersData?.printers || [];
     const printingSettings = printSettingsData?.printingSettings;
-    const kitchenFontSize = printingSettings?.kitchen_font_size;
     const deliveryFontSize = printingSettings?.font_size;
 
     const isDelivery = input.orderType === "DELIVERY";
 
     if (!printers.length) {
-      return new Response("Nenhuma impressora encontrada", { status: 404 });
+      return { success: false, message: "Nenhuma impressora encontrada" };
     }
 
     const result = {
@@ -221,12 +247,11 @@ export const printOrderReceipt = createServerAction()
       errors: [] as string[],
     };
 
+    // Processar cada impressora
     for (const printer of printers) {
       try {
-        if (
-          printer.sectors.length === 0 ||
-          printer.sectors.includes("kitchen")
-        ) {
+        // SEMPRE imprime comanda de cozinha se a impressora permitir
+        if (shouldPrintReceipt(printer.sectors, "kitchen")) {
           const textKitchen = buildReceiptKitchenESCPOS(order, input.reprint);
 
           await addToPrintQueue([
@@ -239,10 +264,10 @@ export const printOrderReceipt = createServerAction()
           result.kitchenPrinted = true;
         }
 
-        if (
-          (isDelivery && printer.sectors.length === 0) ||
-          printer.sectors.includes("delivery")
-        ) {
+        // APENAS imprime comanda de delivery se:
+        // 1. O pedido for delivery
+        // 2. A impressora permitir impressão de delivery
+        if (isDelivery && shouldPrintReceipt(printer.sectors, "delivery")) {
           const textDelivery = buildReceiptDeliveryESCPOS(order, input.reprint);
 
           await addToPrintQueue([
@@ -268,6 +293,9 @@ export const printOrderReceipt = createServerAction()
     };
   });
 
+// ====================================
+// IMPRESSÃO DE RELATÓRIO
+// ====================================
 export const printReportReceipt = createServerAction()
   .input(
     z.object({
@@ -279,29 +307,38 @@ export const printReportReceipt = createServerAction()
 
     const printers = printerData?.printers;
 
-    if (!printers) {
-      throw new Error("Impressora não encontrada");
+    if (!printers || printers.length === 0) {
+      throw new Error("Nenhuma impressora encontrada");
     }
+
+    let printed = false;
 
     for (const printer of printers) {
-      if (printer.sectors.length > 0 && !printer.sectors.includes("delivery")) {
-        return { success: false, skipped: true };
-      }
-
-      try {
-        await addToPrintQueue([
-          {
-            raw: input.raw,
-            printer_name: printer.name,
-          },
-        ]);
-      } catch (error) {
-        throw new Error("Erro ao verificar extensão", error as Error);
+      // Relatórios só são impressos em impressoras de delivery ou sem setor definido
+      if (shouldPrintReceipt(printer.sectors, "delivery")) {
+        try {
+          await addToPrintQueue([
+            {
+              raw: input.raw,
+              printer_name: printer.name,
+            },
+          ]);
+          printed = true;
+        } catch (error) {
+          console.error(
+            `Erro ao imprimir na impressora ${printer.name}:`,
+            error,
+          );
+        }
       }
     }
-    // Se setores definidos e "kitchen" não incluso, não imprime
+
+    return { success: printed };
   });
 
+// ====================================
+// IMPRESSÃO DE MÚLTIPLOS RELATÓRIOS
+// ====================================
 export const printMultipleReports = createServerAction()
   .input(
     z.object({
@@ -325,10 +362,9 @@ export const printMultipleReports = createServerAction()
     ]);
 
     const printers = printerData?.printers;
-    const fontSize = printSettingsData?.printingSettings?.font_size;
 
-    if (!printers) {
-      throw new Error("Impressora não encontrada");
+    if (!printers || printers.length === 0) {
+      throw new Error("Nenhuma impressora encontrada");
     }
 
     const results = [];
@@ -337,33 +373,32 @@ export const printMultipleReports = createServerAction()
 
     for (const report of input.reports) {
       console.log(`Imprimindo relatório: ${report.name}`);
+      let reportPrinted = false;
 
       try {
         for (const printer of printers) {
-          if (
-            printer.sectors.length > 0 &&
-            !printer.sectors.includes("delivery")
-          ) {
+          // Relatórios só são impressos em impressoras de delivery ou sem setor
+          if (shouldPrintReceipt(printer.sectors, "delivery")) {
+            await addToPrintQueue([
+              {
+                raw: report.raw,
+                printer_name: printer.name,
+              },
+            ]);
+
+            console.log(
+              `Relatório "${report.name}" enviado para impressora ${printer.name}`,
+            );
+            reportPrinted = true;
+          } else {
             console.log(
               `Pulando impressora ${printer.name} - setor não compatível`,
             );
-            continue;
           }
-
-          await addToPrintQueue([
-            {
-              raw: report.raw,
-              printer_name: printer.name,
-            },
-          ]);
-
-          console.log(
-            `Relatório "${report.name}" enviado para impressora ${printer.name}`,
-          );
         }
 
-        results.push({ name: report.name, success: true });
-        successfulReports++;
+        results.push({ name: report.name, success: reportPrinted });
+        if (reportPrinted) successfulReports++;
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         console.error(`Erro ao imprimir relatório "${report.name}":`, errorMsg);
@@ -383,6 +418,9 @@ export const printMultipleReports = createServerAction()
     };
   });
 
+// ====================================
+// CONFIGURAÇÕES DE IMPRESSÃO
+// ====================================
 export const readPrintingSettings = adminProcedure
   .createServerAction()
   .handler(async ({ ctx }) => {
@@ -420,6 +458,9 @@ export const upsertPrintingSettings = adminProcedure
     }
   });
 
+// ====================================
+// GERENCIAMENTO DE IMPRESSORAS
+// ====================================
 export const readAvailablePrinters = createServerAction().handler(async () => {
   try {
     const res = await fetch("http://127.0.0.1:53281/printers", {
@@ -427,7 +468,7 @@ export const readAvailablePrinters = createServerAction().handler(async () => {
     });
 
     if (!res.ok) {
-      const text = await res.text(); // tenta capturar erro bruto
+      const text = await res.text();
       throw new Error(`Erro HTTP ${res.status}: ${text}`);
     }
 
@@ -508,6 +549,9 @@ export const deletePrinter = adminProcedure
     revalidatePath("/config/printing");
   });
 
+// ====================================
+// CACHED FUNCTIONS
+// ====================================
 export const readPrintPendingItemsCached = cache(readPrintPendingItems);
 export const readPrinterByNameCached = cache(readPrinterByName);
 export const readPrintingSettingsCached = cache(readPrintingSettings);
