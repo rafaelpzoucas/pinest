@@ -45,10 +45,16 @@ export const useCreateCashSession = () => {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Caixa aberto com sucesso!");
-      queryClient.invalidateQueries({ queryKey: cashSessionKeys.all });
-      queryClient.invalidateQueries({ queryKey: cashSessionKeys.current });
+      // Invalida e refetch imediatamente
+      await queryClient.invalidateQueries({
+        queryKey: cashSessionKeys.all,
+        refetchType: "all",
+      });
+      await queryClient.refetchQueries({
+        queryKey: cashSessionKeys.current,
+      });
     },
     onError: (error) => {
       console.error("Erro ao abrir caixa:", error);
@@ -77,14 +83,15 @@ export const useCloseCashSession = () => {
 
       return data;
     },
-    onSuccess: () => {
-      toast.success("Caixa fechado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: cashSessionKeys.all });
-      queryClient.invalidateQueries({ queryKey: cashSessionKeys.current });
-    },
-    onError: (error) => {
-      console.error("Erro ao fechar caixa:", error);
-      toast.error("Erro ao fechar caixa. Tente novamente.");
+    onSuccess: async () => {
+      // Invalida e força refetch imediatamente
+      await queryClient.invalidateQueries({
+        queryKey: cashSessionKeys.all,
+        refetchType: "all",
+      });
+      await queryClient.refetchQueries({
+        queryKey: cashSessionKeys.current,
+      });
     },
   });
 };

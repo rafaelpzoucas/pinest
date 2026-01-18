@@ -13,7 +13,6 @@ import { readLastEvents, readStoreSubscriptionStatus } from "./actions";
 import { IfoodHandshakePlatform } from "./ifood-handshake-platform";
 import { MobileNavigation } from "./navigation";
 import { SoundNotification } from "./sound-notification";
-import { readCashSession } from "@/features/cash-register/read";
 
 export const metadata: Metadata = {
   title: "Pinest | Admin",
@@ -30,10 +29,9 @@ export default async function ProtectedLayout({
     public_store: string;
   };
 }>) {
-  const [[data], [subscription], [cashSessionData]] = await Promise.all([
+  const [[data], [subscription]] = await Promise.all([
     readLastEvents(),
     readStoreSubscriptionStatus(),
-    readCashSession(),
   ]);
 
   const events: z.infer<typeof IfoodHandshakeDisputeSchema>[] =
@@ -42,8 +40,6 @@ export default async function ProtectedLayout({
   const isSubscriptionActive = subscription?.subscriptionStatus === "active";
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-
-  const cashSession = cashSessionData?.cashSession;
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
@@ -63,7 +59,7 @@ export default async function ProtectedLayout({
         <StoreStatus />
         <PrintQueueListener />
 
-        <OpenCashSessionToast cashSession={cashSession} />
+        <OpenCashSessionToast />
       </main>
 
       <SoundNotification />

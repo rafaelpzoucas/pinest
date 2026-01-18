@@ -43,7 +43,12 @@ export function OpenCashSession() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof openCashSessionSchema>) {
-    mutate(values);
+    mutate(values, {
+      onSuccess: () => {
+        setIsSheetOpen(false);
+        form.reset();
+      },
+    });
   }
 
   return (
