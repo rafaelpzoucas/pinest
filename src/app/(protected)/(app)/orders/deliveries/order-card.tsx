@@ -135,12 +135,16 @@ export function OrderCard({ order }: OrderCardPropsType) {
             !isAccepted && "border-green-500/30",
           )}
         >
-          <p>
+          <span>
             Pagamento via:{" "}
-            {PAYMENT_TYPES[order.payment_type as keyof typeof PAYMENT_TYPES]}
-          </p>
+            <Badge variant={"secondary"}>
+              {PAYMENT_TYPES[order.payment_type as keyof typeof PAYMENT_TYPES]}
+            </Badge>
+          </span>
           {order.total?.change_value ? (
-            <p>Troco para: {formatCurrencyBRL(order.total?.change_value)}</p>
+            <span>
+              Troco para: {formatCurrencyBRL(order.total?.change_value)}
+            </span>
           ) : null}
         </section>
       </>
