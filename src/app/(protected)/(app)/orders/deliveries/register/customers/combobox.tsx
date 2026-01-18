@@ -58,20 +58,29 @@ export function CustomersCombobox({
     }
   }, [phoneQuery]);
 
+  const normalizePhone = (phone: string) => {
+    return phone.replace(/\D/g, "");
+  };
+
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
-    if (/^\d+$/.test(value)) {
-      setPhoneQuery(value || null);
+    const normalizedValue = normalizePhone(value);
+    if (normalizedValue) {
+      setPhoneQuery(normalizedValue);
     } else if (phoneQuery) {
       setPhoneQuery(null);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchValue && /^\d+$/.test(searchValue)) {
-      const hasCustomers = storeCustomers?.some((customer) =>
-        customer.customers.phone?.includes(searchValue),
-      );
+    if (e.key === "Enter" && searchValue) {
+      const normalizedSearch = normalizePhone(searchValue);
+      const hasCustomers = storeCustomers?.some((customer) => {
+        const normalizedCustomerPhone = normalizePhone(
+          customer.customers.phone || "",
+        );
+        return normalizedCustomerPhone.includes(normalizedSearch);
+      });
 
       if (!hasCustomers) {
         setCustomerForm("create");
@@ -172,7 +181,7 @@ export function CustomersCombobox({
 
                       return (
                         <CommandItem
-                          value={`${storeCustomer.customers.name} ${storeCustomer.customers.phone || ""} ${storeCustomer.customers.address?.street || ""}`}
+                          value={`${storeCustomer.customers.name} ${normalizePhone(storeCustomer.customers.phone || "")} ${storeCustomer.customers.address?.street || ""}`}
                           key={storeCustomer.id}
                           onSelect={() => {
                             setPhoneQuery(null);
