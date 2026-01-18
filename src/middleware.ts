@@ -3,9 +3,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
+  // Ignora completamente rotas do iFood
+  if (req.nextUrl.pathname.startsWith("/api/v1/integrations/ifood/")) {
+    return NextResponse.next();
+  }
+
   const res = NextResponse.next();
 
-  // cria o client no edge com manipulação de cookies
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -29,7 +33,6 @@ export async function middleware(req: NextRequest) {
     },
   );
 
-  // apenas força o Supabase a reidratar/atualizar cookies
   await supabase.auth.getSession();
 
   return res;
@@ -37,6 +40,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/v1/integrations/ifood/refresh-token|api/v1/integrations/ifood/webhook|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
