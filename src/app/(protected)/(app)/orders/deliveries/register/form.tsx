@@ -114,9 +114,10 @@ export function CreateOrderForm({
     enabled: !!storeId,
   });
 
-  // Mutations com React Query
+  // Mutations com React Query - DESABILITANDO RETRY
   const createMutation = useMutation({
     mutationFn: createOrderAdapter,
+    retry: false, // ← Desabilita retry automático
     onSuccess: (data) => {
       console.log("✅ Pedido criado com sucesso:", data);
 
@@ -130,8 +131,8 @@ export function CreateOrderForm({
 
       console.log("✅ Queries invalidadas");
 
-      // Navegar ou mostrar mensagem de sucesso
-      router.push("/orders"); // ajustar para sua rota
+      // O redirect já acontece no server action
+      // Não precisa navegar manualmente aqui
     },
     onError: (error) => {
       console.error("❌ Erro ao criar pedido:", error);
@@ -143,6 +144,7 @@ export function CreateOrderForm({
 
   const updateMutation = useMutation({
     mutationFn: updateOrderAdapter,
+    retry: false, // ← Desabilita retry automático
     onSuccess: (data, variables) => {
       console.log("✅ Pedido atualizado com sucesso:", data);
 
@@ -159,8 +161,8 @@ export function CreateOrderForm({
 
       console.log("✅ Queries invalidadas");
 
-      // Navegar ou mostrar mensagem de sucesso
-      router.push("/orders"); // ajustar para sua rota
+      // O redirect já acontece no server action
+      // Não precisa navegar manualmente aqui
     },
     onError: (error) => {
       console.error("❌ Erro ao atualizar pedido:", error);

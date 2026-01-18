@@ -26,7 +26,7 @@ export const getNextDisplayId = adminProcedure
       throw new Error(error?.message || "Erro ao gerar display_id");
     }
 
-    return data; // current_sequence retornado
+    return data;
   });
 
 export const createOrder = adminProcedure
@@ -96,7 +96,7 @@ export const createOrder = adminProcedure
 
       if (orderError || !orderData) {
         console.error("Erro criando order", orderError);
-        return;
+        throw new Error("Erro ao criar pedido");
       }
       const orderId = orderData.id;
 
@@ -113,7 +113,7 @@ export const createOrder = adminProcedure
 
       if (itemsError || !createdItems) {
         console.error("Erro inserindo items", itemsError);
-        return;
+        throw new Error("Erro ao inserir itens do pedido");
       }
 
       // 4. Atualize estoque
@@ -123,24 +123,27 @@ export const createOrder = adminProcedure
         ),
       );
 
-      // 5. Se auto_print, só enfileire sem bloquear o fluxo
+      // 5. Se auto_print, AGUARDE a impressão completar antes do redirect
       const autoPrint =
         printSettingsData?.printingSettings?.auto_print ?? false;
       if (autoPrint) {
-        printOrderReceipt({
-          orderId,
-          orderType: input.type,
-          reprint: false,
-        }).catch((err) =>
-          console.error("Erro ao gerar impressão automática:", err),
-        );
+        try {
+          await printOrderReceipt({
+            orderId,
+            orderType: input.type,
+            reprint: false,
+          });
+        } catch (err) {
+          console.error("Erro ao gerar impressão automática:", err);
+          // Continua mesmo com erro na impressão
+        }
       }
+
+      // 6. Redirect final - só executa se não houver erro
+      redirect("/orders?tab=deliveries");
     } catch (error) {
       console.error("Erro ao criar pedido:", error);
-      // Mesmo com erro, vamos redirecionar
-    } finally {
-      // 6. Redirect final - SEMPRE executa
-      redirect("/orders?tab=deliveries");
+      throw error; // Re-lança o erro para o React Query capturar
     }
   });
 
@@ -201,7 +204,7 @@ export const updateOrder = adminProcedure
 
       if (deleteErr) {
         console.error("Erro ao deletar itens:", deleteErr);
-        return;
+        throw new Error("Erro ao deletar itens do pedido");
       }
 
       const { data: updated, error: updateErr } = await supabase
@@ -223,7 +226,7 @@ export const updateOrder = adminProcedure
 
       if (updateErr || !updated) {
         console.error("Erro ao atualizar order:", updateErr);
-        return;
+        throw new Error("Erro ao atualizar pedido");
       }
       const orderId = updated.id;
 
@@ -240,7 +243,7 @@ export const updateOrder = adminProcedure
 
       if (itemsErr || !newItems) {
         console.error("Erro ao inserir novos itens:", itemsErr);
-        return;
+        throw new Error("Erro ao inserir novos itens do pedido");
       }
 
       // 4. Atualize estoque
@@ -250,23 +253,26 @@ export const updateOrder = adminProcedure
         ),
       );
 
-      // 5. Se auto_print
+      // 5. Se auto_print, AGUARDE a impressão completar antes do redirect
       const autoPrint = settingsData?.printingSettings?.auto_print ?? false;
       if (autoPrint) {
-        printOrderReceipt({
-          orderId,
-          orderType: input.type,
-          reprint: true,
-        }).catch((err) =>
-          console.error("Erro ao gerar impressão automática:", err),
-        );
+        try {
+          await printOrderReceipt({
+            orderId,
+            orderType: input.type,
+            reprint: true,
+          });
+        } catch (err) {
+          console.error("Erro ao gerar impressão automática:", err);
+          // Continua mesmo com erro na impressão
+        }
       }
+
+      // 6. Redirect final - só executa se não houver erro
+      redirect("/orders?tab=deliveries");
     } catch (error) {
       console.error("Erro ao atualizar pedido:", error);
-      // Mesmo com erro, vamos redirecionar
-    } finally {
-      // 6. Redirect final - SEMPRE executa
-      redirect("/orders?tab=deliveries");
+      throw error; // Re-lança o erro para o React Query capturar
     }
   });
 
@@ -282,7 +288,7 @@ export const readStoreData = adminProcedure
 
 export async function updateAmountSoldAndStock(
   productId: string,
-  quantityDiff: number, // Pode ser positivo ou negativo
+  quantityDiff: number,
 ) {
   const supabase = createClient();
 
