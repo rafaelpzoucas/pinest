@@ -3,6 +3,7 @@
 import {
   buildReceiptDeliveryESCPOS,
   buildReceiptKitchenESCPOS,
+  buildReceiptTableBillESCPOS,
   buildReceiptTableESCPOS,
 } from "@/lib/receipts";
 import { adminProcedure } from "@/lib/zsa-procedures";
@@ -202,6 +203,67 @@ export const printTableReceipt = createServerAction()
 
     return {
       success: result.kitchenPrinted,
+      ...result,
+    };
+  });
+
+export const printTableBill = createServerAction()
+  .input(
+    z.object({
+      tableId: z.string(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    const [[tableData], [printSettingsData], [printersData]] =
+      await Promise.all([
+        readTableById({ id: input.tableId }),
+        readPrintingSettings(),
+        readPrinters(),
+      ]);
+
+    const table = tableData?.table;
+    const printers = printersData?.printers || [];
+    const printingSettings = printSettingsData?.printingSettings;
+
+    if (!table) {
+      return { success: false, message: "Mesa não encontrada" };
+    }
+
+    if (!printers.length) {
+      return { success: false, message: "Nenhuma impressora encontrada" };
+    }
+
+    const result = {
+      billPrinted: false,
+      errors: [] as string[],
+    };
+
+    // Processar cada impressora que imprime delivery (contas são similares)
+    for (const printer of printers) {
+      try {
+        if (shouldPrintReceipt(printer.sectors, "delivery")) {
+          const textBill = buildReceiptTableBillESCPOS(table);
+          const deliveryFontSize = printingSettings?.font_size;
+
+          await addToPrintQueue([
+            {
+              raw: textBill,
+              font_size: deliveryFontSize,
+              printer_name: printer.name,
+            },
+          ]);
+
+          result.billPrinted = true;
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        result.errors.push(`Erro na impressora "${printer.name}": ${errorMsg}`);
+        console.error(errorMsg);
+      }
+    }
+
+    return {
+      success: result.billPrinted,
       ...result,
     };
   });

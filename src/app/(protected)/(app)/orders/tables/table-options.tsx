@@ -14,13 +14,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Table } from "@/features/tables/schemas";
-import { BadgeDollarSign, Edit, Loader2, Printer, XCircle } from "lucide-react";
+import {
+  BadgeDollarSign,
+  Edit,
+  Loader2,
+  Printer,
+  XCircle,
+  Receipt,
+  RotateCcw,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useServerAction } from "zsa-react";
-import { printTableReceipt } from "../../config/printing/actions";
+import {
+  printTableReceipt,
+  printTableBill,
+} from "../../config/printing/actions";
 import { useCancelTable } from "@/features/tables/hooks";
 
 type TableOptionsProps = {
@@ -36,13 +53,17 @@ export function TableOptions({
 }: TableOptionsProps) {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
-  const { execute: executePrint, isPending: isPrinting } =
+  const { execute: executePrintReceipt, isPending: isPrintingReceipt } =
     useServerAction(printTableReceipt);
+  const { execute: executePrintBill, isPending: isPrintingBill } =
+    useServerAction(printTableBill);
   const { mutate: cancelTable, isPending: isCancelling } = useCancelTable({
     onSuccess: () => {
       setShowCancelDialog(false);
     },
   });
+
+  const isPrinting = isPrintingReceipt || isPrintingBill;
 
   return (
     <div className="ml-auto space-x-1">
@@ -87,50 +108,6 @@ export function TableOptions({
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link
-            href={`orders/tables/register?id=${table.id}&edit=true`}
-            className={cn(
-              buttonVariants({
-                variant: "outline",
-                size: "icon",
-              }),
-            )}
-          >
-            <Edit className="w-4 h-4" />
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Editar mesa</p>
-        </TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() =>
-              executePrint({
-                tableId: table.id,
-                reprint: true,
-              })
-            }
-            disabled={isPrinting}
-          >
-            {isPrinting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Printer className="w-4 h-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Reimprimir comanda</p>
-        </TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
           <Button
             variant="outline"
             size="icon"
@@ -148,6 +125,77 @@ export function TableOptions({
           <p>Cancelar mesa</p>
         </TooltipContent>
       </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href={`orders/tables/register?id=${table.id}&edit=true`}
+            className={cn(
+              buttonVariants({
+                variant: "outline",
+                size: "icon",
+              }),
+            )}
+          >
+            <Edit className="w-4 h-4" />
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Editar mesa</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={isPrinting}
+                className="relative"
+              >
+                {isPrinting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Printer className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Opções de impressão</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() =>
+              executePrintReceipt({
+                tableId: table.id,
+                reprint: true,
+              })
+            }
+            disabled={isPrinting}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reimprimir comanda
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              executePrintBill({
+                tableId: table.id,
+              })
+            }
+            disabled={isPrinting}
+          >
+            <Receipt className="w-4 h-4 mr-2" />
+            Enviar conta
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <AlertDialogContent>

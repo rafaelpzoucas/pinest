@@ -385,6 +385,90 @@ export function buildReceiptTableESCPOS(
   return Buffer.from(escposString, "binary").toString("base64");
 }
 
+export function buildReceiptTableBillESCPOS(table: TableType): string {
+  const displayId = table.number;
+  const items = table.order_items;
+
+  const r = receipt()
+    .center()
+    .strong()
+    .h2("CONTA DA MESA")
+    .endStrong()
+    .br()
+    .h2(`MESA #${displayId}`)
+    .hr()
+    .left()
+    .p(`DATA: ${format(subHours(table.created_at, 3), "dd/MM HH:mm:ss")}`)
+    .br()
+    .p(`DESCRIÇÃO: ${table.description.toUpperCase()}`)
+    .hr()
+    .h3("ITENS DO PEDIDO:")
+    .br(2);
+
+  let total = 0;
+
+  for (const [index, item] of items.entries()) {
+    if (!item.products) continue;
+
+    const itemTotal = item.product_price;
+    const choicesTotal =
+      item.choices?.reduce((acc, choice) => acc + choice.price, 0) ?? 0;
+    const extrasTotal = item.extras.reduce(
+      (acc, extra) => acc + extra.price * extra.quantity,
+      0,
+    );
+    const itemFinalTotal =
+      (itemTotal + choicesTotal + extrasTotal) * item.quantity;
+    total += itemFinalTotal;
+
+    r.p(
+      `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(itemFinalTotal)}`,
+    );
+
+    // Choices
+    if (item.choices && item.choices.length > 0) {
+      for (const choice of item.choices) {
+        r.br().p(
+          `  ${choice.product_choices.name.toUpperCase()} - ${formatCurrencyBRL(choice.price)}`,
+        );
+      }
+    }
+
+    // Extras
+    for (const extra of item.extras) {
+      r.br().p(
+        `  +${extra.quantity} ad. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}`,
+      );
+    }
+
+    // Observações
+    if (item.observations.length > 0 && item.observations[0] !== "") {
+      for (const obs of item.observations) {
+        r.br().p(` *${obs.toUpperCase()}`);
+      }
+    }
+
+    const isLast = index === items.length - 1;
+    if (!isLast) {
+      r.br().hr(undefined, "dashed");
+    }
+  }
+
+  // Total final
+  r.hr(undefined, "double")
+    .center()
+    .h3("TOTAL")
+    .br()
+    .center()
+    .strong()
+    .h2(formatCurrencyBRL(total))
+    .endStrong()
+    .hr(undefined, "double");
+
+  const escposString = r.feed(3).cut().build();
+  return Buffer.from(escposString, "binary").toString("base64");
+}
+
 export function buildProductsSoldReportESCPOS(
   data: ProductsSoldReportType,
 ): string {

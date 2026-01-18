@@ -43,9 +43,9 @@ export function TableCard({
 
   return (
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-      <SheetTrigger asChild>
-        <Card className="flex flex-col gap-2 p-4 cursor-pointer hover:bg-accent/50 transition-colors">
-          <header className="flex flex-row items-center">
+      <Card className="flex flex-col gap-2 p-4 hover:bg-accent/50 transition-colors">
+        <SheetTrigger asChild>
+          <header className="flex flex-row items-center cursor-pointer">
             <Badge variant="secondary" className="text-xl">
               Mesa #{table.number}
             </Badge>
@@ -60,51 +60,51 @@ export function TableCard({
 
             <ChevronRight className="w-4 h-4 ml-2" />
           </header>
+        </SheetTrigger>
 
-          {table.description && (
-            <p className="text-sm text-muted-foreground line-clamp-1">
-              {table.description}
+        {table.description && (
+          <p className="text-sm text-muted-foreground line-clamp-1">
+            {table.description}
+          </p>
+        )}
+
+        <section className="pr-1 text-xs space-y-1 border-t border-dashed pt-2">
+          {orderItems.slice(0, 3).map((item) => {
+            const itemTotal = item.product_price * item.quantity;
+
+            return (
+              <div className="flex flex-row justify-between" key={item.id}>
+                <span className="line-clamp-1">
+                  {item.quantity} {item.products?.name}
+                </span>
+                <strong className="whitespace-nowrap ml-2">
+                  {formatCurrencyBRL(itemTotal)}
+                </strong>
+              </div>
+            );
+          })}
+
+          {orderItems.length > 3 && (
+            <p className="text-muted-foreground italic">
+              +{orderItems.length - 3}{" "}
+              {orderItems.length - 3 === 1 ? "item" : "itens"}
             </p>
           )}
 
-          <section className="pr-1 text-xs space-y-1 border-t border-dashed pt-2">
-            {orderItems.slice(0, 3).map((item) => {
-              const itemTotal = item.product_price * item.quantity;
+          <div className="flex flex-row justify-between text-base pt-1">
+            <span>Total:</span>
+            <strong>{formatCurrencyBRL(totalAmount)}</strong>
+          </div>
+        </section>
 
-              return (
-                <div className="flex flex-row justify-between" key={item.id}>
-                  <span className="line-clamp-1">
-                    {item.quantity} {item.products?.name}
-                  </span>
-                  <strong className="whitespace-nowrap ml-2">
-                    {formatCurrencyBRL(itemTotal)}
-                  </strong>
-                </div>
-              );
-            })}
-
-            {orderItems.length > 3 && (
-              <p className="text-muted-foreground italic">
-                +{orderItems.length - 3}{" "}
-                {orderItems.length - 3 === 1 ? "item" : "itens"}
-              </p>
-            )}
-
-            <div className="flex flex-row justify-between text-base pt-1">
-              <span>Total:</span>
-              <strong>{formatCurrencyBRL(totalAmount)}</strong>
-            </div>
-          </section>
-
-          <footer className="flex w-full border-t mt-2 pt-2">
-            <TableOptions
-              table={table}
-              isCashOpen={isCashOpen}
-              isCashLoading={isCashLoading}
-            />
-          </footer>
-        </Card>
-      </SheetTrigger>
+        <footer className="flex w-full border-t mt-2 pt-2">
+          <TableOptions
+            table={table}
+            isCashOpen={isCashOpen}
+            isCashLoading={isCashLoading}
+          />
+        </footer>
+      </Card>
 
       <SheetContent className="px-0">
         <TableDetails
