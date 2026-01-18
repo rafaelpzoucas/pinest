@@ -295,14 +295,8 @@ export const getIfoodOrderData = webhookProcedure
   )
   .handler(async ({ input }) => {
     const { orderId, merchantId } = input;
-    const api = process.env.IFOOD_API_BASE_URL;
 
     log.info("getIfoodOrderData - Iniciando", { orderId, merchantId });
-
-    if (!api) {
-      log.error("getIfoodOrderData - IFOOD_API_BASE_URL não configurada");
-      return null;
-    }
 
     const [accessToken, tokenError] = await getAccessToken({ merchantId });
 
@@ -316,18 +310,20 @@ export const getIfoodOrderData = webhookProcedure
       return null;
     }
 
-    log.debug("getIfoodOrderData - Token obtido, fazendo requisição", {
-      url: `${api}/order/v1.0/orders/${orderId}`,
-    });
+    log.debug(
+      "getIfoodOrderData - Token obtido, fazendo requisição via route handler",
+    );
 
     try {
-      const response = await fetch(`${api}/order/v1.0/orders/${orderId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+      // Usa a route handler dedicada em vez de fetch direto
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/integrations/ifood/order`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, accessToken }),
         },
-      });
+      );
 
       log.debug("getIfoodOrderData - Resposta recebida", {
         status: response.status,
@@ -335,29 +331,25 @@ export const getIfoodOrderData = webhookProcedure
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        log.error("getIfoodOrderData - Erro na resposta da API", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
+        const errorData = await response.json();
+        log.error("getIfoodOrderData - Erro na route handler", errorData);
         return null;
       }
 
-      const data = await response.json();
+      const { orderData } = await response.json();
 
-      if (!data) {
+      if (!orderData) {
         log.error("getIfoodOrderData - Pedido não encontrado na resposta");
         return null;
       }
 
       log.info("getIfoodOrderData - Dados do pedido obtidos", {
-        orderId: data.id,
+        orderId: orderData.id,
       });
 
-      return data as IfoodOrder;
+      return orderData as IfoodOrder;
     } catch (fetchError) {
-      log.error("getIfoodOrderData - Erro na requisição", {
+      log.error("getIfoodOrderData - Erro ao chamar route handler", {
         error: fetchError instanceof Error ? fetchError.message : fetchError,
         stack: fetchError instanceof Error ? fetchError.stack : undefined,
       });
