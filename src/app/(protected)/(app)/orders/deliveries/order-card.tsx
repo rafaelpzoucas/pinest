@@ -78,17 +78,15 @@ export function OrderCard({ order }: OrderCardPropsType) {
           </header>
         </Link>
 
-        <div className="flex flex-col items-start">
-          <div className="flex flex-row items-center justify-between w-full">
-            <strong>{`${firstName} ${lastName}`}</strong>
+        <div className="flex flex-col items-start gap-1">
+          <strong>{`${firstName} ${lastName}`}</strong>
 
-            <Tooltip>
-              <TooltipTrigger>
-                <CopyPhoneButton phone={customerPhone} variant={"link"} />
-              </TooltipTrigger>
-              <TooltipContent>Copiar telefone</TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <CopyPhoneButton phone={customerPhone} variant={"link"} />
+            </TooltipTrigger>
+            <TooltipContent side="right">Copiar telefone</TooltipContent>
+          </Tooltip>
           {customerAddress && (
             <Tooltip>
               <TooltipTrigger>
@@ -98,7 +96,7 @@ export function OrderCard({ order }: OrderCardPropsType) {
                   variant={"link"}
                 />
               </TooltipTrigger>
-              <TooltipContent>Copiar endereço</TooltipContent>
+              <TooltipContent side="right">Copiar endereço</TooltipContent>
             </Tooltip>
           )}
         </div>

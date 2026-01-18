@@ -45,7 +45,7 @@ export function CopyTextButton({
       variant={variant}
       size={!buttonText ? "icon" : "sm"}
       className={cn(
-        variant === "link" && "px-0 hover:no-underline [&_svg]:size-3",
+        variant === "link" && "px-0 hover:no-underline [&_svg]:size-3 !h-fit",
       )}
     >
       {copied ? (

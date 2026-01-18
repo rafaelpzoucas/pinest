@@ -91,7 +91,7 @@ export function CopyPhoneButton({
       variant={variant}
       size="sm"
       className={cn(
-        variant === "link" && "!p-0 hover:no-underline [&_svg]:size-3",
+        variant === "link" && "!p-0 hover:no-underline [&_svg]:size-3 h-fit",
       )}
     >
       {copied ? (
