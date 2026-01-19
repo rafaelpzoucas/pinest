@@ -29,10 +29,13 @@ import {
 function shouldPrintReceipt(
   printerSectors: string[],
   receiptType: "kitchen" | "delivery",
+  totalPrinters: number,
 ): boolean {
-  // Se sectors está vazio, imprime tudo
+  // Se sectors está vazio
   if (printerSectors.length === 0) {
-    return true;
+    // Se houver apenas 1 impressora, imprime tudo nela
+    // Caso contrário, não imprime nada
+    return totalPrinters === 1;
   }
 
   // Se sectors tem o tipo específico, imprime
@@ -182,7 +185,7 @@ export const printTableReceipt = createServerAction()
     for (const printer of printers) {
       try {
         // Verifica se deve imprimir comanda de cozinha para esta impressora
-        if (shouldPrintReceipt(printer.sectors, "kitchen")) {
+        if (shouldPrintReceipt(printer.sectors, "kitchen", printers.length)) {
           const textKitchen = buildReceiptTableESCPOS(table, input.reprint);
 
           await addToPrintQueue([
@@ -241,7 +244,7 @@ export const printTableBill = createServerAction()
     // Processar cada impressora que imprime delivery (contas são similares)
     for (const printer of printers) {
       try {
-        if (shouldPrintReceipt(printer.sectors, "delivery")) {
+        if (shouldPrintReceipt(printer.sectors, "delivery", printers.length)) {
           const textBill = buildReceiptTableBillESCPOS(table);
           const deliveryFontSize = printingSettings?.font_size;
 
@@ -313,7 +316,7 @@ export const printOrderReceipt = createServerAction()
     for (const printer of printers) {
       try {
         // SEMPRE imprime comanda de cozinha se a impressora permitir
-        if (shouldPrintReceipt(printer.sectors, "kitchen")) {
+        if (shouldPrintReceipt(printer.sectors, "kitchen", printers.length)) {
           const textKitchen = buildReceiptKitchenESCPOS(order, input.reprint);
 
           await addToPrintQueue([
@@ -329,7 +332,10 @@ export const printOrderReceipt = createServerAction()
         // APENAS imprime comanda de delivery se:
         // 1. O pedido for delivery
         // 2. A impressora permitir impressão de delivery
-        if (isDelivery && shouldPrintReceipt(printer.sectors, "delivery")) {
+        if (
+          isDelivery &&
+          shouldPrintReceipt(printer.sectors, "delivery", printers.length)
+        ) {
           const textDelivery = buildReceiptDeliveryESCPOS(order, input.reprint);
 
           await addToPrintQueue([
@@ -377,7 +383,7 @@ export const printReportReceipt = createServerAction()
 
     for (const printer of printers) {
       // Relatórios só são impressos em impressoras de delivery ou sem setor definido
-      if (shouldPrintReceipt(printer.sectors, "delivery")) {
+      if (shouldPrintReceipt(printer.sectors, "delivery", printers.length)) {
         try {
           await addToPrintQueue([
             {
@@ -440,7 +446,9 @@ export const printMultipleReports = createServerAction()
       try {
         for (const printer of printers) {
           // Relatórios só são impressos em impressoras de delivery ou sem setor
-          if (shouldPrintReceipt(printer.sectors, "delivery")) {
+          if (
+            shouldPrintReceipt(printer.sectors, "delivery", printers.length)
+          ) {
             await addToPrintQueue([
               {
                 raw: report.raw,
