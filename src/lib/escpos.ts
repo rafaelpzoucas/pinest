@@ -108,6 +108,73 @@ function align(code: number): string {
 }
 
 /**
+ * Cria uma tabela formatada para impressão térmica
+ * @param columns Configuração das colunas (título, largura, alinhamento)
+ * @param rows Dados a serem exibidos
+ * @returns String formatada como tabela
+ */
+function createTable(
+  columns: Array<{
+    title: string;
+    width: number;
+    align?: "left" | "right" | "center";
+  }>,
+  rows: Array<Array<string | number>>,
+): string {
+  const lines: string[] = [];
+
+  // Função auxiliar para alinhar texto em uma célula
+  const alignCell = (
+    text: string,
+    width: number,
+    align: "left" | "right" | "center" = "left",
+  ): string => {
+    const cleanText = removeAccents(String(text));
+    const textLength = cleanText.length;
+
+    if (textLength >= width) {
+      return cleanText.substring(0, width);
+    }
+
+    const padding = width - textLength;
+
+    switch (align) {
+      case "right":
+        return " ".repeat(padding) + cleanText;
+      case "center":
+        const leftPad = Math.floor(padding / 2);
+        const rightPad = padding - leftPad;
+        return " ".repeat(leftPad) + cleanText + " ".repeat(rightPad);
+      default: // left
+        return cleanText + " ".repeat(padding);
+    }
+  };
+
+  // Cabeçalho
+  const headerRow = columns
+    .map((col) => alignCell(col.title, col.width, col.align || "left"))
+    .join("");
+  lines.push(headerRow);
+
+  // Linha separadora
+  const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
+  lines.push("-".repeat(Math.min(totalWidth, DEFAULT_WIDTH)));
+
+  // Linhas de dados
+  rows.forEach((row) => {
+    const dataRow = columns
+      .map((col, index) => {
+        const cellValue = row[index] !== undefined ? row[index] : "";
+        return alignCell(String(cellValue), col.width, col.align || "left");
+      })
+      .join("");
+    lines.push(dataRow);
+  });
+
+  return lines.join("\n");
+}
+
+/**
  * Cria um builder para gerar comandos ESC/POS para impressão de recibos
  * @returns Objeto com API fluente para construção de recibos
  */
@@ -269,6 +336,24 @@ export function receipt() {
       // Adiciona quebra antes, a linha e quebra depois
       buffer.push(`\n${line}\n`);
 
+      return api;
+    },
+
+    /**
+     * Adiciona uma tabela formatada
+     * @param columns Configuração das colunas
+     * @param rows Dados da tabela
+     * @returns A própria instância para encadeamento
+     */
+    table(
+      columns: Array<{
+        title: string;
+        width: number;
+        align?: "left" | "right" | "center";
+      }>,
+      rows: Array<Array<string | number>>,
+    ) {
+      buffer.push(createTable(columns, rows));
       return api;
     },
 
