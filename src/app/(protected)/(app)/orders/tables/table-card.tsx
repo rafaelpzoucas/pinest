@@ -97,7 +97,7 @@ export function TableCard({
           </div>
         </section>
 
-        <footer className="flex w-full border-t mt-2 pt-2">
+        <footer className="flex w-full border-t mt-auto pt-2">
           <TableOptions
             table={table}
             isCashOpen={isCashOpen}
