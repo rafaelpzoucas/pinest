@@ -1,11 +1,12 @@
 import { format, subHours } from "date-fns";
 import type { ProductsSoldReportType } from "@/app/(protected)/(app)/reports/products-sold";
 import type { SalesReportType } from "@/app/(protected)/(app)/reports/sales-report";
-import { formatAddress, formatCurrencyBRL } from "@/lib/utils";
+import { formatAddress, formatCurrencyBRL, formatDuration } from "@/lib/utils";
 import type { IfoodOrder } from "@/models/ifood";
 import { type OrderType, PAYMENT_TYPES } from "@/models/order";
 import type { TableType } from "@/models/table";
 import { receipt } from "./escpos";
+import { Store } from "@/features/store/store/schemas";
 
 export function buildReceiptKitchenESCPOS(order?: OrderType, reprint = false) {
   if (!order) return "";
@@ -188,81 +189,126 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
       .endStrong();
   }
 
-  r.hr().h3("ITENS DO PEDIDO:").br(2);
+  r.hr().h3("ITENS DO PEDIDO:").br();
+
+  // Preparar dados da tabela
+  const tableRows: Array<Array<string>> = [];
 
   // Adiciona itens do pedido
   if (!isIfood) {
     const items = order.order_items;
 
-    for (const [index, item] of items.entries()) {
+    for (const item of items) {
       if (!item.products) {
-        r.p(
-          `${item.quantity} ${item.description} - ${formatCurrencyBRL(item.product_price)}`,
-        );
+        tableRows.push([
+          item.description?.toUpperCase() ?? "PRODUTO",
+          String(item.quantity ?? 0),
+          formatCurrencyBRL(item.product_price ?? 0),
+          formatCurrencyBRL((item.product_price ?? 0) * (item.quantity ?? 0)),
+        ]);
         continue;
       }
 
-      const itemTotal = item.product_price;
+      const itemTotal = item.product_price ?? 0;
       const choicesTotal =
-        item.choices?.reduce((acc, choice) => acc + choice.price, 0) ?? 0;
-      const extrasTotal = item.extras.reduce(
-        (acc, extra) => acc + extra.price * extra.quantity,
-        0,
-      );
-      const total = (itemTotal + choicesTotal + extrasTotal) * item.quantity;
+        item.choices?.reduce((acc, choice) => acc + (choice.price ?? 0), 0) ??
+        0;
+      const extrasTotal =
+        item.extras?.reduce(
+          (acc, extra) => acc + (extra.price ?? 0) * (extra.quantity ?? 0),
+          0,
+        ) ?? 0;
 
-      r.p(
-        `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(total)}`,
-      );
+      const quantity = item.quantity ?? 0;
+      const unitPrice = itemTotal + choicesTotal + extrasTotal;
+      const total = unitPrice * quantity;
+
+      // Linha principal do produto
+      tableRows.push([
+        item.products.name.toUpperCase(),
+        String(quantity),
+        formatCurrencyBRL(unitPrice),
+        formatCurrencyBRL(total),
+      ]);
 
       // Choices
       if (item.choices && item.choices.length > 0) {
         for (const choice of item.choices) {
-          r.br().p(
-            `  ${choice.product_choices.name.toUpperCase()} - ${formatCurrencyBRL(choice.price)}`,
-          );
+          tableRows.push([
+            `  ${choice.product_choices.name.toUpperCase()}`,
+            "",
+            formatCurrencyBRL(choice.price ?? 0),
+            "",
+          ]);
         }
       }
 
-      for (const extra of item.extras) {
-        r.br().p(
-          `  +${extra.quantity} ad. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}`,
-        );
-      }
-
-      if (item.observations.length > 0 && item.observations[0] !== "") {
-        for (const obs of item.observations ?? []) {
-          r.br().p(` *${obs.toUpperCase()}`);
+      // Extras
+      if (item.extras && item.extras.length > 0) {
+        for (const extra of item.extras) {
+          const extraQty = extra.quantity ?? 0;
+          const extraPrice = extra.price ?? 0;
+          tableRows.push([
+            `  +${extraQty} ad. ${extra.name.toUpperCase()}`,
+            "",
+            formatCurrencyBRL(extraPrice),
+            formatCurrencyBRL(extraPrice * extraQty),
+          ]);
         }
       }
 
-      const isLast = index === items.length - 1;
-
-      if (!isLast) {
-        r.br().hr(undefined, "dashed");
+      // Observações
+      if (
+        item.observations &&
+        item.observations.length > 0 &&
+        item.observations[0] !== ""
+      ) {
+        for (const obs of item.observations) {
+          tableRows.push([` *${obs.toUpperCase()}`, "", "", ""]);
+        }
       }
     }
   } else {
     const items = ifoodOrder.items;
 
-    for (const [index, item] of items.entries()) {
-      r.p(`${item.quantity} ${item.name.toUpperCase()}`);
+    for (const item of items) {
+      // Linha principal do produto iFood (sem preço unitário)
+      tableRows.push([
+        item.name.toUpperCase(),
+        String(item.quantity ?? 0),
+        "",
+        "",
+      ]);
 
-      for (const option of item.options ?? []) {
-        r.br().p(` +${option.quantity} ad. ${option.name.toUpperCase()}`);
+      // Opções/adicionais
+      if (item.options && item.options.length > 0) {
+        for (const option of item.options) {
+          tableRows.push([
+            `  +${option.quantity} ad. ${option.name.toUpperCase()}`,
+            "",
+            "",
+            "",
+          ]);
+        }
       }
 
+      // Observações
       if (item.observations) {
-        r.br().p(` *${item.observations.toUpperCase()}`);
-      }
-
-      const isLast = items.length - 1 === index;
-
-      if (!isLast) {
-        r.br().hr(undefined, "dashed");
+        tableRows.push([` *${item.observations.toUpperCase()}`, "", "", ""]);
       }
     }
   }
+
+  // Adicionar a tabela ao recibo
+  r.table(
+    [
+      { title: "PRODUTO", width: 20, align: "left" },
+      { title: "QTD", width: 3, align: "center" },
+      { title: "UNIT.", width: 10, align: "right" },
+      { title: "TOTAL", width: 12, align: "right" },
+    ],
+    tableRows,
+  );
 
   // Total do pedido
   const total = formatCurrencyBRL(order.total.total_amount);
@@ -289,7 +335,8 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
         ]?.toUpperCase() || "INDEFINIDO";
     }
 
-    r.hr(undefined, "double")
+    r.br()
+      .hr(undefined, "double")
       .center()
       .h3("TOTAL")
       .br()
@@ -312,7 +359,7 @@ export function buildReceiptDeliveryESCPOS(order?: OrderType, reprint = false) {
     }
 
     if (isIfood && ifoodOrder?.extraInfo) {
-      r.text(`INFO ADICIONAL: ${ifoodOrder.extraInfo.toUpperCase()}`).br(2);
+      r.br().text(`INFO ADICIONAL: ${ifoodOrder.extraInfo.toUpperCase()}`).br();
     }
   }
 
@@ -385,29 +432,35 @@ export function buildReceiptTableESCPOS(
   return Buffer.from(escposString, "binary").toString("base64");
 }
 
-export function buildReceiptTableBillESCPOS(table: TableType): string {
+export function buildReceiptTableBillESCPOS(
+  store: Store,
+  table: TableType,
+): string {
   const displayId = table.number;
   const items = table.order_items;
+  const now = new Date();
 
   const r = receipt()
     .center()
     .strong()
-    .h2("CONTA DA MESA")
+    .h2(`${store?.name?.toUpperCase()}`)
     .endStrong()
     .br()
     .h2(`MESA #${displayId}`)
     .hr()
     .left()
-    .p(`DATA: ${format(subHours(table.created_at, 3), "dd/MM HH:mm:ss")}`)
+    .p(`DATA DE ENVIO: ${format(subHours(now, 3), "dd/MM HH:mm:ss")}`)
     .br()
-    .p(`DESCRIÇÃO: ${(table.description ?? "").toUpperCase()}`)
-    .hr()
+    .p(`PERMANENCIA: ${formatDuration(new Date(table.created_at), now)}`)
+    .br()
     .h3("ITENS DO PEDIDO:")
-    .br(2);
+    .br();
 
+  // Preparar dados da tabela
+  const tableRows: Array<Array<string>> = [];
   let total = 0;
 
-  for (const [index, item] of items.entries()) {
+  for (const item of items) {
     if (!item.products) continue;
 
     const itemTotal = item.product_price ?? 0;
@@ -418,34 +471,47 @@ export function buildReceiptTableBillESCPOS(table: TableType): string {
         (acc, extra) => acc + (extra.price ?? 0) * (extra.quantity ?? 0),
         0,
       ) ?? 0;
-    const itemFinalTotal =
-      (itemTotal + choicesTotal + extrasTotal) * (item.quantity ?? 0);
+
+    const quantity = item.quantity ?? 0;
+    const unitPrice = itemTotal + choicesTotal + extrasTotal;
+    const itemFinalTotal = unitPrice * quantity;
     total += itemFinalTotal;
 
     const productName = item.products.name ?? "PRODUTO";
-    r.p(
-      `${item.quantity ?? 0} ${productName.toUpperCase()} - ${formatCurrencyBRL(itemFinalTotal)}`,
-    );
 
-    // Choices
+    // Linha principal do produto
+    tableRows.push([
+      productName.toUpperCase(),
+      String(quantity),
+      formatCurrencyBRL(unitPrice),
+      formatCurrencyBRL(itemFinalTotal),
+    ]);
+
+    // Choices como sub-itens
     if (item.choices && item.choices.length > 0) {
       for (const choice of item.choices) {
-        const choiceName = choice.product_choices?.name ?? "OPÇÃO";
-        r.br().p(
-          `  ${choiceName.toUpperCase()} - ${formatCurrencyBRL(choice.price ?? 0)}`,
-        );
+        const choiceName = choice.product_choices?.name ?? "OPCAO";
+        tableRows.push([
+          `  ${choiceName.toUpperCase()}`,
+          "",
+          formatCurrencyBRL(choice.price ?? 0),
+          "",
+        ]);
       }
     }
 
-    // Extras
+    // Extras como sub-itens
     if (item.extras && item.extras.length > 0) {
       for (const extra of item.extras) {
         const extraName = extra.name ?? "ADICIONAL";
         const extraQty = extra.quantity ?? 0;
         const extraPrice = extra.price ?? 0;
-        r.br().p(
-          `  +${extraQty} ad. ${extraName.toUpperCase()} - ${formatCurrencyBRL(extraPrice * extraQty)}`,
-        );
+        tableRows.push([
+          `  +${extraQty} ad. ${extraName.toUpperCase()}`,
+          "",
+          formatCurrencyBRL(extraPrice),
+          formatCurrencyBRL(extraPrice * extraQty),
+        ]);
       }
     }
 
@@ -453,19 +519,26 @@ export function buildReceiptTableBillESCPOS(table: TableType): string {
     if (item.observations && item.observations.length > 0) {
       for (const obs of item.observations) {
         if (obs && obs.trim() !== "") {
-          r.br().p(` *${obs.toUpperCase()}`);
+          tableRows.push([` *${obs.toUpperCase()}`, "", "", ""]);
         }
       }
     }
-
-    const isLast = index === items.length - 1;
-    if (!isLast) {
-      r.br().hr(undefined, "dashed");
-    }
   }
 
+  // Adicionar a tabela ao recibo
+  r.table(
+    [
+      { title: "PRODUTO", width: 20, align: "left" },
+      { title: "QTD", width: 3, align: "center" },
+      { title: "UNIT.", width: 10, align: "right" },
+      { title: "TOTAL", width: 12, align: "right" },
+    ],
+    tableRows,
+  );
+
   // Total final
-  r.hr(undefined, "double")
+  r.br()
+    .hr(undefined, "double")
     .center()
     .h3("TOTAL")
     .br()
@@ -473,7 +546,10 @@ export function buildReceiptTableBillESCPOS(table: TableType): string {
     .strong()
     .h2(formatCurrencyBRL(total))
     .endStrong()
-    .hr(undefined, "double");
+    .hr(undefined, "double")
+    .br()
+    .center()
+    .p("Nao tem validade fiscal");
 
   const escposString = r.feed(3).cut().build();
   return Buffer.from(escposString, "binary").toString("base64");

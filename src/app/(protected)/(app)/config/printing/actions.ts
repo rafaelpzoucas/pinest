@@ -210,13 +210,16 @@ export const printTableReceipt = createServerAction()
     };
   });
 
-export const printTableBill = createServerAction()
+export const printTableBill = adminProcedure
+  .createServerAction()
   .input(
     z.object({
       tableId: z.string(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
+    const { store } = ctx;
+
     const [[tableData], [printSettingsData], [printersData]] =
       await Promise.all([
         readTableById({ id: input.tableId }),
@@ -245,7 +248,7 @@ export const printTableBill = createServerAction()
     for (const printer of printers) {
       try {
         if (shouldPrintReceipt(printer.sectors, "delivery", printers.length)) {
-          const textBill = buildReceiptTableBillESCPOS(table);
+          const textBill = buildReceiptTableBillESCPOS(store, table);
           const deliveryFontSize = printingSettings?.font_size;
 
           await addToPrintQueue([

@@ -9,6 +9,7 @@ import {
   format,
   formatDistance,
   formatDistanceToNow,
+  intervalToDuration,
   isFuture,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -298,4 +299,28 @@ export function formatPhoneBR(phone: string): string {
   } catch {
     return phone;
   }
+}
+
+export function formatDuration(start: Date, end: Date): string {
+  const duration = intervalToDuration({ start, end });
+
+  const parts: string[] = [];
+
+  if (duration.days) {
+    parts.push(`${duration.days}d`);
+  }
+
+  if (duration.hours) {
+    parts.push(`${duration.hours}h`);
+  }
+
+  if (duration.minutes) {
+    parts.push(`${duration.minutes}min`);
+  }
+
+  if (parts.length === 0) {
+    return "menos de 1min";
+  }
+
+  return parts.join(" ");
 }
