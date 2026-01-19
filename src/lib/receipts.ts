@@ -400,7 +400,7 @@ export function buildReceiptTableBillESCPOS(table: TableType): string {
     .left()
     .p(`DATA: ${format(subHours(table.created_at, 3), "dd/MM HH:mm:ss")}`)
     .br()
-    .p(`DESCRIÇÃO: ${table.description.toUpperCase()}`)
+    .p(`DESCRIÇÃO: ${(table.description ?? "").toUpperCase()}`)
     .hr()
     .h3("ITENS DO PEDIDO:")
     .br(2);
@@ -410,41 +410,51 @@ export function buildReceiptTableBillESCPOS(table: TableType): string {
   for (const [index, item] of items.entries()) {
     if (!item.products) continue;
 
-    const itemTotal = item.product_price;
+    const itemTotal = item.product_price ?? 0;
     const choicesTotal =
-      item.choices?.reduce((acc, choice) => acc + choice.price, 0) ?? 0;
-    const extrasTotal = item.extras.reduce(
-      (acc, extra) => acc + extra.price * extra.quantity,
-      0,
-    );
+      item.choices?.reduce((acc, choice) => acc + (choice.price ?? 0), 0) ?? 0;
+    const extrasTotal =
+      item.extras?.reduce(
+        (acc, extra) => acc + (extra.price ?? 0) * (extra.quantity ?? 0),
+        0,
+      ) ?? 0;
     const itemFinalTotal =
-      (itemTotal + choicesTotal + extrasTotal) * item.quantity;
+      (itemTotal + choicesTotal + extrasTotal) * (item.quantity ?? 0);
     total += itemFinalTotal;
 
+    const productName = item.products.name ?? "PRODUTO";
     r.p(
-      `${item.quantity} ${item.products.name.toUpperCase()} - ${formatCurrencyBRL(itemFinalTotal)}`,
+      `${item.quantity ?? 0} ${productName.toUpperCase()} - ${formatCurrencyBRL(itemFinalTotal)}`,
     );
 
     // Choices
     if (item.choices && item.choices.length > 0) {
       for (const choice of item.choices) {
+        const choiceName = choice.product_choices?.name ?? "OPÇÃO";
         r.br().p(
-          `  ${choice.product_choices.name.toUpperCase()} - ${formatCurrencyBRL(choice.price)}`,
+          `  ${choiceName.toUpperCase()} - ${formatCurrencyBRL(choice.price ?? 0)}`,
         );
       }
     }
 
     // Extras
-    for (const extra of item.extras) {
-      r.br().p(
-        `  +${extra.quantity} ad. ${extra.name.toUpperCase()} - ${formatCurrencyBRL(extra.price * extra.quantity)}`,
-      );
+    if (item.extras && item.extras.length > 0) {
+      for (const extra of item.extras) {
+        const extraName = extra.name ?? "ADICIONAL";
+        const extraQty = extra.quantity ?? 0;
+        const extraPrice = extra.price ?? 0;
+        r.br().p(
+          `  +${extraQty} ad. ${extraName.toUpperCase()} - ${formatCurrencyBRL(extraPrice * extraQty)}`,
+        );
+      }
     }
 
     // Observações
-    if (item.observations.length > 0 && item.observations[0] !== "") {
+    if (item.observations && item.observations.length > 0) {
       for (const obs of item.observations) {
-        r.br().p(` *${obs.toUpperCase()}`);
+        if (obs && obs.trim() !== "") {
+          r.br().p(` *${obs.toUpperCase()}`);
+        }
       }
     }
 
