@@ -1,41 +1,41 @@
-'use client'
+"use client";
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { Edit, Loader2, Printer, Trash } from 'lucide-react'
-import { useState } from 'react'
-import { useServerAction } from 'zsa-react'
-import { deletePrinter, printOrderReceipt } from './actions'
-import { NewPrinterForm } from './new-printer-form'
-import { PrinterType } from './schemas'
+} from "@/components/ui/sheet";
+import { Edit, Loader2, Printer, Trash } from "lucide-react";
+import { useState } from "react";
+import { useServerAction } from "zsa-react";
+import { deletePrinter, printOrderReceipt } from "./actions";
+import { NewPrinterForm } from "./new-printer-form";
+import { PrinterType } from "./schemas";
 
 const PRINTER_SECTORS_MAP = {
-  kitchen: 'Cozinha',
-  delivery: 'Entrega',
-} as const
+  kitchen: "Cozinha",
+  delivery: "Entrega",
+} as const;
 
-type SectorKey = keyof typeof PRINTER_SECTORS_MAP
+type SectorKey = keyof typeof PRINTER_SECTORS_MAP;
 
 export function PrinterCard({ printer }: { printer: PrinterType }) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   const { execute: executeDelete, isPending: isDeleting } =
-    useServerAction(deletePrinter)
+    useServerAction(deletePrinter);
   const { execute: executePrintReceipt, isPending: isPrinting } =
-    useServerAction(printOrderReceipt)
+    useServerAction(printOrderReceipt);
 
   return (
     <Card className="flex flex-row justify-between items-center pr-6">
@@ -58,7 +58,9 @@ export function PrinterCard({ printer }: { printer: PrinterType }) {
       <div className="space-x-3">
         <Button
           variant="secondary"
-          onClick={() => executePrintReceipt({})}
+          onClick={() =>
+            executePrintReceipt({ targetPrinterName: printer.name })
+          }
           disabled={isPrinting}
         >
           {isPrinting ? (
@@ -97,5 +99,5 @@ export function PrinterCard({ printer }: { printer: PrinterType }) {
         </Button>
       </div>
     </Card>
-  )
+  );
 }
