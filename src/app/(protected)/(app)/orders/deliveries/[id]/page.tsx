@@ -92,8 +92,6 @@ export default async function OrderPage() {
   const change =
     (order?.total?.change_value || 0) - (order?.total?.total_amount || 0);
 
-  console.log(order.payment_type);
-
   return (
     <section className="flex flex-col gap-4 p-4 lg:px-0 pb-16">
       <AdminHeader title={`Detalhes: #${displayId}`} withBackButton />

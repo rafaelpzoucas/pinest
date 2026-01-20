@@ -14,7 +14,7 @@ export const paymentTypeEnum = z.enum(
 );
 
 const statusEnum = z.enum([
-  "accept",
+  "pending",
   "pending",
   "preparing",
   "readyToPickup",

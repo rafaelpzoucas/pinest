@@ -17,7 +17,7 @@ import { DatePickerWithRange } from "@/components/ui/date-picker-range";
 import { useSearchParams } from "next/navigation";
 
 type OrderStatus =
-  | "accept"
+  | "pending"
   | "pending"
   | "preparing"
   | "shipped"
@@ -48,7 +48,7 @@ export function Deliveries() {
       orders?.filter((order) => {
         const isDelivered = statuses.includes("delivered");
         const isInProgress =
-          statuses.includes("accept") ||
+          statuses.includes("pending") ||
           statuses.includes("pending") ||
           statuses.includes("preparing") ||
           statuses.includes("shipped") ||
@@ -75,7 +75,7 @@ export function Deliveries() {
       status: "in_progress",
       title: "andamento",
       status_length: getStatusLengths([
-        "accept",
+        "pending",
         "pending",
         "preparing",
         "shipped",
@@ -105,7 +105,7 @@ export function Deliveries() {
     const matchesStatus =
       statusFilter === "in_progress"
         ? [
-            "accept",
+            "pending",
             "pending",
             "preparing",
             "shipped",

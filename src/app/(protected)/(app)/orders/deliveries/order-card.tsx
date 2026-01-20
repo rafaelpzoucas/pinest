@@ -6,7 +6,11 @@ import { ChevronRight } from "lucide-react";
 
 import Link from "next/link";
 import { OrderOptions } from "./data-table/options";
-import { Order } from "@/features/admin/orders/schemas";
+import {
+  IfoodItem,
+  IfoodOrderData,
+  Order,
+} from "@/features/admin/orders/schemas";
 import { PAYMENT_TYPES } from "@/models/order";
 import {
   Tooltip,
@@ -15,6 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { CopyPhoneButton } from "@/components/copy-phone-button";
 import { CopyTextButton } from "@/components/copy-text-button";
+import Image from "next/image";
 
 type OrderCardPropsType = {
   order: Order;
@@ -24,33 +29,40 @@ type StatusKey = keyof typeof statuses;
 
 export function OrderCard({ order }: OrderCardPropsType) {
   const isIfood = order.is_ifood;
+  const ifoodOrderData: IfoodOrderData = isIfood && order?.ifood_order_data;
+  const ifoodItems: IfoodItem[] = ifoodOrderData?.items;
+
+  const ifoodItemsTotal = (isIfood && ifoodOrderData?.total.subTotal) || 0;
+  const ifoodAdditionalFees = isIfood && ifoodOrderData?.total.additionalFees;
 
   const customer = isIfood
-    ? order.ifood_order_data?.customer
+    ? ifoodOrderData?.customer
     : order.store_customers?.customers;
-  const customerNames = customer?.name.split(" ");
+  const customerNames = customer?.name?.trim().split(" ");
   const firstName = customerNames && customerNames[0];
   const lastName =
     customerNames && customerNames.length > 1
       ? customerNames[customerNames.length - 1]
       : "";
   const customerPhone = isIfood
-    ? order.ifood_order_data.phone
+    ? customer?.phone?.number
     : order.store_customers?.customers?.phone;
+  const ifoodCustomerLocalizer = customer?.phone?.localizer;
   const customerAddress = isIfood
     ? (order.delivery?.address as string)
     : formatAddress(order.store_customers?.customers?.address);
+  const ifoodPickupCode = ifoodOrderData?.delivery?.pickupCode;
 
   const displayId = order.display_id ?? order.id.substring(0, 4);
 
-  const isAccepted = order.status !== "accept";
+  const isPending = order.status !== "pending";
 
   return (
     <Card
       key={order.id}
       className={cn(
         "flex flex-col gap-2 p-4",
-        !isAccepted &&
+        !isPending &&
           "bg-green-500/20 hover:bg-green-500/30 border-green-500/30",
       )}
     >
@@ -60,7 +72,13 @@ export function OrderCard({ order }: OrderCardPropsType) {
           className="flex flex-col gap-2"
         >
           <header className="flex flex-row">
-            <Badge className={cn(statuses[order.status as StatusKey].color)}>
+            {isIfood && (
+              <Image src="/ifood.png" alt="" width={40} height={20} />
+            )}
+
+            <Badge
+              className={cn(statuses[order.status as StatusKey].color, "ml-4")}
+            >
               {statuses[order.status as StatusKey].status}
             </Badge>
 
@@ -79,14 +97,21 @@ export function OrderCard({ order }: OrderCardPropsType) {
         </Link>
 
         <div className="flex flex-col items-start gap-1">
-          <strong>{`${firstName} ${lastName}`}</strong>
+          <strong className="capitalize">{`${firstName} ${lastName}`}</strong>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <CopyPhoneButton phone={customerPhone} variant={"link"} />
-            </TooltipTrigger>
-            <TooltipContent side="right">Copiar telefone</TooltipContent>
-          </Tooltip>
+          {isIfood ? (
+            <span className="text-muted-foreground text-xs">
+              Telefone: {customerPhone} | Localizador: {ifoodCustomerLocalizer}
+            </span>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger>
+                <CopyPhoneButton phone={customerPhone} variant={"link"} />
+              </TooltipTrigger>
+              <TooltipContent side="right">Copiar telefone</TooltipContent>
+            </Tooltip>
+          )}
+
           {customerAddress && (
             <Tooltip>
               <TooltipTrigger>
@@ -99,40 +124,66 @@ export function OrderCard({ order }: OrderCardPropsType) {
               <TooltipContent side="right">Copiar endereço</TooltipContent>
             </Tooltip>
           )}
+
+          {isIfood && ifoodPickupCode && (
+            <div>
+              <p>
+                Código de coleta:{" "}
+                <Badge variant="secondary">{ifoodPickupCode}</Badge>
+              </p>
+            </div>
+          )}
         </div>
 
         <section
           className={cn("pr-1 text-xs space-y-1 border-t border-dashed pt-2")}
         >
-          {order.order_items?.map((item) => (
-            <div className="flex flex-row justify-between" key={item.id}>
-              <span>
-                {item.quantity} {item.products?.name ?? "Taxa de entrega"}
-              </span>
-              <strong>
-                {new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(item.product_price * item.quantity || 0)}
-              </strong>
-            </div>
-          ))}
+          {/* Renderiza itens normais (não iFood) */}
+          {!isIfood &&
+            order.order_items?.map((item) => (
+              <div className="flex flex-row justify-between" key={item.id}>
+                <span>
+                  {item.quantity} {item.products?.name ?? "Taxa de entrega"}
+                </span>
+                <strong>
+                  {formatCurrencyBRL(item.product_price * item.quantity || 0)}
+                </strong>
+              </div>
+            ))}
+
+          {/* Renderiza itens do iFood */}
+          {isIfood &&
+            ifoodItems &&
+            ifoodItems.length > 0 &&
+            ifoodItems.map((item) => {
+              const itemTotal = item.totalPrice;
+              const optionsTotal = item.options
+                ? item.options.reduce((acc, option) => {
+                    return acc + option.price * option.quantity;
+                  }, 0)
+                : 0;
+              const total = (itemTotal + optionsTotal) * item.quantity;
+
+              return (
+                <div className="flex flex-row justify-between" key={item.id}>
+                  <span>
+                    {item.quantity} {item.name}
+                  </span>
+                  <strong>{formatCurrencyBRL(total)}</strong>
+                </div>
+              );
+            })}
 
           <div className="flex flex-row justify-between text-base">
             <span>Total:</span>
-            <strong>
-              {new Intl.NumberFormat("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }).format(order.total?.total_amount || 0)}
-            </strong>
+            <strong>{formatCurrencyBRL(order.total?.total_amount || 0)}</strong>
           </div>
         </section>
 
         <section
           className={cn(
             "pr-1 text-xs space-y-1 text-muted-foreground border-t border-dashed pt-2",
-            !isAccepted && "border-green-500/30",
+            !isPending && "border-green-500/30",
           )}
         >
           <span>
@@ -151,7 +202,7 @@ export function OrderCard({ order }: OrderCardPropsType) {
       <footer
         className={cn(
           "flex justify-end border-t pt-2 mt-auto",
-          !isAccepted && "border-green-500/30",
+          !isPending && "border-green-500/30",
         )}
       >
         <OrderOptions order={order} />

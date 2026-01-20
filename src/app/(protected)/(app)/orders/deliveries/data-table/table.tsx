@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -14,14 +14,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { cn } from '@/lib/utils'
-import { OrderType } from '@/models/order'
-import { useRouter } from 'next/navigation'
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { OrderType } from "@/models/order";
+import { useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
@@ -32,9 +32,9 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="rounded-md border w-full overflow-hidden">
@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({
                           header.getContext(),
                         )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -61,18 +61,18 @@ export function DataTable<TData, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
               const accepted =
-                (row.original as { status: string }).status !== 'accept'
+                (row.original as { status: string }).status !== "pending";
 
               return (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
+                  data-state={row.getIsSelected() && "selected"}
                   className={cn(
-                    !accepted && 'bg-green-500/20 hover:bg-green-500/30',
+                    !accepted && "bg-green-500/20 hover:bg-green-500/30",
                   )}
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const isClickable = cell.column.columnDef.meta?.clickable
+                    const isClickable = cell.column.columnDef.meta?.clickable;
 
                     return (
                       <TableCell
@@ -81,20 +81,20 @@ export function DataTable<TData, TValue>({
                           if (isClickable) {
                             router.push(
                               `orders/deliveries/${(row.original as OrderType).id}`,
-                            )
+                            );
                           }
                         }}
-                        className={cn(isClickable && 'cursor-pointer')}
+                        className={cn(isClickable && "cursor-pointer")}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
                         )}
                       </TableCell>
-                    )
+                    );
                   })}
                 </TableRow>
-              )
+              );
             })
           ) : (
             <TableRow>
@@ -106,5 +106,5 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

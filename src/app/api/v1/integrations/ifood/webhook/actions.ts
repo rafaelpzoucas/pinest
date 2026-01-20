@@ -398,7 +398,7 @@ export const handleOrderPlaced = webhookProcedure
     const newOrderValues = {
       id,
       created_at: createdAt,
-      status: "accept",
+      status: "pending",
       type: orderType,
       payment_type: payments?.methods?.[0]?.method ?? "unknown",
       is_paid: payments?.pending === 0,

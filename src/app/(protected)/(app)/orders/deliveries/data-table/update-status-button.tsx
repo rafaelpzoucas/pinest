@@ -18,7 +18,7 @@ export function UpdateStatusButton({ order }: { order: Order }) {
   const currentStatus = order?.status;
   const isIfood = !!order?.is_ifood;
   const type = order?.type;
-  const accepted = currentStatus !== "accept";
+  const accepted = currentStatus !== "pending";
   const customerPhone = order.store_customers?.customers?.phone;
 
   const printReceiptMutation = useMutation({

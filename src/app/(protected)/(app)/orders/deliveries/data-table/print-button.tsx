@@ -10,7 +10,7 @@ import { Order } from "@/features/admin/orders/schemas";
 export function Printbutton({ order }: { order: Order }) {
   const currentStatus = order?.status;
 
-  const accepted = currentStatus !== "accept";
+  const accepted = currentStatus !== "pending";
 
   const isMobile = useIsMobile();
 

@@ -51,7 +51,7 @@ export function CancelOrderButton({ order }: { order: Order }) {
   const currentStatus = order?.status;
   const isIfood = order?.is_ifood;
 
-  const accepted = currentStatus !== "accept";
+  const accepted = currentStatus !== "pending";
   const delivered = currentStatus === "delivered";
 
   const customerPhone = order.store_customers?.customers?.phone;

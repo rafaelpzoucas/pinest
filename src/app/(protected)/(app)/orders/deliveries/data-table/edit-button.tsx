@@ -11,7 +11,7 @@ export function EditButton({ order }: { order: Order }) {
 
   const currentStatus = order?.status;
 
-  const accepted = currentStatus !== "accept";
+  const accepted = currentStatus !== "pending";
   const isPaid = order.is_paid;
 
   return (

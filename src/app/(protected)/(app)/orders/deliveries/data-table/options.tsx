@@ -25,7 +25,7 @@ import { Order } from "@/features/admin/orders/schemas";
 export function OrderOptions({ order }: { order: Order }) {
   const currentStatus = order?.status;
 
-  const accepted = currentStatus !== "accept";
+  const accepted = currentStatus !== "pending";
 
   const options = [
     {

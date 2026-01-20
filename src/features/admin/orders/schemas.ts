@@ -4,7 +4,7 @@ import { z } from "zod";
 export const orderTypeSchema = z.enum(["DELIVERY", "TAKEOUT"]);
 
 export const orderStatusSchema = z.enum([
-  "accept",
+  "pending",
   "pending",
   "preparing",
   "shipped",

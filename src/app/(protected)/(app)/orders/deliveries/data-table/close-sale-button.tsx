@@ -17,7 +17,7 @@ export function CloseSaleButton({ order }: { order: Order }) {
   const currentStatus = order?.status;
   const isIfood = order?.is_ifood;
 
-  const accepted = currentStatus !== "accept";
+  const accepted = currentStatus !== "pending";
   const delivered = currentStatus === "delivered";
   const isPaid = order.is_paid;
 

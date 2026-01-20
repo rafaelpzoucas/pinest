@@ -1,5 +1,5 @@
 export const statuses = {
-  accept: {
+  pending: {
     status: "Aprovar",
     next_step: "Aguardando confirmação do pedido.",
     delivery_address: "O seu pedido será entregue",
