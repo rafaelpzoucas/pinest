@@ -73,12 +73,16 @@ export function OrderCard({ order }: OrderCardPropsType) {
         >
           <header className="flex flex-row">
             {isIfood && (
-              <Image src="/ifood.png" alt="" width={40} height={20} />
+              <Image
+                src="/ifood.png"
+                alt=""
+                width={40}
+                height={20}
+                className="mr-4"
+              />
             )}
 
-            <Badge
-              className={cn(statuses[order.status as StatusKey].color, "ml-4")}
-            >
+            <Badge className={cn(statuses[order.status as StatusKey].color)}>
               {statuses[order.status as StatusKey].status}
             </Badge>
 
