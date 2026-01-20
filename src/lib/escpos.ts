@@ -129,13 +129,18 @@ function createTable(
     width: number,
     align: "left" | "right" | "center" = "left",
   ): string => {
-    const cleanText = removeAccents(String(text));
+    // Remove acentos ANTES de qualquer processamento
+    const cleanText = removeAccents(String(text).trim());
+
+    // Conta o comprimento real (sem acentos)
     const textLength = cleanText.length;
 
+    // Se o texto for maior que a largura, trunca
     if (textLength >= width) {
       return cleanText.substring(0, width);
     }
 
+    // Calcula padding necessário
     const padding = width - textLength;
 
     switch (align) {
@@ -150,13 +155,15 @@ function createTable(
     }
   };
 
-  // Cabeçalho
+  // Cabeçalho (remove acentos)
   const headerRow = columns
-    .map((col) => alignCell(col.title, col.width, col.align || "left"))
+    .map((col) =>
+      alignCell(removeAccents(col.title), col.width, col.align || "left"),
+    )
     .join("");
   lines.push(headerRow);
 
-  // Linha separadora
+  // Linha separadora (limitada ao DEFAULT_WIDTH)
   const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
   lines.push("-".repeat(Math.min(totalWidth, DEFAULT_WIDTH)));
 
