@@ -1,97 +1,97 @@
-import { NextResponse } from 'next/server'
-import { z } from 'zod'
-import { createServerAction } from 'zsa'
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { createServerAction } from "zsa";
 import {
   createHandshakeEvent,
   deleteHandshakeEvent,
   handleCancelOrder,
   handleOrderNewStatus,
   handleOrderPlaced,
-} from './actions'
+} from "./actions";
 
-import { createRouteHandlersForAction } from 'zsa-openapi'
-import IfoodHandshakeDisputeSchema from './schemas'
+import { createRouteHandlersForAction } from "zsa-openapi";
+import IfoodHandshakeDisputeSchema from "./schemas";
 
 const webhookSchema = z.object({
   code: z.string(),
   orderId: z.string().optional(),
-})
+});
 
 const webhookAction = createServerAction()
   .input(webhookSchema)
   .handler(async ({ request }) => {
     try {
-      const body = await request?.json()
+      const body = await request?.json();
 
-      console.log('[IFOOD EVENT]: ', body)
+      console.log("[IFOOD EVENT]: ", body);
 
       // Early return para KEEPALIVE (evita ativar lógica desnecessária)
-      if (body.code === 'KEEPALIVE') {
+      if (body.code === "KEEPALIVE") {
         return new NextResponse(
-          JSON.stringify({ message: 'Evento KEEPALIVE recebido.' }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        )
+          JSON.stringify({ message: "Evento KEEPALIVE recebido." }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
       }
 
       switch (body.code) {
-        case 'PLC':
+        case "PLC":
           await handleOrderPlaced({
             orderId: body.orderId,
             merchantId: body.merchantId,
-          })
-          break
-        case 'CFM':
+          });
+          break;
+        case "CFM":
           await handleOrderNewStatus({
             orderId: body.orderId,
-            newStatus: 'pending',
-          })
-          break
-        case 'RTP':
+            newStatus: "pending",
+          });
+          break;
+        case "RTP":
           await handleOrderNewStatus({
             orderId: body.orderId,
-            newStatus: 'readyToPickup',
-          })
-          break
-        case 'DSP':
+            newStatus: "readyToPickup",
+          });
+          break;
+        case "DSP":
           await handleOrderNewStatus({
             orderId: body.orderId,
-            newStatus: 'shipped',
-          })
-          break
-        case 'CON':
+            newStatus: "delivered",
+          });
+          break;
+        case "CON":
           await handleOrderNewStatus({
             orderId: body.orderId,
-            newStatus: 'delivered',
-          })
-          break
-        case 'CAN':
+            newStatus: "delivered",
+          });
+          break;
+        case "CAN":
           await handleCancelOrder({
             orderId: body.orderId,
             merchantId: body.merchantId,
-          })
-          break
-        case 'HSD':
+          });
+          break;
+        case "HSD":
           try {
-            const validated = IfoodHandshakeDisputeSchema.parse(body)
-            await createHandshakeEvent(validated)
+            const validated = IfoodHandshakeDisputeSchema.parse(body);
+            await createHandshakeEvent(validated);
           } catch (err) {
-            console.error('Erro ao validar schema do HSD:', err)
+            console.error("Erro ao validar schema do HSD:", err);
           }
-          break
-        case 'CARF':
-          console.log('Cancellation request failed.', body)
-          await deleteHandshakeEvent({ order_id: body.orderId })
-          break
-        case 'HANDSHAKE_SETTLEMENT':
-          console.log('✅ Acordo detectado!', body)
-          break
+          break;
+        case "CARF":
+          console.log("Cancellation request failed.", body);
+          await deleteHandshakeEvent({ order_id: body.orderId });
+          break;
+        case "HANDSHAKE_SETTLEMENT":
+          console.log("✅ Acordo detectado!", body);
+          break;
       }
 
-      return NextResponse.json({ message: 'Evento não processado' })
+      return NextResponse.json({ message: "Evento não processado" });
     } catch (error) {
-      console.error('Erro no webhook:', error)
-      return NextResponse.json({ message: 'Erro interno' }, { status: 500 })
+      console.error("Erro no webhook:", error);
+      return NextResponse.json({ message: "Erro interno" }, { status: 500 });
     }
-  })
+  });
 
-export const { POST } = createRouteHandlersForAction(webhookAction)
+export const { POST } = createRouteHandlersForAction(webhookAction);
