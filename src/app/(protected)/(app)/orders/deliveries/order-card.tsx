@@ -144,16 +144,49 @@ export function OrderCard({ order }: OrderCardPropsType) {
         >
           {/* Renderiza itens normais (não iFood) */}
           {!isIfood &&
-            order.order_items?.map((item) => (
-              <div className="flex flex-row justify-between" key={item.id}>
-                <span>
-                  {item.quantity} {item.products?.name ?? "Taxa de entrega"}
-                </span>
-                <strong>
-                  {formatCurrencyBRL(item.product_price * item.quantity || 0)}
-                </strong>
-              </div>
-            ))}
+            (() => {
+              const normalItems = order.order_items?.filter((item) =>
+                item.products?.name?.trim(),
+              );
+
+              const deliveryFeeItems = order.order_items?.filter(
+                (item) => !item.products?.name?.trim(),
+              );
+
+              return (
+                <>
+                  {normalItems?.map((item) => (
+                    <div
+                      className="flex flex-row justify-between"
+                      key={item.id}
+                    >
+                      <span>
+                        {item.quantity} {item.products!.name}
+                      </span>
+                      <strong>
+                        {formatCurrencyBRL(
+                          (item.product_price ?? 0) * (item.quantity ?? 0),
+                        )}
+                      </strong>
+                    </div>
+                  ))}
+
+                  {deliveryFeeItems?.map((item) => (
+                    <div
+                      className="flex flex-row justify-between"
+                      key={item.id}
+                    >
+                      <span>{item.quantity} Taxa de entrega</span>
+                      <strong>
+                        {formatCurrencyBRL(
+                          (item.product_price ?? 0) * (item.quantity ?? 0),
+                        )}
+                      </strong>
+                    </div>
+                  ))}
+                </>
+              );
+            })()}
 
           {/* Renderiza itens do iFood */}
           {isIfood &&

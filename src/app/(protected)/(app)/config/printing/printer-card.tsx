@@ -1,3 +1,4 @@
+// printer-card.tsx
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ import { useState } from "react";
 import { useServerAction } from "zsa-react";
 import { deletePrinter, printOrderReceipt } from "./actions";
 import { NewPrinterForm } from "./new-printer-form";
-import { PrinterType } from "./schemas";
+import { PrinterType } from "@/features/printers/schemas";
 
 const PRINTER_SECTORS_MAP = {
   kitchen: "Cozinha",
@@ -30,6 +31,8 @@ const PRINTER_SECTORS_MAP = {
 type SectorKey = keyof typeof PRINTER_SECTORS_MAP;
 
 export function PrinterCard({ printer }: { printer: PrinterType }) {
+  const profile = printer.profile;
+
   const [isOpen, setIsOpen] = useState(false);
 
   const { execute: executeDelete, isPending: isDeleting } =
@@ -42,6 +45,14 @@ export function PrinterCard({ printer }: { printer: PrinterType }) {
       <CardHeader>
         <CardTitle>{printer.nickname}</CardTitle>
         <CardDescription>{printer.name}</CardDescription>
+
+        {/* NOVO: Mostrar o profile */}
+        {profile && (
+          <div className="text-xs text-muted-foreground">
+            Perfil: {profile.name}
+            {profile.model && ` (${profile.model})`}
+          </div>
+        )}
 
         <div
           className="flex flex-row gap-1"
@@ -83,7 +94,7 @@ export function PrinterCard({ printer }: { printer: PrinterType }) {
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
-              <SheetTitle>Nova impressora</SheetTitle>
+              <SheetTitle>Editar impressora</SheetTitle>
             </SheetHeader>
 
             <NewPrinterForm setSheetState={setIsOpen} printer={printer} />

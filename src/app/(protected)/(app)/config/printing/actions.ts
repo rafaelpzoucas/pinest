@@ -14,9 +14,8 @@ import { createServerAction } from "zsa";
 import { readOrderById } from "../../orders/deliveries/[id]/actions";
 import { readTableById } from "../../orders/tables/[id]/actions";
 import { orderTest } from "./order-test";
+import { printerSchema, PrinterType } from "@/features/printers/schemas";
 import {
-  printerSchema,
-  PrinterType,
   printingSettingsSchema,
   PrintingSettingsType,
   printQueueSchema,
@@ -168,7 +167,11 @@ export const printTableReceipt = createServerAction()
           printer.sectors.length === 0 ||
           printer.sectors.includes("kitchen")
         ) {
-          const textKitchen = buildReceiptTableESCPOS(table, input.reprint);
+          const textKitchen = buildReceiptTableESCPOS(
+            table,
+            input.reprint,
+            printer.profile,
+          );
 
           await addToPrintQueue([
             {
@@ -219,7 +222,11 @@ export const printTableBill = adminProcedure
         printer.sectors.length === 0 ||
         printer.sectors.includes("delivery")
       ) {
-        const textBill = buildReceiptTableBillESCPOS(ctx.store, table);
+        const textBill = buildReceiptTableBillESCPOS(
+          ctx.store,
+          table,
+          printer.profile,
+        );
         await addToPrintQueue([
           {
             raw: textBill,
@@ -278,7 +285,11 @@ export const printOrderReceipt = createServerAction()
           printer.sectors.length === 0 ||
           printer.sectors.includes("kitchen")
         ) {
-          const textKitchen = buildReceiptKitchenESCPOS(order, input.reprint);
+          const textKitchen = buildReceiptKitchenESCPOS(
+            order,
+            input.reprint,
+            printer.profile,
+          );
           await addToPrintQueue([
             {
               raw: textKitchen,
@@ -292,7 +303,11 @@ export const printOrderReceipt = createServerAction()
           (isDelivery && printer.sectors.length === 0) ||
           printer.sectors.includes("delivery")
         ) {
-          const textDelivery = buildReceiptDeliveryESCPOS(order, input.reprint);
+          const textDelivery = buildReceiptDeliveryESCPOS(
+            order,
+            input.reprint,
+            printer.profile,
+          );
           await addToPrintQueue([
             {
               raw: textDelivery,
@@ -420,10 +435,18 @@ export const readPrinters = adminProcedure
     const { store, supabase } = ctx;
     const { data, error } = await supabase
       .from("printers")
-      .select("*")
+      .select(
+        `
+          *,
+          profile:printer_profiles (*)
+        `,
+      )
       .eq("store_id", store.id);
 
-    if (error) return;
+    if (error) {
+      throw new Error("Erro ao buscar impressoras: ", error);
+    }
+
     return { printers: data as PrinterType[] };
   });
 
