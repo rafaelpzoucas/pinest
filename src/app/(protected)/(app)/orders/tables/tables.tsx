@@ -7,30 +7,19 @@ import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MdTableBar } from "react-icons/md";
-import { useServerAction } from "zsa-react";
-import { printTableReceipt } from "../../config/printing/actions";
 import { useReadCashSession } from "@/features/cash-register/hooks";
-import { useCancelTable, useReadOpenTables } from "@/features/tables/hooks";
+import { useReadOpenTables } from "@/features/tables/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCard } from "./table-card";
 
 export function Tables() {
   const [search, setSearch] = useState("");
-  const [openSheetId, setOpenSheetId] = useState<string | null>(null);
 
   const { setIsCashOpen, isCashOpen } = useCashRegister();
-
-  const { execute: executePrint } = useServerAction(printTableReceipt);
 
   const { data: cashSession, isLoading: isCashLoading } = useReadCashSession();
 
   const { data: tables, isLoading: isTablesLoading } = useReadOpenTables();
-
-  const { mutate: cancelTable, isPending: isCancelling } = useCancelTable({
-    onSuccess: () => {
-      setOpenSheetId(null);
-    },
-  });
 
   useEffect(() => {
     setIsCashOpen(!!cashSession);

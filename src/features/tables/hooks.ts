@@ -7,6 +7,8 @@ import { updateTable } from "./update";
 import { toast } from "sonner";
 import { Table, createTableSchema } from "./schemas";
 import type { z } from "zod";
+import { useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type CreateTableInput = z.infer<typeof createTableSchema>;
 type UpdateTableInput = CreateTableInput & { id: string; is_edit: boolean };
@@ -17,18 +19,46 @@ export const tablesKeys = {
 };
 
 export const useReadOpenTables = () => {
-  return useQuery({
+  const queryClient = useQueryClient();
+  const supabase = createClient();
+
+  const query = useQuery({
     queryKey: tablesKeys.open,
     queryFn: async () => {
       const [data, error] = await readOpenTables();
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       return (data?.openTables as Table[]) || [];
     },
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 60,
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime:tables")
+      .on(
+        "postgres_changes",
+        {
+          event: "*", // INSERT | UPDATE | DELETE
+          schema: "public",
+          table: "tables", // 👈 ajuste para sua tabela real
+        },
+        () => {
+          // Estratégia simples e segura:
+          // sempre refetch quando algo mudar
+          queryClient.invalidateQueries({
+            queryKey: tablesKeys.open,
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 interface UseCancelTableOptions {

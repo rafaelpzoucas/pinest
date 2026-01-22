@@ -127,7 +127,8 @@ export const readPrinterByName = adminProcedure
     return { printer: data as PrinterType };
   });
 
-export const printTableReceipt = createServerAction()
+export const printTableReceipt = adminProcedure
+  .createServerAction()
   .input(
     z.object({
       tableId: z.string().optional(),
@@ -135,7 +136,8 @@ export const printTableReceipt = createServerAction()
       reprint: z.boolean().optional(),
     }),
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input, ctx }) => {
+    // ✅ Agora tem ctx
     const [[tableData], [printSettingsData], [printersData]] =
       await Promise.all([
         readTableById({ id: input.tableId }),
@@ -148,11 +150,23 @@ export const printTableReceipt = createServerAction()
     const printingSettings = printSettingsData?.printingSettings;
 
     if (!printingSettings?.auto_print) {
-      return;
+      return {
+        success: false,
+        message: "Impressão automática desabilitada",
+        kitchenPrinted: false,
+        deliveryPrinted: false,
+        errors: [],
+      };
     }
 
     if (!printers.length) {
-      return new Response("Nenhuma impressora encontrada", { status: 404 });
+      return {
+        success: false,
+        message: "Nenhuma impressora encontrada",
+        kitchenPrinted: false,
+        deliveryPrinted: false,
+        errors: [],
+      };
     }
 
     const result = {
@@ -174,6 +188,7 @@ export const printTableReceipt = createServerAction()
           );
 
           await addToPrintQueue([
+            // ✅ Agora vai funcionar
             {
               raw: textKitchen,
               printer_name: printer.name,
