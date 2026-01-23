@@ -177,61 +177,74 @@ export const updateIfoodOrderStatus = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string(), newStatus: z.string() }))
   .handler(async ({ input }) => {
-    const { orderId } = input;
+    const { orderId, newStatus } = input;
+
+    console.log(
+      `[UPDATE-IFOOD-STATUS] Iniciando para orderId: ${orderId}, status: ${newStatus}`,
+    );
 
     const isIfood = await verifyIsIfood({ orderId });
 
     // Verifica se o pedido é do iFood
     if (!isIfood) {
-      return;
-    }
-
-    const api = process.env.IFOOD_API_BASE_URL;
-
-    const [accessToken] = await getValidIfoodAccessToken();
-
-    if (!accessToken?.success) {
-      console.error(
-        "Erro ao buscar access_token no banco.",
-        accessToken?.message,
+      console.log(
+        `[UPDATE-IFOOD-STATUS] Pedido ${orderId} não é do iFood, pulando atualização`,
       );
       return;
     }
 
-    const newStatusMap = {
-      pending: "confirm",
-      preparing: "startPreparation",
-      readyToPickup: "readyToPickup",
-      shipped: "dispatch",
-      cancelled: "cancelled",
-    } as const;
+    const [accessTokenData] = await getValidIfoodAccessToken();
 
-    type Status = keyof typeof newStatusMap;
+    if (!accessTokenData?.success) {
+      console.error(
+        "[UPDATE-IFOOD-STATUS] Erro ao buscar access_token no banco.",
+        accessTokenData?.message,
+      );
+      throw new Error("Falha ao obter token de acesso do iFood");
+    }
 
-    const status: Status = input.newStatus as Status;
+    console.log(`[UPDATE-IFOOD-STATUS] Token obtido, chamando route handler`);
 
     try {
-      // Enviar a requisição para o iFood
+      // Usa a route handler dedicada em vez de fetch direto
       const response = await fetch(
-        `${api}/order/v1.0/orders/${orderId}/${newStatusMap[status]}`,
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/integrations/ifood/update-status`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken?.accessToken}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId,
+            newStatus,
+            accessToken: accessTokenData.accessToken,
+          }),
         },
       );
 
-      // Verificar se a resposta foi bem-sucedida
+      console.log(`[UPDATE-IFOOD-STATUS] Resposta recebida:`, {
+        status: response.status,
+        ok: response.ok,
+      });
+
       if (!response.ok) {
-        console.error("Erro ao atualizar o pedido", response.statusText);
-        throw new Error("Erro ao atualizar o pedido no iFood.");
+        const errorData = await response.json();
+        console.error(
+          "[UPDATE-IFOOD-STATUS] Erro na route handler:",
+          errorData,
+        );
+        throw new Error(
+          `Erro ao atualizar status no iFood: ${errorData.error || response.statusText}`,
+        );
       }
 
-      console.log("Pedido atualizado com sucesso", response.status);
+      const data = await response.json();
+      console.log(`[UPDATE-IFOOD-STATUS] Status atualizado com sucesso:`, data);
+
+      return data;
     } catch (error) {
-      console.error("Erro ao fazer a requisição", error);
-      throw new Error("Erro ao fazer a requisição de atualização do pedido.");
+      console.error("[UPDATE-IFOOD-STATUS] Erro ao chamar route handler:", {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      throw error;
     }
   });
