@@ -63,7 +63,10 @@ import { CashForm } from "./cash-form";
 import { ReceiptForm } from "./receipt-form";
 import { closeCashSessionSchema } from "./schemas";
 import { useCloseCashSession } from "@/features/cash-register/hooks";
-import { createCashReceiptsSchema } from "@/features/cash-register/schemas";
+import { useReadCashReceipts } from "@/features/cash-register/receipts/hooks";
+import { useReadOpenTables } from "@/features/tables/hooks";
+import { useReadOpenOrders } from "@/features/admin/orders/hooks";
+import { useReadSalesReport } from "@/features/reports/sales/hooks";
 
 // Função utilitária para retornar string vazia se o valor for zero
 function emptyIfZero(value: number) {
@@ -71,22 +74,41 @@ function emptyIfZero(value: number) {
 }
 
 export function CloseCashSession({
-  hasOpenOrders,
-  hasOpenTables,
-  cashReceipts,
+  cashSessionId,
   payments,
-  reports,
 }: {
-  hasOpenOrders: boolean;
-  hasOpenTables: boolean;
-  cashReceipts?: z.infer<typeof createCashReceiptsSchema>;
+  cashSessionId?: string;
   payments: PaymentType[];
-  reports: any;
 }) {
   const [sheet, setSheet] = useQueryState("sheet", parseAsString);
   const isSheetOpen = sheet === "close-cash";
   const setIsSheetOpen = (open: boolean) =>
     setSheet(open ? "close-cash" : null);
+
+  // ✅ OTIMIZAÇÃO: Queries só executam quando o sheet está aberto
+  const { data: cashReceipts = [], isLoading: loadingReceipts } =
+    useReadCashReceipts({
+      enabled: isSheetOpen, // 👈 SÓ busca quando abrir o sheet
+    });
+  const { data: openOrders = [], isLoading: loadingOrders } = useReadOpenOrders(
+    {
+      enabled: isSheetOpen, // 👈 SÓ busca quando abrir o sheet
+    },
+  );
+  const { data: openTables = [], isLoading: loadingTables } = useReadOpenTables(
+    {
+      enabled: isSheetOpen, // 👈 SÓ busca quando abrir o sheet
+    },
+  );
+  // Hook para buscar reports apenas se houver sessão
+  const { data: reports, isLoading: loadingReports } =
+    useReadSalesReport(cashSessionId);
+
+  const hasOpenOrders = openOrders.length > 0;
+  const hasOpenTables = openTables.length > 0;
+  const isLoadingValidations =
+    loadingReceipts || loadingOrders || loadingTables;
+
   const [isPrinting, setIsPrinting] = useState(false);
   const [manualInputAllowed, setManualInputAllowed] = useState({
     pix: false,
@@ -198,7 +220,7 @@ export function CloseCashSession({
 
   async function handlePrintReports() {
     try {
-      const salesReportText = buildSalesReportESCPOS(reports.salesReport);
+      const salesReportText = buildSalesReportESCPOS(reports?.salesReport);
 
       const [, error] = await printMultipleReports({
         reports: [
@@ -208,7 +230,7 @@ export function CloseCashSession({
           },
           {
             name: "Produtos Vendidos",
-            raw: buildProductsSoldReportESCPOS(reports.productsSold),
+            raw: buildProductsSoldReportESCPOS(reports?.productsSold),
           },
         ],
       });
@@ -487,7 +509,13 @@ export function CloseCashSession({
         </AlertDialogContent>
       </AlertDialog>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        {hasOpenOrders || hasOpenTables ? (
+        {/* ✅ Mostra loading enquanto valida */}
+        {isLoadingValidations ? (
+          <Button className="w-full mt-2" disabled>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Validando...
+          </Button>
+        ) : hasOpenOrders || hasOpenTables ? (
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>

@@ -1,6 +1,7 @@
 "use server";
 
 import { adminProcedure } from "@/lib/zsa-procedures";
+import { ZSAError } from "zsa";
 
 export const readCashSession = adminProcedure
   .createServerAction()
@@ -17,6 +18,7 @@ export const readCashSession = adminProcedure
 
     if (error) {
       console.error("Error reading cash session:", error);
+      throw new ZSAError("NOT_FOUND", error.message);
     }
 
     return { cashSession };

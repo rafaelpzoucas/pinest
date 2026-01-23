@@ -3,12 +3,17 @@
 import { cashProcedure } from "@/lib/zsa-procedures";
 import { createTransactionFormSchema } from "../schemas";
 import { stringToNumber } from "@/lib/utils";
+import { ZSAError } from "zsa";
 
 export const createCashSessionTransaction = cashProcedure
   .createServerAction()
   .input(createTransactionFormSchema)
   .handler(async ({ ctx, input }) => {
     const { supabase, store, cashSession } = ctx;
+
+    if (!cashSession) {
+      return;
+    }
 
     const { error: transactionError } = await supabase.from("payments").insert({
       ...input,
@@ -19,5 +24,6 @@ export const createCashSessionTransaction = cashProcedure
 
     if (transactionError) {
       console.error("Error creating transaction:", transactionError);
+      throw new ZSAError("FORBIDDEN", transactionError.message);
     }
   });

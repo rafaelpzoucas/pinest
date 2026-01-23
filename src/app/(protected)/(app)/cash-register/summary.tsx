@@ -1,3 +1,4 @@
+// cash-register/summary.tsx
 "use client";
 
 import {
@@ -10,30 +11,14 @@ import {
 import { formatCurrencyBRL } from "@/lib/utils";
 import { PaymentType } from "@/models/payment";
 import { CloseCashSession } from "./close";
-import { useReadCashReceipts } from "@/features/cash-register/receipts/hooks";
-
-import { useReadOpenTables } from "@/features/tables/hooks";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useReadOpenOrders } from "@/features/admin/orders/hooks";
 
 export function CashRegisterSummary({
   payments,
-  reports,
+  cashSessionId,
 }: {
   payments: PaymentType[];
-  reports: any;
+  cashSessionId?: string;
 }) {
-  // Hooks para buscar dados
-  const { data: cashReceipts = [], isLoading: loadingReceipts } =
-    useReadCashReceipts();
-  const { data: openOrders = [], isLoading: loadingOrders } =
-    useReadOpenOrders();
-  const { data: openTables = [], isLoading: loadingTables } =
-    useReadOpenTables();
-
-  const hasOpenOrders = openOrders.length > 0;
-  const hasOpenTables = openTables.length > 0;
-
   const initialAmount = payments.find(
     (payment) => payment.description === "Abertura de caixa",
   )?.amount;
@@ -100,9 +85,6 @@ export function CashRegisterSummary({
     (incomeTotals.Dinheiro || 0) -
     (expenseTotals.Dinheiro || 0);
   const totalBalance = totalIncome - totalExpense;
-
-  // Loading state
-  const isLoading = loadingReceipts || loadingOrders || loadingTables;
 
   return (
     <Card>
@@ -176,17 +158,7 @@ export function CashRegisterSummary({
           <span>{formatCurrencyBRL(totalBalance ?? 0)}</span>
         </div>
 
-        {isLoading ? (
-          <Skeleton className="w-full h-10 mt-2" />
-        ) : (
-          <CloseCashSession
-            hasOpenOrders={hasOpenOrders}
-            hasOpenTables={hasOpenTables}
-            cashReceipts={cashReceipts}
-            payments={payments}
-            reports={reports}
-          />
-        )}
+        <CloseCashSession cashSessionId={cashSessionId} payments={payments} />
       </CardFooter>
     </Card>
   );

@@ -18,7 +18,8 @@ export const tablesKeys = {
   open: ["tables", "open"] as const,
 };
 
-export const useReadOpenTables = () => {
+// ✅ Hook otimizado com enabled
+export const useReadOpenTables = (options?: { enabled?: boolean }) => {
   const queryClient = useQueryClient();
   const supabase = createClient();
 
@@ -29,11 +30,15 @@ export const useReadOpenTables = () => {
       if (error) throw error;
       return (data?.openTables as Table[]) || [];
     },
+    enabled: options?.enabled ?? true, // 👈 Aceita enabled como parâmetro
     staleTime: 1000 * 30,
-    refetchInterval: 1000 * 60,
+    refetchInterval: options?.enabled ? 1000 * 60 : false, // 👈 Só refaz polling se enabled
   });
 
   useEffect(() => {
+    // ✅ Só conecta realtime se a query estiver habilitada
+    if (options?.enabled === false) return;
+
     const channel = supabase
       .channel("realtime:tables")
       .on(
@@ -41,7 +46,7 @@ export const useReadOpenTables = () => {
         {
           event: "*", // INSERT | UPDATE | DELETE
           schema: "public",
-          table: "tables", // 👈 ajuste para sua tabela real
+          table: "tables",
         },
         () => {
           // Estratégia simples e segura:
@@ -56,7 +61,7 @@ export const useReadOpenTables = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, supabase, options?.enabled]); // 👈 Adiciona enabled nas dependências
 
   return query;
 };

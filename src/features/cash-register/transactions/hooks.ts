@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCashSessionTransaction } from "./create";
 import { toast } from "sonner";
-import { readCashSessionPayments } from "./read";
 import { readPaymentsByCashSessionId } from "./read-by-id";
 import { CreateCashSessionTransactionType } from "../schemas";
 
@@ -41,19 +40,29 @@ export const useCreateCashSessionTransaction = () => {
 };
 
 // Hook para ler pagamentos da sessão de caixa atual
-export const useReadCashSessionPayments = () => {
+export const useReadCashSessionPayments = (cashSessionId?: string) => {
   return useQuery({
-    queryKey: cashSessionKeys.payments,
+    queryKey: [...cashSessionKeys.payments, cashSessionId],
+    enabled: !!cashSessionId,
     queryFn: async () => {
-      const [data, error] = await readCashSessionPayments();
+      const start = performance.now();
+      console.log("[payments] 🔄 fetch start");
+
+      const [data, error] = await readPaymentsByCashSessionId({
+        cashSessionId: cashSessionId!,
+      });
+
+      const end = performance.now();
+      console.log(`[payments] ✅ fetch end - ${(end - start).toFixed(2)}ms`);
 
       if (error) {
+        console.error("[payments] ❌ error", error);
         throw error;
       }
 
       return data?.payments || [];
     },
-    staleTime: 1000 * 60 * 2, // 2 minutos
+    staleTime: 1000 * 60 * 2,
   });
 };
 

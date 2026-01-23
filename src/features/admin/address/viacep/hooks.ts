@@ -1,18 +1,18 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { readViaCepAddress } from './read'
-import { ViacepResponse } from './schemas'
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { readViaCepAddress } from "./read";
+import { ViacepResponse } from "./schemas";
 
 // Tipo do retorno
 interface ReadViaCepReturn {
-  viacepAddress: ViacepResponse
+  viacepAddress: ViacepResponse;
 }
 
 // Opções do hook
 interface UseViaCepOptions
-  extends Omit<UseQueryOptions<ReadViaCepReturn>, 'queryKey' | 'queryFn'> {
-  zipCode: string
-  enabled?: boolean
+  extends Omit<UseQueryOptions<ReadViaCepReturn>, "queryKey" | "queryFn"> {
+  zipCode: string;
+  enabled?: boolean;
 }
 
 export const useReadViaCepAddress = ({
@@ -21,48 +21,42 @@ export const useReadViaCepAddress = ({
   ...options
 }: UseViaCepOptions) => {
   // Remove caracteres não numéricos e valida o CEP
-  const cleanZipCode = zipCode?.replace(/\D/g, '') || ''
-  const isValidZipCode = cleanZipCode.length === 8
+  const cleanZipCode = zipCode?.replace(/\D/g, "") || "";
+  const isValidZipCode = cleanZipCode.length === 8;
 
   return useQuery({
-    queryKey: ['viacep', cleanZipCode],
+    queryKey: ["viacep", cleanZipCode],
     queryFn: async () => {
-      const [data, error] = await readViaCepAddress({ zipCode: cleanZipCode })
+      const [data, error] = await readViaCepAddress({ zipCode: cleanZipCode });
 
       if (error) {
-        throw new Error(error.message)
+        throw new Error(error.message);
       }
 
-      return data
+      return data;
     },
     enabled: enabled && isValidZipCode,
     staleTime: 60 * 60 * 1000, // 1 hora (dados do CEP não mudam frequentemente)
     gcTime: 24 * 60 * 60 * 1000, // 24 horas
-    retry: (failureCount, error) => {
-      // Não retry em erros 404 (CEP não encontrado)
-      if (error.message.includes('Address not found')) {
-        return false
-      }
-      return failureCount < 2
-    },
+    retry: 1,
     ...options,
-  })
-}
+  });
+};
 
 // Hook com debounce para usar em formulários
 export const useViaCepDebounced = (zipCode: string, delay = 500) => {
-  const [debouncedZipCode, setDebouncedZipCode] = useState(zipCode)
+  const [debouncedZipCode, setDebouncedZipCode] = useState(zipCode);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedZipCode(zipCode)
-    }, delay)
+      setDebouncedZipCode(zipCode);
+    }, delay);
 
-    return () => clearTimeout(timer)
-  }, [zipCode, delay])
+    return () => clearTimeout(timer);
+  }, [zipCode, delay]);
 
   return useReadViaCepAddress({
     zipCode: debouncedZipCode,
-    enabled: debouncedZipCode.replace(/\D/g, '').length === 8,
-  })
-}
+    enabled: debouncedZipCode.replace(/\D/g, "").length === 8,
+  });
+};

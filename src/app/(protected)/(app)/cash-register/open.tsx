@@ -26,10 +26,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCreateCashSession } from "@/features/cash-register/hooks";
 
 export function OpenCashSession() {
+  const renderStart = performance.now();
+  useEffect(() => {
+    const renderEnd = performance.now();
+    console.log(
+      `🖥️ CashRegister render committed - ${(renderEnd - renderStart).toFixed(
+        2,
+      )}ms`,
+    );
+  });
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const form = useForm<z.infer<typeof openCashSessionSchema>>({

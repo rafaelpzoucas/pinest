@@ -8,20 +8,13 @@ import { OpenCashSession } from "./open";
 import { CashRegisterSummary } from "./summary";
 import { useReadCashSession } from "@/features/cash-register/hooks";
 import { useReadCashSessionPayments } from "@/features/cash-register/transactions/hooks";
-import { useReadSalesReport } from "@/features/reports/sales/hooks";
 
 export default function CashRegister() {
-  // Hooks para buscar dados
   const { data: cashSession, isLoading: loadingSession } = useReadCashSession();
   const { data: payments = [], isLoading: loadingPayments } =
-    useReadCashSessionPayments();
+    useReadCashSessionPayments(cashSession?.id);
 
-  // Hook para buscar reports apenas se houver sessão
-  const { data: reports, isLoading: loadingReports } = useReadSalesReport(
-    cashSession?.id,
-  );
-
-  const isLoading = loadingSession || loadingPayments || loadingReports;
+  const isLoading = loadingSession || loadingPayments;
 
   // Loading state inicial
   if (isLoading) {
@@ -67,7 +60,10 @@ export default function CashRegister() {
               <DataTable data={payments} columns={columns} />
 
               <aside className="lg:sticky top-4 w-full lg:w-auto">
-                <CashRegisterSummary payments={payments} reports={reports} />
+                <CashRegisterSummary
+                  payments={payments}
+                  cashSessionId={cashSession?.id}
+                />
               </aside>
             </div>
           </section>

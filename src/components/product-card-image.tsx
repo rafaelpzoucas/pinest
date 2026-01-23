@@ -1,12 +1,12 @@
 import Image from "next/image";
 import defaultThumbUrl from "@/../public/default_thumb_url.png";
-import type { ProductImage } from "@/features/store/initial-data/schemas";
 import { Card } from "./ui/card";
+import { ProductImageType } from "@/models/product";
 
 export function ProductCardImage({
   productImages,
 }: {
-  productImages: ProductImage[];
+  productImages: ProductImageType[];
 }) {
   function getImageURL() {
     if (productImages.length > 0) {

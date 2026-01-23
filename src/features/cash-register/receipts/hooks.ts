@@ -12,8 +12,8 @@ export const cashReceiptsKeys = {
   current: ["cash-receipts", "current"] as const,
 };
 
-// Hook para ler recibos da sessão de caixa atual
-export const useReadCashReceipts = () => {
+// ✅ Hook para ler recibos da sessão de caixa atual
+export const useReadCashReceipts = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: cashReceiptsKeys.current,
     queryFn: async () => {
@@ -25,6 +25,7 @@ export const useReadCashReceipts = () => {
 
       return data?.cashReceipts || [];
     },
+    enabled: options?.enabled ?? true, // 👈 Aceita enabled como parâmetro
     staleTime: 1000 * 60 * 2, // 2 minutos
   });
 };

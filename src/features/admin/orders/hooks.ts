@@ -154,7 +154,8 @@ export function useOrderById(id: string) {
   return query;
 }
 
-export const useReadOpenOrders = () => {
+// ✅ Hook otimizado com enabled
+export const useReadOpenOrders = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ordersKeys.open,
     queryFn: async () => {
@@ -166,7 +167,8 @@ export const useReadOpenOrders = () => {
 
       return data?.openOrders || [];
     },
+    enabled: options?.enabled ?? true, // 👈 Aceita enabled como parâmetro
     staleTime: 1000 * 30,
-    refetchInterval: 1000 * 60,
+    refetchInterval: options?.enabled ? 1000 * 60 : false, // 👈 Só refaz polling se enabled
   });
 };

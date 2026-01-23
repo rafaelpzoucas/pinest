@@ -18,16 +18,23 @@ export const useReadCashSession = () => {
   return useQuery({
     queryKey: cashSessionKeys.current,
     queryFn: async () => {
+      const start = performance.now();
+      console.log("[cashSession] 🔄 fetch start");
+
       const [data, error] = await readCashSession();
 
+      const end = performance.now();
+      console.log(`[cashSession] ✅ fetch end - ${(end - start).toFixed(2)}ms`);
+
       if (error) {
+        console.error("[cashSession] ❌ error", error);
         throw error;
       }
 
       return data?.cashSession;
     },
     retry: 1,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 5,
   });
 };
 
