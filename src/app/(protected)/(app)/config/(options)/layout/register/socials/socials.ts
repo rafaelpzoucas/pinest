@@ -1,53 +1,47 @@
 import {
-  FaFacebook,
-  FaInstagram,
-  FaLinkedin,
-  FaPinterest,
-  FaTiktok,
-  FaTwitter,
-  FaWhatsapp,
-  FaYoutube,
-} from 'react-icons/fa'
+  SiFacebook,
+  SiInstagram,
+  SiPinterest,
+  SiTiktok,
+  SiX,
+  SiWhatsapp,
+  SiYoutube,
+} from "@icons-pack/react-simple-icons";
 
 export const SOCIAL_MEDIAS = [
   {
-    id: 'instagram',
-    icon: FaInstagram,
-    label: 'Instagram',
+    id: "instagram",
+    icon: SiInstagram,
+    label: "Instagram",
   },
   {
-    id: 'facebook',
-    icon: FaFacebook,
-    label: 'Facebook',
+    id: "facebook",
+    icon: SiFacebook,
+    label: "Facebook",
   },
   {
-    id: 'twitter',
-    icon: FaTwitter,
-    label: 'Twitter',
+    id: "x",
+    icon: SiX,
+    label: "X",
   },
   {
-    id: 'linkedin',
-    icon: FaLinkedin,
-    label: 'LinkedIn',
+    id: "youtube",
+    icon: SiYoutube,
+    label: "YouTube",
   },
   {
-    id: 'youtube',
-    icon: FaYoutube,
-    label: 'YouTube',
+    id: "pinterest",
+    icon: SiPinterest,
+    label: "Pinterest",
   },
   {
-    id: 'pinterest',
-    icon: FaPinterest,
-    label: 'Pinterest',
+    id: "tiktok",
+    icon: SiTiktok,
+    label: "TikTok",
   },
   {
-    id: 'tiktok',
-    icon: FaTiktok,
-    label: 'TikTok',
+    id: "whatsapp",
+    icon: SiWhatsapp,
+    label: "WhatsApp",
   },
-  {
-    id: 'whatsapp',
-    icon: FaWhatsapp,
-    label: 'WhatsApp',
-  },
-]
+];

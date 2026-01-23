@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { FaGoogle } from "react-icons/fa";
+import { SiGoogle } from "@icons-pack/react-simple-icons";
 
 export function SignInWithGoogle() {
   async function signInWithGoogle() {
@@ -29,7 +29,7 @@ export function SignInWithGoogle() {
       className="w-full max-w-md"
       onClick={signInWithGoogle}
     >
-      <FaGoogle className="mr-3" />
+      <SiGoogle className="mr-3" />
       Continuar com o Google
     </Button>
   );

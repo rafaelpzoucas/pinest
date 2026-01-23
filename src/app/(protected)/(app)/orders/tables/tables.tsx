@@ -3,10 +3,9 @@ import { Input } from "@/components/ui/input";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useCashRegister } from "@/stores/cashRegisterStore";
-import { Plus, Search } from "lucide-react";
+import { LayoutPanelTop, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MdTableBar } from "react-icons/md";
 import { useReadCashSession } from "@/features/cash-register/hooks";
 import { useReadOpenTables } from "@/features/tables/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -75,7 +74,7 @@ export function Tables() {
         {!tables ||
           (tables.length === 0 && (
             <div className="flex flex-col gap-4 items-center justify-center text-muted-foreground">
-              <MdTableBar className="w-32 h-32 opacity-30" />
+              <LayoutPanelTop className="w-32 h-32 opacity-30" />
               <p>Nenhuma mesa aberta.</p>
             </div>
           ))}

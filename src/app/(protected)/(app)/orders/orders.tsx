@@ -2,9 +2,9 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQueryState } from "nuqs";
-import { MdSportsMotorsports, MdTableBar } from "react-icons/md";
 import { Tables } from "./tables/tables";
 import { Deliveries } from "./deliveries/orders";
+import { LayoutPanelTop, Motorbike } from "lucide-react";
 
 export function Orders() {
   const [tab, setTab] = useQueryState("tab", {
@@ -16,11 +16,11 @@ export function Orders() {
     <Tabs value={tab} onValueChange={setTab}>
       <TabsList className="h-fit">
         <TabsTrigger value="deliveries" className="px-6 py-3">
-          <MdSportsMotorsports className="mr-2" />
+          <Motorbike className="mr-2" />
           Entregas
         </TabsTrigger>
         <TabsTrigger value="tables" className="px-6 py-3">
-          <MdTableBar className="mr-2" />
+          <LayoutPanelTop className="mr-2" />
           Mesas
         </TabsTrigger>
       </TabsList>
