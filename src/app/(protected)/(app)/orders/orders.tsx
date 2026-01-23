@@ -16,11 +16,11 @@ export function Orders() {
     <Tabs value={tab} onValueChange={setTab}>
       <TabsList className="h-fit">
         <TabsTrigger value="deliveries" className="px-6 py-3">
-          <Motorbike className="mr-2" />
+          <Motorbike className="w-4 h-4 mr-2" />
           Entregas
         </TabsTrigger>
         <TabsTrigger value="tables" className="px-6 py-3">
-          <LayoutPanelTop className="mr-2" />
+          <LayoutPanelTop className="w-4 h-4 mr-2" />
           Mesas
         </TabsTrigger>
       </TabsList>
