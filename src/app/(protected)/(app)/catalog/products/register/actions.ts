@@ -1,50 +1,51 @@
-'use server'
+"use server";
 
-import { createClient } from '@/lib/supabase/server'
-import { generateSlug, stringToNumber } from '@/lib/utils'
-import { ProductType } from '@/models/product'
-import { StoreType } from '@/models/store'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import { newProductFormSchema } from './form/form'
+import { createClient } from "@/lib/supabase/server";
+import { generateSlug, stringToNumber } from "@/lib/utils";
+import { ProductType } from "@/models/product";
+import { StoreType } from "@/models/store";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { newProductFormSchema } from "./form/form";
 
 export async function readStoreByUserId(): Promise<{
-  store: StoreType | null
-  storeError: any | null
+  store: StoreType | null;
+  storeError: any | null;
 }> {
-  const supabase = createClient()
+  const supabase = createClient();
 
-  const { data: session, error: sessionError } = await supabase.auth.getUser()
+  const { data: session, error: sessionError } = await supabase.auth.getUser();
 
   if (sessionError) {
-    console.error(sessionError)
+    console.error(sessionError);
   }
 
   const { data: store, error: storeError } = await supabase
-    .from('stores')
-    .select('*')
-    .eq('user_id', session.user?.id)
-    .single()
+    .from("stores")
+    .select("*")
+    .eq("user_id", session.user?.id)
+    .single();
 
-  return { store, storeError }
+  return { store, storeError };
 }
 
 export async function createProduct(
   values: z.infer<typeof newProductFormSchema>,
 ): Promise<{
-  createdProduct: ProductType | null
-  createdProductError: any | null
+  createdProduct: ProductType | null;
+  createdProductError: any | null;
 }> {
-  const supabase = createClient()
+  console.log({ values });
+  const supabase = createClient();
 
-  const { store, storeError } = await readStoreByUserId()
+  const { store, storeError } = await readStoreByUserId();
 
   if (storeError) {
-    console.error(storeError)
+    console.error(storeError);
   }
 
   const { data: createdProduct, error: createdProductError } = await supabase
-    .from('products')
+    .from("products")
     .insert({
       ...values,
       name: values.name?.trim(),
@@ -58,21 +59,25 @@ export async function createProduct(
       allows_extras: values.allows_extras,
     })
     .select()
-    .single()
+    .single();
 
-  revalidatePath('/catalog')
+  if (createdProductError) {
+    console.error("Erro ao criar produto: ", createdProductError);
+  }
 
-  return { createdProduct, createdProductError }
+  revalidatePath("/catalog");
+
+  return { createdProduct, createdProductError };
 }
 
 export async function readProductById(productId: string): Promise<{
-  product: ProductType | null
-  productError: any | null
+  product: ProductType | null;
+  productError: any | null;
 }> {
-  const supabase = createClient()
+  const supabase = createClient();
 
   const { data: product, error: productError } = await supabase
-    .from('products')
+    .from("products")
     .select(
       `
         *,
@@ -82,20 +87,20 @@ export async function readProductById(productId: string): Promise<{
         )
       `,
     )
-    .eq('id', productId)
-    .single()
+    .eq("id", productId)
+    .single();
 
-  return { product, productError }
+  return { product, productError };
 }
 
 export async function updateProduct(
   id: string,
   values: z.infer<typeof newProductFormSchema>,
 ) {
-  const supabase = createClient()
+  const supabase = createClient();
 
   const { data, error } = await supabase
-    .from('products')
+    .from("products")
     .update({
       ...values,
       name: values.name?.trim(),
@@ -106,46 +111,46 @@ export async function updateProduct(
       pkg_weight: values.pkg_weight && stringToNumber(values.pkg_weight),
       product_url: values.name && generateSlug(values.name.trim()),
       allows_extras: values.allows_extras,
-      stock: values.stock === '' ? null : values.stock,
+      stock: values.stock === "" ? null : values.stock,
     })
-    .eq('id', id)
-    .select()
+    .eq("id", id)
+    .select();
 
-  revalidatePath('/catalog')
+  revalidatePath("/catalog");
 
-  return { data, error }
+  return { data, error };
 }
 
 export async function deleteProductImage(imageId: string) {
-  const supabase = createClient()
+  const supabase = createClient();
 
   const { error: tableError } = await supabase
-    .from('product_images')
+    .from("product_images")
     .delete()
-    .eq('id', imageId)
+    .eq("id", imageId);
 
   const { error: storageError } = await supabase.storage
-    .from('products-images')
-    .remove([`products/${imageId}`])
+    .from("products-images")
+    .remove([`products/${imageId}`]);
 
-  revalidatePath('/catalog')
+  revalidatePath("/catalog");
 
-  return { tableError, storageError }
+  return { tableError, storageError };
 }
 
 export async function readProductVariations(productId: string) {
-  const supabase = createClient()
+  const supabase = createClient();
 
   const { data: productVariations, error: productVariationsError } =
     await supabase
-      .from('product_variations')
+      .from("product_variations")
       .select(
         `
           *,
           attributes (*)
         `,
       )
-      .eq('product_id', productId)
+      .eq("product_id", productId);
 
-  return { productVariations, productVariationsError }
+  return { productVariations, productVariationsError };
 }
