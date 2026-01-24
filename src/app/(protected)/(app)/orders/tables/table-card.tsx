@@ -1,10 +1,15 @@
-// TableCard.tsx
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { cn, formatCurrencyBRL, formatDate } from "@/lib/utils";
 import { Table } from "@/features/tables/schemas";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { TableDetails } from "./table-details";
 import { TableOptions } from "./table-options";
@@ -68,34 +73,45 @@ export function TableCard({
           </p>
         )}
 
-        <section className="pr-1 text-xs space-y-1 border-t border-dashed pt-2">
-          {orderItems.slice(0, 3).map((item) => {
-            const itemTotal = item.product_price * item.quantity;
-
-            return (
-              <div className="flex flex-row justify-between" key={item.id}>
-                <span className="line-clamp-1">
-                  {item.quantity} {item.products?.name}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="items" className="border-0">
+            <AccordionTrigger className="py-2 hover:no-underline">
+              <div className="flex items-center gap-2 text-sm">
+                <ShoppingCart className="w-4 h-4" />
+                <span>
+                  {orderItems.length}{" "}
+                  {orderItems.length === 1 ? "item" : "itens"}
                 </span>
-                <strong className="whitespace-nowrap ml-2">
-                  {formatCurrencyBRL(itemTotal)}
-                </strong>
               </div>
-            );
-          })}
+            </AccordionTrigger>
+            <AccordionContent>
+              <section className="pr-1 text-xs space-y-1 pt-2">
+                {orderItems.map((item) => {
+                  const itemTotal = item.product_price * item.quantity;
 
-          {orderItems.length > 3 && (
-            <p className="text-muted-foreground italic">
-              +{orderItems.length - 3}{" "}
-              {orderItems.length - 3 === 1 ? "item" : "itens"}
-            </p>
-          )}
+                  return (
+                    <div
+                      className="flex flex-row justify-between"
+                      key={item.id}
+                    >
+                      <span className="line-clamp-1">
+                        {item.quantity} {item.products?.name}
+                      </span>
+                      <strong className="whitespace-nowrap ml-2">
+                        {formatCurrencyBRL(itemTotal)}
+                      </strong>
+                    </div>
+                  );
+                })}
+              </section>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
-          <div className="flex flex-row justify-between text-base pt-1">
-            <span>Total:</span>
-            <strong>{formatCurrencyBRL(totalAmount)}</strong>
-          </div>
-        </section>
+        <div className="flex flex-row justify-between text-base border-t pt-2">
+          <span>Total:</span>
+          <strong>{formatCurrencyBRL(totalAmount)}</strong>
+        </div>
 
         <footer className="flex w-full border-t mt-auto pt-2">
           <TableOptions

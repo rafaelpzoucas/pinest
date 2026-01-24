@@ -1,8 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { cn, formatAddress, formatCurrencyBRL, formatDate } from "@/lib/utils";
 import { statuses } from "@/models/statuses";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ShoppingCart } from "lucide-react";
 
 import Link from "next/link";
 import { OrderOptions } from "./data-table/options";
@@ -56,6 +62,11 @@ export function OrderCard({ order }: OrderCardPropsType) {
   const displayId = order.display_id ?? order.id.substring(0, 4);
 
   const isPending = order.status !== "pending";
+
+  // Calcula total de itens
+  const totalItems = isIfood
+    ? ifoodItems?.length || 0
+    : order.order_items?.length || 0;
 
   return (
     <Card
@@ -139,83 +150,100 @@ export function OrderCard({ order }: OrderCardPropsType) {
           )}
         </div>
 
-        <section
-          className={cn("pr-1 text-xs space-y-1 border-t border-dashed pt-2")}
-        >
-          {/* Renderiza itens normais (não iFood) */}
-          {!isIfood &&
-            (() => {
-              const normalItems = order.order_items?.filter((item) =>
-                item.products?.name?.trim(),
-              );
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="items" className="border-0">
+            <AccordionTrigger className="py-2 hover:no-underline border-t border-dashed">
+              <div className="flex items-center gap-2 text-sm">
+                <ShoppingCart className="w-4 h-4" />
+                <span>
+                  {totalItems} {totalItems === 1 ? "item" : "itens"}
+                </span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <section className={cn("pr-1 text-xs space-y-1 pt-2")}>
+                {/* Renderiza itens normais (não iFood) */}
+                {!isIfood &&
+                  (() => {
+                    const normalItems = order.order_items?.filter((item) =>
+                      item.products?.name?.trim(),
+                    );
 
-              const deliveryFeeItems = order.order_items?.filter(
-                (item) => !item.products?.name?.trim(),
-              );
+                    const deliveryFeeItems = order.order_items?.filter(
+                      (item) => !item.products?.name?.trim(),
+                    );
 
-              return (
-                <>
-                  {normalItems?.map((item) => (
-                    <div
-                      className="flex flex-row justify-between"
-                      key={item.id}
-                    >
-                      <span>
-                        {item.quantity} {item.products!.name}
-                      </span>
-                      <strong>
-                        {formatCurrencyBRL(
-                          (item.product_price ?? 0) * (item.quantity ?? 0),
-                        )}
-                      </strong>
-                    </div>
-                  ))}
+                    return (
+                      <>
+                        {normalItems?.map((item) => (
+                          <div
+                            className="flex flex-row justify-between"
+                            key={item.id}
+                          >
+                            <span>
+                              {item.quantity} {item.products!.name}
+                            </span>
+                            <strong>
+                              {formatCurrencyBRL(
+                                (item.product_price ?? 0) *
+                                  (item.quantity ?? 0),
+                              )}
+                            </strong>
+                          </div>
+                        ))}
 
-                  {deliveryFeeItems?.map((item) => (
-                    <div
-                      className="flex flex-row justify-between"
-                      key={item.id}
-                    >
-                      <span>{item.quantity} Taxa de entrega</span>
-                      <strong>
-                        {formatCurrencyBRL(
-                          (item.product_price ?? 0) * (item.quantity ?? 0),
-                        )}
-                      </strong>
-                    </div>
-                  ))}
-                </>
-              );
-            })()}
+                        {deliveryFeeItems?.map((item) => (
+                          <div
+                            className="flex flex-row justify-between"
+                            key={item.id}
+                          >
+                            <span>{item.quantity} Taxa de entrega</span>
+                            <strong>
+                              {formatCurrencyBRL(
+                                (item.product_price ?? 0) *
+                                  (item.quantity ?? 0),
+                              )}
+                            </strong>
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
 
-          {/* Renderiza itens do iFood */}
-          {isIfood &&
-            ifoodItems &&
-            ifoodItems.length > 0 &&
-            ifoodItems.map((item) => {
-              const itemTotal = item.totalPrice;
-              const optionsTotal = item.options
-                ? item.options.reduce((acc, option) => {
-                    return acc + option.price * option.quantity;
-                  }, 0)
-                : 0;
-              const total = (itemTotal + optionsTotal) * item.quantity;
+                {/* Renderiza itens do iFood */}
+                {isIfood &&
+                  ifoodItems &&
+                  ifoodItems.length > 0 &&
+                  ifoodItems.map((item) => {
+                    const itemTotal = item.totalPrice;
+                    const optionsTotal = item.options
+                      ? item.options.reduce((acc, option) => {
+                          return acc + option.price * option.quantity;
+                        }, 0)
+                      : 0;
+                    const total = (itemTotal + optionsTotal) * item.quantity;
 
-              return (
-                <div className="flex flex-row justify-between" key={item.id}>
-                  <span>
-                    {item.quantity} {item.name}
-                  </span>
-                  <strong>{formatCurrencyBRL(total)}</strong>
-                </div>
-              );
-            })}
+                    return (
+                      <div
+                        className="flex flex-row justify-between"
+                        key={item.id}
+                      >
+                        <span>
+                          {item.quantity} {item.name}
+                        </span>
+                        <strong>{formatCurrencyBRL(total)}</strong>
+                      </div>
+                    );
+                  })}
+              </section>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
-          <div className="flex flex-row justify-between text-base">
-            <span>Total:</span>
-            <strong>{formatCurrencyBRL(order.total?.total_amount || 0)}</strong>
-          </div>
-        </section>
+        <div className="flex flex-row justify-between text-base border-t border-dashed pt-2">
+          <span>Total:</span>
+          <strong>{formatCurrencyBRL(order.total?.total_amount || 0)}</strong>
+        </div>
 
         <section
           className={cn(
