@@ -7,34 +7,36 @@ import { revalidatePath } from "next/cache";
 import { cache } from "react";
 import { z } from "zod";
 import { getValidIfoodAccessToken } from "../../../config/integrations/ifood/actions";
+import { ZSAError } from "zsa";
 
-export const verifyIsIfood = adminProcedure
-  .createServerAction()
-  .input(z.object({ orderId: z.string() }))
-  .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx;
-    const { orderId } = input;
+function logError(scope: string, error: unknown, extra?: unknown) {
+  console.error(`[${scope}]`, error, extra);
+}
 
-    const { data: order, error: readOrderError } = await supabase
-      .from("orders")
-      .select("is_ifood")
-      .eq("id", orderId)
-      .single();
+async function verifyIsIfood({ orderId }: { orderId: string }) {
+  const supabase = createClient();
 
-    if (readOrderError || !order) {
-      console.error("Erro ao buscar o pedido", readOrderError);
-      return;
-    }
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select("is_ifood")
+    .eq("id", orderId)
+    .single();
 
-    return order.is_ifood;
-  });
+  if (error || !order) {
+    logError("verifyIsIfood", error ?? "Pedido não encontrado");
+    return null;
+  }
+
+  return order.is_ifood;
+}
 
 export const readOrderById = adminProcedure
   .createServerAction()
   .input(z.object({ id: z.string() }))
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx;
-    const { data: order, error: readOrderError } = await supabase
+
+    const { data: order, error } = await supabase
       .from("orders")
       .select(
         `
@@ -59,9 +61,9 @@ export const readOrderById = adminProcedure
       .eq("id", input.id)
       .single();
 
-    if (readOrderError) {
-      console.error("Error reading order.", readOrderError);
-      return;
+    if (error || !order) {
+      logError("readOrderById", error ?? "Pedido não encontrado");
+      return null;
     }
 
     return { order: order as OrderType };
@@ -73,21 +75,29 @@ export const acceptOrder = adminProcedure
   .createServerAction()
   .input(z.object({ orderId: z.string() }))
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx;
-    const { orderId } = input;
+    const isIfood = await verifyIsIfood({ orderId: input.orderId });
 
-    await updateIfoodOrderStatus({ orderId, newStatus: "preparing" });
+    if (isIfood) {
+      console.log("NAO É AIFODE CARALHO", isIfood);
+      await updateIfoodOrderStatus({
+        orderId: input.orderId,
+        newStatus: "accept",
+      });
 
-    const { error: updateStatusError } = await supabase
-      .from("orders")
-      .update({ status: "preparing" })
-      .eq("id", orderId);
-
-    if (updateStatusError) {
-      console.error(updateStatusError);
+      return;
     }
 
-    revalidatePath("/orders");
+    const { supabase } = ctx;
+
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: "preparing" })
+      .eq("id", input.orderId);
+
+    if (error) {
+      logError("acceptOrder:update", error);
+      throw new ZSAError("ERROR", error.message);
+    }
   });
 
 export const cancelOrder = adminProcedure
@@ -96,13 +106,13 @@ export const cancelOrder = adminProcedure
   .handler(async ({ input }) => {
     const supabase = createClient();
 
-    const { error: updateStatusError } = await supabase
+    const { error } = await supabase
       .from("orders")
       .update({ status: "cancelled" })
       .eq("id", input.orderId);
 
-    if (updateStatusError) {
-      console.error(updateStatusError);
+    if (error) {
+      logError("cancelOrder", error);
     }
 
     revalidatePath("/orders");
@@ -114,15 +124,14 @@ export const updateOrderPrintedItems = adminProcedure
   .handler(async ({ ctx, input }) => {
     const { supabase } = ctx;
 
-    // Update em lote: marca todos os itens do pedido como impressos de uma vez
     const { error } = await supabase
       .from("order_items")
       .update({ printed: true })
       .eq("order_id", input.orderId);
 
     if (error) {
-      console.error("Error updating printed status of order items.", error);
-      return;
+      logError("updateOrderPrintedItems", error);
+      return null;
     }
 
     revalidatePath("/");
@@ -137,7 +146,7 @@ export async function updateDiscount(orderId: string, discount: number) {
     .eq("id", orderId);
 
   if (error) {
-    console.error("Erro ao atualizar o desconto: ", error);
+    logError("updateDiscount", error);
   }
 
   revalidatePath("/orders");
@@ -153,20 +162,25 @@ export const updateOrderStatus = adminProcedure
     }),
   )
   .handler(async ({ ctx, input }) => {
-    const { supabase } = ctx;
+    const isIfood = await verifyIsIfood({ orderId: input.orderId });
 
-    const { error: updateStatusError } = await supabase
-      .from("orders")
-      .update({ status: input.newStatus })
-      .eq("id", input.orderId);
+    if (!isIfood) {
+      const { supabase } = ctx;
 
-    if (updateStatusError) {
-      console.error("Erro ao atualizar o status.", updateStatusError);
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: input.newStatus })
+        .eq("id", input.orderId);
+
+      if (error) {
+        logError("updateOrderStatus", error);
+      }
     }
 
     revalidatePath("/orders");
 
     if (!input.isIfood) return null;
+
     await updateIfoodOrderStatus({
       orderId: input.orderId,
       newStatus: input.newStatus,
@@ -179,34 +193,21 @@ export const updateIfoodOrderStatus = adminProcedure
   .handler(async ({ input }) => {
     const { orderId, newStatus } = input;
 
-    console.log(
-      `[UPDATE-IFOOD-STATUS] Iniciando para orderId: ${orderId}, status: ${newStatus}`,
-    );
-
     const isIfood = await verifyIsIfood({ orderId });
 
-    // Verifica se o pedido é do iFood
-    if (!isIfood) {
-      console.log(
-        `[UPDATE-IFOOD-STATUS] Pedido ${orderId} não é do iFood, pulando atualização`,
-      );
-      return;
-    }
+    if (!isIfood) return null;
 
     const [accessTokenData] = await getValidIfoodAccessToken();
 
     if (!accessTokenData?.success) {
-      console.error(
-        "[UPDATE-IFOOD-STATUS] Erro ao buscar access_token no banco.",
-        accessTokenData?.message,
+      logError(
+        "updateIfoodOrderStatus:token",
+        accessTokenData?.message ?? "Token inválido",
       );
       throw new Error("Falha ao obter token de acesso do iFood");
     }
 
-    console.log(`[UPDATE-IFOOD-STATUS] Token obtido, chamando route handler`);
-
     try {
-      // Usa a route handler dedicada em vez de fetch direto
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/integrations/ifood/update-status`,
         {
@@ -220,31 +221,22 @@ export const updateIfoodOrderStatus = adminProcedure
         },
       );
 
-      console.log(`[UPDATE-IFOOD-STATUS] Resposta recebida:`, {
-        status: response.status,
-        ok: response.ok,
-      });
-
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error(
-          "[UPDATE-IFOOD-STATUS] Erro na route handler:",
-          errorData,
-        );
+        const errorData = await response.json().catch(() => null);
+
+        logError("updateIfoodOrderStatus:route", {
+          status: response.status,
+          error: errorData,
+        });
+
         throw new Error(
-          `Erro ao atualizar status no iFood: ${errorData.error || response.statusText}`,
+          `Erro ao atualizar status no iFood (${response.status})`,
         );
       }
 
-      const data = await response.json();
-      console.log(`[UPDATE-IFOOD-STATUS] Status atualizado com sucesso:`, data);
-
-      return data;
+      return response.json();
     } catch (error) {
-      console.error("[UPDATE-IFOOD-STATUS] Erro ao chamar route handler:", {
-        error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-      });
+      logError("updateIfoodOrderStatus:fetch", error);
       throw error;
     }
   });

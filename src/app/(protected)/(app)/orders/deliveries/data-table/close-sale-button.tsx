@@ -30,6 +30,10 @@ export function CloseSaleButton({ order }: { order: Order }) {
     return null;
   }
 
+  if (!isCashOpen) {
+    return <OpenCashSession />;
+  }
+
   if (isIfood) {
     return (
       <Button onClick={() => executeCloseBill({ order_id: order.id })}>
@@ -46,10 +50,6 @@ export function CloseSaleButton({ order }: { order: Order }) {
         )}
       </Button>
     );
-  }
-
-  if (!isCashOpen) {
-    return <OpenCashSession />;
   }
 
   return (

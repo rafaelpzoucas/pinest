@@ -23,9 +23,6 @@ const webhookAction = createServerAction()
     try {
       const body = await request?.json();
 
-      console.log("[IFOOD EVENT]: ", body);
-
-      // Early return para KEEPALIVE (evita ativar lógica desnecessária)
       if (body.code === "KEEPALIVE") {
         return new NextResponse(
           JSON.stringify({ message: "Evento KEEPALIVE recebido." }),
@@ -43,7 +40,7 @@ const webhookAction = createServerAction()
         case "CFM":
           await handleOrderNewStatus({
             orderId: body.orderId,
-            newStatus: "pending",
+            newStatus: "preparing",
           });
           break;
         case "RTP":
