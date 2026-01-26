@@ -221,7 +221,8 @@ export function OrderCard({ order }: OrderCardPropsType) {
                           return acc + option.price * option.quantity;
                         }, 0)
                       : 0;
-                    const total = (itemTotal + optionsTotal) * item.quantity;
+
+                    const total = itemTotal + optionsTotal;
 
                     return (
                       <div
