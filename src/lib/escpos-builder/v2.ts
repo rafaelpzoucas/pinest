@@ -139,9 +139,14 @@ export function receipt(profile: PrinterProfile = getDefaultProfile()) {
         profile.capabilities.doubleWidth &&
         profile.capabilities.doubleHeight
       ) {
-        buffer.push(
-          `${GS}!${String.fromCharCode(TextSize.EXTRA_LARGE)}${wrappedText}${GS}!${String.fromCharCode(0x00)}`,
-        );
+        const lines = wrappedText.split("\n");
+        const formatted = lines
+          .map(
+            (line) =>
+              `${GS}!${String.fromCharCode(TextSize.EXTRA_LARGE)}${line}${GS}!${String.fromCharCode(0x00)}`,
+          )
+          .join("\n");
+        buffer.push(formatted);
       } else {
         buffer.push(wrappedText);
       }
@@ -154,9 +159,14 @@ export function receipt(profile: PrinterProfile = getDefaultProfile()) {
         profile.capabilities.doubleWidth &&
         profile.capabilities.doubleHeight
       ) {
-        buffer.push(
-          `${GS}!${String.fromCharCode(TextSize.LARGE)}${wrappedText}${GS}!${String.fromCharCode(0x00)}`,
-        );
+        const lines = wrappedText.split("\n");
+        const formatted = lines
+          .map(
+            (line) =>
+              `${GS}!${String.fromCharCode(TextSize.LARGE)}${line}${GS}!${String.fromCharCode(0x00)}`,
+          )
+          .join("\n");
+        buffer.push(formatted);
       } else {
         buffer.push(wrappedText);
       }
@@ -166,9 +176,14 @@ export function receipt(profile: PrinterProfile = getDefaultProfile()) {
     h3(text: string) {
       const wrappedText = wrapText(removeAccents(text), cols);
       if (profile.capabilities.doubleWidth) {
-        buffer.push(
-          `${GS}!${String.fromCharCode(TextSize.DOUBLE_WIDTH)}${wrappedText}${GS}!${String.fromCharCode(0x00)}`,
-        );
+        const lines = wrappedText.split("\n");
+        const formatted = lines
+          .map(
+            (line) =>
+              `${GS}!${String.fromCharCode(TextSize.DOUBLE_WIDTH)}${line}${GS}!${String.fromCharCode(0x00)}`,
+          )
+          .join("\n");
+        buffer.push(formatted);
       } else {
         buffer.push(wrappedText);
       }
