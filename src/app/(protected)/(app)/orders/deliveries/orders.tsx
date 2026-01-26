@@ -49,7 +49,6 @@ export function Deliveries() {
         const isDelivered = statuses.includes("delivered");
         const isInProgress =
           statuses.includes("pending") ||
-          statuses.includes("pending") ||
           statuses.includes("preparing") ||
           statuses.includes("shipped") ||
           statuses.includes("readyToPickup");
@@ -75,7 +74,6 @@ export function Deliveries() {
       status: "in_progress",
       title: "andamento",
       status_length: getStatusLengths([
-        "pending",
         "pending",
         "preparing",
         "shipped",
@@ -104,13 +102,9 @@ export function Deliveries() {
 
     const matchesStatus =
       statusFilter === "in_progress"
-        ? [
-            "pending",
-            "pending",
-            "preparing",
-            "shipped",
-            "readyToPickup",
-          ].includes(status) ||
+        ? ["pending", "preparing", "shipped", "readyToPickup"].includes(
+            status,
+          ) ||
           (status === "delivered" && order.is_paid === false)
         : statusFilter === "delivered"
           ? status === "delivered" && order.is_paid === true
