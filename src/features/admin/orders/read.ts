@@ -61,7 +61,12 @@ export const readOrders = createServerAction()
       )
       .eq("store_id", store?.id)
       .or(
-        `and(created_at.gte.${start_date.toISOString()},created_at.lte.${end_date.toISOString()}),and(is_paid.eq.false,status.neq.cancelled)`,
+        // Pedidos do período
+        `and(created_at.gte.${start_date.toISOString()},created_at.lte.${end_date.toISOString()}),` +
+          // OU pedidos em aberto
+          `and(is_paid.eq.false,status.neq.cancelled),` +
+          // OU pedidos iFood recentes ainda não finalizados
+          `and(is_ifood.eq.true,status.in.(pending,preparing,shipped,readyToPickup))`,
       )
       .order("created_at", { ascending: false });
 
