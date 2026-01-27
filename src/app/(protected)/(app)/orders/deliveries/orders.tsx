@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useCashRegister } from "@/stores/cashRegisterStore";
-import { Plus, Search } from "lucide-react";
+import { Plus, ReceiptText, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { columns } from "./data-table/columns";
@@ -17,7 +17,6 @@ import { DatePickerWithRange } from "@/components/ui/date-picker-range";
 import { useSearchParams } from "next/navigation";
 
 type OrderStatus =
-  | "pending"
   | "pending"
   | "preparing"
   | "shipped"
@@ -190,15 +189,22 @@ export function Deliveries() {
       </span>
 
       <div className="flex flex-col lg:grid grid-cols-3 gap-2">
-        {filteredOrders && filteredOrders.length > 0
-          ? filteredOrders?.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))
-          : search !== "" && (
-              <div>
-                Não encontramos nenhum resultado para &apos;{search}&apos;
-              </div>
-            )}
+        {filteredOrders &&
+          filteredOrders.length > 0 &&
+          filteredOrders.map((order) => (
+            <OrderCard key={order.id} order={order} />
+          ))}
+
+        {filteredOrders && filteredOrders.length === 0 && search !== "" && (
+          <div>Não encontramos nenhum resultado para &apos;{search}&apos;</div>
+        )}
+
+        {filteredOrders && filteredOrders.length === 0 && search === "" && (
+          <div className="col-span-3 text-center text-muted-foreground py-8">
+            <ReceiptText className="w-32 h-32 opacity-30 mx-auto mb-4" />
+            Nenhum pedido encontrado para o período selecionado
+          </div>
+        )}
       </div>
 
       <div className="hidden w-full">
