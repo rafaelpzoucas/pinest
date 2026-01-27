@@ -58,24 +58,27 @@ export function Tables() {
             </>
           )}
 
-          {!isTablesLoading &&
-            tables &&
-            tables.length > 0 &&
-            tables.map((table) => (
-              <TableCard
-                key={table.id}
-                table={table}
-                isCashOpen={isCashOpen}
-                isCashLoading={isCashLoading}
-              />
-            ))}
+          {!isTablesLoading && tables && tables.length > 0 && (
+            <>
+              {tables.map((table) => (
+                <TableCard
+                  key={table.id}
+                  table={table}
+                  isCashOpen={isCashOpen}
+                  isCashLoading={isCashLoading}
+                />
+              ))}
+            </>
+          )}
         </div>
 
         {!isTablesLoading && (!tables || tables.length === 0) && (
-          <div className="flex flex-col gap-4 items-center justify-center text-muted-foreground">
-            <LayoutPanelTop className="w-32 h-32 opacity-30" />
-            <p>Nenhuma mesa aberta.</p>
-          </div>
+          <>
+            <div className="flex flex-col gap-4 items-center justify-center text-muted-foreground">
+              <LayoutPanelTop className="w-32 h-32 opacity-30" />
+              <p>Nenhuma mesa aberta.</p>
+            </div>
+          </>
         )}
       </section>
     </TooltipProvider>
