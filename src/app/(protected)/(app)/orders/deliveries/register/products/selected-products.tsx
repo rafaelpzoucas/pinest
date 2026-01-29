@@ -140,7 +140,8 @@ export function SelectedProducts({
                     </div>
 
                     <strong className="text-lg">
-                      {product.sku ? `#${product.sku}` : ""} {product.name}
+                      {product.sku ? <span>#{product.sku} &bull;</span> : ""}{" "}
+                      {product.name}
                     </strong>
 
                     {product.allows_extras && (

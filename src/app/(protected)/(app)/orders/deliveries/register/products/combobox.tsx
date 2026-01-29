@@ -181,8 +181,12 @@ export function ProductsCombobox({
                     >
                       <div className="flex flex-col">
                         <span className="font-medium">
-                          {product.sku ? product.sku + " &bull; " : ""}
-                          {product.name}{" "}
+                          {product.sku ? (
+                            <span>#{product.sku} &bull;</span>
+                          ) : (
+                            ""
+                          )}{" "}
+                          {product.name}
                         </span>
                         <span className="text-xs text-muted-foreground line-clamp-1">
                           {formatCurrencyBRL(product.price)}
