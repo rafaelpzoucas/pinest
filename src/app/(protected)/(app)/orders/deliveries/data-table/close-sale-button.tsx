@@ -2,7 +2,13 @@
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useCashRegister } from "@/stores/cashRegisterStore";
-import { BadgeDollarSign, CheckCircle, Loader2, SquarePen } from "lucide-react";
+import {
+  BadgeDollarSign,
+  CheckCircle,
+  CreditCard,
+  Loader2,
+  SquarePen,
+} from "lucide-react";
 import Link from "next/link";
 import {
   Dialog,
@@ -16,13 +22,18 @@ import {
 import { closeBills, createPayment } from "../../close/actions";
 import { useQueryState } from "nuqs";
 import { OpenCashSession } from "../../../cash-register/open";
-import { Order } from "@/features/admin/orders/schemas";
+import { Order, PaymentType } from "@/features/admin/orders/schemas";
 import { PAYMENT_TYPES } from "@/models/order";
 import { Badge } from "@/components/ui/badge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ordersKeys } from "@/features/admin/orders/hooks";
 import { tablesKeys } from "@/features/tables/hooks";
 import { useRouter } from "next/navigation";
+import {
+  RadioButtonGroup,
+  RadioButtonGroupItem,
+} from "@/components/ui/radio-button-group";
+import { useState } from "react";
 
 type CloseSaleButtonProps = {
   order: Order;
@@ -33,13 +44,17 @@ export function CloseSaleButton({ order }: CloseSaleButtonProps) {
   const { isCashOpen } = useCashRegister();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [cardType, setCardType] = useState<PaymentType | "">("");
 
   // Mutation para criar pagamento
   const createPaymentMutation = useMutation({
     mutationFn: async () => {
       const [data, error] = await createPayment({
         amount: order?.total?.total_amount.toString() ?? "0",
-        payment_type: order.payment_type ?? "PAID",
+        payment_type:
+          order.payment_type === "CARD"
+            ? cardType || "PAID"
+            : (order.payment_type ?? "PAID"),
         status: "confirmed",
         order_id: order.id,
         discount: "0",
@@ -72,6 +87,10 @@ export function CloseSaleButton({ order }: CloseSaleButtonProps) {
       console.error("Erro ao fechar venda:", error);
     },
   });
+
+  const handleCardTypeChange = (value: string) => {
+    setCardType(value as PaymentType | "");
+  };
 
   const isLoading =
     createPaymentMutation.isPending || closeBillMutation.isPending;
@@ -106,6 +125,8 @@ export function CloseSaleButton({ order }: CloseSaleButtonProps) {
       console.error("Erro ao processar fechamento:", error);
     }
   };
+
+  const disabled = isLoading || (order.payment_type === "CARD" && !cardType);
 
   // Pedidos iFood têm fluxo simplificado (sem confirmação)
   if (order.is_ifood) {
@@ -160,6 +181,28 @@ export function CloseSaleButton({ order }: CloseSaleButtonProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {order.payment_type === "CARD" && (
+          <div className="flex flex-col items-center gap-4 p-4 bg-secondary/50 rounded-md">
+            <p>Escolha a forma de pagamento no cartão:</p>
+
+            <RadioButtonGroup
+              value={cardType}
+              onValueChange={handleCardTypeChange}
+              orientation="horizontal"
+              className="flex-wrap"
+            >
+              <RadioButtonGroupItem value="CREDIT_CARD">
+                <CreditCard />
+                Crédito
+              </RadioButtonGroupItem>
+              <RadioButtonGroupItem value="DEBIT_CARD">
+                <CreditCard />
+                Débito
+              </RadioButtonGroupItem>
+            </RadioButtonGroup>
+          </div>
+        )}
+
         <DialogFooter className="gap-2">
           <Link
             href={closeUrl}
@@ -170,7 +213,7 @@ export function CloseSaleButton({ order }: CloseSaleButtonProps) {
             <span>Alterar pagamento</span>
           </Link>
 
-          <Button onClick={handleConfirmClose} disabled={isLoading}>
+          <Button onClick={handleConfirmClose} disabled={disabled}>
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />

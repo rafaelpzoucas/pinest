@@ -280,7 +280,7 @@ export function CloseBillForm({
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="CREDIT" />
+                        <RadioGroupItem value="CREDIT_CARD" />
                       </FormControl>
                       <FormLabel className="font-normal">
                         Cartão de crédito
@@ -294,7 +294,7 @@ export function CloseBillForm({
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="DEBIT" />
+                        <RadioGroupItem value="DEBIT_CARD" />
                       </FormControl>
                       <FormLabel className="font-normal">
                         Cartão de débito

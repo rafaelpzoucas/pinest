@@ -6,12 +6,9 @@ export const orderTypeEnum = z.enum(["DELIVERY", "TAKEOUT"], {
   message: "Escolha o tipo do pedido.",
 });
 
-export const paymentTypeEnum = z.enum(
-  ["CREDIT", "DEBIT", "PIX", "CASH", "PAID"],
-  {
-    message: "Escolha a forma de pagamento.",
-  },
-);
+export const paymentTypeEnum = z.enum(["CARD", "PIX", "CASH", "PAID"], {
+  message: "Escolha a forma de pagamento.",
+});
 
 const statusEnum = z.enum([
   "pending",

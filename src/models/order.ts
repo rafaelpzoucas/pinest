@@ -12,13 +12,14 @@ import type { UserType } from "./user";
 import { addressSchema } from "@/features/admin/address/schemas";
 
 export const PAYMENT_TYPES = {
-  CREDIT: "Cartão de crédito",
-  DEBIT: "Cartão de débito",
+  CREDIT_CARD: "Cartão de crédito",
+  DEBIT_CARD: "Cartão de débito",
   PIX: "PIX",
   CASH: "Dinheiro",
   DEFERRED: "Prazo",
   PAID: "Pago",
   ONLINE: "Online",
+  CARD: "Cartão",
 };
 
 export interface CustomersType extends CustomerType {

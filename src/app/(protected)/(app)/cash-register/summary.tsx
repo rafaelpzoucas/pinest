@@ -33,8 +33,8 @@ export function CashRegisterSummary({
   const incomeTotals = incomePayments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: "Cartão de crédito",
-        DEBIT: "Cartão de débito",
+        CREDIT_CARD: "Cartão de crédito",
+        DEBIT_CARD: "Cartão de débito",
         CASH: "Dinheiro",
         PIX: "PIX",
         DEFERRED: "Prazo",
@@ -54,8 +54,8 @@ export function CashRegisterSummary({
   const expenseTotals = expensePayments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: "Cartão de crédito",
-        DEBIT: "Cartão de débito",
+        CREDIT_CARD: "Cartão de crédito",
+        DEBIT_CARD: "Cartão de débito",
         CASH: "Dinheiro",
         PIX: "PIX",
         DEFERRED: "Prazo",

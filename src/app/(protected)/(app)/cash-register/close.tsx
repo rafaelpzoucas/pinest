@@ -155,8 +155,8 @@ export function CloseCashSession({
   const computedTotals = payments.reduce(
     (acc, payment) => {
       const typeMap = {
-        CREDIT: "Credito",
-        DEBIT: "Debito",
+        CREDIT_CARD: "Credito",
+        DEBIT_CARD: "Debito",
         CASH: "Dinheiro",
         PIX: "PIX",
         DEFERRED: "Prazo",
@@ -352,7 +352,7 @@ export function CloseCashSession({
     if (pixReceipts.length === 0 && !pixManual) {
       form.setValue("pix_balance", emptyIfZero(declaredPix));
     }
-    // CREDIT
+    // CREDIT_CARD
     if (creditReceipts.length > 0 && creditManual) {
       setCreditManual(false);
       form.setValue("credit_balance", emptyIfZero(declaredCredit));
@@ -360,7 +360,7 @@ export function CloseCashSession({
     if (creditReceipts.length === 0 && !creditManual) {
       form.setValue("credit_balance", emptyIfZero(declaredCredit));
     }
-    // DEBIT
+    // DEBIT_CARD
     if (debitReceipts.length > 0 && debitManual) {
       setDebitManual(false);
       form.setValue("debit_balance", emptyIfZero(declaredDebit));

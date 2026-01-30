@@ -233,6 +233,8 @@ export function CreateOrderForm({
   });
   const discount = useWatch({ control: form.control, name: "total.discount" });
 
+  console.log(form.watch("payment_type"));
+
   useEffect(() => {
     const subtotal = (orderItems ?? [])
       .filter((item) => item?.product_id)

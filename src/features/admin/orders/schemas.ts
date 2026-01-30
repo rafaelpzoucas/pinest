@@ -21,6 +21,7 @@ export const paymentTypeSchema = z.enum([
   "VOUCHER",
   "PAID",
   "DEFERRED",
+  "CARD",
 ]);
 
 export const readOrdersSchema = z.object({
@@ -138,7 +139,7 @@ export const ifoodCashSchema = z.object({
 });
 
 export const ifoodPaymentMethodSchema = z.object({
-  method: z.enum(["CREDIT", "DEBIT", "CASH", "PIX", "ONLINE"]),
+  method: z.enum(["CREDIT_CARD", "DEBIT_CARD", "CASH", "PIX", "ONLINE"]),
   card: ifoodCardSchema.optional().nullable(),
   cash: ifoodCashSchema.optional().nullable(),
 });

@@ -14,7 +14,7 @@ export const closeCashSessionSchema = z.object({
 
 export const createTransactionFormSchema = z.object({
   amount: z.string({ message: "Insira o valor da transação." }),
-  payment_type: z.enum(["PIX", "CASH", "CREDIT", "DEBIT"], {
+  payment_type: z.enum(["PIX", "CASH", "CREDIT_CARD", "DEBIT_CARD"], {
     message: "Selecione o método de pagamento.",
   }),
   type: z.enum(["INCOME", "EXPENSE"], {

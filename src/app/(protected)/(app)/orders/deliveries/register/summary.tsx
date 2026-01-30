@@ -104,10 +104,10 @@ export function Summary({
                   className="flex-wrap"
                 >
                   <RadioButtonGroupItem value="PIX">
-                    <SiPix className="w-4 h-4" />
+                    <SiPix />
                     PIX
                   </RadioButtonGroupItem>
-                  <RadioButtonGroupItem value="CREDIT">
+                  <RadioButtonGroupItem value="CARD">
                     <CreditCard />
                     Cartão
                   </RadioButtonGroupItem>
