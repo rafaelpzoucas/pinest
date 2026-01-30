@@ -2,31 +2,87 @@
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useCashRegister } from "@/stores/cashRegisterStore";
-import { BadgeDollarSign, Loader2 } from "lucide-react";
+import { BadgeDollarSign, CheckCircle, Loader2, SquarePen } from "lucide-react";
 import Link from "next/link";
-import { useServerAction } from "zsa-react";
-import { closeBills } from "../../close/actions";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { closeBills, createPayment } from "../../close/actions";
 import { useQueryState } from "nuqs";
 import { OpenCashSession } from "../../../cash-register/open";
 import { Order } from "@/features/admin/orders/schemas";
+import { PAYMENT_TYPES } from "@/models/order";
+import { Badge } from "@/components/ui/badge";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ordersKeys } from "@/features/admin/orders/hooks";
+import { tablesKeys } from "@/features/tables/hooks";
+import { useRouter } from "next/navigation";
 
-export function CloseSaleButton({ order }: { order: Order }) {
+type CloseSaleButtonProps = {
+  order: Order;
+};
+
+export function CloseSaleButton({ order }: CloseSaleButtonProps) {
   const [tab] = useQueryState("tab");
-
-  const currentStatus = order?.status;
-  const isIfood = order?.is_ifood;
-
-  const accepted = currentStatus !== "pending";
-  const delivered = currentStatus === "delivered";
-  const isPaid = order.is_paid;
-
   const { isCashOpen } = useCashRegister();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const { execute: executeCloseBill, isPending: isCloseBillPending } =
-    useServerAction(closeBills);
+  // Mutation para criar pagamento
+  const createPaymentMutation = useMutation({
+    mutationFn: async () => {
+      const [data, error] = await createPayment({
+        amount: order?.total?.total_amount.toString() ?? "0",
+        payment_type: order.payment_type ?? "PAID",
+        status: "confirmed",
+        order_id: order.id,
+        discount: "0",
+      });
+      if (error) throw error;
+      return data;
+    },
+    onError: (error) => {
+      console.error("Erro ao criar pagamento:", error);
+    },
+  });
 
-  if (!accepted || !delivered || isPaid) {
+  // Mutation para fechar venda
+  const closeBillMutation = useMutation({
+    mutationFn: async () => {
+      const [data, error] = await closeBills({ order_id: order.id });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      // Invalida queries relacionadas
+      queryClient.invalidateQueries({ queryKey: ordersKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ordersKeys.open });
+      queryClient.invalidateQueries({ queryKey: ordersKeys.detail(order.id) });
+      queryClient.invalidateQueries({ queryKey: tablesKeys.open });
+
+      router.push(`/orders?tab=${tab ?? "deliveries"}`);
+    },
+    onError: (error) => {
+      console.error("Erro ao fechar venda:", error);
+    },
+  });
+
+  const isLoading =
+    createPaymentMutation.isPending || closeBillMutation.isPending;
+
+  // Early returns para melhor legibilidade
+  const shouldShowButton =
+    order.status !== "pending" &&
+    order.status === "delivered" &&
+    !order.is_paid;
+
+  if (!shouldShowButton) {
     return null;
   }
 
@@ -34,17 +90,35 @@ export function CloseSaleButton({ order }: { order: Order }) {
     return <OpenCashSession />;
   }
 
-  if (isIfood) {
+  const paymentType = order.payment_type
+    ? PAYMENT_TYPES[order.payment_type as keyof typeof PAYMENT_TYPES]
+    : "Não informado";
+
+  const closeUrl = `/orders/close?order_id=${order.id}&tab=${tab ?? "deliveries"}`;
+
+  const handleConfirmClose = async () => {
+    try {
+      // Primeiro cria o pagamento
+      await createPaymentMutation.mutateAsync();
+      // Depois fecha a venda
+      await closeBillMutation.mutateAsync();
+    } catch (error) {
+      console.error("Erro ao processar fechamento:", error);
+    }
+  };
+
+  // Pedidos iFood têm fluxo simplificado (sem confirmação)
+  if (order.is_ifood) {
     return (
-      <Button onClick={() => executeCloseBill({ order_id: order.id })}>
-        {isCloseBillPending ? (
+      <Button onClick={handleConfirmClose} disabled={isLoading}>
+        {isLoading ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span>Fechando...</span>
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>Fechando venda...</span>
           </>
         ) : (
           <>
-            <BadgeDollarSign className="w-5 h-5" />
+            <BadgeDollarSign className="h-5 w-5" />
             <span>Fechar venda</span>
           </>
         )}
@@ -52,19 +126,65 @@ export function CloseSaleButton({ order }: { order: Order }) {
     );
   }
 
+  // Pedidos normais têm confirmação com opção de editar pagamento
   return (
-    <Link
-      href={
-        isCashOpen
-          ? `/orders/close?order_id=${order.id}&tab=${tab ?? "deliveries"}`
-          : "/cash-register"
-      }
-      className={buttonVariants({
-        variant: "default",
-      })}
-    >
-      <BadgeDollarSign className="w-5 h-5" />
-      <span>Fechar venda</span>
-    </Link>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Processando...</span>
+            </>
+          ) : (
+            <>
+              <BadgeDollarSign className="h-5 w-5" />
+              <span>Fechar venda</span>
+            </>
+          )}
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmar fechamento da venda</DialogTitle>
+          <DialogDescription asChild>
+            <div className="space-y-2">
+              <p>Você está prestes a fechar esta venda.</p>
+              <p className="font-medium text-foreground">
+                <Badge variant="secondary" className="text-lg">
+                  {paymentType}
+                </Badge>
+              </p>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="gap-2">
+          <Link
+            href={closeUrl}
+            className={buttonVariants({ variant: "outline" })}
+            aria-label="Alterar forma de pagamento"
+          >
+            <SquarePen className="h-4 w-4" />
+            <span>Alterar pagamento</span>
+          </Link>
+
+          <Button onClick={handleConfirmClose} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Fechando...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4" />
+                <span>Confirmar</span>
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

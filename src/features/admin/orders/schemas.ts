@@ -20,6 +20,7 @@ export const paymentTypeSchema = z.enum([
   "PIX",
   "VOUCHER",
   "PAID",
+  "DEFERRED",
 ]);
 
 export const readOrdersSchema = z.object({
