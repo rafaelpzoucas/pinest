@@ -9,6 +9,19 @@ export const updateTable = adminProcedure
   .createServerAction()
   .input(updateTableSchema)
   .handler(async ({ ctx: { supabase }, input }) => {
+    const { error: updateTableError } = await supabase
+      .from("tables")
+      .update({
+        number: input.number,
+        description: input.description?.trim(),
+      })
+      .eq("id", input.id);
+
+    if (updateTableError) {
+      console.error("Erro atualizando mesa:", updateTableError);
+      throw new Error("Erro ao atualizar mesa: " + updateTableError.message);
+    }
+
     // 1. Se for edição, busca antigos antes de apagar
     let oldItems: { product_id: string; quantity: number }[] = [];
     if (input.is_edit) {
