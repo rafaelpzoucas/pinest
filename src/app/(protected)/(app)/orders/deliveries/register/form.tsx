@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { readAdminCustomers } from "@/actions/admin/customers/actions";
 import { readAdminShipping } from "@/actions/admin/shipping/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -33,24 +32,21 @@ import { ordersKeys } from "@/features/admin/orders/hooks";
 import { LastOrders } from "./customers/last-orders";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useCustomersSearch } from "@/features/customers/hooks";
 
 // Wrapper para adaptar zsa actions ao React Query
 async function createOrderAdapter(data: z.infer<typeof createOrderFormSchema>) {
   try {
     const response = await createOrder(data);
 
-    // Verifica se é uma tupla [data, error]
     if (Array.isArray(response)) {
       const [result, error] = response;
-
       if (error) {
         throw error;
       }
-
       return result;
     }
 
-    // Se não for array, retorna diretamente
     return response;
   } catch (error) {
     console.error("Erro no createOrderAdapter:", error);
@@ -64,18 +60,14 @@ async function updateOrderAdapter(
   try {
     const response = await updateOrder(data);
 
-    // Verifica se é uma tupla [data, error]
     if (Array.isArray(response)) {
       const [result, error] = response;
-
       if (error) {
         throw error;
       }
-
       return result;
     }
 
-    // Se não for array, retorna diretamente
     return response;
   } catch (error) {
     console.error("Erro no updateOrderAdapter:", error);
@@ -94,12 +86,6 @@ export function CreateOrderForm({
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
-  const { data: customers, isLoading: isLoadingCustomers } = useQuery({
-    queryKey: ["customers"],
-    queryFn: () => readAdminCustomers(storeId ?? ""),
-    enabled: !!storeId,
-  });
-
   const [isFinishOpen, setIsFinishOpen] = useState(false);
   const [phoneQuery, setPhoneQuery] = useQueryState("phone");
   const [customerForm, setCustomerForm] = useQueryState("customerForm", {
@@ -114,14 +100,20 @@ export function CreateOrderForm({
     enabled: !!storeId,
   });
 
+  // Hook para busca de clientes (só busca quando necessário)
+  const { customers: searchResults, searchTerm } = useCustomersSearch(
+    storeId ?? "",
+    !!storeId,
+    phoneQuery ?? "",
+  );
+
   // Mutations com React Query - DESABILITANDO RETRY
   const createMutation = useMutation({
     mutationFn: createOrderAdapter,
-    retry: false, // ← Desabilita retry automático
+    retry: false,
     onSuccess: (data) => {
       console.log("✅ Pedido criado com sucesso:", data);
 
-      // Invalidar queries relacionadas
       queryClient.invalidateQueries({
         queryKey: ordersKeys.lists(),
       });
@@ -130,25 +122,20 @@ export function CreateOrderForm({
       });
 
       console.log("✅ Queries invalidadas");
-
-      // O redirect já acontece no server action
-      // Não precisa navegar manualmente aqui
     },
     onError: (error) => {
       console.error("❌ Erro ao criar pedido:", error);
       console.error("❌ Tipo do erro:", typeof error);
       console.error("❌ Erro completo:", JSON.stringify(error, null, 2));
-      // Aqui você pode adicionar um toast de erro
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: updateOrderAdapter,
-    retry: false, // ← Desabilita retry automático
+    retry: false,
     onSuccess: (data, variables) => {
       console.log("✅ Pedido atualizado com sucesso:", data);
 
-      // Invalidar queries relacionadas
       queryClient.invalidateQueries({
         queryKey: ordersKeys.lists(),
       });
@@ -160,19 +147,15 @@ export function CreateOrderForm({
       });
 
       console.log("✅ Queries invalidadas");
-
-      // O redirect já acontece no server action
-      // Não precisa navegar manualmente aqui
     },
     onError: (error) => {
       console.error("❌ Erro ao atualizar pedido:", error);
       console.error("❌ Tipo do erro:", typeof error);
       console.error("❌ Erro completo:", JSON.stringify(error, null, 2));
-      // Aqui você pode adicionar um toast de erro
     },
   });
 
-  // 1. Define your form.
+  // Form setup
   const form = useForm<z.infer<typeof createOrderFormSchema>>({
     resolver: zodResolver(createOrderFormSchema),
     defaultValues: {
@@ -211,7 +194,7 @@ export function CreateOrderForm({
   }, [shipping?.price, form]);
 
   const customerId = form.watch("customer_id");
-  const selectedCustomer = customers?.find((c) => c.id === customerId);
+  const selectedCustomer = searchResults?.find((c) => c.id === customerId);
 
   const isUpdateCustomer =
     !phoneQuery && !!selectedCustomer && customerForm === "update";
@@ -220,7 +203,7 @@ export function CreateOrderForm({
   const isCreating = createMutation.isPending;
   const isUpdating = updateMutation.isPending;
 
-  // 2. Define a submit handler.
+  // Submit handler
   async function onSubmit(values: z.infer<typeof createOrderFormSchema>) {
     if (order) {
       updateMutation.mutate({ ...values, id: order.id });
@@ -300,11 +283,10 @@ export function CreateOrderForm({
             </Button>
 
             <CustomersCombobox
-              storeCustomers={customers}
               form={form}
+              storeId={storeId}
               phoneQuery={phoneQuery}
               setPhoneQuery={setPhoneQuery}
-              isLoading={isLoadingCustomers}
               setCustomerForm={setCustomerForm}
             />
 

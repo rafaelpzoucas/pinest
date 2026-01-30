@@ -21,49 +21,58 @@ import {
   formatCurrencyBRL,
   formatPhoneBR,
 } from "@/lib/utils";
-import { StoreCustomerType } from "@/models/store-customer";
-import { ChevronsUpDown, Edit, Loader2, Plus } from "lucide-react";
+import { ChevronsUpDown, Edit, Loader2, Plus, Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { createOrderFormSchema } from "../schemas";
+import { useCustomersSearch } from "@/features/customers/hooks";
 
 type CustomersComboboxProps = {
   form: UseFormReturn<z.infer<typeof createOrderFormSchema>>;
-  storeCustomers?: StoreCustomerType[];
-  isLoading: boolean;
+  storeId?: string;
   phoneQuery: string | null;
   setPhoneQuery: (value: string | null) => void;
   setCustomerForm: (value: string | null) => void;
 };
 
 export function CustomersCombobox({
-  storeCustomers,
   form,
+  storeId,
   phoneQuery,
   setPhoneQuery,
-  isLoading,
   setCustomerForm,
 }: CustomersComboboxProps) {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
 
   const [open, setOpen] = useState(!orderId);
-  const [searchValue, setSearchValue] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    (typeof searchResults)[number] | null
+  >(null);
+
+  // Hook customizado para busca com debounce
+  const {
+    customers: searchResults,
+    isLoading,
+    searchTerm,
+    setSearchTerm,
+    hasSearchTerm,
+  } = useCustomersSearch(storeId ?? "", !!storeId, phoneQuery ?? "");
 
   useEffect(() => {
     if (phoneQuery) {
-      setSearchValue(phoneQuery);
+      setSearchTerm(phoneQuery);
     }
-  }, [phoneQuery]);
+  }, [phoneQuery, setSearchTerm]);
 
   const normalizePhone = (phone: string) => {
     return phone.replace(/\D/g, "");
   };
 
   const handleSearchChange = (value: string) => {
-    setSearchValue(value);
+    setSearchTerm(value);
     const normalizedValue = normalizePhone(value);
     if (normalizedValue) {
       setPhoneQuery(normalizedValue);
@@ -73,11 +82,11 @@ export function CustomersCombobox({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchValue) {
-      const normalizedSearch = normalizePhone(searchValue);
-      const hasCustomers = storeCustomers?.some((customer) => {
+    if (e.key === "Enter" && searchTerm) {
+      const normalizedSearch = normalizePhone(searchTerm);
+      const hasCustomers = searchResults?.some((customer) => {
         const normalizedCustomerPhone = normalizePhone(
-          customer.customers.phone || "",
+          customer?.customers?.phone || "",
         );
         return normalizedCustomerPhone.includes(normalizedSearch);
       });
@@ -89,14 +98,10 @@ export function CustomersCombobox({
     }
   };
 
-  const selectedCustomer = storeCustomers?.find(
-    (storeCustomer) => storeCustomer.id === form.watch("customer_id"),
-  );
-
-  const hasPhone = selectedCustomer?.customers.phone;
+  const hasPhone = selectedCustomer?.customers?.phone;
   const hasAddress =
-    selectedCustomer?.customers.address &&
-    formatAddress(selectedCustomer.customers.address);
+    selectedCustomer?.customers?.address &&
+    formatAddress(selectedCustomer?.customers?.address);
 
   return (
     <FormField
@@ -115,12 +120,14 @@ export function CustomersCombobox({
               >
                 {field.value ? (
                   <div className="flex flex-col items-start lg:flex-row lg:gap-4">
-                    <p>{selectedCustomer?.customers.name}</p>
+                    <p>{selectedCustomer?.customers?.name}</p>
 
                     {hasPhone && (
                       <>
                         <span className="hidden lg:block">&bull;</span>
-                        <p>{formatPhoneBR(selectedCustomer.customers.phone)}</p>
+                        <p>
+                          {formatPhoneBR(selectedCustomer?.customers?.phone)}
+                        </p>
                       </>
                     )}
 
@@ -128,7 +135,7 @@ export function CustomersCombobox({
                       <>
                         <span className="hidden lg:block">&bull;</span>
                         <p className="text-wrap text-left">
-                          {formatAddress(selectedCustomer.customers.address)}
+                          {formatAddress(selectedCustomer?.customers?.address)}
                         </p>
                       </>
                     )}
@@ -143,11 +150,11 @@ export function CustomersCombobox({
               align="start"
               className="w-screen max-w-xs lg:max-w-md p-0"
             >
-              <Command>
+              <Command shouldFilter={false}>
                 <CommandInput
-                  placeholder="Pesquisar cliente por nome ou telefone..."
+                  placeholder="Digite o nome ou telefone do cliente..."
                   className="h-9"
-                  value={searchValue}
+                  value={searchTerm}
                   onValueChange={handleSearchChange}
                   onKeyDown={handleKeyDown}
                 />
@@ -163,53 +170,50 @@ export function CustomersCombobox({
 
                 <CommandList>
                   <CommandEmpty>
-                    {isLoading ? (
-                      <div className="flex flex-row gap-2 items-center justify-center">
+                    {!hasSearchTerm ? (
+                      <div className="flex flex-col gap-2 items-center justify-center py-6 text-muted-foreground">
+                        <Search className="w-8 h-8" />
+                        <p className="text-sm">
+                          Digite pelo menos 2 caracteres para buscar
+                        </p>
+                      </div>
+                    ) : isLoading ? (
+                      <div className="flex flex-row gap-2 items-center justify-center py-6">
                         <Loader2 className="animate-spin" />
-                        <span>Carregando clientes...</span>
+                        <span>Buscando clientes...</span>
                       </div>
                     ) : (
-                      "Nenhum cliente encontrado."
+                      <div className="flex flex-col gap-2 items-center justify-center py-6">
+                        <p>Nenhum cliente encontrado.</p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setCustomerForm("create")}
+                        >
+                          <Plus className="w-4 h-4" /> Criar novo cliente
+                        </Button>
+                      </div>
                     )}
                   </CommandEmpty>
                   <CommandGroup>
-                    {storeCustomers?.map((storeCustomer) => {
-                      const customerHasPhone = storeCustomer.customers.phone;
+                    {searchResults?.map((storeCustomer) => {
+                      const customerHasPhone = storeCustomer?.customers?.phone;
                       const customerHasAddress =
-                        storeCustomer.customers.address &&
-                        formatAddress(storeCustomer.customers.address);
+                        storeCustomer?.customers?.address &&
+                        formatAddress(storeCustomer?.customers?.address);
 
                       return (
                         <CommandItem
-                          value={`${storeCustomer.customers.name} ${normalizePhone(storeCustomer.customers.phone || "")} ${storeCustomer.customers.address?.street || ""}`}
+                          value={storeCustomer.id}
                           key={storeCustomer.id}
                           onSelect={() => {
+                            setSelectedCustomer(storeCustomer);
+
+                            form.setValue("customer_id", storeCustomer.id);
+
                             setPhoneQuery(null);
-                            setSearchValue("");
-                            form.reset({
-                              ...form.getValues(),
-                              customer_id: storeCustomer.id,
-                              delivery: {
-                                ...form.getValues().delivery,
-                                address: {
-                                  street:
-                                    storeCustomer.customers.address?.street ||
-                                    "",
-                                  number:
-                                    storeCustomer.customers.address?.number ||
-                                    "",
-                                  neighborhood:
-                                    storeCustomer.customers.address
-                                      ?.neighborhood || "",
-                                  complement:
-                                    storeCustomer.customers.address
-                                      ?.complement || "",
-                                  observations:
-                                    storeCustomer.customers.address
-                                      ?.observations || "",
-                                },
-                              },
-                            });
+                            setSearchTerm("");
                             setOpen(false);
                           }}
                         >
@@ -241,20 +245,22 @@ export function CustomersCombobox({
 
                             {customerHasPhone && (
                               <p className="text-muted-foreground">
-                                {formatPhoneBR(storeCustomer.customers.phone)}
+                                {formatPhoneBR(storeCustomer?.customers?.phone)}
                               </p>
                             )}
 
                             {customerHasAddress && (
                               <p className="text-muted-foreground">
-                                {formatAddress(storeCustomer.customers.address)}
+                                {formatAddress(
+                                  storeCustomer?.customers?.address,
+                                )}
                               </p>
                             )}
 
                             {storeCustomer.balance < 0 && (
                               <p className="text-muted-foreground">
                                 Saldo:{" "}
-                                {formatCurrencyBRL(storeCustomer.balance)}
+                                {formatCurrencyBRL(storeCustomer?.balance)}
                               </p>
                             )}
                           </div>
