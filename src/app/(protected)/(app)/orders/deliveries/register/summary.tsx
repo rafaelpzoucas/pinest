@@ -6,15 +6,26 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  RadioButtonGroup,
+  RadioButtonGroupItem,
+} from "@/components/ui/radio-button-group";
 import { formatCurrencyBRL, stringToNumber } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import {
+  BadgeCheck,
+  Banknote,
+  CreditCard,
+  Loader2,
+  Motorbike,
+  Store,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { createOrderFormSchema } from "./schemas";
+import { SiPix } from "@icons-pack/react-simple-icons";
 
 export function Summary({
   form,
@@ -61,68 +72,54 @@ export function Summary({
           name="type"
           render={({ field }) => (
             <FormItem className="space-y-2">
-              <FormLabel>Tipo de pedido</FormLabel>
               <FormControl>
-                <RadioGroup
+                <RadioButtonGroup
+                  value={field.value}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-row space-x-4"
+                  orientation="horizontal"
                 >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="DELIVERY" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Entrega</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="TAKEOUT" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Retirada</FormLabel>
-                  </FormItem>
-                </RadioGroup>
+                  <RadioButtonGroupItem value="DELIVERY">
+                    <Motorbike /> Entrega
+                  </RadioButtonGroupItem>
+                  <RadioButtonGroupItem value="TAKEOUT">
+                    <Store /> Retirada
+                  </RadioButtonGroupItem>
+                </RadioButtonGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="payment_type"
           render={({ field }) => (
             <FormItem className="space-y-2">
-              <FormLabel>Forma de pagamento</FormLabel>
               <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
+                <RadioButtonGroup
                   value={field.value}
-                  className="flex flex-row space-x-4"
+                  onValueChange={field.onChange}
+                  orientation="horizontal"
+                  className="flex-wrap"
                 >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="PIX" />
-                    </FormControl>
-                    <FormLabel className="font-normal">PIX</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="CREDIT" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Cartão</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="CASH" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Dinheiro</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="PAID" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Pago</FormLabel>
-                  </FormItem>
-                </RadioGroup>
+                  <RadioButtonGroupItem value="PIX">
+                    <SiPix className="w-4 h-4" />
+                    PIX
+                  </RadioButtonGroupItem>
+                  <RadioButtonGroupItem value="CREDIT">
+                    <CreditCard />
+                    Cartão
+                  </RadioButtonGroupItem>
+                  <RadioButtonGroupItem value="CASH">
+                    <Banknote />
+                    Dinheiro
+                  </RadioButtonGroupItem>
+                  <RadioButtonGroupItem value="PAID">
+                    <BadgeCheck />
+                    Pago
+                  </RadioButtonGroupItem>
+                </RadioButtonGroup>
               </FormControl>
               <FormMessage />
             </FormItem>

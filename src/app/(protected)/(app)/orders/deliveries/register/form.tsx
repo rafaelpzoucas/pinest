@@ -210,7 +210,16 @@ export function CreateOrderForm({
       return;
     }
 
-    createMutation.mutate(values);
+    createMutation.mutate({
+      ...values,
+      total: {
+        ...values.total,
+        change_value:
+          values.payment_type === "CASH"
+            ? values.total.change_value
+            : undefined,
+      },
+    });
   }
 
   const orderItems = useWatch({
