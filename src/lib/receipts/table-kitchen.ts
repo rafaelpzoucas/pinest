@@ -14,13 +14,18 @@ export function buildReceiptTableESCPOS(
     ? table.order_items
     : table.order_items.filter((item) => !item.printed);
 
-  const r = receipt(profile)
+  let r = receipt(profile)
     .left()
     .strong()
     .h3(`${reprint ? "REIMPRESSÃO - " : ""}COZINHA`)
     .endStrong()
-    .br()
-    .h2(`Ident: ${table.description.toUpperCase()}`)
+    .br();
+
+  if (table.description) {
+    r = r.h2(`Ident: ${table.description.toUpperCase()}`);
+  }
+
+  r = r
     .hr()
     .strong()
     .h2(`MESA #${displayId}`)
